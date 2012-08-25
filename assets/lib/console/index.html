@@ -1,0 +1,21 @@
+<html>
+<head>
+<title>Droiuby Console</title>
+<link href="style.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="cmdline.js"></script>
+</head>
+<body >
+	<p>Droiuby Console</p>
+	<section  id="output"></section>
+	<form id="console" action="#" method="post">
+		<input id="command" placeholder="?" type=text value=""  autocomplete="off" />
+		<input id="toggle_multiline" class="enabled" type=button value="multiline"/>
+		<div id="multiline_section" class="disabled">
+			<textarea id="command_multiline" rows="10" cols="100"></textarea>
+			<input id="submit" class='submit' type=button value="submit"/>
+		</div>
+	</form>
+</body>
+</html>
+

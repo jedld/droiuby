@@ -1,0 +1,7 @@
+<app_descriptor>
+    <name>Hello World App</name>
+    <description>An android active app that displays hello world!!!</description>
+    <launcher_icon>http://www.android.com/images/brand/droid.gif</launcher_icon>
+    <base_url>asset:hello_world/</base_url>
+    <main>main.xml</main>
+</app_descriptor>

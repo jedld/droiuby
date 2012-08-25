@@ -1,0 +1,11 @@
+<activity controller="main.rb">
+    <layout type="linear" width="match">
+        <t class="exclamation text" > what!!!!</t>
+        <t size="20">Different font size</t>
+        <t size="18">Different font size</t>
+        <input id="test_field" value="This is a text field"></input>
+        <button id='test_button' width="match">test</button>
+        <button alpha="0.5" width="match">test</button>
+        <img src="http://upload.wikimedia.org/wikipedia/commons/d/d7/Android_robot.svg"/>
+    </layout>
+</activity>

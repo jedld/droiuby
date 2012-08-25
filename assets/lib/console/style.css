@@ -1,0 +1,60 @@
+.command, .result, #command, .error {
+	font-size: 120%; 
+	font-family: monospace;
+	margin-left: 10px;
+	white-space: pre;
+}
+
+.command {
+	font-weight: bold;
+	margin-top: 5px;
+}
+
+.error {
+	color: red;
+}
+
+#command {
+	width: 100%;
+	font-size: 120%;
+	border: none;
+	font-family: monospace;
+	font-weight: bold;
+	margin-left: 10px;
+}
+
+#command.disabled {
+	display: none;
+}
+
+input#command:focus {
+    outline-width: 0;
+}
+
+input#toggle_multiline {
+	background-color: blue;
+	color: white;
+	border: none;
+	float: left;
+	width: 65px
+}
+
+input#toggle_multiline.disabled {
+	background-color: gray;
+	color: black;
+}
+
+textarea#command_multiline {
+	
+}
+
+#multiline_section.disabled {
+	display: none;
+}
+
+input.submit {
+	display: block;
+	margin-left: 65px;
+	border: none;
+	font-size: 120%;
+}
