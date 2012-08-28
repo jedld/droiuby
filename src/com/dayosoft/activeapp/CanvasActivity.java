@@ -1,20 +1,16 @@
 package com.dayosoft.activeapp;
 
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jdom2.Document;
 import org.jruby.CompatVersion;
 import org.jruby.RubyInstanceConfig.CompileMode;
-import org.jruby.embed.LocalContextScope;
 import org.jruby.embed.LocalVariableBehavior;
 import org.jruby.embed.ScriptingContainer;
 
+import com.dayosoft.activeapp.core.ActiveApp;
 import com.dayosoft.activeapp.core.AppCache;
 import com.dayosoft.activeapp.core.ExecutionBundle;
 import com.dayosoft.activeapp.core.RubyContainerPayload;
@@ -23,17 +19,13 @@ import com.dayosoft.activeapp.utils.ActiveAppDownloader;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ContextMenu.ContextMenuInfo;
-import android.widget.AdapterView.AdapterContextMenuInfo;
 
 public class CanvasActivity extends Activity {
 	/** Called when the activity is first created. */
-	String applicationUrl;
+	ActiveApp application;
 	AppCache cache;
 	ExecutionBundle executionBundle;
 	ActiveAppDownloader downloader;
@@ -47,7 +39,7 @@ public class CanvasActivity extends Activity {
 
 		payload.setCurrentActivity(this);
 		payload.setContainer(container);
-
+		container.setObjectSpaceEnabled(false);
 		container.setCompatVersion(CompatVersion.RUBY1_9);
 		container.setCompileMode(CompileMode.OFF);
 		try {
@@ -75,14 +67,14 @@ public class CanvasActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.canvas);
 		Bundle params = this.getIntent().getExtras();
-		applicationUrl = params.getString("url");
+		ActiveApp application = (ActiveApp) params.getSerializable("application");
 		Log.d(this.getClass().toString(), "Loading application at "
-				+ applicationUrl);
+				+ application.getName());
 		final AppCache cache = (AppCache) getLastNonConfigurationInstance();
 
 		executionBundle = getNewScriptingContainer();
 
-		downloader = new ActiveAppDownloader(applicationUrl, this, cache,
+		downloader = new ActiveAppDownloader(application, this, cache,
 				executionBundle);
 
 		downloader.execute();
@@ -110,6 +102,7 @@ public class CanvasActivity extends Activity {
 		setupConsole();
 	}
 
+	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		// Handle item selection
 		switch (item.getItemId()) {
@@ -117,7 +110,7 @@ public class CanvasActivity extends Activity {
 
 			executionBundle = getNewScriptingContainer();
 
-			downloader = new ActiveAppDownloader(applicationUrl, this, null,
+			downloader = new ActiveAppDownloader(application, this, null,
 					executionBundle);
 			downloader.execute();
 			break;
@@ -132,7 +125,7 @@ public class CanvasActivity extends Activity {
 		switch (item.getItemId()) {
 		case R.id.itemRefresh:
 			executionBundle = getNewScriptingContainer();
-			downloader = new ActiveAppDownloader(applicationUrl, this, null,
+			downloader = new ActiveAppDownloader(application, this, null,
 					executionBundle);
 			downloader.execute();
 			break;

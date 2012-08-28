@@ -67,6 +67,20 @@ public class ActivityBuilder {
 
 	}
 
+	public View findViewByName(String selector) {
+		selector = selector.trim();
+		if (selector.startsWith("#")) {
+			String name = selector.substring(1);
+			int id = namedViewDictionary.get(name);
+			return context.findViewById(id);
+		} else if (selector.startsWith("@")) {
+			String name = selector.substring(1);
+			int id = getDrawable(name);
+			return context.findViewById(id);
+		}
+		return null;
+	}
+
 	public void parsePartial(ViewGroup view, String partial) {
 
 	}

@@ -1,6 +1,0 @@
-# view AndroidManifest.xml #generated:12
--keep class com.dayosoft.activeapp.CanvasActivity { <init>(...); }
-
-# view AndroidManifest.xml #generated:14
--keep class com.dayosoft.activeapp.MainActivity { <init>(...); }
-

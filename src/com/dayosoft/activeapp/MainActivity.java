@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import com.dayosoft.activeapp.core.ActiveApp;
 import com.dayosoft.activeapp.utils.ActiveAppDownloader;
 import com.dayosoft.activeapp.utils.Utils;
 
@@ -20,6 +21,42 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+
+class AppDownloader extends AsyncTask<Void, Void, ActiveApp> {
+	String url;
+	Context c;
+	private ProgressDialog progress_dialog;
+
+	public AppDownloader(Context c, String url) {
+		this.c = c;
+		this.url = url;
+	}
+
+	@Override
+	protected void onPreExecute() {
+		// TODO Auto-generated method stub
+		super.onPreExecute();
+		progress_dialog = ProgressDialog.show(c, "", "Querying application configuration...",
+				true);
+	}
+
+	@Override
+	protected ActiveApp doInBackground(Void... params) {
+		return ActiveAppDownloader.loadApp(c, url);
+	}
+
+	@Override
+	protected void onPostExecute(ActiveApp result) {
+		super.onPostExecute(result);
+		if (progress_dialog != null) {
+			progress_dialog.dismiss();
+		}
+		Intent intent = new Intent(c, CanvasActivity.class);
+		intent.putExtra("application", result);
+		c.startActivity(intent);
+	}
+
+}
 
 class InitializeLibrary extends AsyncTask<Void, Void, Void> {
 	ProgressDialog progress_dialog;
@@ -95,9 +132,9 @@ public class MainActivity extends Activity implements OnClickListener {
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.buttonRun:
-			Intent intent = new Intent(this, CanvasActivity.class);
-			intent.putExtra("url", applicationURL.getText().toString());
-			this.startActivity(intent);
+			AppDownloader downloader = new AppDownloader(this, applicationURL
+					.getText().toString());
+			downloader.execute();
 		}
 
 	}

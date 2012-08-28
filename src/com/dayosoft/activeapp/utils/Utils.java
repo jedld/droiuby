@@ -102,6 +102,7 @@ public class Utils {
 	}
 
 	public static String query(String url) {
+		Log.d(Utils.class.toString(),"query url = " + url);
 		HttpClient httpclient = new DefaultHttpClient();
 		HttpGet request = new HttpGet(url);
 		request.setHeader("User-Agent", "Droiuby/1.0 (Android)");

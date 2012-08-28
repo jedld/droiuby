@@ -32,6 +32,7 @@ import com.dayosoft.activeapp.core.ExecutionBundle;
 import com.dayosoft.activeapp.core.RubyContainerPayload;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.res.AssetManager;
 import android.os.AsyncTask;
 import android.os.Environment;
@@ -41,7 +42,6 @@ import android.widget.Toast;
 
 public class ActiveAppDownloader extends AsyncTask<Void, Void, Void> {
 
-	String url;
 	String baseUrl;
 	Activity targetActivity;
 	ActiveApp app;
@@ -61,11 +61,11 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Void> {
 
 	SAXBuilder sax = new SAXBuilder();
 
-	public ActiveAppDownloader(String url, Activity targetActivity,
+	public ActiveAppDownloader(ActiveApp app, Activity targetActivity,
 			AppCache cache, ExecutionBundle executionBundle) {
-		this.url = url;
 		this.targetActivity = targetActivity;
-
+		this.app = app;
+		this.baseUrl = app.getBaseUrl();
 		this.scriptingContainer = executionBundle.getContainer();
 		this.payload = executionBundle.getPayload();
 
@@ -114,11 +114,11 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Void> {
 	}
 
 	public String loadAsset(String asset_name) {
-		if (url.indexOf("asset:") != -1) {
+		if (baseUrl.indexOf("asset:") != -1) {
 			return Utils.loadAsset(targetActivity, baseUrl + asset_name);
-		} else if (url.indexOf("file:") != -1) {
+		} else if (baseUrl.indexOf("file:") != -1) {
 			return Utils.loadFile(asset_name);
-		} else if (url.indexOf("sdcard:") != -1) {
+		} else if (baseUrl.indexOf("sdcard:") != -1) {
 			File directory = Environment.getExternalStorageDirectory();
 			try {
 				String asset_path = directory.getCanonicalPath() + asset_name;
@@ -133,33 +133,46 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Void> {
 		}
 	}
 
+	public static ActiveApp loadApp(Context c, String url) {
+		String responseBody = null;
+		Log.d(ActiveAppDownloader.class.toString(), "loading " + url);
+		if (url.indexOf("asset:") != -1) {
+			responseBody = Utils.loadAsset(c, url);
+		} else {
+			responseBody = Utils.query(url);
+		}
+
+		Log.d(ActiveAppDownloader.class.toString(), responseBody);
+		SAXBuilder sax = new SAXBuilder();
+		Document doc;
+		try {
+			doc = sax.build(new StringReader(responseBody));
+			Element rootElem = doc.getRootElement();
+			String appName = rootElem.getChild("name").getText();
+			String appDescription = rootElem.getChild("description").getText();
+			String baseUrl = rootElem.getChildText("base_url");
+			String mainActivity = rootElem.getChildText("main");
+			ActiveApp app = new ActiveApp();
+			app.setDescription(appDescription);
+			app.setName(appName);
+			app.setBaseUrl(baseUrl);
+			app.setMainUrl(mainActivity);
+			return app;
+		} catch (JDOMException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 	public void download() {
 
 		try {
 			if (this.mainActivityDocument == null) {
-				String responseBody = null;
-				Log.d(this.getClass().toString(), "loading " + url);
-				if (url.indexOf("asset:") != -1) {
-					responseBody = Utils.loadAsset(targetActivity, url);
-				} else {
-					responseBody = Utils.query(url);
-				}
-
-				Log.d(this.getClass().toString(), responseBody);
-				Document doc = sax.build(new StringReader(responseBody));
-				rootElem = doc.getRootElement();
-				String appName = rootElem.getChild("name").getText();
-				String appDescription = rootElem.getChild("description")
-						.getText();
-				baseUrl = rootElem.getChildText("base_url");
-				String mainActivity = rootElem.getChildText("main");
-				app = new ActiveApp();
-				app.setDescription(appDescription);
-				app.setName(appName);
-				app.setBaseUrl(baseUrl);
-				app.setMainUrl(mainActivity);
-
-				responseBody = loadAsset(mainActivity);
+				String responseBody = loadAsset(app.getMainUrl());
 				Log.d(this.getClass().toString(), responseBody);
 				mainActivityDocument = sax
 						.build(new StringReader(responseBody));
@@ -172,8 +185,8 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Void> {
 
 			try {
 				AssetManager manager = targetActivity.getAssets();
-				evalUnits.add(scriptingContainer.parse(
-						manager.open("lib/bootstrap.rb"), "lib/bootstrap.rb"));
+				scriptingContainer.parse(
+						manager.open("lib/bootstrap.rb"), "lib/bootstrap.rb").run();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -217,9 +230,12 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Void> {
 
 		try {
 			for (EmbedEvalUnit evalUnit : evalUnits) {
+				long start = System.currentTimeMillis();
 				evalUnit.run();
+				long elapsed = System.currentTimeMillis() - start;
+				Log.d(this.getClass().toString(),
+						"ruby segment: elapsed time = " + elapsed + "ms");
 			}
-
 			scriptingContainer
 					.runScriptlet("$main_activty = MainActivity.new; $main_activty.on_create");
 		} catch (EvalFailedException e) {

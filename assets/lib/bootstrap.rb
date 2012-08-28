@@ -99,23 +99,7 @@ class EditTextWrapper < ViewWrapper
 end
 
 def V(selectors)
-  view = nil
-  selectors.split(' ').each do |selector|
-    if selector[0] == '#'
-      selector = selector[1..selector.length]
-      dictionary = $current_activity_builder.getNamedViewDictionary
-      id = dictionary.get(selector)
-      puts "wrapping #{selector} -> #{id}"
-      view = $current_activity.findViewById(id)
-    elsif selector[0] == '.'
-      selector = selector[1..selector.length]
-      dictionary = $current_activity_builder.getClassViewDictionary
-      id = dictionary.get(selector)
-      puts "wrapping #{selector} -> #{id}"
-      view = $current_activity.findViewById(id)
-    end
-  end
-  
+  view = $current_activity_builder.findViewByName(selectors)
   if (view.class == Java::android.widget.TextView)
     TextViewWrapper.new(view)
   elsif (view.class == Java::android.widget.EditText)
