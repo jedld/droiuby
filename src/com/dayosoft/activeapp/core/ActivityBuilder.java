@@ -1,5 +1,7 @@
 package com.dayosoft.activeapp.core;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -8,6 +10,8 @@ import java.util.StringTokenizer;
 
 import org.jdom2.Document;
 import org.jdom2.Element;
+import org.jdom2.JDOMException;
+import org.jdom2.input.SAXBuilder;
 
 import com.dayosoft.activeapp.R;
 import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
@@ -29,8 +33,11 @@ import android.widget.TextView;
 
 public class ActivityBuilder {
 
+	public static final int PARTIAL_REPLACE = 1;
+	public static final int PARTIAL_REPLACE_CHILDREN = 2;
 	Activity context;
 	Element rootElement;
+	ViewGroup target;
 	HashMap<String, Integer> namedViewDictionary = new HashMap<String, Integer>();
 	HashMap<String, ArrayList<Integer>> classViewDictionary = new HashMap<String, ArrayList<Integer>>();
 
@@ -55,12 +62,18 @@ public class ActivityBuilder {
 	public ActivityBuilder(Document document, Activity context) {
 		this.context = context;
 		this.rootElement = document.getRootElement();
+		this.target = (ViewGroup) context.findViewById(R.id.mainLayout);
+	}
+
+	public ActivityBuilder(Document document, Activity context, ViewGroup target) {
+		this.target = target;
+		this.context = context;
+		this.rootElement = document.getRootElement();
 	}
 
 	public void build() {
-		ViewGroup view = (ViewGroup) context.findViewById(R.id.mainLayout);
-		view.removeAllViews();
-		parse(rootElement, view);
+		target.removeAllViews();
+		parse(rootElement, target);
 	}
 
 	public void setMargins(View v, Element e) {
@@ -81,8 +94,27 @@ public class ActivityBuilder {
 		return null;
 	}
 
-	public void parsePartial(ViewGroup view, String partial) {
+	public void parsePartialReplaceChildren(ViewGroup view, String partial) {
+		parsePartial(view, partial, PARTIAL_REPLACE_CHILDREN);
+	}
 
+	public void parsePartial(ViewGroup view, String partial, int operation) {
+		SAXBuilder sax = new SAXBuilder();
+		try {
+			Document doc = sax.build(new StringReader("<partial>" + partial
+					+ "</partial>"));
+			Element e = doc.getRootElement();
+			if (operation == PARTIAL_REPLACE_CHILDREN) {
+				view.removeAllViews();
+				parse(e, view);
+			}
+		} catch (JDOMException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	public void setAlpha(View v, Element e) {
@@ -277,7 +309,16 @@ public class ActivityBuilder {
 		List<Element> elems = element.getChildren();
 		for (Element e : elems) {
 			String elemName = e.getName().toLowerCase();
-			if (elemName.equals("layout")) {
+			if (elemName.equals("div") || elemName.equals("span")) {
+				FrameLayout layout = new FrameLayout(context);
+				if ((e.getAttributeValue("foreground_gravity") != null)) {
+					int gravity = Integer.parseInt(e
+							.getAttributeValue("foreground_gravity"));
+					layout.setForegroundGravity(gravity);
+				}
+				registerView(view, layout, e);
+				parse(e, layout);
+			} else if (elemName.equals("layout")) {
 				String type = e.getAttributeValue("type").toLowerCase();
 				if (type.equals("frame")) {
 					FrameLayout layout = new FrameLayout(context);
@@ -332,7 +373,7 @@ public class ActivityBuilder {
 				String src = e.getAttributeValue("src");
 
 				if (src != null) {
-					if (src.indexOf("@drawable:") != -1) {
+					if (src.startsWith("@drawable:")) {
 						String drawable = src.substring(10);
 						int resId = getDrawable(drawable);
 						if (resId != 0) {

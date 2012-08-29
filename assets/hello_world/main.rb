@@ -3,9 +3,10 @@ def on_create
   puts "Access to current activity = #{$current_activity.getClass.toString}"
 end
 
-on_click('#test_button') do
-  puts 'test_button was clicked!!!!!!' 
-  toast 'tset_button was clicked!!!' 
+on_click('#test_button') do |v|
+  puts "test_button #{v.id} was clicked!!!!!!" 
+  toast 'tset_button was clicked!!!'
+  V('#section').inner = '<t size="20">Clicked!!!!</t>' 
 end
 
 

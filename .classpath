@@ -14,7 +14,6 @@
 	<classpathentry exported="true" kind="lib" path="/home/dev/workspace/droiuby/lib/jcodings.jar"/>
 	<classpathentry exported="true" kind="lib" path="/home/dev/workspace/droiuby/lib/jdom-2.0.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="/home/dev/workspace/droiuby/lib/jnr-constants.jar"/>
-	<classpathentry exported="true" kind="lib" path="/home/dev/workspace/droiuby/lib/jnr-ffi.jar"/>
 	<classpathentry exported="true" kind="lib" path="/home/dev/workspace/droiuby/lib/jnr-posix.jar"/>
 	<classpathentry exported="true" kind="lib" path="/home/dev/workspace/droiuby/lib/joda-time-2.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="/home/dev/workspace/droiuby/lib/joni.jar"/>
@@ -22,5 +21,7 @@
 	<classpathentry exported="true" kind="lib" path="/home/dev/workspace/droiuby/lib/parser.jar"/>
 	<classpathentry kind="lib" path="/home/dev/workspace/droiuby/lib/xml-apis.jar"/>
 	<classpathentry exported="true" kind="lib" path="/home/dev/workspace/droiuby/lib/yydebug.jar"/>
+	<classpathentry exported="true" kind="lib" path="/home/dev/workspace/droiuby/lib/jnr-ffi.jar"/>
+	<classpathentry exported="true" kind="lib" path="/home/dev/workspace/droiuby/lib/svg-android-1.1.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

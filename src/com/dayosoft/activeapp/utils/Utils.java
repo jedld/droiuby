@@ -19,19 +19,10 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.jruby.CompatVersion;
-import org.jruby.Ruby;
-import org.jruby.RubyIO;
-import org.jruby.RubyInstanceConfig;
-import org.jruby.RubyInstanceConfig.CompileMode;
 import org.jruby.embed.EmbedEvalUnit;
 import org.jruby.embed.LocalContextScope;
 import org.jruby.embed.LocalVariableBehavior;
 import org.jruby.embed.ScriptingContainer;
-import org.jruby.internal.runtime.GlobalVariables;
-import org.jruby.javasupport.JavaObject;
-import org.jruby.parser.Parser;
-import org.jruby.runtime.DynamicScope;
-import org.jruby.runtime.builtin.IRubyObject;
 
 import android.app.Activity;
 import android.content.Context;
@@ -44,7 +35,6 @@ public class Utils {
 		ScriptingContainer container = new ScriptingContainer(
 				LocalContextScope.CONCURRENT, LocalVariableBehavior.TRANSIENT);
 		container.setCompatVersion(CompatVersion.RUBY1_9);
-		container.setCompileMode(CompileMode.OFF);
 		return evalRuby(container, statement, activity);
 	}
 

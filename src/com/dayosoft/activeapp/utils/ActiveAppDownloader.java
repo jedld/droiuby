@@ -37,6 +37,7 @@ import android.content.res.AssetManager;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -62,7 +63,7 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Void> {
 	SAXBuilder sax = new SAXBuilder();
 
 	public ActiveAppDownloader(ActiveApp app, Activity targetActivity,
-			AppCache cache, ExecutionBundle executionBundle) {
+			ViewGroup target, AppCache cache, ExecutionBundle executionBundle) {
 		this.targetActivity = targetActivity;
 		this.app = app;
 		this.baseUrl = app.getBaseUrl();

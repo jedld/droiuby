@@ -73,7 +73,12 @@ class ViewWrapper
 end
 
 class ViewGroupWrapper < ViewWrapper
-  
+  def inner=(markup)
+    $current_activity_builder.parsePartialReplaceChildren(@view,markup)
+  end
+end
+
+class LinearLayoutWrapper < ViewGroupWrapper
 end
 
 class TextViewWrapper < ViewWrapper
@@ -98,15 +103,24 @@ class EditTextWrapper < ViewWrapper
   end
 end
 
+def wrap_native_view(view)
+  return nil unless view
+  if (view.class == Java::android.widget.TextView)
+      TextViewWrapper.new(view)
+    elsif (view.class == Java::android.widget.EditText)
+      EditTextWrapper.new(view)
+    elsif (view.class == Java::android.widget.LinearLayout)
+      LinearLayoutWrapper.new(view)
+    elsif (view.class < Java::android.view.ViewGroup)
+      ViewGroupWrapper.new(view)
+    else
+      ViewWrapper.new(view)
+    end
+end
+
 def V(selectors)
   view = $current_activity_builder.findViewByName(selectors)
-  if (view.class == Java::android.widget.TextView)
-    TextViewWrapper.new(view)
-  elsif (view.class == Java::android.widget.EditText)
-    EditTextWrapper.new(view)
-  else
-    ViewWrapper.new(view)
-  end
+  wrap_native_view(view)
 end
 
 class ActivityWrapper
@@ -122,8 +136,8 @@ class ActivityWrapper
       view = V(name).tap { |v|
         v.native.setOnClickListener(Java::com.dayosoft.activeapp.core.OnClickListenerBridge.new($scripting_container, v.id))
       }
-      define_method("on_click_listener_for_#{view.id.to_s}".to_sym) do
-        $main_activty.instance_exec &block
+      define_method("on_click_listener_for_#{view.id.to_s}".to_sym) do |n_view|
+        $main_activty.instance_exec(wrap_native_view(n_view),&block)
       end
     end
   end

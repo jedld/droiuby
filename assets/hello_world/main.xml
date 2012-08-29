@@ -6,6 +6,7 @@
         <input id="test_field" value="This is a text field"></input>
         <button id='test_button' width="match">test</button>
         <button alpha="0.5" width="match">test</button>
-        <img src="http://upload.wikimedia.org/wikipedia/commons/d/d7/Android_robot.svg"/>
+        <img src="http://upload.wikimedia.org/wikipedia/en/a/a5/Android-logo.jpg" width="100"/>
+        <div id="section"></div>
     </layout>
 </activity>
