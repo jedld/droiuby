@@ -18,6 +18,7 @@ import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
 
 import android.app.Activity;
 import android.text.Layout;
+import android.text.method.PasswordTransformationMethod;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -363,6 +364,30 @@ public class ActivityBuilder {
 				registerView(view, button, e);
 			} else if (elemName.equals("input")) {
 				EditText editText = new EditText(context);
+
+				String hint = e.getAttributeValue("hint");
+				if (hint != null) {
+					editText.setHint(hint);
+				}
+
+				String color = e.getAttributeValue("color");
+				if (color != null) {
+					if (color.startsWith("#")) {
+						color = color.substring(1);
+					}
+					int val = Integer.parseInt(color, 16);
+					editText.setTextColor(val);
+				}
+
+				
+				String type = e.getAttributeValue("type");
+				if (type != null) {
+					if (type.equals("password")) {
+						editText.setTransformationMethod(PasswordTransformationMethod
+								.getInstance());
+					}
+				}
+
 				String value = e.getAttributeValue("value");
 				if (value != null) {
 					editText.setText(value);

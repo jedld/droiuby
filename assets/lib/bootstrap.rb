@@ -1,107 +1,17 @@
 puts 'initializing bootstrap'
 
 require 'json'
+require 'droiuby/wrappers/view_group_wrapper'
+require 'droiuby/wrappers/linear_layout'
+require 'droiuby/wrappers/text_view'
+require 'droiuby/wrappers/edit_text'
+
 
 $current_activity = container_payload.getCurrentActivity
 $current_activity_builder = container_payload.getActivityBuilder
 $scripting_container = container_payload.getContainer
 
 puts $current_activity.getClass.toString
-
-#wraps a generic view
-class ViewWrapper
-  def initialize(view)
-    @view = view
-  end
-
-  def id
-    @view.getId
-  end
-
-  def native
-    @view
-  end
-  
-  def gone=(flag)
-      @view.setVisibility(Java::android.view.View::GONE) if flag
-  end
-  
-  def gone?
-    @view.getVisibility == Java::android.view.View::GONE
-  end
-  
-  def visible=(flag)
-    @view.setVisibility(flag ? Java::android.view.View::VISIBLE : Java::android.view.View::INVISIBLE)
-  end
-  
-  def visible?
-    @view.getVisibility == Java::android.view.View::VISIBLE
-  end
-  
-  def enabled=(flag)
-    @view.setEnabled(flag)
-  end
-  
-  def enabled?
-    @view.isEnabled
-  end
-  
-  def rotation
-    @view.getRotation
-  end
-  
-  def rotation=(rotation)
-    @view.setRotation(rotation)
-  end
-  
-  def pivot_x
-    @view.getPivotX
-  end
-  
-  def pivot_x=(pivot)
-    @view.setPivotX(pivot)
-  end
-  
-  def pivot_y
-    @view.getPivotY
-  end
-  
-  def pivot_y=(pivot)
-    @view.setPivotY(pivot)
-  end
-  
-end
-
-class ViewGroupWrapper < ViewWrapper
-  def inner=(markup)
-    $current_activity_builder.parsePartialReplaceChildren(@view,markup)
-  end
-end
-
-class LinearLayoutWrapper < ViewGroupWrapper
-end
-
-class TextViewWrapper < ViewWrapper
-  
-  def text=(text)
-      @view.setText(text)
-  end
-  
-  def text
-      @view.getText
-  end
-end
-
-class EditTextWrapper < ViewWrapper
-  
-  def text=(text)
-      @view.setText(text)
-  end
-  
-  def text
-      @view.getText.toString
-  end
-end
 
 def wrap_native_view(view)
   return nil unless view

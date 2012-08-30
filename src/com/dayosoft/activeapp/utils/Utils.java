@@ -9,9 +9,15 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import org.apache.http.Header;
+import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
@@ -26,7 +32,47 @@ import org.jruby.embed.ScriptingContainer;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
+import android.view.WindowManager;
+
+class DroiubyHttpResponseHandler extends BasicResponseHandler {
+
+	Context context;
+	URL requestURL;
+
+	public DroiubyHttpResponseHandler(String url, Context context) {
+		try {
+			requestURL = new URL(url);
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		this.context = context;
+	}
+
+	public String handleResponse(HttpResponse response)
+			throws ClientProtocolException, IOException {
+		String responseBody = super.handleResponse(response);
+		Header headers[] = response.getHeaders("Set-Cookie");
+		SharedPreferences prefs = context.getSharedPreferences("cookie_"
+				+ requestURL.getProtocol() + "_" + requestURL.getHost(),
+				context.MODE_PRIVATE);
+		Editor edit = prefs.edit();
+		for (Header header : headers) {
+			String name = header.getName();
+			String value = header.getValue();
+			Log.d(this.getClass().toString(), "Setting coookie " + name + " = " + value);
+			edit.putString(name, value);
+		}
+		edit.apply();
+		return responseBody;
+	}
+
+}
 
 public class Utils {
 
@@ -91,19 +137,52 @@ public class Utils {
 		return null;
 	}
 
-	public static String query(String url) {
-		Log.d(Utils.class.toString(),"query url = " + url);
+	public static String query(String url, Context c) {
+		Log.d(Utils.class.toString(), "query url = " + url);
 		HttpClient httpclient = new DefaultHttpClient();
 		HttpGet request = new HttpGet(url);
-		request.setHeader("User-Agent", "Droiuby/1.0 (Android)");
-		ResponseHandler<String> responseHandler = new BasicResponseHandler();
+		
+		URL parsedURL = null;
 		try {
-			return httpclient.execute(request, responseHandler);
+			parsedURL = new URL(url);
+		} catch (MalformedURLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		SharedPreferences prefs = c.getSharedPreferences("cookie_"
+				+ parsedURL.getProtocol() + "_" + parsedURL.getHost(),
+				c.MODE_PRIVATE);
+		Map<String,?> items =  prefs.getAll();
+		StringBuffer cookie = new StringBuffer();
+		for(Entry<String, ?> entry :items.entrySet()) {
+			cookie.append(entry.getKey() + "=" + entry.getValue()+";");
+		}
+		request.setHeader("Cookie", cookie.toString());
+		Log.d(Utils.class.toString(), "setting cookie = "+ cookie.toString());
+		request.setHeader("User-Agent", "Droiuby/1.0 (Android)");
+		WindowManager wm = (WindowManager) c.getSystemService(Context.WINDOW_SERVICE);
+		Display display = wm.getDefaultDisplay();
+		DisplayMetrics metrics = new DisplayMetrics(); 
+		display.getMetrics(metrics);
+		request.setHeader("Droiuby-Height", Integer.toString(metrics.heightPixels));
+		request.setHeader("Droiuby-Width",Integer.toString(metrics.widthPixels));
+		request.setHeader("Droiuby-Density",Float.toString(metrics.density));
+		request.setHeader("Droiuby-Dpi",Integer.toString(metrics.densityDpi));
+		request.setHeader("Droiuby-OS","android " + Integer.valueOf(android.os.Build.VERSION.SDK_INT));
+		ResponseHandler<String> responseHandler = new DroiubyHttpResponseHandler(
+				url, c);
+		try {
+			String responseString = httpclient
+					.execute(request, responseHandler);
+
+			return responseString;
 		} catch (ClientProtocolException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
@@ -125,7 +204,7 @@ public class Utils {
 				Log.d(Utils.class.toString(), "processing " + filename);
 				if (ze.isDirectory()) {
 					File dir = new File(outputdir + filename);
-					
+
 					dir.mkdirs();
 				} else {
 					FileOutputStream fout = new FileOutputStream(outputdir
@@ -136,7 +215,6 @@ public class Utils {
 					}
 					fout.close();
 				}
-
 
 				zis.closeEntry();
 			}

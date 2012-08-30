@@ -1,10 +1,12 @@
 package com.dayosoft.activeapp;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.widget.Toast;
 
 import com.dayosoft.activeapp.core.ActiveApp;
 import com.dayosoft.activeapp.core.DroiubyActivity;
@@ -38,12 +40,18 @@ public class AppDownloader extends AsyncTask<Void, Void, ActiveApp> {
 	@Override
 	protected void onPostExecute(ActiveApp result) {
 		super.onPostExecute(result);
+		
 		if (progress_dialog != null) {
 			progress_dialog.dismiss();
 		}
-		Intent intent = new Intent(c, activityClass);
-		intent.putExtra("application", result);
-		c.startActivity(intent);
+		if (result!=null) {
+			Intent intent = new Intent(c, activityClass);
+			intent.putExtra("application", result);
+			c.startActivity(intent);
+		} else {
+			AlertDialog.Builder builder = new AlertDialog.Builder(c);
+			builder.setMessage("Unable to download access app at " + url).setCancelable(true).create();
+		}
 	}
 
 }
