@@ -20,8 +20,12 @@ class ViewWrapper
      
   end
   
-  def initialize(view)
-    @view = view
+  def initialize(view = nil)
+    unless view.nil?
+      @view = view
+    else
+      @view = Java::android.view.View.new
+    end
   end
 
   def id
@@ -46,6 +50,14 @@ class ViewWrapper
   
   def visible?
     @view.getVisibility == Java::android.view.View::VISIBLE
+  end
+  
+  def alpha
+    @view.getAlpha
+  end
+  
+  def alpha=(a)
+    @view.setAlpha(a)
   end
   
   def enabled=(flag)
@@ -80,10 +92,49 @@ class ViewWrapper
     @view.setPivotY(pivot)
   end
   
+  def translation_x=(translation)
+    @view.setTranslationX(translation)
+  end
+  
+  def translation_x
+    @view.getTranslationX
+  end
+  
+  def translation_y=(translation)
+    @view.setTranslationY(translation)
+  end
+  
+  def translation_y
+    @view.getTranslationY
+  end
+  
+  def scale_x
+    @view.getScaleX
+  end
+  
+  def scale_x=(scale)
+    @view.setScaleX(scale)
+  end
+  
+  def scale_y
+    @view.getScaleY
+  end
+  
+  def scale_y=(scale)
+    @view.setScaleY(scale)
+  end
+  
   def animate(&block)
     animator = Animator.new(self)
     block.call(animator)
     animator.start
   end
   
+  def to_native(target)
+    if child.kind_of? ViewWrapper
+      target.native
+    elsif target.kind_of? Java::android.view.View.new
+      target
+    end
+  end
 end

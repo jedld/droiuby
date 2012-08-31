@@ -25,6 +25,7 @@ droiuby = {
 								data) {
 							var command = data['cmd'];
 							var result = data['result'];
+							droiuby.pointer = null;
 							$('#output')
 									.append(
 											"<div class='command'>"

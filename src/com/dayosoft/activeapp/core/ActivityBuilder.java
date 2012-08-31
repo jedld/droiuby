@@ -36,6 +36,8 @@ public class ActivityBuilder {
 
 	public static final int PARTIAL_REPLACE = 1;
 	public static final int PARTIAL_REPLACE_CHILDREN = 2;
+	public static final int PARTIAL_APPEND_CHILDREN = 3;
+
 	Activity context;
 	Element rootElement;
 	ViewGroup target;
@@ -85,20 +87,34 @@ public class ActivityBuilder {
 		selector = selector.trim();
 		if (selector.startsWith("#")) {
 			String name = selector.substring(1);
-			int id = namedViewDictionary.get(name);
-			return context.findViewById(id);
+			if (namedViewDictionary.containsKey(name)) {
+				int id = namedViewDictionary.get(name);
+				return context.findViewById(id);
+			}
+			return null;
 		} else if (selector.startsWith("@")) {
 			String name = selector.substring(1);
 			int id = getDrawable(name);
 			return context.findViewById(id);
+		} else {
+			String name = selector.substring(1);
+			int id = getDrawable(name);
+			return context.findViewById(id);
 		}
-		return null;
 	}
 
 	public void parsePartialReplaceChildren(ViewGroup view, String partial) {
 		parsePartial(view, partial, PARTIAL_REPLACE_CHILDREN);
 	}
 
+	public void parsePartialAppendChildren(ViewGroup view, String partial) {
+		parsePartial(view, partial, PARTIAL_APPEND_CHILDREN);
+	}
+
+	public void appendChild(ViewGroup group, View view) {
+		group.addView(view);
+	}
+	
 	public void parsePartial(ViewGroup view, String partial, int operation) {
 		SAXBuilder sax = new SAXBuilder();
 		try {
@@ -107,6 +123,8 @@ public class ActivityBuilder {
 			Element e = doc.getRootElement();
 			if (operation == PARTIAL_REPLACE_CHILDREN) {
 				view.removeAllViews();
+				parse(e, view);
+			} else if (operation == PARTIAL_APPEND_CHILDREN) {
 				parse(e, view);
 			}
 		} catch (JDOMException e) {
@@ -302,6 +320,16 @@ public class ActivityBuilder {
 			}
 		}
 
+		if (e.getAttribute("min_height") != null) {
+			int minHeight = Integer.parseInt(e.getAttributeValue("min_height"));
+			child.setMinimumHeight(minHeight);
+		}
+
+		if (e.getAttribute("min_width") != null) {
+			int minWidth = Integer.parseInt(e.getAttributeValue("min_width"));
+			child.setMinimumWidth(minWidth);
+		}
+
 		setAlpha(child, e);
 		group.addView(child, setParams(e));
 	}
@@ -379,7 +407,6 @@ public class ActivityBuilder {
 					editText.setTextColor(val);
 				}
 
-				
 				String type = e.getAttributeValue("type");
 				if (type != null) {
 					if (type.equals("password")) {

@@ -11,6 +11,7 @@ import java.util.Properties;
 
 import org.jruby.embed.EmbedEvalUnit;
 import org.jruby.embed.ScriptingContainer;
+import org.jruby.runtime.builtin.IRubyObject;
 
 import android.app.Activity;
 import android.content.res.AssetManager;
@@ -68,18 +69,28 @@ public class WebConsole extends NanoHTTPD {
 			try {
 				final EmbedEvalUnit evalUnit = container.parse(statement, 0);
 
-				this.uiPosted = false;
+				WebConsole.uiPosted = false;
 				activity.runOnUiThread(new Runnable() {
 					public void run() {
 						try {
-							evalUnit.run();
+							container.put("inspect_target", evalUnit.run());
+							container
+									.runScriptlet("puts \"=> #{inspect_target.inspect}\"");
 						} catch (org.jruby.embed.EvalFailedException e) {
+							Log.d(this.getClass().toString(), "eval failed: " + e.getMessage());
+							e.printStackTrace();
 							resultMap.put("err", "true");
 							resultMap.put("result", e.getMessage());
 						} catch (org.jruby.embed.ParseFailedException e) {
+							e.printStackTrace();
 							resultMap.put("err", "true");
 							resultMap.put("result", e.getMessage());
 						} catch (org.jruby.exceptions.RaiseException e) {
+							e.printStackTrace();
+							resultMap.put("err", "true");
+							resultMap
+									.put("result", e.getException().toString());
+						} catch (Exception e) {
 							resultMap.put("err", "true");
 							resultMap.put("result", e.getMessage());
 						}
@@ -90,8 +101,14 @@ public class WebConsole extends NanoHTTPD {
 					Thread.sleep(100);
 				}
 				writer.flush();
-				resultMap.put("result", writer.getBuffer().toString());
+				if (!resultMap.containsKey("err")) {
+					resultMap.put("result", writer.getBuffer().toString());
+				}
 			} catch (org.jruby.embed.ParseFailedException e) {
+				resultMap.put("parse_failed", "true");
+				resultMap.put("err", "true");
+				resultMap.put("result", e.getMessage());
+			} catch (org.jruby.embed.InvokeFailedException e) {
 				resultMap.put("parse_failed", "true");
 				resultMap.put("err", "true");
 				resultMap.put("result", e.getMessage());

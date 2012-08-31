@@ -30,7 +30,7 @@ end
 
 def V(selectors)
   view = $current_activity_builder.findViewByName(selectors)
-  wrap_native_view(view)
+  wrap_native_view(view) if view
 end
 
 class ActivityWrapper

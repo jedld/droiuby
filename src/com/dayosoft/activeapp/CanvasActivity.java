@@ -18,6 +18,7 @@ public class CanvasActivity extends DroiubyActivity {
 		Bundle params = this.getIntent().getExtras();
 		application = (ActiveApp) params.getSerializable("application");
 		target = (ViewGroup) this.findViewById(R.id.mainLayout);
+		
 		setupApplication(application, target);
     }
 
