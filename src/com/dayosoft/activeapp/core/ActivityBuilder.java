@@ -245,14 +245,22 @@ public class ActivityBuilder {
 	}
 
 	private void registerView(ViewGroup group, View child, Element e) {
-
+		
+		ViewExtras extras = new ViewExtras();
+		
 		if (e.getAttributeValue("id") != null) {
 			String attr_name = e.getAttributeValue("id");
 			int hash_code = Math.abs(attr_name.hashCode());
 			child.setId(hash_code);
+			extras.setView_id(attr_name);
 			namedViewDictionary.put(attr_name, hash_code);
 		}
 
+		if (e.getAttributeValue("name") != null) {
+			String name = e.getAttributeValue("name");
+			extras.setView_name(name);
+		}
+		
 		if (e.getAttributeValue("rotation") != null) {
 			float rotation = Float.parseFloat(e.getAttributeValue("rotation"));
 			child.setRotation(rotation);
@@ -297,6 +305,7 @@ public class ActivityBuilder {
 				}
 				list.add(child.getId());
 			}
+			extras.setView_class(class_name);
 		}
 		if (e.getAttribute("enabled") != null) {
 			String enabled = e.getAttributeValue("enabled");
@@ -330,6 +339,8 @@ public class ActivityBuilder {
 			child.setMinimumWidth(minWidth);
 		}
 
+		child.setTag(extras);
+		
 		setAlpha(child, e);
 		group.addView(child, setParams(e));
 	}

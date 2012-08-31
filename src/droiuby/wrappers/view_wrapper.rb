@@ -32,6 +32,30 @@ class ViewWrapper
     @view.getId
   end
 
+  def x
+    @view.getLeft
+  end
+  
+  def y
+    @view.getTop
+  end
+  
+  def width
+    @view.getWidth
+  end
+  
+  def height
+    @view.getHeight
+  end
+  
+  def measured_width
+    @view.getMeasuredWidth
+  end
+  
+  def measured_height
+    @view.getMeasuredHeight
+  end
+  
   def native
     @view
   end

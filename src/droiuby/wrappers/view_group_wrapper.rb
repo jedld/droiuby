@@ -20,7 +20,7 @@ class ViewGroupWrapper < ViewWrapper
     end
   end
 
-  def bring_child_to_front(child)
+  def to_front!(child)
     @view.bringChildToFront(self.to_native(target_view))
   end
 
@@ -37,4 +37,21 @@ class ViewGroupWrapper < ViewWrapper
   def child(index)
     @view.getChildAt(index)
   end
+
+  def form_fields
+    fields = {}
+    children.each do |child|
+      if child.kind_of? EditTextWrapper
+        unless child.getTag.nil?
+          tag = child.getTag
+          if tag.kind_of? Java::com.dayosoft.activeapp.core.ViewExtras
+            unless tag.getView_name.nil?
+              fields[tag.getView_name.to_sym] = child.text
+            end
+          end
+        end
+      end
+    end
+  end
+  
 end
