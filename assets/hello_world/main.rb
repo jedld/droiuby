@@ -1,12 +1,22 @@
 def on_create
   puts 'Hello world from controller file v1'
   puts "Access to current activity = #{$current_activity.getClass.toString}"
+
+  V('#test_button').on(:click) do |v|
+    puts "test_button #{v.id} was clicked!!!!!! via on clicked" 
+      toast 'tset_button was clicked!!!'
+      V('#section').inner = '<t size="20">Clicked!!!!</t>'
+  end
+  
+  V('#test_button').on(:long_click) do |v|
+    puts "This button was long clicked!!!!!!"
+    activity_instance_method('hi')
+  end
 end
 
-on_click('#test_button') do |v|
-  puts "test_button #{v.id} was clicked!!!!!!" 
-  toast 'tset_button was clicked!!!'
-  V('#section').inner = '<t size="20">Clicked!!!!</t>' 
+def activity_instance_method(str)
+  puts "This instance method was called #{str}"
 end
+
 
 
