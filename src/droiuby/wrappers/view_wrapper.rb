@@ -161,6 +161,10 @@ class ViewWrapper
     end
   end
 
+  def click
+    self.native.performClick
+  end
+  
   def on(event,&block)
     case(event.to_sym)
     when :click

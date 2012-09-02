@@ -27,7 +27,7 @@ class ViewGroupWrapper < ViewWrapper
   def count
     @view.getChildCount
   end
-  
+
   def children
     (0...self.count).collect { |i|
       wrap_native_view(self.child(i))
@@ -40,18 +40,27 @@ class ViewGroupWrapper < ViewWrapper
 
   def form_fields
     fields = {}
-    children.each do |child|
+    collect_fields(self, fields)
+    fields
+  end
+
+  private
+
+  def collect_fields(view, field_hash)
+    view.children.each do |child|
       if child.kind_of? EditTextWrapper
         unless child.getTag.nil?
           tag = child.getTag
           if tag.kind_of? Java::com.dayosoft.activeapp.core.ViewExtras
             unless tag.getView_name.nil?
-              fields[tag.getView_name.to_sym] = child.text
+              field_hash[tag.getView_name.to_sym] = child.text
             end
           end
         end
+      elsif child.kind_of? ViewGroupWrapper
+        collect_fields(child, field_hash)
       end
     end
   end
-  
+
 end

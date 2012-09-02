@@ -11,6 +11,8 @@ def on_create
   V('#test_button').on(:long_click) do |v|
     puts "This button was long clicked!!!!!!"
     activity_instance_method('hi')
+    V('#section').inner = '<t size="20">Long Clicked!!!!</t>'
+    true #consume long click
   end
 end
 
