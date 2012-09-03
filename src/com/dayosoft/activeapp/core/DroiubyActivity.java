@@ -108,7 +108,7 @@ public abstract class DroiubyActivity extends Activity {
 			web_public_loc = this.getCacheDir().getCanonicalPath() + "/www";
 			File webroot = new File(web_public_loc);
 			webroot.mkdirs();
-			console = new WebConsole(4000, webroot, this,
+			console = WebConsole.getInstance(4000, webroot, this,
 					executionBundle.getContainer());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
