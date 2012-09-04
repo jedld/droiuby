@@ -1,22 +1,88 @@
 class ViewWrapper
   class Animator
     def initialize(target)
+      @animator_set = Java::android.animation.AnimatorSet.new
+      @mode = :one_after_the_other
       @animators = []
       @target = target
+      @done = false
+    end
+
+    def animator_set
+      @animator_set
+    end
+
+    def animators
+      @animators
     end
 
     def method_missing(name, *args, &block)
-      anim = Java::android.animation.ObjectAnimator.ofFloat(@target.native, name.to_s, args[1], args[2]);
-      anim.setDuration(args[0]);
+      anim = Java::android.animation.ObjectAnimator.ofFloat(@target.native, name.to_s, args[0], args[1]);
+      if args[2] && args[2].kind_of?(Hash)
+        duration = args[2][:duration]
+        anim.setDuration(duration)
+      end
       @animators << anim
+      anim
+    end
+
+    def sequentially
+      @mode = :one_after_the_other
+      self
+    end
+
+    def together
+      @mode = :together
+      self
+    end
+
+    def before(animation)
+      Java::android.animation.AnimatorSet.new.tap { |s|
+        s.play(to_animator(animation)).before(self.animator_set)
+      } if @done
+    end
+
+    def after(animation)
+      s = Java::android.animation.AnimatorSet.new.tap { |s|
+        s.play(to_animator(animation)).after(self.animator_set)
+      } if @done
+    end
+
+    def wait(milliseconds)
+      Java::android.animation.AnimatorSet.new.tap { |s|
+        s.play(self.animator_set).after(milliseconds.to_i)
+      } if @done
+    end
+
+    def with(animation)
+      Java::android.animation.AnimatorSet.new.tap { |s|
+        s.play(to_animator(animation)).with(self.animator_set)
+      } if @done
+    end
+
+    def done
+      @done = true
+      case @mode
+      when :together
+        @animator_set.playTogether(*@animators)
+      when :one_after_the_other
+        @animator_set.playSequentially(*@animators)
+      end
     end
 
     def start
-      @animators.each { |a|
-        a.start
-      }
+      @animator_set.start
     end
 
+    protected
+
+    def to_animator(animation)
+      animator = animation
+      if animation.kind_of? ViewWrapper::Animator
+        animator = animation.animator_set
+      end
+      animator
+    end
   end
 
   def initialize(view = nil)
@@ -150,7 +216,8 @@ class ViewWrapper
   def animate(&block)
     animator = Animator.new(self)
     block.call(animator)
-    animator.start
+    animator.done
+    animator
   end
 
   def to_native(target)
@@ -164,7 +231,7 @@ class ViewWrapper
   def click
     self.native.performClick
   end
-  
+
   def on(event,&block)
     case(event.to_sym)
     when :click

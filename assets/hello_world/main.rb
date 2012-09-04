@@ -6,6 +6,11 @@ def on_create
     puts "test_button #{v.id} was clicked!!!!!! via on clicked" 
     toast 'tset_button was clicked!!!'
     V('#section').inner = '<t size="20">Clicked!!!!</t>'
+    
+    #animation
+    V('#section').animate { |t|
+      t.alpha 0, 1, {duration: 2000}
+    }.start
   }
   
   V('#test_button').on(:long_click) { |v|
