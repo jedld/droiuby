@@ -145,7 +145,7 @@ public class ActivityBuilder {
 
 		v.setAlpha(alpha);
 	}
-
+	
 	public RelativeLayout.LayoutParams setRelativeLayoutParams(Element e) {
 		int width = LayoutParams.WRAP_CONTENT;
 		int height = LayoutParams.WRAP_CONTENT;
