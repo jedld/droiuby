@@ -29,6 +29,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
+import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
@@ -114,7 +115,7 @@ public class ActivityBuilder {
 	public void appendChild(ViewGroup group, View view) {
 		group.addView(view);
 	}
-	
+
 	public void parsePartial(ViewGroup view, String partial, int operation) {
 		SAXBuilder sax = new SAXBuilder();
 		try {
@@ -145,9 +146,106 @@ public class ActivityBuilder {
 		v.setAlpha(alpha);
 	}
 
+	public RelativeLayout.LayoutParams setRelativeLayoutParams(Element e) {
+		int width = LayoutParams.WRAP_CONTENT;
+		int height = LayoutParams.WRAP_CONTENT;
+		int leftMargin = 0, rightMargin = 0, topMargin = 0, bottomMargin = 0;
+		
+		if (e.getAttributeValue("height") != null) {
+
+			if (e.getAttributeValue("height").equalsIgnoreCase("match")) {
+				height = LayoutParams.MATCH_PARENT;
+			} else {
+				height = Integer.parseInt(e.getAttributeValue("height"));
+			}
+		}
+
+		if (e.getAttributeValue("width") != null) {
+			if (e.getAttributeValue("width").equalsIgnoreCase("match")) {
+				width = LayoutParams.MATCH_PARENT;
+			} else {
+				width = Integer.parseInt(e.getAttributeValue("width"));
+			}
+		}
+
+		// Margins
+		String lm = e.getAttributeValue("left_margin");
+		if (lm != null) {
+			leftMargin = Integer.parseInt(lm);
+		}
+
+		String rm = e.getAttributeValue("right_margin");
+		if (rm != null) {
+			rightMargin = Integer.parseInt(rm);
+		}
+
+		String tm = e.getAttributeValue("top_margin");
+		if (tm != null) {
+			topMargin = Integer.parseInt(tm);
+		}
+
+		String bm = e.getAttributeValue("bottom_margin");
+		if (bm != null) {
+			bottomMargin = Integer.parseInt(bm);
+		}
+		
+		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(width, height);
+		
+		String left_of = e.getAttributeValue("left_of");
+		if (left_of!=null) {
+			View view = this.findViewByName(left_of);
+			params.addRule(RelativeLayout.LEFT_OF, view.getId());
+		}
+		
+		String right_of = e.getAttributeValue("right_of");
+		if (right_of!=null) {
+			View view = this.findViewByName(right_of);
+			params.addRule(RelativeLayout.RIGHT_OF, view.getId());
+		}
+		
+		String below = e.getAttributeValue("below");
+		if (below!=null) {
+			View view = this.findViewByName(below);
+			params.addRule(RelativeLayout.BELOW, view.getId());
+		}
+		
+		String above = e.getAttributeValue("above");
+		if (above!=null) {
+			View view = this.findViewByName(above);
+			params.addRule(RelativeLayout.ABOVE, view.getId());
+		}
+		
+		String parent_left = e.getAttributeValue("parent_left");
+		if (parent_left!=null) {
+			params.addRule(RelativeLayout.ALIGN_PARENT_LEFT, -1);
+		}
+		
+		String parent_right = e.getAttributeValue("parent_right");
+		if (parent_right!=null) {
+			params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT, -1);
+		}
+		
+		String parent_center = e.getAttributeValue("parent_center");
+		if (parent_center!=null) {
+			params.addRule(RelativeLayout.CENTER_IN_PARENT, -1);
+		}
+		
+		String parent_bottom = e.getAttributeValue("parent_bottom");
+		if (parent_bottom!=null) {
+			params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, -1);
+		}
+		
+		params.leftMargin = leftMargin;
+		params.topMargin = topMargin;
+		params.bottomMargin = bottomMargin;
+		params.rightMargin = rightMargin;
+		return params;
+	}
+	
 	public LayoutParams setParams(Element e) {
 		int width = LayoutParams.WRAP_CONTENT;
 		int height = LayoutParams.WRAP_CONTENT;
+
 		float weight = 0;
 		int leftMargin = 0, rightMargin = 0, topMargin = 0, bottomMargin = 0;
 		int gravity = Gravity.NO_GRAVITY;
@@ -245,9 +343,9 @@ public class ActivityBuilder {
 	}
 
 	private void registerView(ViewGroup group, View child, Element e) {
-		
+
 		ViewExtras extras = new ViewExtras();
-		
+
 		if (e.getAttributeValue("id") != null) {
 			String attr_name = e.getAttributeValue("id");
 			int hash_code = Math.abs(attr_name.hashCode());
@@ -260,7 +358,7 @@ public class ActivityBuilder {
 			String name = e.getAttributeValue("name");
 			extras.setView_name(name);
 		}
-		
+
 		if (e.getAttributeValue("rotation") != null) {
 			float rotation = Float.parseFloat(e.getAttributeValue("rotation"));
 			child.setRotation(rotation);
@@ -340,9 +438,15 @@ public class ActivityBuilder {
 		}
 
 		child.setTag(extras);
-		
+
 		setAlpha(child, e);
-		group.addView(child, setParams(e));
+
+		// RelativeLayout specific stuff
+		if (group instanceof RelativeLayout) {
+			((RelativeLayout)group).addView(child, setRelativeLayoutParams(e));
+		} else {
+			group.addView(child, setParams(e));
+		}
 	}
 
 	public void parse(Element element, ViewGroup view) {
@@ -380,6 +484,10 @@ public class ActivityBuilder {
 					layout.setOrientation(orientation);
 					registerView(view, layout, e);
 
+					parse(e, layout);
+				} else if (type.equals("relative")) {
+					RelativeLayout layout = new RelativeLayout(context);
+					registerView(view, layout, e);
 					parse(e, layout);
 				} else if (type.equals("scroll")) {
 					ScrollView scroll_view = new ScrollView(context);

@@ -7,6 +7,13 @@
         <button id='test_button' width="match">test</button>
         <button alpha="0.5" width="match">test</button>
         <img src="http://upload.wikimedia.org/wikipedia/en/a/a5/Android-logo.jpg" width="100"/>
-        <div id="section"></div>
+        <div id="section">
+            <layout type="relative" width="match">
+                <input parent_left="1" id="test_field2" value="Test text field 2"/>
+                <button id="some_button" right_of="#test_field2" value="test button" width="100">
+                    BUTTON
+                </button>    
+            </layout>
+        </div>
     </layout>
 </activity>

@@ -4,7 +4,7 @@ def on_create
 
   V('#test_button').on(:click) { |v|
     puts "test_button #{v.id} was clicked!!!!!! via on clicked" 
-    toast 'tset_button was clicked!!!'
+    toast 'test_button was clicked!!!'
     V('#section').inner = '<t size="20">Clicked!!!!</t>'
     
     #animation
