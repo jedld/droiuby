@@ -1,13 +1,5 @@
 puts 'initializing bootstrap'
 
-require 'json'
-require 'active_support'
-require 'droiuby/wrappers/view_group_wrapper'
-require 'droiuby/wrappers/linear_layout'
-require 'droiuby/wrappers/text_view'
-require 'droiuby/wrappers/edit_text'
-
-
 $current_activity = container_payload.getCurrentActivity
 $current_activity_builder = container_payload.getActivityBuilder
 $scripting_container = container_payload.getContainer

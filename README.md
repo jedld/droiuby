@@ -18,7 +18,7 @@ Using the droiuby application running on your device, it parses specially format
 websites that uses droiuby markup and contains ruby scripts. The markup is 
 designed to correspond directly to native controls and widgets while using some
 familiar HTML constructs. To facilitate client side interaction (like javascript)
-the website can use ruby scripts to handle events. Using Jruby, scripts are able
+the website can use ruby scripts to handle events. Using JRuby, scripts are able
 to access all libraries and services available to native applications. 
 
 License

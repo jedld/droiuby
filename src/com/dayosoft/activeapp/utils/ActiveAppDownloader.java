@@ -192,6 +192,8 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean> {
 
 			try {
 				AssetManager manager = targetActivity.getAssets();
+				scriptingContainer.parse(manager.open("lib/loader.rb"),
+						"lib/loader.rb").run();
 				scriptingContainer.parse(manager.open("lib/bootstrap.rb"),
 						"lib/bootstrap.rb").run();
 			} catch (IOException e) {
