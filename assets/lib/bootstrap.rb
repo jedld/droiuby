@@ -26,6 +26,10 @@ def V(selectors)
   wrap_native_view(view) if view
 end
 
+def _P
+  Preferences.new($current_activity.getCurrentPreferences)
+end
+
 class ActivityWrapper
   def initialize
   end

@@ -29,6 +29,7 @@ import com.dayosoft.activeapp.core.ActiveApp;
 import com.dayosoft.activeapp.core.ActivityBuilder;
 import com.dayosoft.activeapp.core.AppCache;
 import com.dayosoft.activeapp.core.ExecutionBundle;
+import com.dayosoft.activeapp.core.OnDownloadCompleteListener;
 import com.dayosoft.activeapp.core.RubyContainerPayload;
 
 import android.app.Activity;
@@ -53,6 +54,7 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean> {
 	ScriptingContainer scriptingContainer;
 	RubyContainerPayload payload;
 	ArrayList<EmbedEvalUnit> evalUnits = new ArrayList<EmbedEvalUnit>();
+	OnDownloadCompleteListener listener;
 
 	public AppCache getCache() {
 		AppCache cache = new AppCache();
@@ -64,13 +66,13 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean> {
 	SAXBuilder sax = new SAXBuilder();
 
 	public ActiveAppDownloader(ActiveApp app, Activity targetActivity,
-			ViewGroup target, AppCache cache, ExecutionBundle executionBundle) {
+			ViewGroup target, AppCache cache, ExecutionBundle executionBundle, OnDownloadCompleteListener listener) {
 		this.targetActivity = targetActivity;
 		this.app = app;
 		this.baseUrl = app.getBaseUrl();
 		this.scriptingContainer = executionBundle.getContainer();
 		this.payload = executionBundle.getPayload();
-
+		this.listener = listener;
 		if (cache != null) {
 			this.mainActivityDocument = cache.getMainActivityDocument();
 			this.evalUnits = cache.getEvalUnits();
