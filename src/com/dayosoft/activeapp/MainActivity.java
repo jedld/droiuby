@@ -81,7 +81,7 @@ public class MainActivity extends Activity implements OnClickListener {
 		setContentView(R.layout.main);
 		Button runButton = (Button) findViewById(R.id.buttonRun);
 		applicationURL = (EditText) findViewById(R.id.editTextApplicationURL);
-		applicationURL.setText("asset:hello_world/index.xml");
+		applicationURL.setText("asset:hello_world/config.xml");
 		runButton.setOnClickListener(this);
 
 		settings = getSharedPreferences("droiuby", MODE_PRIVATE);

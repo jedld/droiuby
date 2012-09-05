@@ -1,0 +1,7 @@
+<app_descriptor>
+    <name>GiNote</name>
+    <description>A Note taking app for android</description>
+    <launcher_icon>http://www.android.com/images/brand/droid.gif</launcher_icon>
+    <base_url>asset:ginote/</base_url>
+    <main>list.xml</main>
+</app_descriptor>

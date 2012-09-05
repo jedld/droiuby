@@ -1,0 +1,24 @@
+<activity controller="list.rb" >
+    <layout
+        height="match"
+        type="relative"
+        width="match" >
+
+        <layout
+            type="linear"
+            width="match" >
+
+            <button
+                id="add_note"
+                height="wrap"
+                size="20"
+                width="match" >Add Note</button>
+
+            <list
+                height="match"
+                width="match" >
+            </list>
+        </layout>
+    </layout>
+
+</activity>

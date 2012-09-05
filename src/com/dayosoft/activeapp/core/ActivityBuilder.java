@@ -29,6 +29,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -145,12 +146,12 @@ public class ActivityBuilder {
 
 		v.setAlpha(alpha);
 	}
-	
+
 	public RelativeLayout.LayoutParams setRelativeLayoutParams(Element e) {
 		int width = LayoutParams.WRAP_CONTENT;
 		int height = LayoutParams.WRAP_CONTENT;
 		int leftMargin = 0, rightMargin = 0, topMargin = 0, bottomMargin = 0;
-		
+
 		if (e.getAttributeValue("height") != null) {
 
 			if (e.getAttributeValue("height").equalsIgnoreCase("match")) {
@@ -188,60 +189,61 @@ public class ActivityBuilder {
 		if (bm != null) {
 			bottomMargin = Integer.parseInt(bm);
 		}
-		
-		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(width, height);
-		
+
+		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
+				width, height);
+
 		String left_of = e.getAttributeValue("left_of");
-		if (left_of!=null) {
+		if (left_of != null) {
 			View view = this.findViewByName(left_of);
 			params.addRule(RelativeLayout.LEFT_OF, view.getId());
 		}
-		
+
 		String right_of = e.getAttributeValue("right_of");
-		if (right_of!=null) {
+		if (right_of != null) {
 			View view = this.findViewByName(right_of);
 			params.addRule(RelativeLayout.RIGHT_OF, view.getId());
 		}
-		
+
 		String below = e.getAttributeValue("below");
-		if (below!=null) {
+		if (below != null) {
 			View view = this.findViewByName(below);
 			params.addRule(RelativeLayout.BELOW, view.getId());
 		}
-		
+
 		String above = e.getAttributeValue("above");
-		if (above!=null) {
+		if (above != null) {
 			View view = this.findViewByName(above);
 			params.addRule(RelativeLayout.ABOVE, view.getId());
 		}
-		
+
 		String parent_left = e.getAttributeValue("parent_left");
-		if (parent_left!=null) {
+		if (parent_left != null) {
 			params.addRule(RelativeLayout.ALIGN_PARENT_LEFT, -1);
 		}
-		
+
 		String parent_right = e.getAttributeValue("parent_right");
-		if (parent_right!=null) {
+		if (parent_right != null) {
 			params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT, -1);
 		}
-		
+
 		String parent_center = e.getAttributeValue("parent_center");
-		if (parent_center!=null) {
+		if (parent_center != null) {
 			params.addRule(RelativeLayout.CENTER_IN_PARENT, -1);
 		}
-		
+
 		String parent_bottom = e.getAttributeValue("parent_bottom");
-		if (parent_bottom!=null) {
+		if (parent_bottom != null) {
 			params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, -1);
 		}
-		
+
 		params.leftMargin = leftMargin;
 		params.topMargin = topMargin;
 		params.bottomMargin = bottomMargin;
 		params.rightMargin = rightMargin;
 		return params;
 	}
-	
+
 	public LayoutParams setParams(Element e) {
 		int width = LayoutParams.WRAP_CONTENT;
 		int height = LayoutParams.WRAP_CONTENT;
@@ -254,6 +256,8 @@ public class ActivityBuilder {
 
 			if (e.getAttributeValue("height").equalsIgnoreCase("match")) {
 				height = LayoutParams.MATCH_PARENT;
+			} else if (e.getAttributeValue("height").equalsIgnoreCase("wrap")) {
+				height = LayoutParams.WRAP_CONTENT;
 			} else {
 				height = Integer.parseInt(e.getAttributeValue("height"));
 			}
@@ -262,6 +266,8 @@ public class ActivityBuilder {
 		if (e.getAttributeValue("width") != null) {
 			if (e.getAttributeValue("width").equalsIgnoreCase("match")) {
 				width = LayoutParams.MATCH_PARENT;
+			} else if (e.getAttributeValue("width").equalsIgnoreCase("wrap")) {
+				width = LayoutParams.WRAP_CONTENT;
 			} else {
 				width = Integer.parseInt(e.getAttributeValue("width"));
 			}
@@ -443,7 +449,7 @@ public class ActivityBuilder {
 
 		// RelativeLayout specific stuff
 		if (group instanceof RelativeLayout) {
-			((RelativeLayout)group).addView(child, setRelativeLayoutParams(e));
+			((RelativeLayout) group).addView(child, setRelativeLayoutParams(e));
 		} else {
 			group.addView(child, setParams(e));
 		}
@@ -494,6 +500,10 @@ public class ActivityBuilder {
 					view.addView(scroll_view, setParams(e));
 					parse(e, scroll_view);
 				}
+			} else if (elemName.equals("list")) {
+				ListView list_view = new ListView(context);
+				view.addView(list_view, setParams(e));
+				parse(e, list_view);
 			} else if (elemName.equals("t")) {
 				TextView textView = new TextView(context);
 				String fontSize = e.getAttributeValue("size");
