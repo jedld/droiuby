@@ -10,7 +10,11 @@ def on_create
     #animation
     V('#section').animate { |t|
       t.alpha 0, 1, {duration: 2000}
-    }.start
+    }.with(
+      V('#test_button').animate { |t|
+        t.alpha 1, 0, {duration: 1000}
+      } 
+    ).start
   }
   
   V('#test_button').on(:long_click) { |v|

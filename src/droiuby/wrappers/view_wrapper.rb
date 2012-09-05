@@ -2,7 +2,7 @@ class ViewWrapper
   class Animator
     def initialize(target)
       @animator_set = Java::android.animation.AnimatorSet.new
-      @mode = :one_after_the_other
+      @mode = :together
       @animators = []
       @target = target
       @done = false
@@ -17,7 +17,7 @@ class ViewWrapper
     end
 
     def method_missing(name, *args, &block)
-      anim = Java::android.animation.ObjectAnimator.ofFloat(@target.native, name.to_s, args[0], args[1]);
+      anim = Java::android.animation.ObjectAnimator.ofFloat(@target.native, name.to_s.camelize(:lower), args[0], args[1]);
       if args[2] && args[2].kind_of?(Hash)
         duration = args[2][:duration]
         anim.setDuration(duration)
@@ -60,6 +60,14 @@ class ViewWrapper
       } if @done
     end
 
+    def together
+      @mode = :together
+    end
+    
+    def one_after_the_other
+      @mode = :one_after_the_other
+    end
+    
     def done
       @done = true
       case @mode
