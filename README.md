@@ -34,10 +34,11 @@ Remember this is still highly experimental and things could change really quickl
 So how does the "app" look like?
 -----------------------------
 
-A droiuby enabled web app consists of 3 files:
+A droiuby enabled web app consists of a minimum of 2 files (3 if there is a ruby script)
 
 - A config file
 - The main template file (The template can contain a reference to a ruby script that allows it to handle 'events'
+- (optional) A ruby script
 
 The structure is designed so that a web server (rails app) can easily host these files
 
