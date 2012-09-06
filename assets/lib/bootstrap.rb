@@ -30,6 +30,14 @@ def _P
   Preferences.new($current_activity.getCurrentPreferences)
 end
 
+def async
+  AsyncWrapper.new
+end
+
+def query_url(url)
+  Java::com.dayosoft.activeapp.utils.Utils.load($current_activity, url);
+end
+
 class ActivityWrapper
   def initialize
   end

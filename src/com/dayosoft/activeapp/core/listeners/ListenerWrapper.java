@@ -16,7 +16,7 @@ public abstract class ListenerWrapper {
 		this.container = container;
 	}
 
-	protected boolean execute(View view) {
+	protected boolean execute(Object view) {
 		try {
 			container.put("_receiver", block);
 			container.put("_view", view);

@@ -65,7 +65,8 @@ class DroiubyHttpResponseHandler extends BasicResponseHandler {
 		for (Header header : headers) {
 			String name = header.getName();
 			String value = header.getValue();
-			Log.d(this.getClass().toString(), "Setting coookie " + name + " = " + value);
+			Log.d(this.getClass().toString(), "Setting coookie " + name + " = "
+					+ value);
 			edit.putString(name, value);
 		}
 		edit.apply();
@@ -116,6 +117,15 @@ public class Utils {
 		return null;
 	}
 
+	public static String load(Context c, String url) {
+		Log.d(ActiveAppDownloader.class.toString(), "loading " + url);
+		if (url.indexOf("asset:") != -1) {
+			return Utils.loadAsset(c, url);
+		} else {
+			return Utils.query(url, c);
+		}
+	}
+
 	public static String loadAsset(Context c, String url) {
 		String asset_path = url.substring(6);
 		Log.d(Utils.class.toString(), "Loading from asset " + asset_path);
@@ -141,7 +151,7 @@ public class Utils {
 		Log.d(Utils.class.toString(), "query url = " + url);
 		HttpClient httpclient = new DefaultHttpClient();
 		HttpGet request = new HttpGet(url);
-		
+
 		URL parsedURL = null;
 		try {
 			parsedURL = new URL(url);
@@ -149,26 +159,30 @@ public class Utils {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		SharedPreferences prefs = c.getSharedPreferences("cookie_"
-				+ parsedURL.getProtocol() + "_" + parsedURL.getHost(),
-				c.MODE_PRIVATE);
-		Map<String,?> items =  prefs.getAll();
+		SharedPreferences prefs = c
+				.getSharedPreferences("cookie_" + parsedURL.getProtocol() + "_"
+						+ parsedURL.getHost(), c.MODE_PRIVATE);
+		Map<String, ?> items = prefs.getAll();
 		StringBuffer cookie = new StringBuffer();
-		for(Entry<String, ?> entry :items.entrySet()) {
-			cookie.append(entry.getKey() + "=" + entry.getValue()+";");
+		for (Entry<String, ?> entry : items.entrySet()) {
+			cookie.append(entry.getKey() + "=" + entry.getValue() + ";");
 		}
 		request.setHeader("Cookie", cookie.toString());
-		Log.d(Utils.class.toString(), "setting cookie = "+ cookie.toString());
+		Log.d(Utils.class.toString(), "setting cookie = " + cookie.toString());
 		request.setHeader("User-Agent", "Droiuby/1.0 (Android)");
-		WindowManager wm = (WindowManager) c.getSystemService(Context.WINDOW_SERVICE);
+		WindowManager wm = (WindowManager) c
+				.getSystemService(Context.WINDOW_SERVICE);
 		Display display = wm.getDefaultDisplay();
-		DisplayMetrics metrics = new DisplayMetrics(); 
+		DisplayMetrics metrics = new DisplayMetrics();
 		display.getMetrics(metrics);
-		request.setHeader("Droiuby-Height", Integer.toString(metrics.heightPixels));
-		request.setHeader("Droiuby-Width",Integer.toString(metrics.widthPixels));
-		request.setHeader("Droiuby-Density",Float.toString(metrics.density));
-		request.setHeader("Droiuby-Dpi",Integer.toString(metrics.densityDpi));
-		request.setHeader("Droiuby-OS","android " + Integer.valueOf(android.os.Build.VERSION.SDK_INT));
+		request.setHeader("Droiuby-Height",
+				Integer.toString(metrics.heightPixels));
+		request.setHeader("Droiuby-Width",
+				Integer.toString(metrics.widthPixels));
+		request.setHeader("Droiuby-Density", Float.toString(metrics.density));
+		request.setHeader("Droiuby-Dpi", Integer.toString(metrics.densityDpi));
+		request.setHeader("Droiuby-OS",
+				"android " + Integer.valueOf(android.os.Build.VERSION.SDK_INT));
 		ResponseHandler<String> responseHandler = new DroiubyHttpResponseHandler(
 				url, c);
 		try {

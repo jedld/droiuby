@@ -2,6 +2,7 @@
 require 'json'
 require 'active_support'
 require 'active_support/core_ext'
+require 'droiuby/wrappers/async'
 require 'droiuby/wrappers/view_group_wrapper'
 require 'droiuby/wrappers/linear_layout'
 require 'droiuby/wrappers/text_view'

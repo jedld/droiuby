@@ -6,32 +6,39 @@ import org.jruby.runtime.builtin.IRubyObject;
 import android.animation.Animator;
 import android.animation.Animator.AnimatorListener;
 
-public class AnimationListenerWrapper extends ListenerWrapper implements AnimatorListener {
+public class AnimationListenerWrapper extends ListenerWrapper implements
+		AnimatorListener {
 
-	public AnimationListenerWrapper(ScriptingContainer container,
+	String target;
+
+	public AnimationListenerWrapper(ScriptingContainer container, String target,
 			IRubyObject block) {
 		super(container, block);
-		// TODO Auto-generated constructor stub
+		this.target = target;
 	}
 
 	public void onAnimationCancel(Animator animation) {
-		// TODO Auto-generated method stub
-
+		if (target.equals("cancel")) {
+			this.execute(animation);
+		}
 	}
 
 	public void onAnimationEnd(Animator animation) {
-		// TODO Auto-generated method stub
-
+		if (target.equals("end")) {
+			this.execute(animation);
+		}
 	}
 
 	public void onAnimationRepeat(Animator animation) {
-		// TODO Auto-generated method stub
-
+		if (target.equals("repeat")) {
+			this.execute(animation);
+		}
 	}
 
 	public void onAnimationStart(Animator animation) {
-		// TODO Auto-generated method stub
-
+		if (target.equals("start")) {
+			this.execute(animation);
+		}
 	}
 
 }

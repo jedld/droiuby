@@ -250,8 +250,12 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean> {
 						"ruby segment: elapsed time = " + elapsed + "ms");
 			}
 			if (controller != null) {
+				long start = System.currentTimeMillis();
 				scriptingContainer
 						.runScriptlet("$main_activty = MainActivity.new; $main_activty.on_create");
+				long elapsed = System.currentTimeMillis() - start;
+				Log.d(this.getClass().toString(),
+						"ruby segment: on_create() elapsed time = " + elapsed + "ms");
 			}
 		} catch (EvalFailedException e) {
 			Log.e(this.getClass().toString(), e.getMessage());

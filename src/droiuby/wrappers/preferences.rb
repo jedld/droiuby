@@ -5,7 +5,7 @@ class Preferences
   end
   
   def contains?(key)
-    @preferences.contains(key)
+    @preferences.contains(key.to_s)
   end
   
   def get(key, default = nil)
@@ -14,12 +14,13 @@ class Preferences
     (safe_get(key, nil) { |k, d| @preferences.getInt(k, nil) }) ||
     (safe_get(key, nil) { |k, d| @preferences.getLong(k, nil) }) ||
     (safe_get(key, nil) { |k, d| @preferences.getString(k, nil) })
-    prefs.nil? ? default: prefs
+    prefs.nil? ? default : prefs
   end
   
   def update_attributes(attributes = {})
     editor = @preferences.edit
     attributes.each { |k,v|
+      k = k.to_s
       if v.kind_of? String
         editor.putString(k,v)
       elsif v.kind_of? Integer
@@ -43,7 +44,7 @@ class Preferences
    
   def safe_get(key, default, &block)
     begin
-      block.call key, default
+      block.call key.to_s, default
     rescue Java::java.lang.ClassCastException=>e
       nil
     end
