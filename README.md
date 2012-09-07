@@ -31,7 +31,7 @@ to allow you to interact with the app in realtime.
 
 Remember this is still highly experimental and things could change really quickly.
 
-So how does the "app" look like?
+So what does the "app" look like?
 -----------------------------
 
 A droiuby enabled web app consists of a minimum of 2 files (3 if there is a ruby script)
@@ -150,11 +150,21 @@ Installation
 Issues
 ------
 
+- Apps are limited to one activities only since you can't really just create new activities programmatically in android.
+- Slow initial loading of apps
+
+Similar Projects
+----------------
+
+- ruboto
+- phonegap
+
 Compile Notes
 -------------
 
-If you want to compile this app yourself make sure eclipse has at least 1.5G (--vmargs -Xmx2G) of heap memory allocated to it as
-the Dex compiler uses a "lot" of memory trying to optimize jruby.jar 
+- If you want to compile this app yourself make sure eclipse has at least 1.5G (--vmargs -Xmx2G) of heap memory allocated to it as
+the Dex compiler uses a "lot" of memory trying to optimize jruby.jar
+- A 64-bit OS since you need memory 
 
 If you think it looks cool or not, I'm happy for some feedback and suggestions
 
