@@ -9,16 +9,18 @@ puts $current_activity.getClass.toString
 def wrap_native_view(view)
   return nil unless view
   if (view.class == Java::android.widget.TextView)
-      TextViewWrapper.new(view)
-    elsif (view.class == Java::android.widget.EditText)
-      EditTextWrapper.new(view)
-    elsif (view.class == Java::android.widget.LinearLayout)
-      LinearLayoutWrapper.new(view)
-    elsif (view.class < Java::android.view.ViewGroup)
-      ViewGroupWrapper.new(view)
-    else
-      ViewWrapper.new(view)
-    end
+    TextViewWrapper.new(view)
+  elsif (view.class == Java::android.widget.EditText)
+    EditTextWrapper.new(view)
+  elsif (view.class == Java::android.widget.LinearLayout)
+    LinearLayoutWrapper.new(view)
+  elsif (view.class == Java::android.webkit.WebView)
+    WebViewWrapper.new(view)
+  elsif (view.class < Java::android.view.ViewGroup)
+    ViewGroupWrapper.new(view)
+  else
+    ViewWrapper.new(view)
+  end
 end
 
 def V(selectors)
@@ -34,7 +36,15 @@ def async
   AsyncWrapper.new
 end
 
-def query_url(url)
+def async_get(url, &block)
+  async.perform {
+    http_get(url)
+  }.done { |result|
+    block.call result
+  }
+end
+
+def http_get(url)
   Java::com.dayosoft.activeapp.utils.Utils.load($current_activity, url);
 end
 

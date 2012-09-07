@@ -128,6 +128,14 @@ class ViewWrapper
   def scale_y=(scale)
     @view.setScaleY(scale)
   end
+  
+  def camera_distance
+    @view.getCameraDistance
+  end
+  
+  def camera_distance=(value)
+    @view.setCameraDistance(value)
+  end
 
   def animate(&block)
     animator = Animator.new(self)

@@ -23,6 +23,8 @@ import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -392,6 +394,12 @@ public class ActivityBuilder {
 			child.setPivotY(pivot_y);
 		}
 
+		if (e.getAttribute("camera_distance") != null) {
+			float camera_distance = Float.parseFloat(e
+					.getAttributeValue("camera_distance"));
+			child.setCameraDistance(camera_distance);
+		}
+
 		if (e.getAttributeValue("class") != null) {
 			String class_name = e.getAttributeValue("class");
 			if (child.getId() == 0) {
@@ -458,8 +466,8 @@ public class ActivityBuilder {
 	public void parse(Element element, ViewGroup view) {
 		List<Element> elems = element.getChildren();
 		for (Element e : elems) {
-			String elemName = e.getName().toLowerCase();
-			if (elemName.equals("div") || elemName.equals("span")) {
+			String node_name = e.getName().toLowerCase();
+			if (node_name.equals("div") || node_name.equals("span")) {
 				FrameLayout layout = new FrameLayout(context);
 				if ((e.getAttributeValue("foreground_gravity") != null)) {
 					int gravity = Integer.parseInt(e
@@ -468,7 +476,7 @@ public class ActivityBuilder {
 				}
 				registerView(view, layout, e);
 				parse(e, layout);
-			} else if (elemName.equals("layout")) {
+			} else if (node_name.equals("layout")) {
 				String type = e.getAttributeValue("type").toLowerCase();
 				if (type.equals("frame")) {
 					FrameLayout layout = new FrameLayout(context);
@@ -500,11 +508,29 @@ public class ActivityBuilder {
 					view.addView(scroll_view, setParams(e));
 					parse(e, scroll_view);
 				}
-			} else if (elemName.equals("list")) {
+			} else if (node_name.equals("web")) {
+				WebView webview = new WebView(context);
+				String url = e.getAttributeValue("src");
+				if (url != null) {
+					webview.loadUrl(url);
+				}
+				webview.loadUrl(url);
+				webview.getSettings().setJavaScriptEnabled(true);
+				webview.setWebViewClient(new WebViewClient() {  
+					   @Override  
+					   public boolean shouldOverrideUrlLoading(WebView view, String url)  
+					   {  
+					       view.loadUrl(url);
+					       return false;
+
+					    }  
+					 });  
+				registerView(view, webview, e);
+			} else if (node_name.equals("list")) {
 				ListView list_view = new ListView(context);
 				view.addView(list_view, setParams(e));
 				parse(e, list_view);
-			} else if (elemName.equals("t")) {
+			} else if (node_name.equals("t")) {
 				TextView textView = new TextView(context);
 				String fontSize = e.getAttributeValue("size");
 				if (fontSize != null) {
@@ -514,12 +540,12 @@ public class ActivityBuilder {
 				String content = e.getTextTrim() != null ? e.getTextTrim() : "";
 				textView.setText(content);
 				registerView(view, textView, e);
-			} else if (elemName.equals("button")) {
+			} else if (node_name.equals("button")) {
 				Button button = new Button(context);
 				String content = e.getTextTrim() != null ? e.getTextTrim() : "";
 				button.setText(content);
 				registerView(view, button, e);
-			} else if (elemName.equals("input")) {
+			} else if (node_name.equals("input")) {
 				EditText editText = new EditText(context);
 
 				String hint = e.getAttributeValue("hint");
@@ -549,7 +575,7 @@ public class ActivityBuilder {
 					editText.setText(value);
 				}
 				registerView(view, editText, e);
-			} else if (elemName.equals("img")) {
+			} else if (node_name.equals("img")) {
 				ImageView img = new ImageView(context);
 				String src = e.getAttributeValue("src");
 

@@ -30,17 +30,22 @@ def on_create
     
     #async task demonstration
     async.perform {
-      query_url "asset:hello_world/_hello_world.xml"
+      http_get "asset:hello_world/_hello_world.xml"
     }.done { |result|
       V('#hello_world_section').inner = result
     }.start
+    
+    
     
    end
   
   V('#test_button').on(:long_click) { |v|
     puts "This button was long clicked!!!!!!"
     activity_instance_method('hi')
-    V('#section').inner = '<t size="20">Long Clicked!!!!</t>'
+    V('#section').inner = '<t size="20">Long Clicked!!!!</t><web src="http://www.google.com" width="match" height="match"/>'
+    async_get("asset:hello_world/_hello_world.xml") { |result|
+      V('#hello_world_section').inner = result
+    }  
     true #consume long click
   }
   
