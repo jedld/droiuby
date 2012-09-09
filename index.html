@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="Droiuby : A framework to enable websites to render native wdigets and functionality on mobile devices using Droiuby ML and jruby instead of HTML/javascript" />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Droiuby</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/jedld/droiuby">View on GitHub</a>
+
+          <h1 id="project_title">Droiuby</h1>
+          <h2 id="project_tagline">A framework to enable websites to render native wdigets and functionality on mobile devices using Droiuby ML and jruby instead of HTML/javascript</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/jedld/droiuby/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/jedld/droiuby/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>Droiuby</h1>
+
+<h2>What is it?</h2>
+
+<p>Droiuby is an android client and framework that enables web applications to
+render content on your android device using native controls. Using ruby, web
+applications are also able to access the devices' hardware (GPS, Camera,
+accelerometer) and facilitate on-device interaction using an event driven
+framework. A library is provided that wraps native controls that significantly
+simplifies common tasks usually done in Java.</p>
+
+<p>Although its primary goal is to enable web applications to look and act like
+native apps on the phone, you can still use droiuby on your existing android
+applications to leverage the power of ruby.</p>
+
+<h2>How does it work?</h2>
+
+<p>Using the droiuby application running on your device, it parses specially formatted
+websites that uses droiuby markup and contains ruby scripts. The markup is 
+designed to correspond directly to native controls and widgets while using some
+familiar HTML constructs. To facilitate client side interaction (like javascript)
+the website can use ruby scripts to handle events. Using JRuby, scripts are able
+to access all libraries and services available to native applications.</p>
+
+<p>To allow developers to 'debug' the application (similar to the Chrome "inspect" and Rails Console)
+Droiuby opens up a webserver at port 4000 on your phone that provides a web console
+to allow you to interact with the app in realtime.</p>
+
+<p>Remember this is still highly experimental and things could change really quickly.</p>
+
+<h2>So what does the "app" look like?</h2>
+
+<p>A droiuby enabled web app consists of a minimum of 2 files (3 if there is a ruby script)</p>
+
+<ul>
+<li>A config file</li>
+<li>The main template file (The template can contain a reference to a ruby script that allows it to handle 'events'</li>
+<li>(optional) A ruby script</li>
+</ul><p>The structure is designed so that a web server (rails app) can easily host these files</p>
+
+<p>Config file. Basically this is where you point the droiuby client in order for it to 'load' the app</p>
+
+<pre><code>&lt;app_descriptor&gt;
+    &lt;name&gt;Hello World App&lt;/name&gt;
+    &lt;description&gt;An android active app that displays hello world!!!&lt;/description&gt;
+    &lt;launcher_icon&gt;http://www.android.com/images/brand/droid.gif&lt;/launcher_icon&gt;
+    &lt;base_url&gt;http://localhost:3000/hello_world/&lt;/base_url&gt;
+    &lt;main&gt;main.xml&lt;/main&gt;
+&lt;/app_descriptor&gt;
+</code></pre>
+
+<p>Right now it connects to http://localhost:3000/hello_world/ but you can also tell it to load it from
+the apps assets folder (e.g. asset:hello_world/) </p>
+
+<p>main.xml - The template which renders the layout. Although it looks like HTML each tag corresponds to and android widget.</p>
+
+<pre><code>&lt;activity controller="main.rb"&gt;
+    &lt;layout type="linear" width="match"&gt;
+        &lt;t class="exclamation text" &gt; what!!!!&lt;/t&gt;
+        &lt;t size="20"&gt;Different font size&lt;/t&gt;
+        &lt;t size="18"&gt;Different font size&lt;/t&gt;
+        &lt;input id="test_field" value="This is a text field"&gt;&lt;/input&gt;
+        &lt;button id='store_text' width="match"&gt;Store&lt;/button&gt;
+        &lt;button id='test_button' width="match"&gt;test&lt;/button&gt;
+        &lt;button alpha="0.5" width="match"&gt;test&lt;/button&gt;
+        &lt;img src="http://upload.wikimedia.org/wikipedia/en/a/a5/Android-logo.jpg" width="100"/&gt;
+        &lt;div id="section"&gt;
+            &lt;layout type="relative" width="match"&gt;
+                &lt;input parent_left="1" id="test_field2" value="Test text field 2"/&gt;
+                &lt;button id="some_button" right_of="#test_field2" value="test button" width="100"&gt;
+                    BUTTON
+                &lt;/button&gt;    
+            &lt;/layout&gt;
+        &lt;/div&gt;
+        &lt;div id="hello_world_section"&gt;
+
+        &lt;/div&gt;
+    &lt;/layout&gt;
+&lt;/activity&gt;
+</code></pre>
+
+<p>main.rb - A ruby script that allows you to hook on to events (notice the controller="main.rb" in the template)</p>
+
+<pre><code>def on_create
+  puts 'Hello world from controller file v1'
+  puts "Access to current activity = #{$current_activity.getClass.toString}"
+
+  #access EditText objects and store and load from shared preferences
+
+  V('#test_field').text = 'prefs here'
+  if _P.contains? :some_text
+    some_text = _P.get(:some_text)
+    puts "Setting text #{some_text} from preferences"
+    V('#test_field').text = some_text
+  end
+
+  #event handling
+  V('#store_text').on(:click) do |v|
+    toast 'storing in prefs'
+    _P.update_attributes!(some_text: V('#test_field').text)
+  end
+
+  V('#test_button').on(:click) do |v|
+    puts "test_button #{v.id} was clicked!!!!!! via on clicked" 
+    toast 'test_button was clicked!!!'
+    V('#section').inner = '&lt;t size="20"&gt;Clicked!!!!&lt;/t&gt;'
+
+  # Animation in android. ruby actually makes it look cool
+
+    V('#section').animate { |t|
+      t.alpha 0, 1, {duration: 2000}
+    }.with(
+      V('#test_button').animate { |t|
+        t.alpha 1, 0, {duration: 1000}
+      } 
+    ).start
+
+   # how to define Async tasks
+    async.perform {
+      #query stuff and pass it to "done" which hooks it internally to onPostExecute
+
+      query_url "asset:hello_world/_hello_world.xml"
+    }.done { |result|
+      V('#hello_world_section').inner = result
+    }.start
+
+   end
+
+
+  V('#test_button').on(:long_click) { |v|
+    puts "This button was long clicked!!!!!!"
+    activity_instance_method('hi')
+
+    #yes you can do jquery style "HTML replacement"
+    V('#section').inner = '&lt;t size="20"&gt;Long Clicked!!!!&lt;/t&gt;'
+    true #consume long click
+  }
+
+end
+
+def activity_instance_method(str)
+  puts "This instance method was called #{str}"
+end
+</code></pre>
+
+<h2>Installation</h2>
+
+<h2>Issues</h2>
+
+<ul>
+<li>Apps are limited to one activities only since you can't really just create new activities programmatically in android.</li>
+<li>Slow initial loading of apps</li>
+</ul><h2>Similar Projects</h2>
+
+<ul>
+<li>ruboto</li>
+<li>phonegap</li>
+</ul><h2>Compile Notes</h2>
+
+<ul>
+<li>If you want to compile this app yourself make sure eclipse has at least 1.5G (--vmargs -Xmx2G) of heap memory allocated to it as
+the Dex compiler uses a "lot" of memory trying to optimize jruby.jar</li>
+<li>A 64-bit OS since you need memory </li>
+</ul><p>If you think it looks cool or not, I'm happy for some feedback and suggestions</p>
+
+<h2>License</h2>
+
+<p>Copyright 2012 Joseph Emmanuel Dayo</p>
+
+<p>Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at</p>
+
+<pre><code>   http://www.apache.org/licenses/LICENSE-2.0
+</code></pre>
+
+<p>Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.</p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Droiuby maintained by <a href="https://github.com/jedld">jedld</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
