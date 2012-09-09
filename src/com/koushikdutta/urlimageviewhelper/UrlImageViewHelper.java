@@ -6,6 +6,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -33,6 +35,7 @@ import android.net.http.AndroidHttpClient;
 import android.os.AsyncTask;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
 
 public final class UrlImageViewHelper {
@@ -93,106 +96,113 @@ public final class UrlImageViewHelper {
 //				CACHE_DURATION_THREE_DAYS);	
 //	}
 	
-	public static void setUrlDrawable(final ImageView imageView,
-			final String url, int defaultResource) {
+	public static void setUrlDrawable(final View imageView,
+			final String url, int defaultResource, String method) {
 		setUrlDrawable(imageView.getContext(), imageView, url, defaultResource,
-				CACHE_DURATION_THREE_DAYS);
+				CACHE_DURATION_THREE_DAYS, method);
 	}
 
-	public static void setUrlDrawable(final ImageView imageView,
-			final String url) {
+	public static void setUrlDrawable(final View imageView,
+			final String url, String method) {
 		setUrlDrawable(imageView.getContext(), imageView, url, null,
-				CACHE_DURATION_THREE_DAYS, null);
+				CACHE_DURATION_THREE_DAYS, null, method);
 	}
 
-	public static void loadUrlDrawable(final Context context, final String url) {
+	public static void loadUrlDrawable(final Context context, final String url, String method) {
 		setUrlDrawable(context, null, url, null, CACHE_DURATION_THREE_DAYS,
-				null);
+				null, method);
 	}
 
-	public static void setUrlDrawable(final ImageView imageView,
-			final String url, Drawable defaultDrawable) {
+	public static void setUrlDrawable(final View imageView,
+			final String url, Drawable defaultDrawable, String method) {
 		setUrlDrawable(imageView.getContext(), imageView, url, defaultDrawable,
-				CACHE_DURATION_THREE_DAYS, null);
+				CACHE_DURATION_THREE_DAYS, null, method);
 	}
 
-	public static void setUrlDrawable(final ImageView imageView,
-			final String url, int defaultResource, long cacheDurationMs) {
+	public static void setUrlDrawable(final View imageView,
+			final String url, int defaultResource, long cacheDurationMs, String method) {
 		setUrlDrawable(imageView.getContext(), imageView, url, defaultResource,
-				cacheDurationMs);
+				cacheDurationMs, method);
 	}
 
 	public static void loadUrlDrawable(final Context context, final String url,
-			long cacheDurationMs) {
-		setUrlDrawable(context, null, url, null, cacheDurationMs, null);
+			long cacheDurationMs, String method) {
+		setUrlDrawable(context, null, url, null, cacheDurationMs, null, method);
 	}
 
-	public static void setUrlDrawable(final ImageView imageView,
-			final String url, Drawable defaultDrawable, long cacheDurationMs) {
+	public static void setUrlDrawable(final View imageView,
+			final String url, Drawable defaultDrawable, long cacheDurationMs, String method) {
 		setUrlDrawable(imageView.getContext(), imageView, url, defaultDrawable,
-				cacheDurationMs, null);
+				cacheDurationMs, null, method);
 	}
 
 	private static void setUrlDrawable(final Context context,
-			final ImageView imageView, final String url, int defaultResource,
-			long cacheDurationMs) {
+			final View imageView, final String url, int defaultResource,
+			long cacheDurationMs, String method) {
 		Drawable d = null;
 		if (defaultResource != 0)
 			d = imageView.getResources().getDrawable(defaultResource);
-		setUrlDrawable(context, imageView, url, d, cacheDurationMs, null);
+		setUrlDrawable(context, imageView, url, d, cacheDurationMs, null, method);
 	}
 
 	public static void setUrlDrawable(final ImageView imageView,
-			final String url, int defaultResource, UrlImageViewCallback callback) {
+			final String url, int defaultResource, UrlViewCallback callback) {
 		setUrlDrawable(imageView.getContext(), imageView, url, defaultResource,
 				CACHE_DURATION_THREE_DAYS, callback);
 	}
 
 	public static void setUrlDrawable(final ImageView imageView,
-			final String url, UrlImageViewCallback callback) {
+			final String url, UrlViewCallback callback) {
 		setUrlDrawable(imageView.getContext(), imageView, url, null,
-				CACHE_DURATION_THREE_DAYS, callback);
+				CACHE_DURATION_THREE_DAYS, callback, getMethodForObject(imageView));
 	}
 
 	public static void loadUrlDrawable(final Context context, final String url,
-			UrlImageViewCallback callback) {
+			UrlViewCallback callback, String method) {
 		setUrlDrawable(context, null, url, null, CACHE_DURATION_THREE_DAYS,
-				callback);
+				callback, method);
 	}
 
 	public static void setUrlDrawable(final ImageView imageView,
 			final String url, Drawable defaultDrawable,
-			UrlImageViewCallback callback) {
+			UrlViewCallback callback) {
 		setUrlDrawable(imageView.getContext(), imageView, url, defaultDrawable,
-				CACHE_DURATION_THREE_DAYS, callback);
+				CACHE_DURATION_THREE_DAYS, callback, getMethodForObject(imageView));
 	}
 
 	public static void setUrlDrawable(final ImageView imageView,
 			final String url, int defaultResource, long cacheDurationMs,
-			UrlImageViewCallback callback) {
+			UrlViewCallback callback) {
 		setUrlDrawable(imageView.getContext(), imageView, url, defaultResource,
 				cacheDurationMs, callback);
 	}
 
 	public static void loadUrlDrawable(final Context context, final String url,
-			long cacheDurationMs, UrlImageViewCallback callback) {
-		setUrlDrawable(context, null, url, null, cacheDurationMs, callback);
+			long cacheDurationMs, UrlViewCallback callback, String method) {
+		setUrlDrawable(context, null, url, null, cacheDurationMs, callback, method);
 	}
 
 	public static void setUrlDrawable(final ImageView imageView,
 			final String url, Drawable defaultDrawable, long cacheDurationMs,
-			UrlImageViewCallback callback) {
+			UrlViewCallback callback) {
 		setUrlDrawable(imageView.getContext(), imageView, url, defaultDrawable,
-				cacheDurationMs, callback);
+				cacheDurationMs, callback,getMethodForObject(imageView));
 	}
 
+	private static String getMethodForObject(View view) {
+		if (view instanceof ImageView) {
+			return "setImageDrawable";
+		}
+		return "setBackgroundDrawable";
+	}
+	
 	private static void setUrlDrawable(final Context context,
 			final ImageView imageView, final String url, int defaultResource,
-			long cacheDurationMs, UrlImageViewCallback callback) {
+			long cacheDurationMs, UrlViewCallback callback) {
 		Drawable d = null;
 		if (defaultResource != 0)
 			d = imageView.getResources().getDrawable(defaultResource);
-		setUrlDrawable(context, imageView, url, d, cacheDurationMs, callback);
+		setUrlDrawable(context, imageView, url, d, cacheDurationMs, callback, getMethodForObject(imageView));
 	}
 
 	private static boolean isNullOrEmpty(CharSequence s) {
@@ -234,18 +244,38 @@ public final class UrlImageViewHelper {
 		
 	}
 	
+	private static Object setViewDrawable(View view, Drawable drawable, String method) {
+		try {
+			Method m = view.getClass().getMethod(method, Drawable.class);
+			return m.invoke(view, drawable);
+		} catch (NoSuchMethodException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
 	private static void setUrlDrawable(final Context context,
-			final ImageView imageView, final String url,
+			final View view, final String url,
 			final Drawable defaultDrawable, long cacheDurationMs,
-			final UrlImageViewCallback callback) {
+			final UrlViewCallback callback, String method) {
 		cleanup(context);
 		// disassociate this ImageView from any pending downloads
-		if (imageView != null)
-			mPendingViews.remove(imageView);
+		if (view != null)
+			mPendingViews.remove(view);
 
 		if (isNullOrEmpty(url)) {
-			if (imageView != null)
-				imageView.setImageDrawable(defaultDrawable);
+			if (view != null)
+				setViewDrawable(view, defaultDrawable, method);
 			return;
 		}
 
@@ -253,10 +283,10 @@ public final class UrlImageViewHelper {
 		Drawable drawable = cache.get(url);
 		if (drawable != null) {
 			// Log.i(LOGTAG, "Cache hit on: " + url);
-			if (imageView != null)
-				imageView.setImageDrawable(drawable);
+			if (view != null)
+				setViewDrawable(view, drawable, method);
 			if (callback != null)
-				callback.onLoaded(imageView, drawable, url, true);
+				callback.onLoaded(view, drawable, url, method, true);
 			return;
 		}
 
@@ -278,11 +308,11 @@ public final class UrlImageViewHelper {
 						drawable = loadDrawableFromStream(context, fis);
 					}
 					fis.close();
-					if (imageView != null)
-						imageView.setImageDrawable(drawable);
+					if (view != null)
+						setViewDrawable(view, drawable, method);
 					cache.put(url, drawable);
 					if (callback != null)
-						callback.onLoaded(imageView, drawable, url, true);
+						callback.onLoaded(view, drawable, url, method, true);
 					return;
 				} else {
 					// Log.i(LOGTAG, "File cache has expired. Refreshing.");
@@ -292,36 +322,39 @@ public final class UrlImageViewHelper {
 		}
 
 		// null it while it is downloading
-		if (imageView != null)
-			imageView.setImageDrawable(defaultDrawable);
+		if (view != null)
+			setViewDrawable(view, defaultDrawable, method);
 
 		// since listviews reuse their views, we need to
 		// take note of which url this view is waiting for.
 		// This may change rapidly as the list scrolls or is filtered, etc.
 		// Log.i(LOGTAG, "Waiting for " + url);
-		if (imageView != null)
-			mPendingViews.put(imageView, url);
+		if (view != null)
+			mPendingViews.put(view, url);
 
-		ArrayList<ImageView> currentDownload = mPendingDownloads.get(url);
+		ArrayList<View> currentDownload = mPendingDownloads.get(url);
 		if (currentDownload != null) {
 			// Also, multiple vies may be waiting for this url.
 			// So, let's maintain a list of these views.
 			// When the url is downloaded, it sets the imagedrawable for
 			// every view in the list. It needs to also validate that
 			// the imageview is still waiting for this url.
-			if (imageView != null)
-				currentDownload.add(imageView);
+			if (view != null)
+				currentDownload.add(view);
 			return;
 		}
 
-		final ArrayList<ImageView> downloads = new ArrayList<ImageView>();
-		if (imageView != null)
-			downloads.add(imageView);
+		final ArrayList<View> downloads = new ArrayList<View>();
+		if (view != null)
+			downloads.add(view);
 		mPendingDownloads.put(url, downloads);
 
-		AsyncTask<Void, Void, Drawable> downloader = new AsyncTask<Void, Void, Drawable>() {
+		AsyncTask<String, Void, Drawable> downloader = new AsyncTask<String, Void, Drawable>() {
+			String method;
+			
 			@Override
-			protected Drawable doInBackground(Void... params) {
+			protected Drawable doInBackground(String... params) {
+				method = params[0];
 				AndroidHttpClient client = AndroidHttpClient
 						.newInstance(context.getPackageName());
 				try {
@@ -368,7 +401,7 @@ public final class UrlImageViewHelper {
 					usableResult = defaultDrawable;
 				mPendingDownloads.remove(url);
 				cache.put(url, usableResult);
-				for (ImageView iv : downloads) {
+				for (View iv : downloads) {
 					// validate the url it is waiting for
 					String pendingUrl = mPendingViews.get(iv);
 					if (!url.equals(pendingUrl)) {
@@ -380,17 +413,18 @@ public final class UrlImageViewHelper {
 					mPendingViews.remove(iv);
 					if (usableResult != null) {
 						final Drawable newImage = usableResult;
-						final ImageView imageView = iv;
-						imageView.setImageDrawable(newImage);
+						final View imageView = iv;
+						setViewDrawable(imageView, newImage,method);
 						if (callback != null)
-							callback.onLoaded(imageView, result, url, false);
+							callback.onLoaded(imageView, result, url, method, false);
 					}
 				}
 			}
+
 		};
 		downloader.execute();
 	}
 
-	private static Hashtable<ImageView, String> mPendingViews = new Hashtable<ImageView, String>();
-	private static Hashtable<String, ArrayList<ImageView>> mPendingDownloads = new Hashtable<String, ArrayList<ImageView>>();
+	private static Hashtable<View, String> mPendingViews = new Hashtable<View, String>();
+	private static Hashtable<String, ArrayList<View>> mPendingDownloads = new Hashtable<String, ArrayList<View>>();
 }

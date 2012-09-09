@@ -355,7 +355,6 @@ public class ActivityBuilder {
 	
 	private void handleIconDrawable(Element e, ImageButton child) {
 		String src = e.getAttributeValue("background");
-		ImageView imageView = new ImageView(context);
 		if (src != null) {
 			if (src.indexOf("@drawable:") != -1) {
 				String drawable = src.substring(10);
@@ -364,8 +363,7 @@ public class ActivityBuilder {
 					child.setImageResource(resId);
 				}
 			} else {
-				UrlImageViewHelper.setUrlDrawable(imageView, src);
-				child.setImageDrawable(imageView.getDrawable());
+				UrlImageViewHelper.setUrlDrawable(child, src,"setBackgroundDrawable");
 			}
 		}	
 	}
@@ -381,8 +379,7 @@ public class ActivityBuilder {
 					child.setBackgroundResource(resId);
 				}
 			} else {
-				UrlImageViewHelper.setUrlDrawable(imageView, src);
-				child.setBackgroundDrawable(imageView.getDrawable());
+				UrlImageViewHelper.setUrlDrawable(imageView, src, "setBackgroundDrawable");
 			}
 		}		
 	}
@@ -490,8 +487,7 @@ public class ActivityBuilder {
 						child.setBackgroundResource(resId);
 					}
 				} else {
-					UrlImageViewHelper.setUrlDrawable(imageView, src);
-					child.setBackgroundDrawable(imageView.getDrawable());
+					UrlImageViewHelper.setUrlDrawable(child, src, "setBackgroundDrawable");
 				}
 			}
 		}
@@ -654,7 +650,7 @@ public class ActivityBuilder {
 							img.setImageResource(resId);
 						}
 					} else {
-						UrlImageViewHelper.setUrlDrawable(img, src);
+						UrlImageViewHelper.setUrlDrawable(img, src, "setImageDrawable");
 					}
 				}
 				registerView(view, img, e);
