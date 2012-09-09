@@ -17,6 +17,8 @@ import com.dayosoft.activeapp.R;
 import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
 
 import android.app.Activity;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.text.Layout;
 import android.text.method.PasswordTransformationMethod;
 import android.util.TypedValue;
@@ -28,6 +30,7 @@ import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
@@ -349,7 +352,54 @@ public class ActivityBuilder {
 		}
 		return 0;
 	}
-
+	
+	private void handleIconDrawable(Element e, ImageButton child) {
+		String src = e.getAttributeValue("background");
+		ImageView imageView = new ImageView(context);
+		if (src != null) {
+			if (src.indexOf("@drawable:") != -1) {
+				String drawable = src.substring(10);
+				int resId = getDrawable(drawable);
+				if (resId != 0) {
+					child.setImageResource(resId);
+				}
+			} else {
+				UrlImageViewHelper.setUrlDrawable(imageView, src);
+				child.setImageDrawable(imageView.getDrawable());
+			}
+		}	
+	}
+	
+	private void handleDrawable(Element e, View child) {
+		String src = e.getAttributeValue("background");
+		ImageView imageView = new ImageView(context);
+		if (src != null) {
+			if (src.indexOf("@drawable:") != -1) {
+				String drawable = src.substring(10);
+				int resId = getDrawable(drawable);
+				if (resId != 0) {
+					child.setBackgroundResource(resId);
+				}
+			} else {
+				UrlImageViewHelper.setUrlDrawable(imageView, src);
+				child.setBackgroundDrawable(imageView.getDrawable());
+			}
+		}		
+	}
+	
+	private void registerTextView(ViewGroup group, TextView child, Element e) {
+		String drawable_left =  e.getAttributeValue("drawable_left");
+		Drawable drawableLeft = null, drawableTop = null, drawableRight = null,
+				drawableBottom = null;
+//		if (drawable_left!=null) {
+//			drawableLeft = new ImageView(context);
+//			UrlImageViewHelper.setUrlDrawable(drawableLeft, drawable_left);
+//		}
+//		
+		
+		child.setCompoundDrawables(drawableLeft, drawableTop, drawableRight, drawableBottom);
+	}
+	
 	private void registerView(ViewGroup group, View child, Element e) {
 
 		ViewExtras extras = new ViewExtras();
@@ -367,6 +417,11 @@ public class ActivityBuilder {
 			extras.setView_name(name);
 		}
 
+		String background_color = e.getAttributeValue("background_color");
+		if (background_color!= null) {
+			child.setBackgroundColor(Color.parseColor(background_color));
+		}
+		
 		if (e.getAttributeValue("rotation") != null) {
 			float rotation = Float.parseFloat(e.getAttributeValue("rotation"));
 			child.setRotation(rotation);
@@ -450,7 +505,7 @@ public class ActivityBuilder {
 			int minWidth = Integer.parseInt(e.getAttributeValue("min_width"));
 			child.setMinimumWidth(minWidth);
 		}
-
+		
 		child.setTag(extras);
 
 		setAlpha(child, e);
@@ -537,6 +592,13 @@ public class ActivityBuilder {
 					textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP,
 							Float.parseFloat(fontSize));
 				}
+				
+				String color = e.getAttributeValue("color");
+				if (color != null) {
+					
+					textView.setTextColor(Color.parseColor(color));
+				}
+				
 				String content = e.getTextTrim() != null ? e.getTextTrim() : "";
 				textView.setText(content);
 				registerView(view, textView, e);
@@ -544,6 +606,11 @@ public class ActivityBuilder {
 				Button button = new Button(context);
 				String content = e.getTextTrim() != null ? e.getTextTrim() : "";
 				button.setText(content);
+				registerView(view, button, e);
+			} else if (node_name.equals("image_button")) {
+				ImageButton button = new ImageButton(context);
+				
+				this.handleIconDrawable(e, button);
 				registerView(view, button, e);
 			} else if (node_name.equals("input")) {
 				EditText editText = new EditText(context);

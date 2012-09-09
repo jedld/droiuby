@@ -9,4 +9,6 @@ class TextViewWrapper < ViewWrapper
   def text
       @view.getText
   end
+  
+  
 end

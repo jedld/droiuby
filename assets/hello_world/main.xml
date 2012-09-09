@@ -1,7 +1,7 @@
 <activity controller="main.rb">
     <layout type="linear" width="match">
-        <t class="exclamation text" > what!!!!</t>
-        <t size="20">Different font size</t>
+        <t color="#FF0D0D" class="exclamation text" > what!!!!</t>
+        <t background_color="#0D2EFF" size="20">Different font size</t>
         <t size="18">Different font size</t>
         <input id="test_field" value="This is a text field"></input>
         <button id='store_text' width="match">Store</button>

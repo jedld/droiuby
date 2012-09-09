@@ -7,7 +7,7 @@
             <layout
                 type="linear"
                 width="match" >
-                <button
+                <image_button
                     id="add_note"
                     height="wrap"
                     size="20"

@@ -87,6 +87,12 @@ public final class UrlImageViewHelper {
 	public static final int CACHE_DURATION_SIX_DAYS = CACHE_DURATION_ONE_DAY * 6;
 	public static final int CACHE_DURATION_ONE_WEEK = CACHE_DURATION_ONE_DAY * 7;
 
+//	public static void stUrlCompoundDrawable(final View view, 
+//			final string url, int defaultResource) {
+//		setUrlDrawable(imageView.getContext(), imageView, url, defaultResource,
+//				CACHE_DURATION_THREE_DAYS);	
+//	}
+	
 	public static void setUrlDrawable(final ImageView imageView,
 			final String url, int defaultResource) {
 		setUrlDrawable(imageView.getContext(), imageView, url, defaultResource,
@@ -224,6 +230,10 @@ public final class UrlImageViewHelper {
 		}
 	}
 
+	private static void setUrlCompundDrawable() {
+		
+	}
+	
 	private static void setUrlDrawable(final Context context,
 			final ImageView imageView, final String url,
 			final Drawable defaultDrawable, long cacheDurationMs,
