@@ -334,12 +334,8 @@ public class ActivityBuilder {
 
 	private int getDrawable(String drawable) {
 		try {
-			Class c = Class.forName("R.drawable");
-			Field f = c.getField(drawable);
+			Field f = R.drawable.class.getField(drawable);
 			return f.getInt(new R.drawable());
-		} catch (ClassNotFoundException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
 		} catch (NoSuchFieldException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -352,7 +348,7 @@ public class ActivityBuilder {
 		}
 		return 0;
 	}
-	
+
 	private void handleIconDrawable(Element e, ImageButton child) {
 		String src = e.getAttributeValue("background");
 		ImageView imageView = new ImageView(context);
@@ -367,9 +363,9 @@ public class ActivityBuilder {
 				UrlImageViewHelper.setUrlDrawable(imageView, src);
 				child.setImageDrawable(imageView.getDrawable());
 			}
-		}	
+		}
 	}
-	
+
 	private void handleDrawable(Element e, View child) {
 		String src = e.getAttributeValue("background");
 		ImageView imageView = new ImageView(context);
@@ -384,22 +380,22 @@ public class ActivityBuilder {
 				UrlImageViewHelper.setUrlDrawable(imageView, src);
 				child.setBackgroundDrawable(imageView.getDrawable());
 			}
-		}		
+		}
 	}
-	
+
 	private void registerTextView(ViewGroup group, TextView child, Element e) {
-		String drawable_left =  e.getAttributeValue("drawable_left");
-		Drawable drawableLeft = null, drawableTop = null, drawableRight = null,
-				drawableBottom = null;
-//		if (drawable_left!=null) {
-//			drawableLeft = new ImageView(context);
-//			UrlImageViewHelper.setUrlDrawable(drawableLeft, drawable_left);
-//		}
-//		
-		
-		child.setCompoundDrawables(drawableLeft, drawableTop, drawableRight, drawableBottom);
+		String drawable_left = e.getAttributeValue("drawable_left");
+		Drawable drawableLeft = null, drawableTop = null, drawableRight = null, drawableBottom = null;
+		// if (drawable_left!=null) {
+		// drawableLeft = new ImageView(context);
+		// UrlImageViewHelper.setUrlDrawable(drawableLeft, drawable_left);
+		// }
+		//
+
+		child.setCompoundDrawables(drawableLeft, drawableTop, drawableRight,
+				drawableBottom);
 	}
-	
+
 	private void registerView(ViewGroup group, View child, Element e) {
 
 		ViewExtras extras = new ViewExtras();
@@ -418,10 +414,10 @@ public class ActivityBuilder {
 		}
 
 		String background_color = e.getAttributeValue("background_color");
-		if (background_color!= null) {
+		if (background_color != null) {
 			child.setBackgroundColor(Color.parseColor(background_color));
 		}
-		
+
 		if (e.getAttributeValue("rotation") != null) {
 			float rotation = Float.parseFloat(e.getAttributeValue("rotation"));
 			child.setRotation(rotation);
@@ -505,7 +501,7 @@ public class ActivityBuilder {
 			int minWidth = Integer.parseInt(e.getAttributeValue("min_width"));
 			child.setMinimumWidth(minWidth);
 		}
-		
+
 		child.setTag(extras);
 
 		setAlpha(child, e);
@@ -571,15 +567,15 @@ public class ActivityBuilder {
 				}
 				webview.loadUrl(url);
 				webview.getSettings().setJavaScriptEnabled(true);
-				webview.setWebViewClient(new WebViewClient() {  
-					   @Override  
-					   public boolean shouldOverrideUrlLoading(WebView view, String url)  
-					   {  
-					       view.loadUrl(url);
-					       return false;
+				webview.setWebViewClient(new WebViewClient() {
+					@Override
+					public boolean shouldOverrideUrlLoading(WebView view,
+							String url) {
+						view.loadUrl(url);
+						return false;
 
-					    }  
-					 });  
+					}
+				});
 				registerView(view, webview, e);
 			} else if (node_name.equals("list")) {
 				ListView list_view = new ListView(context);
@@ -592,13 +588,13 @@ public class ActivityBuilder {
 					textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP,
 							Float.parseFloat(fontSize));
 				}
-				
+
 				String color = e.getAttributeValue("color");
 				if (color != null) {
-					
+
 					textView.setTextColor(Color.parseColor(color));
 				}
-				
+
 				String content = e.getTextTrim() != null ? e.getTextTrim() : "";
 				textView.setText(content);
 				registerView(view, textView, e);
@@ -609,7 +605,7 @@ public class ActivityBuilder {
 				registerView(view, button, e);
 			} else if (node_name.equals("image_button")) {
 				ImageButton button = new ImageButton(context);
-				
+
 				this.handleIconDrawable(e, button);
 				registerView(view, button, e);
 			} else if (node_name.equals("input")) {
