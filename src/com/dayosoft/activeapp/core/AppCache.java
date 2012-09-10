@@ -7,8 +7,8 @@ import org.jruby.embed.EmbedEvalUnit;
 
 public class AppCache {
 	EmbedEvalUnit evalUnit;
-	ArrayList <EmbedEvalUnit>evalUnits;
-	
+	ArrayList<EmbedEvalUnit> evalUnits;
+
 	public ArrayList<EmbedEvalUnit> getEvalUnits() {
 		return evalUnits;
 	}

@@ -20,10 +20,9 @@ How does it work?
 
 Using the droiuby application running on your device, it parses specially formatted
 websites that uses droiuby markup and contains ruby scripts. The markup is 
-designed to correspond directly to native controls and widgets while using some
-familiar HTML constructs. To facilitate client side interaction (like javascript)
-the website can use ruby scripts to handle events. Using JRuby, scripts are able
-to access all libraries and services available to native applications.
+designed to correspond directly to native controls and widgets. To facilitate client 
+side interaction (like javascript) the website can use ruby scripts to handle events. 
+Using JRuby, scripts are able to access all libraries and services available to native applications.
 
 To allow developers to 'debug' the application (similar to the Chrome "inspect" and Rails Console)
 Droiuby opens up a webserver at port 4000 on your phone that provides a web console
@@ -150,7 +149,7 @@ Installation
 Issues
 ------
 
-- Apps are limited to one activities only since you can't really just create new activities programmatically in android.
+- Apps are limited to one activity only since you can't really just create new activities programmatically in android.
 - Slow initial loading of apps
 
 Similar Projects

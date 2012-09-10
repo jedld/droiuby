@@ -28,8 +28,8 @@ public class AppDownloader extends AsyncTask<Void, Void, ActiveApp> {
 	protected void onPreExecute() {
 		// TODO Auto-generated method stub
 		super.onPreExecute();
-		progress_dialog = ProgressDialog.show(c, "", "Querying application configuration...",
-				true);
+		progress_dialog = ProgressDialog.show(c, "",
+				"Querying application configuration...", true);
 	}
 
 	@Override
@@ -40,17 +40,18 @@ public class AppDownloader extends AsyncTask<Void, Void, ActiveApp> {
 	@Override
 	protected void onPostExecute(ActiveApp result) {
 		super.onPostExecute(result);
-		
+
 		if (progress_dialog != null) {
 			progress_dialog.dismiss();
 		}
-		if (result!=null) {
+		if (result != null) {
 			Intent intent = new Intent(c, activityClass);
 			intent.putExtra("application", result);
 			c.startActivity(intent);
 		} else {
 			AlertDialog.Builder builder = new AlertDialog.Builder(c);
-			builder.setMessage("Unable to download access app at " + url).setCancelable(true).create();
+			builder.setMessage("Unable to download access app at " + url)
+					.setCancelable(true).create();
 		}
 	}
 

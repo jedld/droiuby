@@ -18,8 +18,10 @@ def wrap_native_view(view)
     WebViewWrapper.new(view)
   elsif (view.class < Java::android.view.ViewGroup)
     ViewGroupWrapper.new(view)
-  else
+  elsif (view.class < Java::android.view.View)
     ViewWrapper.new(view)
+  else
+    view
   end
 end
 

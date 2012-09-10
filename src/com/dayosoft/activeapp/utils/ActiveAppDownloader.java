@@ -66,7 +66,8 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean> {
 	SAXBuilder sax = new SAXBuilder();
 
 	public ActiveAppDownloader(ActiveApp app, Activity targetActivity,
-			ViewGroup target, AppCache cache, ExecutionBundle executionBundle, OnDownloadCompleteListener listener) {
+			ViewGroup target, AppCache cache, ExecutionBundle executionBundle,
+			OnDownloadCompleteListener listener) {
 		this.targetActivity = targetActivity;
 		this.app = app;
 		this.baseUrl = app.getBaseUrl();
@@ -136,7 +137,7 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean> {
 			if (asset_name.startsWith("/")) {
 				asset_name = asset_name.substring(1);
 			}
-			return Utils.query(baseUrl + "/" +asset_name, targetActivity);
+			return Utils.query(baseUrl + "/" + asset_name, targetActivity);
 		}
 	}
 
@@ -214,6 +215,9 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean> {
 				evalUnits.add(Utils.preParseRuby(scriptingContainer,
 						controller_content, targetActivity));
 			}
+			
+			builder.preload();
+			
 			return true;
 		} catch (ClientProtocolException e) {
 			// TODO Auto-generated catch block
@@ -255,7 +259,8 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean> {
 						.runScriptlet("$main_activty = MainActivity.new; $main_activty.on_create");
 				long elapsed = System.currentTimeMillis() - start;
 				Log.d(this.getClass().toString(),
-						"ruby segment: on_create() elapsed time = " + elapsed + "ms");
+						"ruby segment: on_create() elapsed time = " + elapsed
+								+ "ms");
 			}
 		} catch (EvalFailedException e) {
 			Log.e(this.getClass().toString(), e.getMessage());

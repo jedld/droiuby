@@ -11,8 +11,8 @@ public class AnimationListenerWrapper extends ListenerWrapper implements
 
 	String target;
 
-	public AnimationListenerWrapper(ScriptingContainer container, String target,
-			IRubyObject block) {
+	public AnimationListenerWrapper(ScriptingContainer container,
+			String target, IRubyObject block) {
 		super(container, block);
 		this.target = target;
 	}

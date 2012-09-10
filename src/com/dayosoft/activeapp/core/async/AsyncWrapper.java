@@ -6,10 +6,9 @@ import org.jruby.runtime.builtin.IRubyObject;
 import android.os.AsyncTask;
 import android.util.Log;
 
-public class AsyncWrapper extends AsyncTask<Object, Object, Object>{
+public class AsyncWrapper extends AsyncTask<Object, Object, Object> {
 
 	Object background_task, post_execute, pre_execute;
-	
 
 	public Object getBackground_task() {
 		return background_task;
@@ -43,13 +42,12 @@ public class AsyncWrapper extends AsyncTask<Object, Object, Object>{
 		this.container = container;
 	}
 
-
 	ScriptingContainer container;
-	
+
 	public AsyncWrapper(ScriptingContainer container) {
 		this.container = container;
 	}
-		
+
 	@Override
 	protected void onPostExecute(Object result) {
 		// TODO Auto-generated method stub
@@ -58,15 +56,16 @@ public class AsyncWrapper extends AsyncTask<Object, Object, Object>{
 			String targetName = getTargetName();
 			Log.d(this.getClass().toString(), "post executing ..." + targetName);
 			container.put(targetName, post_execute);
-			container.put(targetName+"_result", result);
-			container.runScriptlet(targetName + ".call("+targetName+"_result)");
+			container.put(targetName + "_result", result);
+			container.runScriptlet(targetName + ".call(" + targetName
+					+ "_result)");
 		}
 	}
 
 	private String getTargetName() {
 		return "_target_" + Thread.currentThread().getId();
 	}
-	
+
 	@Override
 	protected void onPreExecute() {
 		// TODO Auto-generated method stub
@@ -78,13 +77,13 @@ public class AsyncWrapper extends AsyncTask<Object, Object, Object>{
 		}
 	}
 
-
 	@Override
 	protected Object doInBackground(Object... params) {
 		// TODO Auto-generated method stub
 		if (background_task != null) {
 			String targetName = getTargetName();
-			Log.d(this.getClass().toString(), "background executing ..." + targetName);
+			Log.d(this.getClass().toString(), "background executing ..."
+					+ targetName);
 			container.put(targetName, background_task);
 			return container.runScriptlet(targetName + ".call");
 		}
