@@ -30,7 +30,7 @@ public class WebConsole extends NanoHTTPD {
 	public static WebConsole instance;
 	WeakReference<Activity> activity;
 	AssetManager manager;
-	
+
 	public ScriptingContainer getContainer() {
 		return container;
 	}
@@ -56,10 +56,9 @@ public class WebConsole extends NanoHTTPD {
 	}
 
 	public static boolean uiPosted = false;
-	
 
 	protected WebConsole(int port, File wwwroot, Activity activity,
-			ScriptingContainer container) throws IOException{
+			ScriptingContainer container) throws IOException {
 		super(port, wwwroot);
 		this.activity = new WeakReference<Activity>(activity);
 		this.container = container;
@@ -67,12 +66,13 @@ public class WebConsole extends NanoHTTPD {
 		Log.d(this.getClass().toString(), "Starting HTTPD server on port "
 				+ port);
 	}
-	
-	public static WebConsole getInstance(int port, File wwwroot, Activity activity,
-			ScriptingContainer container) throws IOException {
+
+	public static WebConsole getInstance(int port, File wwwroot,
+			Activity activity, ScriptingContainer container) throws IOException {
 		if (instance == null) {
 			instance = new WebConsole(port, wwwroot, activity, container);
-		};
+		}
+		;
 		return instance;
 	}
 

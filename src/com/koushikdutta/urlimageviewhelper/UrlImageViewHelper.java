@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Hashtable;
 
@@ -22,6 +23,7 @@ import com.larvalabs.svgandroid.SVGParser;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -87,12 +89,12 @@ public final class UrlImageViewHelper {
 	public static final int CACHE_DURATION_SIX_DAYS = CACHE_DURATION_ONE_DAY * 6;
 	public static final int CACHE_DURATION_ONE_WEEK = CACHE_DURATION_ONE_DAY * 7;
 
-//	public static void stUrlCompoundDrawable(final View view, 
-//			final string url, int defaultResource) {
-//		setUrlDrawable(imageView.getContext(), imageView, url, defaultResource,
-//				CACHE_DURATION_THREE_DAYS);	
-//	}
-	
+	// public static void stUrlCompoundDrawable(final View view,
+	// final string url, int defaultResource) {
+	// setUrlDrawable(imageView.getContext(), imageView, url, defaultResource,
+	// CACHE_DURATION_THREE_DAYS);
+	// }
+
 	public static void setUrlDrawable(final ImageView imageView,
 			final String url, int defaultResource) {
 		setUrlDrawable(imageView.getContext(), imageView, url, defaultResource,
@@ -231,7 +233,79 @@ public final class UrlImageViewHelper {
 	}
 
 	private static void setUrlCompundDrawable() {
+
+	}
+
+	public static Drawable downloadFromUrlAsync(Context context, String url, String filename) {
+		AndroidHttpClient client = AndroidHttpClient
+				.newInstance(context.getPackageName());
+		try {
+			HttpGet get = new HttpGet(url);
+			final HttpParams httpParams = new BasicHttpParams();
+			HttpClientParams.setRedirecting(httpParams, true);
+			get.setParams(httpParams);
+			HttpResponse resp = client.execute(get);
+			int status = resp.getStatusLine().getStatusCode();
+			if (status != HttpURLConnection.HTTP_OK) {
+				Log.i(LOGTAG, "Couldn't download image from Server: "
+						+ url + " Reason: "
+						+ resp.getStatusLine().getReasonPhrase()
+						+ " / " + status);
+				return null;
+			}
+			HttpEntity entity = resp.getEntity();
+			Log.i(LOGTAG,
+					url + " Image Content Length: "
+							+ entity.getContentLength());
+			InputStream is = entity.getContent();
+			FileOutputStream fos = context.openFileOutput(filename,
+					Context.MODE_PRIVATE);
+			copyStream(is, fos);
+			fos.close();
+			is.close();
+			FileInputStream fis = context.openFileInput(filename);
+			if (url.endsWith(".svg")) {
+				return loadSVGDrawableFromStream(fis);
+			} else {
+				return loadDrawableFromStream(context, fis);
+			}
+		} catch (Exception ex) {
+			Log.e(LOGTAG, "Exception during Image download of " + url,
+					ex);
+			return null;
+		} finally {
+			client.close();
+		}
 		
+	}
+	
+	public static Drawable downloadFromUrl(Context context, String url, int cacheDurationMs) {
+		Drawable drawable = null;
+		String filename = getFilenameForUrl(url);
+
+		File file = context.getFileStreamPath(filename);
+		if (file.exists()) {
+			try {
+				if (cacheDurationMs == CACHE_DURATION_INFINITE
+						|| System.currentTimeMillis() < file.lastModified()
+								+ cacheDurationMs) {
+
+					FileInputStream fis = context.openFileInput(filename);
+					if (url.endsWith(".svg")) {
+						drawable = loadSVGDrawableFromStream(fis);
+					} else {
+						drawable = loadDrawableFromStream(context, fis);
+					}
+					fis.close();
+					return drawable;
+				} else {
+					// Log.i(LOGTAG, "File cache has expired. Refreshing.");
+				}
+			} catch (Exception ex) {
+			}
+		}
+		
+		return downloadFromUrlAsync(context, url, filename);
 	}
 	
 	private static void setUrlDrawable(final Context context,
@@ -322,44 +396,7 @@ public final class UrlImageViewHelper {
 		AsyncTask<Void, Void, Drawable> downloader = new AsyncTask<Void, Void, Drawable>() {
 			@Override
 			protected Drawable doInBackground(Void... params) {
-				AndroidHttpClient client = AndroidHttpClient
-						.newInstance(context.getPackageName());
-				try {
-					HttpGet get = new HttpGet(url);
-					final HttpParams httpParams = new BasicHttpParams();
-					HttpClientParams.setRedirecting(httpParams, true);
-					get.setParams(httpParams);
-					HttpResponse resp = client.execute(get);
-					int status = resp.getStatusLine().getStatusCode();
-					if (status != HttpURLConnection.HTTP_OK) {
-						 Log.i(LOGTAG, "Couldn't download image from Server: "
-						 + url + " Reason: " +
-						 resp.getStatusLine().getReasonPhrase() + " / " +
-						 status);
-						return null;
-					}
-					HttpEntity entity = resp.getEntity();
-					 Log.i(LOGTAG, url + " Image Content Length: " +
-					 entity.getContentLength());
-					InputStream is = entity.getContent();
-					FileOutputStream fos = context.openFileOutput(filename,
-							Context.MODE_PRIVATE);
-					copyStream(is, fos);
-					fos.close();
-					is.close();
-					FileInputStream fis = context.openFileInput(filename);
-					if (url.endsWith(".svg")) {
-						return loadSVGDrawableFromStream(fis);
-					} else {
-						return loadDrawableFromStream(context, fis);
-					}
-				} catch (Exception ex) {
-					 Log.e(LOGTAG, "Exception during Image download of " +
-					 url, ex);
-					return null;
-				} finally {
-					client.close();
-				}
+				return downloadFromUrlAsync(context, url, filename);
 			}
 
 			protected void onPostExecute(BitmapDrawable result) {

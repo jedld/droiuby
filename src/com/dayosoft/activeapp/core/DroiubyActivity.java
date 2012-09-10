@@ -72,8 +72,7 @@ public abstract class DroiubyActivity extends Activity implements
 			if (application.getBaseUrl().startsWith("asset:")) {
 				String asset_name = "data_" + application.getBaseUrl();
 				asset_name = asset_name.replace('/', '_').replace('\\', '_');
-				prefs = getSharedPreferences(asset_name
-						, MODE_PRIVATE);
+				prefs = getSharedPreferences(asset_name, MODE_PRIVATE);
 			} else {
 				URL parsedURL = new URL(application.getBaseUrl());
 				prefs = getSharedPreferences("data_" + parsedURL.getProtocol()

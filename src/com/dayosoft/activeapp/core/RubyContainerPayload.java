@@ -7,13 +7,13 @@ import android.app.Activity;
 public class RubyContainerPayload {
 	Activity currentActivity;
 	ActivityBuilder activityBuilder;
-	
+
 	static RubyContainerPayload instance;
 
 	public RubyContainerPayload() {
-		
+
 	}
-	
+
 	public Activity getCurrentActivity() {
 		return currentActivity;
 	}

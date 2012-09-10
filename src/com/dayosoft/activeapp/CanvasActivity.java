@@ -7,20 +7,20 @@ import android.view.MenuItem;
 import android.view.ViewGroup;
 
 public class CanvasActivity extends DroiubyActivity {
-	
+
 	ViewGroup target;
 	ActiveApp application;
-	
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.canvas);
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.canvas);
 		Bundle params = this.getIntent().getExtras();
 		application = (ActiveApp) params.getSerializable("application");
 		target = (ViewGroup) this.findViewById(R.id.mainLayout);
-		
+
 		setupApplication(application, target);
-    }
+	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {

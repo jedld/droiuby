@@ -17,10 +17,12 @@ import com.dayosoft.activeapp.R;
 import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
 
 import android.app.Activity;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.text.Layout;
 import android.text.method.PasswordTransformationMethod;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -48,6 +50,7 @@ public class ActivityBuilder {
 	Activity context;
 	Element rootElement;
 	ViewGroup target;
+	HashMap<String, Drawable> preloadedResource = new HashMap<String, Drawable>();
 	HashMap<String, Integer> namedViewDictionary = new HashMap<String, Integer>();
 	HashMap<String, ArrayList<Integer>> classViewDictionary = new HashMap<String, ArrayList<Integer>>();
 
@@ -81,6 +84,21 @@ public class ActivityBuilder {
 		this.rootElement = document.getRootElement();
 	}
 
+	public void preload() {
+		List<Element> children = rootElement.getChildren("preload");
+		for (Element elem : children) {
+			String name = elem.getAttributeValue("id");
+			String type = elem.getAttributeValue("type");
+			String src = elem.getAttributeValue("src");
+			if (type.equals("image")) {
+				Log.d(this.getClass().toString(), "preloading " + src + " ... ");
+				Drawable drawable = UrlImageViewHelper.downloadFromUrl(context,
+						src, UrlImageViewHelper.CACHE_DURATION_ONE_DAY);
+				this.preloadedResource.put(name, drawable);
+			}
+		}
+	}
+
 	public void build() {
 		target.removeAllViews();
 		parse(rootElement, target);
@@ -90,7 +108,7 @@ public class ActivityBuilder {
 
 	}
 
-	public View findViewByName(String selector) {
+	public Object findViewByName(String selector) {
 		selector = selector.trim();
 		if (selector.startsWith("#")) {
 			String name = selector.substring(1);
@@ -99,13 +117,16 @@ public class ActivityBuilder {
 				return context.findViewById(id);
 			}
 			return null;
-		} else if (selector.startsWith("@")) {
-			String name = selector.substring(1);
-			int id = getDrawable(name);
+		} else if (selector.startsWith("@drawable:")) {
+			String name = selector.substring(10);
+			int id = getDrawableId(name);
 			return context.findViewById(id);
+		} else if (selector.startsWith("@preload:")) {
+			String name = selector.substring(9);
+			return preloadedResource.get(name);
 		} else {
 			String name = selector.substring(1);
-			int id = getDrawable(name);
+			int id = getDrawableId(name);
 			return context.findViewById(id);
 		}
 	}
@@ -200,25 +221,25 @@ public class ActivityBuilder {
 
 		String left_of = e.getAttributeValue("left_of");
 		if (left_of != null) {
-			View view = this.findViewByName(left_of);
+			View view = (View) this.findViewByName(left_of);
 			params.addRule(RelativeLayout.LEFT_OF, view.getId());
 		}
 
 		String right_of = e.getAttributeValue("right_of");
 		if (right_of != null) {
-			View view = this.findViewByName(right_of);
+			View view = (View) this.findViewByName(right_of);
 			params.addRule(RelativeLayout.RIGHT_OF, view.getId());
 		}
 
 		String below = e.getAttributeValue("below");
 		if (below != null) {
-			View view = this.findViewByName(below);
+			View view = (View) this.findViewByName(below);
 			params.addRule(RelativeLayout.BELOW, view.getId());
 		}
 
 		String above = e.getAttributeValue("above");
 		if (above != null) {
-			View view = this.findViewByName(above);
+			View view = (View) this.findViewByName(above);
 			params.addRule(RelativeLayout.ABOVE, view.getId());
 		}
 
@@ -332,7 +353,7 @@ public class ActivityBuilder {
 		return params;
 	}
 
-	private int getDrawable(String drawable) {
+	private int getDrawableId(String drawable) {
 		try {
 			Field f = R.drawable.class.getField(drawable);
 			return f.getInt(new R.drawable());
@@ -355,7 +376,7 @@ public class ActivityBuilder {
 		if (src != null) {
 			if (src.indexOf("@drawable:") != -1) {
 				String drawable = src.substring(10);
-				int resId = getDrawable(drawable);
+				int resId = getDrawableId(drawable);
 				if (resId != 0) {
 					child.setImageResource(resId);
 				}
@@ -372,7 +393,7 @@ public class ActivityBuilder {
 		if (src != null) {
 			if (src.indexOf("@drawable:") != -1) {
 				String drawable = src.substring(10);
-				int resId = getDrawable(drawable);
+				int resId = getDrawableId(drawable);
 				if (resId != 0) {
 					child.setBackgroundResource(resId);
 				}
@@ -394,6 +415,20 @@ public class ActivityBuilder {
 
 		child.setCompoundDrawables(drawableLeft, drawableTop, drawableRight,
 				drawableBottom);
+	}
+
+	private int toPixels(String measurement) {
+		int minWidth = 0;
+		if (measurement.endsWith("dp")) {
+			Resources r = context.getResources();
+			minWidth = Math.round(TypedValue.applyDimension(
+					TypedValue.COMPLEX_UNIT_DIP,
+					Float.parseFloat(measurement.substring(0,
+							measurement.length() - 2)), r.getDisplayMetrics()));
+		} else {
+			minWidth = Integer.parseInt(measurement);
+		}
+		return minWidth;
 	}
 
 	private void registerView(ViewGroup group, View child, Element e) {
@@ -481,10 +516,13 @@ public class ActivityBuilder {
 			if (src != null) {
 				if (src.indexOf("@drawable:") != -1) {
 					String drawable = src.substring(10);
-					int resId = getDrawable(drawable);
+					int resId = getDrawableId(drawable);
 					if (resId != 0) {
 						child.setBackgroundResource(resId);
 					}
+				} else if (src.indexOf("@preload:") != -1) {
+					Drawable drawable = (Drawable) this.findViewByName(src);
+					child.setBackgroundDrawable(drawable);
 				} else {
 					UrlImageViewHelper.setUrlDrawable(imageView, src);
 					child.setBackgroundDrawable(imageView.getDrawable());
@@ -492,14 +530,14 @@ public class ActivityBuilder {
 			}
 		}
 
-		if (e.getAttribute("min_height") != null) {
-			int minHeight = Integer.parseInt(e.getAttributeValue("min_height"));
-			child.setMinimumHeight(minHeight);
+		String min_height = e.getAttributeValue("min_height");
+		if (min_height != null) {
+			child.setMinimumHeight(toPixels(min_height));
 		}
 
-		if (e.getAttribute("min_width") != null) {
-			int minWidth = Integer.parseInt(e.getAttributeValue("min_width"));
-			child.setMinimumWidth(minWidth);
+		String min_width = e.getAttributeValue("min_width");
+		if (min_width != null) {
+			child.setMinimumWidth(toPixels(min_width));
 		}
 
 		child.setTag(extras);
@@ -591,7 +629,6 @@ public class ActivityBuilder {
 
 				String color = e.getAttributeValue("color");
 				if (color != null) {
-
 					textView.setTextColor(Color.parseColor(color));
 				}
 
@@ -645,9 +682,14 @@ public class ActivityBuilder {
 				if (src != null) {
 					if (src.startsWith("@drawable:")) {
 						String drawable = src.substring(10);
-						int resId = getDrawable(drawable);
+						int resId = getDrawableId(drawable);
 						if (resId != 0) {
 							img.setImageResource(resId);
+						}
+					} else if (src.startsWith("@preload:")) {
+						Drawable drawable = (Drawable) this.findViewByName(src);
+						if (drawable != null) {
+							img.setImageDrawable(drawable);
 						}
 					} else {
 						UrlImageViewHelper.setUrlDrawable(img, src);

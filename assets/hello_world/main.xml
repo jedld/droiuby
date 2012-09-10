@@ -1,4 +1,5 @@
 <activity controller="main.rb">
+    <preload id="android_log_drawable" type="image" src="http://upload.wikimedia.org/wikipedia/en/a/a5/Android-logo.jpg"/>
     <layout type="linear" width="match" background="@drawable:droiuby_white">
         <t color="#FF0D0D" class="exclamation text" > what!!!!</t>
         <t background_color="#0D2EFF" size="20">Different font size</t>

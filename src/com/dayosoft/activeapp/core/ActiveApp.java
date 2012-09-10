@@ -4,12 +4,11 @@ import java.io.Serializable;
 
 public class ActiveApp implements Serializable {
 
-
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 4120098422645102827L;
-	
+
 	String name, description, baseUrl, mainUrl;
 
 	public String getMainUrl() {
