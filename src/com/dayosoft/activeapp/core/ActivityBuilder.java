@@ -507,6 +507,7 @@ public class ActivityBuilder {
 			child.setEnabled(enabled.equalsIgnoreCase("false") ? false : true);
 		}
 
+		
 		if (e.getAttribute("background") != null) {
 			String src = e.getAttributeValue("background");
 			ImageView imageView = new ImageView(context);

@@ -41,6 +41,14 @@ class ViewWrapper
     @view
   end
 
+  def background
+    @view.getBackground
+  end
+  
+  def background_color=(value)
+    @view.setBackgroundColor(Java::android.graphics.Color.parseColor(value)); 
+  end
+  
   def gone=(flag)
     @view.setVisibility(Java::android.view.View::GONE) if flag
   end
