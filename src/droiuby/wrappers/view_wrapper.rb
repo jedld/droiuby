@@ -162,6 +162,8 @@ class ViewWrapper
       self.native.setOnClickListener(Java::com.dayosoft.activeapp.core.listeners.ViewOnClickListener.new($scripting_container, &block))
     when :long_click
       self.native.setOnLongClickListener(Java::com.dayosoft.activeapp.core.listeners.ViewOnLongClickListener.new($scripting_container, &block))
+    when :focus_changed
+      self.native.setOnFocusChangeListener(Java::com.dayosoft.activeapp.core.listeners.FocusChangeListenerWrapper.new($scripting_container, &block))
     end
   end
 end

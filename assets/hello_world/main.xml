@@ -1,24 +1,27 @@
 <activity controller="main.rb">
     <preload id="android_log_drawable" type="image" src="http://upload.wikimedia.org/wikipedia/en/a/a5/Android-logo.jpg"/>
-    <layout type="linear" width="match" background="@preload:android_log_drawable">
-        <t color="#FF0D0D" class="exclamation text" > what!!!!</t>
-        <t background_color="#0D2EFF" size="20">Different font size</t>
-        <t size="18">Different font size</t>
-        <input id="test_field" value="This is a text field"></input>
-        <button id='store_text' width="match">Store</button>
-        <button id='test_button' width="match">test</button>
-        <button alpha="0.5" width="match">test</button>
-        <img src="http://upload.wikimedia.org/wikipedia/en/a/a5/Android-logo.jpg" width="100"/>
-        <div id="section">
-            <layout type="relative" width="match">
-                <input parent_left="1" id="test_field2" value="Test text field 2"/>
-                <button id="some_button" right_of="#test_field2" value="test button" width="100">
-                    BUTTON
-                </button>    
-            </layout>
-        </div>
-        <div id="hello_world_section">
-            
-        </div>
+    <layout type="scroll" width="match" height="match">
+	    <layout type="linear" width="match" background="@preload:android_log_drawable">
+	        <t color="#FF0D0D" class="exclamation text" > what!!!!</t>
+	        <t background_color="#0D2EFF" size="20">Different font size</t>
+	        <t size="18">Different font size</t>
+	        <input id="test_field" value="This is a text field"></input>
+	         <input id="test_field" value="This is a text field" width="match"></input>
+	        <button id='store_text' width="match">Store</button>
+	        <button id='test_button' width="match">test</button>
+	        <button alpha="0.5" width="match">test</button>
+	        <img src="http://upload.wikimedia.org/wikipedia/en/a/a5/Android-logo.jpg" width="100"/>
+	        <div id="section">
+	            <layout type="relative" width="match">
+	                <input parent_left="1" id="test_field2" value="Test text field 2"/>
+	                <button id="some_button" right_of="#test_field2" value="test button" width="100">
+	                    BUTTON
+	                </button>    
+	            </layout>
+	        </div>
+	        <div id="hello_world_section">
+	            
+	        </div>
+	    </layout>
     </layout>
 </activity>

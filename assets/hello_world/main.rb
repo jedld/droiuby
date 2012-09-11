@@ -2,7 +2,13 @@ def on_create
   puts 'Hello world from controller file v1'
   puts "Access to current activity = #{$current_activity.getClass.toString}"
   
-  V('#test_field').text = 'prefs here'
+  V('#test_field').tap do |text_field|
+    text_field.text = 'prefs here'
+    text_field.on(:focus_changed) { |v, has_focus|
+      toast "text field has focus " if has_focus 
+    } 
+  end
+  
   if _P.contains? :some_text
     some_text = _P.get(:some_text)
     puts "Setting text #{some_text} from preferences"
