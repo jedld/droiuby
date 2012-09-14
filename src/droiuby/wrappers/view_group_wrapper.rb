@@ -49,8 +49,8 @@ class ViewGroupWrapper < ViewWrapper
   def collect_fields(view, field_hash)
     view.children.each do |child|
       if child.kind_of? EditTextWrapper
-        unless child.getTag.nil?
-          tag = child.getTag
+        unless child.native.getTag.nil?
+          tag = child.native.getTag
           if tag.kind_of? Java::com.dayosoft.activeapp.core.ViewExtras
             unless tag.getView_name.nil?
               field_hash[tag.getView_name.to_sym] = child.text

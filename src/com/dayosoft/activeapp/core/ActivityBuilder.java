@@ -1,5 +1,6 @@
 package com.dayosoft.activeapp.core;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.lang.reflect.Field;
@@ -12,14 +13,20 @@ import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
+import org.jruby.embed.EmbedEvalUnit;
+import org.jruby.embed.EvalFailedException;
+import org.jruby.embed.ScriptingContainer;
 
 import com.dayosoft.activeapp.R;
+import com.dayosoft.activeapp.utils.Utils;
 import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
 
 import android.app.Activity;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
+import android.os.Environment;
 import android.text.Layout;
 import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
@@ -40,6 +47,96 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+
+class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
+
+	ActiveApp app;
+	Activity targetActivity;
+	Document mainActivityDocument;
+	ScriptingContainer scriptingContainer;
+	String baseUrl;
+	String controller;
+	ExecutionBundle executionBundle;
+	private EmbedEvalUnit preParsedScript;
+
+	public ActivityBootstrapper(ExecutionBundle executionBundle, ActiveApp app,
+			Document mainActivityDocument, Activity targetActivity) {
+		this.app = app;
+		this.executionBundle = executionBundle;
+		this.targetActivity = targetActivity;
+		this.baseUrl = app.getBaseUrl();
+		this.scriptingContainer = executionBundle.getContainer();
+	}
+
+	public String loadAsset(String asset_name) {
+		if (baseUrl.indexOf("asset:") != -1) {
+			return Utils.loadAsset(targetActivity, baseUrl + asset_name);
+		} else if (baseUrl.indexOf("file:") != -1) {
+			return Utils.loadFile(asset_name);
+		} else if (baseUrl.indexOf("sdcard:") != -1) {
+			File directory = Environment.getExternalStorageDirectory();
+			try {
+				String asset_path = directory.getCanonicalPath() + asset_name;
+				return Utils.loadFile(asset_path);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return null;
+		} else {
+			if (asset_name.startsWith("/")) {
+				asset_name = asset_name.substring(1);
+			}
+			return Utils.query(baseUrl + "/" + asset_name, targetActivity);
+		}
+	}
+
+	@Override
+	protected ActivityBuilder doInBackground(Void... params) {
+		// TODO Auto-generated method stub
+
+		controller = mainActivityDocument.getRootElement().getAttributeValue(
+				"controller");
+		String baseUrl = app.getBaseUrl();
+
+		if (controller != null) {
+			Log.d("Activity loader", "loading controller file " + baseUrl
+					+ controller);
+			String controller_content = "class MainActivity < ActivityWrapper\n"
+					+ loadAsset(controller) + "\n end\n";
+			preParsedScript = Utils.preParseRuby(scriptingContainer,
+					controller_content, targetActivity);
+		}
+		ActivityBuilder builder = new ActivityBuilder(mainActivityDocument,
+				targetActivity);
+		executionBundle.getPayload().setActivityBuilder(builder);
+		builder.preload();
+		return builder;
+	}
+
+	@Override
+	protected void onPostExecute(ActivityBuilder result) {
+		// TODO Auto-generated method stub
+		super.onPostExecute(result);
+		result.build();
+		try {
+			if (preParsedScript != null) {
+				long start = System.currentTimeMillis();
+				preParsedScript.run();
+				scriptingContainer
+						.runScriptlet("$main_activty = MainActivity.new; $main_activty.on_create");
+				long elapsed = System.currentTimeMillis() - start;
+				Log.d(this.getClass().toString(),
+						"ruby segment: on_create() elapsed time = " + elapsed
+								+ "ms");
+			}
+		} catch (EvalFailedException e) {
+			Log.e(this.getClass().toString(), e.getMessage());
+		}
+
+	}
+
+}
 
 public class ActivityBuilder {
 
@@ -97,6 +194,10 @@ public class ActivityBuilder {
 				this.preloadedResource.put(name, drawable);
 			}
 		}
+	}
+
+	public static void loadLayout(ActiveApp app, Document mainActivityDocument) {
+
 	}
 
 	public void build() {
@@ -380,7 +481,8 @@ public class ActivityBuilder {
 					child.setImageResource(resId);
 				}
 			} else {
-				UrlImageViewHelper.setUrlDrawable(child, src,"setBackgroundDrawable");
+				UrlImageViewHelper.setUrlDrawable(child, src,
+						"setBackgroundDrawable");
 			}
 		}
 	}
@@ -396,7 +498,8 @@ public class ActivityBuilder {
 					child.setBackgroundResource(resId);
 				}
 			} else {
-				UrlImageViewHelper.setUrlDrawable(imageView, src, "setBackgroundDrawable");
+				UrlImageViewHelper.setUrlDrawable(imageView, src,
+						"setBackgroundDrawable");
 			}
 		}
 	}
@@ -507,7 +610,6 @@ public class ActivityBuilder {
 			child.setEnabled(enabled.equalsIgnoreCase("false") ? false : true);
 		}
 
-		
 		if (e.getAttribute("background") != null) {
 			String src = e.getAttributeValue("background");
 			ImageView imageView = new ImageView(context);
@@ -522,7 +624,8 @@ public class ActivityBuilder {
 					Drawable drawable = (Drawable) this.findViewByName(src);
 					child.setBackgroundDrawable(drawable);
 				} else {
-					UrlImageViewHelper.setUrlDrawable(child, src, "setBackgroundDrawable");
+					UrlImageViewHelper.setUrlDrawable(child, src,
+							"setBackgroundDrawable");
 				}
 			}
 		}
@@ -689,7 +792,8 @@ public class ActivityBuilder {
 							img.setImageDrawable(drawable);
 						}
 					} else {
-						UrlImageViewHelper.setUrlDrawable(img, src, "setImageDrawable");
+						UrlImageViewHelper.setUrlDrawable(img, src,
+								"setImageDrawable");
 					}
 				}
 				registerView(view, img, e);

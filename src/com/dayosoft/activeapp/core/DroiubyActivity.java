@@ -106,10 +106,12 @@ public abstract class DroiubyActivity extends Activity implements
 		return true;
 	}
 
+
+
 	@Override
-	protected void onPause() {
+	protected void onDestroy() {
 		// TODO Auto-generated method stub
-		super.onPause();
+		super.onDestroy();
 		console.stop();
 	}
 
