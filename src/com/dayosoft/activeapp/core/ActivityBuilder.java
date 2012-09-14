@@ -37,6 +37,7 @@ import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
@@ -202,7 +203,14 @@ public class ActivityBuilder {
 
 	public void build() {
 		target.removeAllViews();
-		parse(rootElement, target);
+		try {
+			parse(rootElement, target);
+		} catch (Exception e) {
+			TextView view = new TextView(context);
+			view.setText(e.getMessage());
+			view.setTextColor(Color.RED);
+			target.addView(view);
+		}
 	}
 
 	public void setMargins(View v, Element e) {
@@ -284,7 +292,7 @@ public class ActivityBuilder {
 			if (e.getAttributeValue("height").equalsIgnoreCase("match")) {
 				height = LayoutParams.MATCH_PARENT;
 			} else {
-				height = Integer.parseInt(e.getAttributeValue("height"));
+				height = toPixels(e.getAttributeValue("height"));
 			}
 		}
 
@@ -292,29 +300,29 @@ public class ActivityBuilder {
 			if (e.getAttributeValue("width").equalsIgnoreCase("match")) {
 				width = LayoutParams.MATCH_PARENT;
 			} else {
-				width = Integer.parseInt(e.getAttributeValue("width"));
+				width = toPixels(e.getAttributeValue("width"));
 			}
 		}
 
 		// Margins
 		String lm = e.getAttributeValue("left_margin");
 		if (lm != null) {
-			leftMargin = Integer.parseInt(lm);
+			leftMargin = toPixels(lm);
 		}
 
 		String rm = e.getAttributeValue("right_margin");
 		if (rm != null) {
-			rightMargin = Integer.parseInt(rm);
+			rightMargin = toPixels(rm);
 		}
 
 		String tm = e.getAttributeValue("top_margin");
 		if (tm != null) {
-			topMargin = Integer.parseInt(tm);
+			topMargin = toPixels(tm);
 		}
 
 		String bm = e.getAttributeValue("bottom_margin");
 		if (bm != null) {
-			bottomMargin = Integer.parseInt(bm);
+			bottomMargin = toPixels(bm);
 		}
 
 		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
@@ -386,7 +394,7 @@ public class ActivityBuilder {
 			} else if (e.getAttributeValue("height").equalsIgnoreCase("wrap")) {
 				height = LayoutParams.WRAP_CONTENT;
 			} else {
-				height = Integer.parseInt(e.getAttributeValue("height"));
+				height = toPixels(e.getAttributeValue("height"));
 			}
 		}
 
@@ -396,7 +404,7 @@ public class ActivityBuilder {
 			} else if (e.getAttributeValue("width").equalsIgnoreCase("wrap")) {
 				width = LayoutParams.WRAP_CONTENT;
 			} else {
-				width = Integer.parseInt(e.getAttributeValue("width"));
+				width = toPixels(e.getAttributeValue("width"));
 			}
 		}
 
@@ -427,22 +435,22 @@ public class ActivityBuilder {
 		// Margins
 		String lm = e.getAttributeValue("left_margin");
 		if (lm != null) {
-			leftMargin = Integer.parseInt(lm);
+			leftMargin = toPixels(lm);
 		}
 
 		String rm = e.getAttributeValue("right_margin");
 		if (rm != null) {
-			rightMargin = Integer.parseInt(rm);
+			rightMargin = toPixels(rm);
 		}
 
 		String tm = e.getAttributeValue("top_margin");
 		if (tm != null) {
-			topMargin = Integer.parseInt(tm);
+			topMargin = toPixels(tm);
 		}
 
 		String bm = e.getAttributeValue("bottom_margin");
 		if (bm != null) {
-			bottomMargin = Integer.parseInt(bm);
+			bottomMargin = toPixels(bm);
 		}
 
 		LayoutParams params = new LayoutParams(width, height, weight);
@@ -519,12 +527,16 @@ public class ActivityBuilder {
 
 	private int toPixels(String measurement) {
 		int minWidth = 0;
-		if (measurement.endsWith("dp")) {
+		if (measurement.endsWith("dp") || measurement.endsWith("dip")) {
+			int s = 2;
+			if (measurement.endsWith("dip")) {
+				s = 3;
+			}
 			Resources r = context.getResources();
 			minWidth = Math.round(TypedValue.applyDimension(
 					TypedValue.COMPLEX_UNIT_DIP,
 					Float.parseFloat(measurement.substring(0,
-							measurement.length() - 2)), r.getDisplayMetrics()));
+							measurement.length() - s)), r.getDisplayMetrics()));
 		} else {
 			minWidth = Integer.parseInt(measurement);
 		}
@@ -745,6 +757,9 @@ public class ActivityBuilder {
 
 				this.handleIconDrawable(e, button);
 				registerView(view, button, e);
+			} else if (node_name.equals("checkbox")) {
+				CheckBox checkbox = new CheckBox(context);
+				registerView(view, checkbox, e);
 			} else if (node_name.equals("input")) {
 				EditText editText = new EditText(context);
 

@@ -46,16 +46,26 @@ class ViewGroupWrapper < ViewWrapper
 
   private
 
+  def set_hash_from_tag(child, field_hash, &block)
+    unless child.native.getTag.nil?
+      tag = child.native.getTag
+      if tag.kind_of? Java::com.dayosoft.activeapp.core.ViewExtras
+        unless tag.getView_name.nil?
+          field_hash[tag.getView_name.to_sym] = block.call(child)
+        end
+      end
+    end
+  end
+
   def collect_fields(view, field_hash)
     view.children.each do |child|
       if child.kind_of? EditTextWrapper
-        unless child.native.getTag.nil?
-          tag = child.native.getTag
-          if tag.kind_of? Java::com.dayosoft.activeapp.core.ViewExtras
-            unless tag.getView_name.nil?
-              field_hash[tag.getView_name.to_sym] = child.text
-            end
-          end
+        set_hash_from_tag(child, field_hash) do |c|
+          c.text
+        end
+      elsif child.kind_of? CompoundButtonWrapper
+        set_hash_from_tag(child, field_hash) do |c|
+          c.checked? ? 'true' : 'false'
         end
       elsif child.kind_of? ViewGroupWrapper
         collect_fields(child, field_hash)

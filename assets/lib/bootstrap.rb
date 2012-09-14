@@ -8,6 +8,7 @@ puts $current_activity.getClass.toString
 
 def wrap_native_view(view)
   return nil unless view
+
   if (view.class == Java::android.widget.TextView)
     TextViewWrapper.new(view)
   elsif (view.class == Java::android.widget.EditText)
@@ -18,6 +19,8 @@ def wrap_native_view(view)
     WebViewWrapper.new(view)
   elsif (view.class < Java::android.view.ViewGroup)
     ViewGroupWrapper.new(view)
+  elsif (view.class < Java::android.widget.CompoundButton)
+    CompoundButtonWrapper.new(view)
   elsif (view.class < Java::android.view.View)
     ViewWrapper.new(view)
   else
