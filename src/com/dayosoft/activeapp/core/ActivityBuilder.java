@@ -22,6 +22,7 @@ import com.dayosoft.activeapp.utils.Utils;
 import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
 
 import android.app.Activity;
+import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -57,12 +58,15 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 	ScriptingContainer scriptingContainer;
 	String baseUrl;
 	String controller;
+	String pageUrl;
 	ExecutionBundle executionBundle;
 	private EmbedEvalUnit preParsedScript;
+	SAXBuilder sax = new SAXBuilder();
 
 	public ActivityBootstrapper(ExecutionBundle executionBundle, ActiveApp app,
-			Document mainActivityDocument, Activity targetActivity) {
+			String pageUrl, Activity targetActivity) {
 		this.app = app;
+		this.pageUrl = pageUrl;
 		this.executionBundle = executionBundle;
 		this.targetActivity = targetActivity;
 		this.baseUrl = app.getBaseUrl();
@@ -94,7 +98,17 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 
 	@Override
 	protected ActivityBuilder doInBackground(Void... params) {
-		// TODO Auto-generated method stub
+		String responseBody = loadAsset(pageUrl);
+		Log.d(this.getClass().toString(), responseBody);
+		try {
+			mainActivityDocument = sax.build(new StringReader(responseBody));
+		} catch (JDOMException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 		controller = mainActivityDocument.getRootElement().getAttributeValue(
 				"controller");
@@ -111,6 +125,13 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 		ActivityBuilder builder = new ActivityBuilder(mainActivityDocument,
 				targetActivity);
 		executionBundle.getPayload().setActivityBuilder(builder);
+		AssetManager manager = targetActivity.getAssets();
+		try {
+			scriptingContainer.parse(manager.open("lib/bootstrap.rb"), "lib/bootstrap.rb").run();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		builder.preload();
 		return builder;
 	}
@@ -197,8 +218,12 @@ public class ActivityBuilder {
 		}
 	}
 
-	public static void loadLayout(ActiveApp app, Document mainActivityDocument) {
+	public static void loadLayout(ExecutionBundle executionBundle,
+			ActiveApp app, String pageUrl, Activity targetActivity) {
 
+		ActivityBootstrapper bootstrapper = new ActivityBootstrapper(
+				executionBundle, app, pageUrl, targetActivity);
+		bootstrapper.execute();
 	}
 
 	public void build() {

@@ -55,6 +55,7 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean> {
 	RubyContainerPayload payload;
 	ArrayList<EmbedEvalUnit> evalUnits = new ArrayList<EmbedEvalUnit>();
 	OnDownloadCompleteListener listener;
+	ExecutionBundle executionBundle;
 
 	public AppCache getCache() {
 		AppCache cache = new AppCache();
@@ -71,13 +72,10 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean> {
 		this.targetActivity = targetActivity;
 		this.app = app;
 		this.baseUrl = app.getBaseUrl();
+		this.executionBundle = executionBundle;
 		this.scriptingContainer = executionBundle.getContainer();
 		this.payload = executionBundle.getPayload();
 		this.listener = listener;
-		if (cache != null) {
-			this.mainActivityDocument = cache.getMainActivityDocument();
-			this.evalUnits = cache.getEvalUnits();
-		}
 	}
 
 	@Override
@@ -180,56 +178,17 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean> {
 
 	public Boolean download() {
 
-		try {
-			if (this.mainActivityDocument == null) {
-				String responseBody = loadAsset(app.getMainUrl());
-				Log.d(this.getClass().toString(), responseBody);
-				mainActivityDocument = sax
-						.build(new StringReader(responseBody));
-			}
-			builder = new ActivityBuilder(mainActivityDocument, targetActivity);
-			Log.d(this.getClass().toString(), "setting activity "
-					+ targetActivity);
-
-			payload.setActivityBuilder(builder);
-
 			try {
 				AssetManager manager = targetActivity.getAssets();
 				scriptingContainer.parse(manager.open("lib/loader.rb"),
 						"lib/loader.rb").run();
-				scriptingContainer.parse(manager.open("lib/bootstrap.rb"),
-						"lib/bootstrap.rb").run();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-
-			controller = mainActivityDocument.getRootElement()
-					.getAttributeValue("controller");
-			if (controller != null) {
-				Log.d(this.getClass().toString(), "loading controller file "
-						+ baseUrl + controller);
-				String controller_content = "class MainActivity < ActivityWrapper\n"
-						+ loadAsset(controller) + "\n end\n";
-
-				evalUnits.add(Utils.preParseRuby(scriptingContainer,
-						controller_content, targetActivity));
-			}
-			
-			builder.preload();
 			
 			return true;
-		} catch (ClientProtocolException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (JDOMException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return false;
+
 	}
 
 	@Override
@@ -242,30 +201,8 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean> {
 	protected void onPostExecute(Boolean result) {
 		// TODO Auto-generated method stub
 		super.onPostExecute(result);
-
-		builder.build();
-
-		try {
-			for (EmbedEvalUnit evalUnit : evalUnits) {
-				long start = System.currentTimeMillis();
-				evalUnit.run();
-				long elapsed = System.currentTimeMillis() - start;
-				Log.d(this.getClass().toString(),
-						"ruby segment: elapsed time = " + elapsed + "ms");
-			}
-			if (controller != null) {
-				long start = System.currentTimeMillis();
-				scriptingContainer
-						.runScriptlet("$main_activty = MainActivity.new; $main_activty.on_create");
-				long elapsed = System.currentTimeMillis() - start;
-				Log.d(this.getClass().toString(),
-						"ruby segment: on_create() elapsed time = " + elapsed
-								+ "ms");
-			}
-		} catch (EvalFailedException e) {
-			Log.e(this.getClass().toString(), e.getMessage());
-		}
-
+		Log.d(this.getClass().toString(), "Loading activity builder...");
+		ActivityBuilder.loadLayout(executionBundle, app, app.getMainUrl(), targetActivity);
 	}
 
 }
