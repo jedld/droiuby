@@ -202,7 +202,7 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean> {
 		// TODO Auto-generated method stub
 		super.onPostExecute(result);
 		Log.d(this.getClass().toString(), "Loading activity builder...");
-		ActivityBuilder.loadLayout(executionBundle, app, app.getMainUrl(), targetActivity);
+		ActivityBuilder.loadLayout(executionBundle, app, app.getMainUrl(), Utils.HTTP_GET, targetActivity);
 	}
 
 }

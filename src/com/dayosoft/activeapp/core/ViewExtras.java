@@ -1,11 +1,22 @@
 package com.dayosoft.activeapp.core;
 
+import java.util.HashMap;
+
 public class ViewExtras {
 
 	String view_name;
 	String view_class;
 	String view_id;
+	HashMap <String, String> dataAttributes = new HashMap<String,String>();
 	Object wrapper;
+
+	public HashMap<String, String> getDataAttributes() {
+		return dataAttributes;
+	}
+
+	public void setDataAttributes(HashMap<String, String> dataAttributes) {
+		this.dataAttributes = dataAttributes;
+	}
 
 	public String getView_name() {
 		return view_name;

@@ -17,11 +17,14 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.apache.http.Header;
+import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.jruby.CompatVersion;
@@ -76,6 +79,9 @@ class DroiubyHttpResponseHandler extends BasicResponseHandler {
 }
 
 public class Utils {
+
+	public static final int HTTP_GET = 1;
+	public static final int HTTP_POST = 2;
 
 	public static ScriptingContainer evalRuby(String statement,
 			Activity activity) {
@@ -148,9 +154,18 @@ public class Utils {
 	}
 
 	public static String query(String url, Context c) {
+		return query(url, c, Utils.HTTP_GET);
+	}
+
+	public static String query(String url, Context c, int method) {
 		Log.d(Utils.class.toString(), "query url = " + url);
 		HttpClient httpclient = new DefaultHttpClient();
-		HttpGet request = new HttpGet(url);
+		HttpUriRequest request = null;
+		if (method == Utils.HTTP_GET) {
+			request = new HttpGet(url);
+		} else {
+			request = new HttpPost(url);
+		}
 
 		URL parsedURL = null;
 		try {

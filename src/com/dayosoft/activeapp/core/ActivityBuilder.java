@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import org.jdom2.Attribute;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
@@ -62,18 +63,20 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 	ExecutionBundle executionBundle;
 	private EmbedEvalUnit preParsedScript;
 	SAXBuilder sax = new SAXBuilder();
+	int method;
 
 	public ActivityBootstrapper(ExecutionBundle executionBundle, ActiveApp app,
-			String pageUrl, Activity targetActivity) {
+			String pageUrl, int method, Activity targetActivity) {
 		this.app = app;
 		this.pageUrl = pageUrl;
 		this.executionBundle = executionBundle;
 		this.targetActivity = targetActivity;
 		this.baseUrl = app.getBaseUrl();
 		this.scriptingContainer = executionBundle.getContainer();
+		this.method = method;
 	}
 
-	public String loadAsset(String asset_name) {
+	public String loadAsset(String asset_name, int method) {
 		if (asset_name.startsWith("asset:")) {
 			return Utils.loadAsset(targetActivity, asset_name);
 		} else {
@@ -96,14 +99,14 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 				if (asset_name.startsWith("/")) {
 					asset_name = asset_name.substring(1);
 				}
-				return Utils.query(baseUrl + "/" + asset_name, targetActivity);
+				return Utils.query(baseUrl + "/" + asset_name, targetActivity, method);
 			}
 		}
 	}
 
 	@Override
 	protected ActivityBuilder doInBackground(Void... params) {
-		String responseBody = loadAsset(pageUrl);
+		String responseBody = loadAsset(pageUrl, method);
 		Log.d(this.getClass().toString(), responseBody);
 		try {
 			mainActivityDocument = sax.build(new StringReader(responseBody));
@@ -123,7 +126,7 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 			Log.d("Activity loader", "loading controller file " + baseUrl
 					+ controller);
 			String controller_content = "class MainActivity < ActivityWrapper\n"
-					+ loadAsset(controller) + "\n end\n";
+					+ loadAsset(controller, Utils.HTTP_GET) + "\n end\n";
 			preParsedScript = Utils.preParseRuby(scriptingContainer,
 					controller_content, targetActivity);
 		}
@@ -227,10 +230,10 @@ public class ActivityBuilder {
 	}
 
 	public static void loadLayout(ExecutionBundle executionBundle,
-			ActiveApp app, String pageUrl, Activity targetActivity) {
+			ActiveApp app, String pageUrl, int method, Activity targetActivity) {
 
 		ActivityBootstrapper bootstrapper = new ActivityBootstrapper(
-				executionBundle, app, pageUrl, targetActivity);
+				executionBundle, app, pageUrl, method, targetActivity);
 		bootstrapper.execute();
 	}
 
@@ -650,39 +653,43 @@ public class ActivityBuilder {
 			}
 			extras.setView_class(class_name);
 		}
-		if (e.getAttribute("enabled") != null) {
-			String enabled = e.getAttributeValue("enabled");
-			child.setEnabled(enabled.equalsIgnoreCase("false") ? false : true);
-		}
 
-		if (e.getAttribute("background") != null) {
-			String src = e.getAttributeValue("background");
-			ImageView imageView = new ImageView(context);
-			if (src != null) {
-				if (src.indexOf("@drawable:") != -1) {
-					String drawable = src.substring(10);
-					int resId = getDrawableId(drawable);
-					if (resId != 0) {
-						child.setBackgroundResource(resId);
+		for (Attribute attribute : e.getAttributes()) {
+
+			String attribute_name = attribute.getName();
+			String attribute_value = attribute.getValue();
+
+			if (attribute_name.startsWith("data-")) {
+				HashMap<String, String> dataAttributes = extras
+						.getDataAttributes();
+				dataAttributes
+						.put(attribute_name.substring(5), attribute_value);
+			} else if (attribute_name.equals("min_height")) {
+				child.setMinimumHeight(toPixels(attribute_value));
+			} else if (attribute_name.equals("min_width")) {
+				child.setMinimumWidth(toPixels(attribute_value));
+			} else if (attribute_name.equals("background")) {
+				if (attribute_value != null) {
+					if (attribute_value.startsWith("@drawable:")) {
+						String drawable = attribute_value.substring(10);
+						int resId = getDrawableId(drawable);
+						if (resId != 0) {
+							child.setBackgroundResource(resId);
+						}
+					} else if (attribute_value.startsWith("@preload:")) {
+						Drawable drawable = (Drawable) this
+								.findViewByName(attribute_value);
+						child.setBackgroundDrawable(drawable);
+					} else {
+						UrlImageViewHelper.setUrlDrawable(child,
+								attribute_value, "setBackgroundDrawable");
 					}
-				} else if (src.indexOf("@preload:") != -1) {
-					Drawable drawable = (Drawable) this.findViewByName(src);
-					child.setBackgroundDrawable(drawable);
-				} else {
-					UrlImageViewHelper.setUrlDrawable(child, src,
-							"setBackgroundDrawable");
 				}
+			} else if (attribute_name.equals("enabled")) {
+				child.setEnabled(attribute_value.equalsIgnoreCase("false") ? false
+						: true);
 			}
-		}
 
-		String min_height = e.getAttributeValue("min_height");
-		if (min_height != null) {
-			child.setMinimumHeight(toPixels(min_height));
-		}
-
-		String min_width = e.getAttributeValue("min_width");
-		if (min_width != null) {
-			child.setMinimumWidth(toPixels(min_width));
 		}
 
 		child.setTag(extras);

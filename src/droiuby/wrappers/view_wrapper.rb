@@ -44,11 +44,11 @@ class ViewWrapper
   def background
     @view.getBackground
   end
-  
+
   def background_color=(value)
-    @view.setBackgroundColor(Java::android.graphics.Color.parseColor(value)); 
+    @view.setBackgroundColor(Java::android.graphics.Color.parseColor(value));
   end
-  
+
   def gone=(flag)
     @view.setVisibility(Java::android.view.View::GONE) if flag
   end
@@ -136,11 +136,11 @@ class ViewWrapper
   def scale_y=(scale)
     @view.setScaleY(scale)
   end
-  
+
   def camera_distance
     @view.getCameraDistance
   end
-  
+
   def camera_distance=(value)
     @view.setCameraDistance(value)
   end
@@ -162,6 +162,18 @@ class ViewWrapper
 
   def click
     self.native.performClick
+  end
+
+  def data(key)
+    unless native.getTag.nil?
+      tag = native.getTag
+      if tag.kind_of? Java::com.dayosoft.activeapp.core.ViewExtras
+        data_attributes = tag.getDataAttributes
+        if data_attributes.containsKey(key)
+          data_attributes.get(key)
+        end
+      end
+    end
   end
 
   def on(event,&block)

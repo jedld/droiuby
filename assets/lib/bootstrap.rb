@@ -9,7 +9,11 @@ $current_app = container_payload.getActiveApp
 puts $current_activity.getClass.toString
 
 def render(url, params = {})
-  Java::com.dayosoft.activeapp.core.ActivityBuilder.loadLayout($execution_bundle, $current_app, url, $current_activity)
+  http_method = Java::com.dayosoft.activeapp.utils.Utils::HTTP_GET
+  if params[:method] && (params[:method] == :post)
+    http_method = Java::com.dayosoft.activeapp.utils.Utils::HTTP_POST
+  end
+  Java::com.dayosoft.activeapp.core.ActivityBuilder.loadLayout($execution_bundle, $current_app, url, http_method, $current_activity)
 end
 
 def wrap_native_view(view)
