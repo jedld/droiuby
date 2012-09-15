@@ -74,25 +74,30 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 	}
 
 	public String loadAsset(String asset_name) {
-		if (baseUrl.indexOf("asset:") != -1) {
-			return Utils.loadAsset(targetActivity, baseUrl + asset_name);
-		} else if (baseUrl.indexOf("file:") != -1) {
-			return Utils.loadFile(asset_name);
-		} else if (baseUrl.indexOf("sdcard:") != -1) {
-			File directory = Environment.getExternalStorageDirectory();
-			try {
-				String asset_path = directory.getCanonicalPath() + asset_name;
-				return Utils.loadFile(asset_path);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			return null;
+		if (asset_name.startsWith("asset:")) {
+			return Utils.loadAsset(targetActivity, asset_name);
 		} else {
-			if (asset_name.startsWith("/")) {
-				asset_name = asset_name.substring(1);
+			if (baseUrl.indexOf("asset:") != -1) {
+				return Utils.loadAsset(targetActivity, baseUrl + asset_name);
+			} else if (baseUrl.indexOf("file:") != -1) {
+				return Utils.loadFile(asset_name);
+			} else if (baseUrl.indexOf("sdcard:") != -1) {
+				File directory = Environment.getExternalStorageDirectory();
+				try {
+					String asset_path = directory.getCanonicalPath()
+							+ asset_name;
+					return Utils.loadFile(asset_path);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				return null;
+			} else {
+				if (asset_name.startsWith("/")) {
+					asset_name = asset_name.substring(1);
+				}
+				return Utils.query(baseUrl + "/" + asset_name, targetActivity);
 			}
-			return Utils.query(baseUrl + "/" + asset_name, targetActivity);
 		}
 	}
 
@@ -125,9 +130,12 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 		ActivityBuilder builder = new ActivityBuilder(mainActivityDocument,
 				targetActivity);
 		executionBundle.getPayload().setActivityBuilder(builder);
+		executionBundle.getPayload().setExecutionBundle(executionBundle);
+		executionBundle.getPayload().setActiveApp(app);
 		AssetManager manager = targetActivity.getAssets();
 		try {
-			scriptingContainer.parse(manager.open("lib/bootstrap.rb"), "lib/bootstrap.rb").run();
+			scriptingContainer.parse(manager.open("lib/bootstrap.rb"),
+					"lib/bootstrap.rb").run();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

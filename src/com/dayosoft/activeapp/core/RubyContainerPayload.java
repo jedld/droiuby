@@ -7,6 +7,25 @@ import android.app.Activity;
 public class RubyContainerPayload {
 	Activity currentActivity;
 	ActivityBuilder activityBuilder;
+	ActiveApp activeApp;
+	
+	public ActiveApp getActiveApp() {
+		return activeApp;
+	}
+
+	public void setActiveApp(ActiveApp activeApp) {
+		this.activeApp = activeApp;
+	}
+
+	ExecutionBundle executionBundle;
+
+	public ExecutionBundle getExecutionBundle() {
+		return executionBundle;
+	}
+
+	public void setExecutionBundle(ExecutionBundle executionBundle) {
+		this.executionBundle = executionBundle;
+	}
 
 	static RubyContainerPayload instance;
 

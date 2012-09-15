@@ -3,8 +3,14 @@ puts 'initializing bootstrap'
 $current_activity = container_payload.getCurrentActivity
 $current_activity_builder = container_payload.getActivityBuilder
 $scripting_container = container_payload.getContainer
+$execution_bundle = container_payload.getExecutionBundle
+$current_app = container_payload.getActiveApp
 
 puts $current_activity.getClass.toString
+
+def render(url, params = {})
+  Java::com.dayosoft.activeapp.core.ActivityBuilder.loadLayout($execution_bundle, $current_app, url, $current_activity)
+end
 
 def wrap_native_view(view)
   return nil unless view
