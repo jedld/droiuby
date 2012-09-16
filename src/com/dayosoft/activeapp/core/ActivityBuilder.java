@@ -108,7 +108,12 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 	@Override
 	protected ActivityBuilder doInBackground(Void... params) {
 		String responseBody = loadAsset(pageUrl, method);
-		Log.d(this.getClass().toString(), responseBody);
+		if (responseBody != null) {
+			Log.d(this.getClass().toString(), responseBody);
+		} else {
+			Log.d(this.getClass().toString(), "response empty.");
+			return null;
+		}
 		try {
 			mainActivityDocument = sax.build(new StringReader(responseBody));
 		} catch (JDOMException e) {
@@ -152,24 +157,25 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 	protected void onPostExecute(ActivityBuilder result) {
 		// TODO Auto-generated method stub
 		super.onPostExecute(result);
-		result.build();
-		try {
-			if (preParsedScript != null) {
-				long start = System.currentTimeMillis();
-				preParsedScript.run();
-				scriptingContainer
-						.runScriptlet("$main_activty = MainActivity.new; $main_activty.on_create");
-				long elapsed = System.currentTimeMillis() - start;
-				Log.d(this.getClass().toString(),
-						"ruby segment: on_create() elapsed time = " + elapsed
-								+ "ms");
+		if (result != null) {
+			result.build();
+			try {
+				if (preParsedScript != null) {
+					long start = System.currentTimeMillis();
+					preParsedScript.run();
+					scriptingContainer
+							.runScriptlet("$main_activty = MainActivity.new; $main_activty.on_create");
+					long elapsed = System.currentTimeMillis() - start;
+					Log.d(this.getClass().toString(),
+							"ruby segment: on_create() elapsed time = "
+									+ elapsed + "ms");
+				}
+			} catch (EvalFailedException e) {
+				Log.e(this.getClass().toString(), e.getMessage());
 			}
-		} catch (EvalFailedException e) {
-			Log.e(this.getClass().toString(), e.getMessage());
+
 		}
-
 	}
-
 }
 
 public class ActivityBuilder {
@@ -690,7 +696,8 @@ public class ActivityBuilder {
 				child.setEnabled(attribute_value.equalsIgnoreCase("false") ? false
 						: true);
 			} else if (attribute_name.equals("visibility")) {
-				if (attribute_value.equalsIgnoreCase("hidden")) {
+				if (attribute_value.equalsIgnoreCase("hidden")
+						|| attribute_value.equalsIgnoreCase("gone")) {
 					child.setVisibility(View.GONE);
 				} else if (attribute_name.equals("invisible")) {
 					child.setVisibility(View.INVISIBLE);
@@ -791,6 +798,17 @@ public class ActivityBuilder {
 				String color = e.getAttributeValue("color");
 				if (color != null) {
 					textView.setTextColor(Color.parseColor(color));
+				}
+
+				String style = e.getAttributeValue("style");
+				if (style != null) {
+					if (style.equalsIgnoreCase("bold")) {
+						textView.setTextAppearance(context, R.style.boldText);
+					} else if (style.equalsIgnoreCase("italic")) {
+						textView.setTextAppearance(context, R.style.italicText);
+					} else if (style.equalsIgnoreCase("normal")) {
+						textView.setTextAppearance(context, R.style.normalText);
+					}
 				}
 
 				String content = e.getTextTrim() != null ? e.getTextTrim() : "";

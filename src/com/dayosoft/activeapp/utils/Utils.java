@@ -9,6 +9,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
@@ -21,6 +22,7 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -59,21 +61,41 @@ class DroiubyHttpResponseHandler extends BasicResponseHandler {
 
 	public String handleResponse(HttpResponse response)
 			throws ClientProtocolException, IOException {
-		String responseBody = super.handleResponse(response);
-		Header headers[] = response.getHeaders("Set-Cookie");
-		SharedPreferences prefs = context.getSharedPreferences("cookie_"
-				+ requestURL.getProtocol() + "_" + requestURL.getHost(),
-				context.MODE_PRIVATE);
-		Editor edit = prefs.edit();
-		for (Header header : headers) {
-			String name = header.getName();
-			String value = header.getValue();
-			Log.d(this.getClass().toString(), "Setting coookie " + name + " = "
-					+ value);
-			edit.putString(name, value);
+		for (Header header : response.getAllHeaders()) {
+			Log.d(this.getClass().toString(),
+					"Location Header " + header.getName() + "="
+							+ header.getValue());
 		}
-		edit.apply();
-		return responseBody;
+
+		Log.d(this.getClass().toString(), "status = "
+				+ response.getStatusLine().getStatusCode());
+		Log.d(this.getClass().toString(), "reason = "
+				+ response.getStatusLine().getReasonPhrase());
+		StringBuffer result = new StringBuffer();
+		Reader reader = new InputStreamReader(response.getEntity().getContent());
+		for (int i = 0 ; i < response.getEntity().getContentLength(); i++) {
+			result.append((char)reader.read());
+		}
+		String responseBody = result.toString();
+		Log.d(this.getClass().toString(), "response = " + result.toString());
+		if (response.getStatusLine().getStatusCode() < 300) {
+			Header headers[] = response.getHeaders("Set-Cookie");
+			SharedPreferences prefs = context.getSharedPreferences("cookie_"
+					+ requestURL.getProtocol() + "_" + requestURL.getHost(),
+					context.MODE_PRIVATE);
+			Editor edit = prefs.edit();
+			for (Header header : headers) {
+				String name = header.getName();
+				String value = header.getValue();
+				Log.d(this.getClass().toString(), "Saving coookie " + name
+						+ " = " + value);
+				edit.putString(name, value);
+			}
+			edit.apply();
+			return responseBody;
+		} else {
+			return null;
+		}
 	}
 
 }
@@ -180,11 +202,15 @@ public class Utils {
 		Map<String, ?> items = prefs.getAll();
 		StringBuffer cookie = new StringBuffer();
 		for (Entry<String, ?> entry : items.entrySet()) {
-			cookie.append(entry.getKey() + "=" + entry.getValue() + ";");
+			cookie.append(entry.getValue());
 		}
-		request.setHeader("Cookie", cookie.toString());
-		Log.d(Utils.class.toString(), "setting cookie = " + cookie.toString());
-		request.setHeader("User-Agent", "Droiuby/1.0 (Android)");
+		if (!cookie.toString().trim().equals("")) {
+			request.setHeader("Cookie", cookie.toString());
+			Log.d(Utils.class.toString(), "setting cookie = " + cookie.toString());
+		}
+		request.setHeader(
+				"User-Agent",
+				"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/21.0.1180.89 Safari/537.1 Droiuby/1.0 (Android)");
 		WindowManager wm = (WindowManager) c
 				.getSystemService(Context.WINDOW_SERVICE);
 		Display display = wm.getDefaultDisplay();
@@ -198,6 +224,7 @@ public class Utils {
 		request.setHeader("Droiuby-Dpi", Integer.toString(metrics.densityDpi));
 		request.setHeader("Droiuby-OS",
 				"android " + Integer.valueOf(android.os.Build.VERSION.SDK_INT));
+
 		ResponseHandler<String> responseHandler = new DroiubyHttpResponseHandler(
 				url, c);
 		try {
