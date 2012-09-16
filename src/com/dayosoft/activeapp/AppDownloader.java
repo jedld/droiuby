@@ -34,13 +34,17 @@ public class AppDownloader extends AsyncTask<Void, Void, ActiveApp> {
 
 	@Override
 	protected ActiveApp doInBackground(Void... params) {
+		try {
 		return ActiveAppDownloader.loadApp(c, url);
+		} catch (Exception e) {
+			return null;
+		}
 	}
 
 	@Override
 	protected void onPostExecute(ActiveApp result) {
 		super.onPostExecute(result);
-
+		
 		if (progress_dialog != null) {
 			progress_dialog.dismiss();
 		}
@@ -53,6 +57,7 @@ public class AppDownloader extends AsyncTask<Void, Void, ActiveApp> {
 			builder.setMessage("Unable to download access app at " + url)
 					.setCancelable(true).create();
 		}
+		
 	}
 
 }

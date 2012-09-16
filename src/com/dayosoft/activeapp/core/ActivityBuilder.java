@@ -99,7 +99,8 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 				if (asset_name.startsWith("/")) {
 					asset_name = asset_name.substring(1);
 				}
-				return Utils.query(baseUrl + "/" + asset_name, targetActivity, method);
+				return Utils.query(baseUrl + "/" + asset_name, targetActivity,
+						method);
 			}
 		}
 	}
@@ -688,6 +689,14 @@ public class ActivityBuilder {
 			} else if (attribute_name.equals("enabled")) {
 				child.setEnabled(attribute_value.equalsIgnoreCase("false") ? false
 						: true);
+			} else if (attribute_name.equals("visibility")) {
+				if (attribute_value.equalsIgnoreCase("hidden")) {
+					child.setVisibility(View.GONE);
+				} else if (attribute_name.equals("invisible")) {
+					child.setVisibility(View.INVISIBLE);
+				} else if (attribute_name.equals("visible")) {
+					child.setVisibility(View.VISIBLE);
+				}
 			}
 
 		}
