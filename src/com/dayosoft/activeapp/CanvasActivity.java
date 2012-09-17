@@ -35,6 +35,9 @@ public class CanvasActivity extends DroiubyActivity {
 		case R.id.itemRefresh:
 			setupApplication(application, target);
 			break;
+		case R.id.itemConsole:
+			this.showConsoleInfo();
+			break;
 		case R.id.itemClearCache:
 			SharedPreferences prefs = getSharedPreferences("cookies",
 					MODE_PRIVATE);
