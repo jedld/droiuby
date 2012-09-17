@@ -30,6 +30,22 @@ to allow you to interact with the app in realtime.
 
 Remember this is still highly experimental and things could change really quickly.
 
+Why use Droiuby?
+----------------
+
+Droiuby allows you to easily convert your existing site so that it uses native controls on your
+device. It is not based on HTML/javascript but rather uses a custom markup that translates
+"directly" to a native control. Also it uses JRuby as a "frontend" scripting language
+which enables you to have direct access to native classes while taking advantage of ruby's
+"programmer friendliness".
+
+If you already have a website, you only need to create a separate set of markup for droiuby and switch
+to that markup when a droiuby user agent is detected (a mechanism existing sites already use
+when handling mobile devices)
+
+Droiuby sacrifices standards and portability for performance and access to native features. In this regard,
+droiuby behaves more like a web browser than a framework.
+
 So what does the "app" look like?
 -----------------------------
 

@@ -826,6 +826,8 @@ public class ActivityBuilder {
 				registerView(view, button, e);
 			} else if (node_name.equals("checkbox")) {
 				CheckBox checkbox = new CheckBox(context);
+				String content = e.getTextTrim() != null ? e.getTextTrim() : "";
+				checkbox.setText(content);
 				registerView(view, checkbox, e);
 			} else if (node_name.equals("input")) {
 				EditText editText = new EditText(context);

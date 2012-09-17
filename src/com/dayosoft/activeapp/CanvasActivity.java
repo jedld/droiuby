@@ -1,7 +1,13 @@
 package com.dayosoft.activeapp;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 import com.dayosoft.activeapp.core.ActiveApp;
 import com.dayosoft.activeapp.core.DroiubyActivity;
+
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.ViewGroup;
@@ -29,7 +35,20 @@ public class CanvasActivity extends DroiubyActivity {
 		case R.id.itemRefresh:
 			setupApplication(application, target);
 			break;
-		case R.id.itemConsole:
+		case R.id.itemClearCache:
+			SharedPreferences prefs = getSharedPreferences("cookies",
+					MODE_PRIVATE);
+
+			try {
+				Editor editor = prefs.edit();
+				URL url;
+				url = new URL(application.getBaseUrl());
+				editor.putString(url.getProtocol() + "_" + url.getHost(), "");
+				editor.commit();
+			} catch (MalformedURLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 
 		}
 		return false;

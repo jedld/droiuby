@@ -80,12 +80,10 @@ class DroiubyHttpResponseHandler extends BasicResponseHandler {
 		Log.d(this.getClass().toString(), "response = " + result.toString());
 		if (response.getStatusLine().getStatusCode() < 300) {
 			Header headers[] = response.getHeaders("Set-Cookie");
-			SharedPreferences prefs = context.getSharedPreferences("cookie_"
-					+ requestURL.getProtocol() + "_" + requestURL.getHost(),
-					context.MODE_PRIVATE);
+			SharedPreferences prefs = context.getSharedPreferences("cookies",context.MODE_PRIVATE);
 			Editor edit = prefs.edit();
 			for (Header header : headers) {
-				String name = header.getName();
+				String name = requestURL.getProtocol() + "_" + requestURL.getHost();
 				String value = header.getValue();
 				Log.d(this.getClass().toString(), "Saving coookie " + name
 						+ " = " + value);
@@ -197,16 +195,14 @@ public class Utils {
 			e1.printStackTrace();
 		}
 		SharedPreferences prefs = c
-				.getSharedPreferences("cookie_" + parsedURL.getProtocol() + "_"
-						+ parsedURL.getHost(), c.MODE_PRIVATE);
-		Map<String, ?> items = prefs.getAll();
-		StringBuffer cookie = new StringBuffer();
-		for (Entry<String, ?> entry : items.entrySet()) {
-			cookie.append(entry.getValue());
-		}
-		if (!cookie.toString().trim().equals("")) {
-			request.setHeader("Cookie", cookie.toString());
-			Log.d(Utils.class.toString(), "setting cookie = " + cookie.toString());
+				.getSharedPreferences("cookies", c.MODE_PRIVATE);
+		String cookie = prefs.getString(parsedURL.getProtocol() + "_"
+				+ parsedURL.getHost(), null);
+		if (cookie!=null) {
+			if (!cookie.toString().trim().equals("")) {
+				request.setHeader("Cookie", cookie.toString());
+				Log.d(Utils.class.toString(), "setting cookie = " + cookie.toString());
+			}
 		}
 		request.setHeader(
 				"User-Agent",
