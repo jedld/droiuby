@@ -173,7 +173,35 @@ class ViewWrapper
   def click
     self.native.performClick
   end
+  
+  def p_tree(level = 0)
+    spaces = ''
+    level.times { |i| spaces << '  '}
+      
+    id_attr = self.id
+    name_attr = "" 
+    
+    if tag
+      id_attr = tag.getView_id
+      name_attr = tag.getView_name
+    end
+    
+    puts "#{spaces}#{self.class.name} id=\"#{id_attr}\" name=\"#{name_attr}\"\n"
+    self.children.each { |c|
+      c.p_tree(level + 1)
+    } if self.respond_to? :children
+  end
 
+  def tag
+    unless native.getTag.nil?
+      tag = native.getTag
+      if tag.kind_of? Java::com.dayosoft.activeapp.core.ViewExtras
+        return tag
+      end
+    end
+    nil
+  end
+  
   def data(key)
     unless native.getTag.nil?
       tag = native.getTag
