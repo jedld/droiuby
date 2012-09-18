@@ -31,6 +31,7 @@ import com.dayosoft.activeapp.core.AppCache;
 import com.dayosoft.activeapp.core.ExecutionBundle;
 import com.dayosoft.activeapp.core.OnDownloadCompleteListener;
 import com.dayosoft.activeapp.core.RubyContainerPayload;
+import com.dayosoft.activeapp.core.listeners.DocumentReadyListener;
 
 import android.app.Activity;
 import android.content.Context;
@@ -42,7 +43,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
-public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean> {
+public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean> implements DocumentReadyListener {
 
 	String baseUrl;
 	Activity targetActivity;
@@ -76,6 +77,9 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean> {
 		this.scriptingContainer = executionBundle.getContainer();
 		this.payload = executionBundle.getPayload();
 		this.listener = listener;
+		if (cache!=null) {
+			this.mainActivityDocument = cache.getMainActivityDocument();
+		}
 	}
 
 	@Override
@@ -202,7 +206,11 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean> {
 		// TODO Auto-generated method stub
 		super.onPostExecute(result);
 		Log.d(this.getClass().toString(), "Loading activity builder...");
-		ActivityBuilder.loadLayout(executionBundle, app, app.getMainUrl(), Utils.HTTP_GET, targetActivity);
+		ActivityBuilder.loadLayout(executionBundle, app, app.getMainUrl(), Utils.HTTP_GET, targetActivity, this.mainActivityDocument, this);
+	}
+
+	public void onDocumentReady(Document mainActivity) {
+		this.mainActivityDocument = mainActivity;
 	}
 
 }

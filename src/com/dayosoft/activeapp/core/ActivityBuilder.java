@@ -19,6 +19,8 @@ import org.jruby.embed.EvalFailedException;
 import org.jruby.embed.ScriptingContainer;
 
 import com.dayosoft.activeapp.R;
+import com.dayosoft.activeapp.core.listeners.DocumentReadyListener;
+import com.dayosoft.activeapp.utils.ActiveAppDownloader;
 import com.dayosoft.activeapp.utils.Utils;
 import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
 
@@ -61,18 +63,22 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 	String controller;
 	String pageUrl;
 	ExecutionBundle executionBundle;
+
+	DocumentReadyListener onReadyListener;
 	private EmbedEvalUnit preParsedScript;
 	SAXBuilder sax = new SAXBuilder();
 	int method;
 
 	public ActivityBootstrapper(ExecutionBundle executionBundle, ActiveApp app,
-			String pageUrl, int method, Activity targetActivity) {
+			String pageUrl, int method, Activity targetActivity, Document cachedActivityDocument, DocumentReadyListener onReadyListener) {
 		this.app = app;
 		this.pageUrl = pageUrl;
 		this.executionBundle = executionBundle;
 		this.targetActivity = targetActivity;
 		this.baseUrl = app.getBaseUrl();
 		this.scriptingContainer = executionBundle.getContainer();
+		this.mainActivityDocument = cachedActivityDocument;
+		this.onReadyListener = onReadyListener;
 		this.method = method;
 	}
 
@@ -115,7 +121,9 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 			return null;
 		}
 		try {
-			mainActivityDocument = sax.build(new StringReader(responseBody));
+			if (mainActivityDocument==null) {
+				mainActivityDocument = sax.build(new StringReader(responseBody));
+			}
 		} catch (JDOMException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -159,6 +167,10 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 		super.onPostExecute(result);
 		if (result != null) {
 			result.build();
+			if (onReadyListener!=null) {
+				onReadyListener.onDocumentReady(mainActivityDocument);
+			}
+			
 			try {
 				if (preParsedScript != null) {
 					long start = System.currentTimeMillis();
@@ -173,7 +185,7 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 			} catch (EvalFailedException e) {
 				Log.e(this.getClass().toString(), e.getMessage());
 			}
-
+			
 		}
 	}
 }
@@ -186,10 +198,20 @@ public class ActivityBuilder {
 
 	Activity context;
 	Element rootElement;
+	View rootView;
+	public View getRootView() {
+		return rootView;
+	}
+
+	public void setRootView(View rootView) {
+		this.rootView = rootView;
+	}
+
 	ViewGroup target;
 	HashMap<String, Drawable> preloadedResource = new HashMap<String, Drawable>();
 	HashMap<String, Integer> namedViewDictionary = new HashMap<String, Integer>();
 	HashMap<String, ArrayList<Integer>> classViewDictionary = new HashMap<String, ArrayList<Integer>>();
+	
 
 	public HashMap<String, ArrayList<Integer>> getClassViewDictionary() {
 		return classViewDictionary;
@@ -237,15 +259,16 @@ public class ActivityBuilder {
 	}
 
 	public static void loadLayout(ExecutionBundle executionBundle,
-			ActiveApp app, String pageUrl, int method, Activity targetActivity) {
+			ActiveApp app, String pageUrl, int method, Activity targetActivity, Document cachedDocument, DocumentReadyListener onReadyListener) {
 
 		ActivityBootstrapper bootstrapper = new ActivityBootstrapper(
-				executionBundle, app, pageUrl, method, targetActivity);
+				executionBundle, app, pageUrl, method, targetActivity, cachedDocument, onReadyListener);
 		bootstrapper.execute();
 	}
 
 	public void build() {
 		target.removeAllViews();
+		rootView = null;
 		try {
 			parse(rootElement, target);
 		} catch (Exception e) {
@@ -717,6 +740,10 @@ public class ActivityBuilder {
 			((RelativeLayout) group).addView(child, setRelativeLayoutParams(e));
 		} else {
 			group.addView(child, setParams(e));
+		}
+		
+		if (this.rootView == null) {
+			rootView = child;
 		}
 	}
 

@@ -13,7 +13,7 @@ def render(url, params = {})
   if params[:method] && (params[:method] == :post)
     http_method = Java::com.dayosoft.activeapp.utils.Utils::HTTP_POST
   end
-  Java::com.dayosoft.activeapp.core.ActivityBuilder.loadLayout($execution_bundle, $current_app, url, http_method, $current_activity)
+  Java::com.dayosoft.activeapp.core.ActivityBuilder.loadLayout($execution_bundle, $current_app, url, http_method, $current_activity, nil, nil)
 end
 
 def wrap_native_view(view)
@@ -38,8 +38,12 @@ def wrap_native_view(view)
   end
 end
 
-def V(selectors)
-  view = $current_activity_builder.findViewByName(selectors)
+def V(selectors = nil)
+  if selectors.nil? # Get root node if nil
+    view = $current_activity_builder.getRootView
+  else
+    view = $current_activity_builder.findViewByName(selectors)
+  end
   wrap_native_view(view) if view
 end
 
