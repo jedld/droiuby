@@ -16,6 +16,10 @@ class Animator
       @animators
     end
 
+    def native
+      @animator_set
+    end
+    
     def method_missing(name, *args, &block)
       anim = Java::android.animation.ObjectAnimator.ofFloat(@target.native, name.to_s.camelize(:lower), args[0], args[1]);
       if args[2] && args[2].kind_of?(Hash)
@@ -86,6 +90,7 @@ class Animator
       if [:cancel, :start, :end, :repeat ].include?(event) 
         self.native.addListener(Java::com.dayosoft.activeapp.core.listeners.AnimationListenerWrapper.new($scripting_container, event.to_s, &block))
       end
+      self
     end
     
     protected

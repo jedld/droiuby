@@ -145,6 +145,16 @@ class ViewWrapper
     @view.setCameraDistance(value)
   end
 
+  def blink
+    orig_alpha = self.alpha
+    view = self
+    self.animate { |a|
+      a.alpha 0, 1
+    }.on(:end) { |v|
+      view.alpha = orig_alpha
+    }.start
+  end
+  
   def animate(&block)
     animator = Animator.new(self)
     block.call(animator)
