@@ -149,6 +149,7 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 		executionBundle.getPayload().setActivityBuilder(builder);
 		executionBundle.getPayload().setExecutionBundle(executionBundle);
 		executionBundle.getPayload().setActiveApp(app);
+		executionBundle.setCurrentUrl(pageUrl);
 		AssetManager manager = targetActivity.getAssets();
 		try {
 			scriptingContainer.parse(manager.open("lib/bootstrap.rb"),

@@ -31,6 +31,7 @@ import com.dayosoft.activeapp.core.AppCache;
 import com.dayosoft.activeapp.core.ExecutionBundle;
 import com.dayosoft.activeapp.core.OnDownloadCompleteListener;
 import com.dayosoft.activeapp.core.RubyContainerPayload;
+import com.dayosoft.activeapp.core.interfaces.OnUrlChangedListener;
 import com.dayosoft.activeapp.core.listeners.DocumentReadyListener;
 
 import android.app.Activity;
@@ -56,6 +57,16 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean> implemen
 	RubyContainerPayload payload;
 	ArrayList<EmbedEvalUnit> evalUnits = new ArrayList<EmbedEvalUnit>();
 	OnDownloadCompleteListener listener;
+	OnUrlChangedListener urlChangedListener;
+	
+	public OnUrlChangedListener getUrlChangedListener() {
+		return urlChangedListener;
+	}
+
+	public void setUrlChangedListener(OnUrlChangedListener urlChangedListener) {
+		this.urlChangedListener = urlChangedListener;
+	}
+
 	ExecutionBundle executionBundle;
 
 	public AppCache getCache() {
@@ -206,7 +217,11 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean> implemen
 		// TODO Auto-generated method stub
 		super.onPostExecute(result);
 		Log.d(this.getClass().toString(), "Loading activity builder...");
-		ActivityBuilder.loadLayout(executionBundle, app, app.getMainUrl(), Utils.HTTP_GET, targetActivity, this.mainActivityDocument, this);
+		String targetUrl = app.getMainUrl();
+		if (executionBundle.getCurrentUrl()!=null) {
+			targetUrl = executionBundle.getCurrentUrl();
+		}
+		ActivityBuilder.loadLayout(executionBundle, app, targetUrl, Utils.HTTP_GET, targetActivity, this.mainActivityDocument, this);
 	}
 
 	public void onDocumentReady(Document mainActivity) {

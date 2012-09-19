@@ -8,6 +8,10 @@ $current_app = container_payload.getActiveApp
 
 puts $current_activity.getClass.toString
 
+def current_page_url
+  $execution_bundle.getCurrentUrl
+end
+
 def render(url, params = {})
   http_method = Java::com.dayosoft.activeapp.utils.Utils::HTTP_GET
   if params[:method] && (params[:method] == :post)

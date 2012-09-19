@@ -16,6 +16,7 @@ import com.dayosoft.activeapp.WebConsole;
 import com.dayosoft.activeapp.R.id;
 import com.dayosoft.activeapp.R.layout;
 import com.dayosoft.activeapp.R.menu;
+import com.dayosoft.activeapp.core.interfaces.OnUrlChangedListener;
 import com.dayosoft.activeapp.utils.ActiveAppDownloader;
 
 import android.app.Activity;
@@ -37,7 +38,16 @@ public abstract class DroiubyActivity extends Activity implements
 	ActiveApp application;
 	AppCache cache;
 	ExecutionBundle executionBundle;
+	public ExecutionBundle getExecutionBundle() {
+		return executionBundle;
+	}
+
+	public void setExecutionBundle(ExecutionBundle executionBundle) {
+		this.executionBundle = executionBundle;
+	}
+
 	ActiveAppDownloader downloader;
+	String currentUrl;
 	private WebConsole console;
 
 	private ExecutionBundle getNewScriptingContainer() {
@@ -124,7 +134,9 @@ public abstract class DroiubyActivity extends Activity implements
 				+ application.getName());
 		final AppCache cache = (AppCache) getLastNonConfigurationInstance();
 		this.application = application;
-		executionBundle = getNewScriptingContainer();
+		if (executionBundle == null) {
+			executionBundle = getNewScriptingContainer();
+		}
 
 		downloader = new ActiveAppDownloader(application, this, target, cache,
 				executionBundle, this);

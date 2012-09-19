@@ -48,21 +48,12 @@ public class CanvasActivity extends DroiubyActivity {
 				url = new URL(application.getBaseUrl());
 				editor.putString(url.getProtocol() + "_" + url.getHost(), "");
 				editor.commit();
+				getExecutionBundle().setCurrentUrl(null);
 			} catch (MalformedURLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 
-		}
-		return false;
-	}
-
-	@Override
-	public boolean onContextItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-		case R.id.itemRefresh:
-			setupApplication(application, target);
-			break;
 		}
 		return false;
 	}
