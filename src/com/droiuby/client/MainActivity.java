@@ -1,10 +1,12 @@
-package com.dayosoft.activeapp;
+package com.droiuby.client;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import com.dayosoft.activeapp.utils.Utils;
+import com.droiuby.client.R;
+import com.droiuby.client.core.ActivityBuilder;
+import com.droiuby.client.utils.Utils;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -93,9 +95,7 @@ public class MainActivity extends Activity implements OnClickListener {
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.buttonRun:
-			AppDownloader downloader = new AppDownloader(this, applicationURL
-					.getText().toString(), CanvasActivity.class);
-			downloader.execute();
+			ActivityBuilder.loadApp(this, applicationURL.getText().toString());
 		}
 
 	}

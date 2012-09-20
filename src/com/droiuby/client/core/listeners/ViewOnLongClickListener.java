@@ -1,27 +1,27 @@
-package com.dayosoft.activeapp.core.listeners;
+package com.droiuby.client.core.listeners;
 
+import org.jruby.RubyBoolean;
 import org.jruby.embed.ScriptingContainer;
 import org.jruby.runtime.builtin.IRubyObject;
 
 import android.util.Log;
 import android.view.View;
+import android.view.View.OnLongClickListener;
 
-public abstract class ListenerWrapper {
+public class ViewOnLongClickListener extends ListenerWrapper implements
+		OnLongClickListener {
 
-	IRubyObject block;
-	ScriptingContainer container;
-
-	public ListenerWrapper(ScriptingContainer container, IRubyObject block) {
-		this.block = block;
-		this.container = container;
+	public ViewOnLongClickListener(ScriptingContainer container,
+			IRubyObject block) {
+		super(container, block);
 	}
 
-	protected boolean execute(Object view) {
+	public boolean onLongClick(View view) {
 		try {
 			container.put("_receiver", block);
 			container.put("_view", view);
-			container.runScriptlet("_receiver.call(_view)");
-			return true;
+
+			return (Boolean) container.runScriptlet("!!_receiver.call(_view)");
 		} catch (org.jruby.embed.EvalFailedException e) {
 			Log.d(this.getClass().toString(), "eval failed: " + e.getMessage());
 			e.printStackTrace();
@@ -30,4 +30,5 @@ public abstract class ListenerWrapper {
 		}
 		return false;
 	}
+
 }

@@ -1,4 +1,4 @@
-package com.dayosoft.activeapp.core.interfaces;
+package com.droiuby.client.core.interfaces;
 
 public interface OnUrlChangedListener {
 

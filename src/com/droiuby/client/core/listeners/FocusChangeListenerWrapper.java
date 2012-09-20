@@ -1,4 +1,4 @@
-package com.dayosoft.activeapp.core.listeners;
+package com.droiuby.client.core.listeners;
 
 import org.jruby.embed.ScriptingContainer;
 import org.jruby.runtime.builtin.IRubyObject;

@@ -1,8 +1,8 @@
-package com.dayosoft.activeapp.core;
+package com.droiuby.client.core;
 
 import org.jruby.embed.ScriptingContainer;
 
-import com.dayosoft.activeapp.core.interfaces.OnUrlChangedListener;
+import com.droiuby.client.core.interfaces.OnUrlChangedListener;
 
 public class ExecutionBundle {
 	ScriptingContainer container;

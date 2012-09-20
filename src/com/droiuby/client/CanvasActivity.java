@@ -1,10 +1,11 @@
-package com.dayosoft.activeapp;
+package com.droiuby.client;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import com.dayosoft.activeapp.core.ActiveApp;
-import com.dayosoft.activeapp.core.DroiubyActivity;
+import com.droiuby.client.R;
+import com.droiuby.client.core.ActiveApp;
+import com.droiuby.client.core.DroiubyActivity;
 
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;

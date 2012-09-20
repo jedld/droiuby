@@ -1,4 +1,4 @@
-package com.dayosoft.activeapp.core;
+package com.droiuby.client.core;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,13 +18,16 @@ import org.jruby.embed.EmbedEvalUnit;
 import org.jruby.embed.EvalFailedException;
 import org.jruby.embed.ScriptingContainer;
 
-import com.dayosoft.activeapp.R;
-import com.dayosoft.activeapp.core.listeners.DocumentReadyListener;
-import com.dayosoft.activeapp.utils.ActiveAppDownloader;
-import com.dayosoft.activeapp.utils.Utils;
+import com.droiuby.client.AppDownloader;
+import com.droiuby.client.CanvasActivity;
+import com.droiuby.client.R;
+import com.droiuby.client.core.listeners.DocumentReadyListener;
+import com.droiuby.client.utils.ActiveAppDownloader;
+import com.droiuby.client.utils.Utils;
 import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.graphics.Color;
@@ -259,6 +262,11 @@ public class ActivityBuilder {
 		}
 	}
 
+	public static void loadApp(Context c, String applicationUrl) {
+		AppDownloader downloader = new AppDownloader(c, applicationUrl, CanvasActivity.class);
+		downloader.execute();
+	}
+	
 	public static void loadLayout(ExecutionBundle executionBundle,
 			ActiveApp app, String pageUrl, int method, Activity targetActivity, Document cachedDocument, DocumentReadyListener onReadyListener) {
 

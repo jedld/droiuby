@@ -1,4 +1,4 @@
-package com.dayosoft.activeapp;
+package com.droiuby.client;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,8 +18,8 @@ import android.app.Activity;
 import android.content.res.AssetManager;
 import android.util.Log;
 
-import com.dayosoft.activeapp.utils.NanoHTTPD;
-import com.dayosoft.activeapp.utils.NanoHTTPD.Response;
+import com.droiuby.client.utils.NanoHTTPD;
+import com.droiuby.client.utils.NanoHTTPD.Response;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

@@ -1,4 +1,4 @@
-package com.dayosoft.activeapp.core.async;
+package com.droiuby.client.core.async;
 
 import org.jruby.embed.ScriptingContainer;
 import org.jruby.runtime.builtin.IRubyObject;

@@ -13,11 +13,11 @@ def current_page_url
 end
 
 def render(url, params = {})
-  http_method = Java::com.dayosoft.activeapp.utils.Utils::HTTP_GET
+  http_method = Java::com.droiuby.client.utils.Utils::HTTP_GET
   if params[:method] && (params[:method] == :post)
-    http_method = Java::com.dayosoft.activeapp.utils.Utils::HTTP_POST
+    http_method = Java::com.droiuby.client.utils.Utils::HTTP_POST
   end
-  Java::com.dayosoft.activeapp.core.ActivityBuilder.loadLayout($execution_bundle, $current_app, url, http_method, $current_activity, nil, nil)
+  Java::com.droiuby.client.core.ActivityBuilder.loadLayout($execution_bundle, $current_app, url, http_method, $current_activity, nil, nil)
 end
 
 def wrap_native_view(view)
@@ -68,7 +68,7 @@ def async_get(url, &block)
 end
 
 def http_get(url)
-  Java::com.dayosoft.activeapp.utils.Utils.load($current_activity, url);
+  Java::com.droiuby.client.utils.Utils.load($current_activity, url);
 end
 
 class ActivityWrapper
@@ -82,7 +82,7 @@ class ActivityWrapper
   class << self
     def on_click(name, &block)
       view = V(name).tap { |v|
-        v.native.setOnClickListener(Java::com.dayosoft.activeapp.core.OnClickListenerBridge.new($scripting_container, v.id))
+        v.native.setOnClickListener(Java::com.droiuby.client.core.OnClickListenerBridge.new($scripting_container, v.id))
       }
       define_method("on_click_listener_for_#{view.id.to_s}".to_sym) do |n_view|
         $main_activty.instance_exec(wrap_native_view(n_view),&block)

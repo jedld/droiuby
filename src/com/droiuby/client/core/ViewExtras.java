@@ -1,4 +1,4 @@
-package com.dayosoft.activeapp.core;
+package com.droiuby.client.core;
 
 import java.util.HashMap;
 

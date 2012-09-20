@@ -88,7 +88,7 @@ class Animator
 
     def on(event, &block)
       if [:cancel, :start, :end, :repeat ].include?(event) 
-        self.native.addListener(Java::com.dayosoft.activeapp.core.listeners.AnimationListenerWrapper.new($scripting_container, event.to_s, &block))
+        self.native.addListener(Java::com.droiuby.client.core.listeners.AnimationListenerWrapper.new($scripting_container, event.to_s, &block))
       end
       self
     end

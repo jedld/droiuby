@@ -1,4 +1,4 @@
-package com.dayosoft.activeapp;
+package com.droiuby.client;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -8,9 +8,9 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.widget.Toast;
 
-import com.dayosoft.activeapp.core.ActiveApp;
-import com.dayosoft.activeapp.core.DroiubyActivity;
-import com.dayosoft.activeapp.utils.ActiveAppDownloader;
+import com.droiuby.client.core.ActiveApp;
+import com.droiuby.client.core.DroiubyActivity;
+import com.droiuby.client.utils.ActiveAppDownloader;
 
 public class AppDownloader extends AsyncTask<Void, Void, ActiveApp> {
 	String url;

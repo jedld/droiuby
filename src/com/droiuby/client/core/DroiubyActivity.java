@@ -1,4 +1,4 @@
-package com.dayosoft.activeapp.core;
+package com.droiuby.client.core;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,13 +11,13 @@ import org.jruby.CompatVersion;
 import org.jruby.embed.LocalVariableBehavior;
 import org.jruby.embed.ScriptingContainer;
 
-import com.dayosoft.activeapp.R;
-import com.dayosoft.activeapp.WebConsole;
-import com.dayosoft.activeapp.R.id;
-import com.dayosoft.activeapp.R.layout;
-import com.dayosoft.activeapp.R.menu;
-import com.dayosoft.activeapp.core.interfaces.OnUrlChangedListener;
-import com.dayosoft.activeapp.utils.ActiveAppDownloader;
+import com.droiuby.client.R;
+import com.droiuby.client.R.id;
+import com.droiuby.client.R.layout;
+import com.droiuby.client.R.menu;
+import com.droiuby.client.WebConsole;
+import com.droiuby.client.core.interfaces.OnUrlChangedListener;
+import com.droiuby.client.utils.ActiveAppDownloader;
 
 import android.app.Activity;
 import android.app.AlertDialog;

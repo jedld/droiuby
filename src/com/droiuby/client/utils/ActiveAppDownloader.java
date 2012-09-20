@@ -1,4 +1,4 @@
-package com.dayosoft.activeapp.utils;
+package com.droiuby.client.utils;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -24,15 +24,15 @@ import org.jruby.embed.ScriptingContainer;
 import org.jruby.javasupport.JavaObject;
 import org.jruby.runtime.builtin.IRubyObject;
 
-import com.dayosoft.activeapp.R;
-import com.dayosoft.activeapp.core.ActiveApp;
-import com.dayosoft.activeapp.core.ActivityBuilder;
-import com.dayosoft.activeapp.core.AppCache;
-import com.dayosoft.activeapp.core.ExecutionBundle;
-import com.dayosoft.activeapp.core.OnDownloadCompleteListener;
-import com.dayosoft.activeapp.core.RubyContainerPayload;
-import com.dayosoft.activeapp.core.interfaces.OnUrlChangedListener;
-import com.dayosoft.activeapp.core.listeners.DocumentReadyListener;
+import com.droiuby.client.R;
+import com.droiuby.client.core.ActiveApp;
+import com.droiuby.client.core.ActivityBuilder;
+import com.droiuby.client.core.AppCache;
+import com.droiuby.client.core.ExecutionBundle;
+import com.droiuby.client.core.OnDownloadCompleteListener;
+import com.droiuby.client.core.RubyContainerPayload;
+import com.droiuby.client.core.interfaces.OnUrlChangedListener;
+import com.droiuby.client.core.listeners.DocumentReadyListener;
 
 import android.app.Activity;
 import android.content.Context;

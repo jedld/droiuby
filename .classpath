@@ -3,7 +3,6 @@
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="src" path="gen"/>
 	<classpathentry exported="true" kind="lib" path="lib/bytelist.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/generator.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/gson-2.2.2.jar"/>
@@ -23,5 +22,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/svg-android-1.1.jar"/>
 	<classpathentry kind="lib" path="lib/xml-apis.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/yydebug.jar"/>
+	<classpathentry kind="src" path="gen"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

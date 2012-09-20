@@ -1,4 +1,4 @@
-package com.dayosoft.activeapp.utils;
+package com.droiuby.client.utils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;

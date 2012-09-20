@@ -49,7 +49,7 @@ class ViewGroupWrapper < ViewWrapper
   def set_hash_from_tag(child, field_hash, &block)
     unless child.native.getTag.nil?
       tag = child.native.getTag
-      if tag.kind_of? Java::com.dayosoft.activeapp.core.ViewExtras
+      if tag.kind_of? Java::com.droiuby.client.core.ViewExtras
         unless tag.getView_name.nil?
           field_hash[tag.getView_name.to_sym] = block.call(child)
         end

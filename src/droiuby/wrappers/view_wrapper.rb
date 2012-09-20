@@ -195,7 +195,7 @@ class ViewWrapper
   def tag
     unless native.getTag.nil?
       tag = native.getTag
-      if tag.kind_of? Java::com.dayosoft.activeapp.core.ViewExtras
+      if tag.kind_of? Java::com.droiuby.client.core.ViewExtras
         return tag
       end
     end
@@ -205,7 +205,7 @@ class ViewWrapper
   def data(key)
     unless native.getTag.nil?
       tag = native.getTag
-      if tag.kind_of? Java::com.dayosoft.activeapp.core.ViewExtras
+      if tag.kind_of? Java::com.droiuby.client.core.ViewExtras
         data_attributes = tag.getDataAttributes
         if data_attributes.containsKey(key)
           data_attributes.get(key)
@@ -217,11 +217,11 @@ class ViewWrapper
   def on(event,&block)
     case(event.to_sym)
     when :click
-      self.native.setOnClickListener(Java::com.dayosoft.activeapp.core.listeners.ViewOnClickListener.new($scripting_container, &block))
+      self.native.setOnClickListener(Java::com.droiuby.client.core.listeners.ViewOnClickListener.new($scripting_container, &block))
     when :long_click
-      self.native.setOnLongClickListener(Java::com.dayosoft.activeapp.core.listeners.ViewOnLongClickListener.new($scripting_container, &block))
+      self.native.setOnLongClickListener(Java::com.droiuby.client.core.listeners.ViewOnLongClickListener.new($scripting_container, &block))
     when :focus_changed
-      self.native.setOnFocusChangeListener(Java::com.dayosoft.activeapp.core.listeners.FocusChangeListenerWrapper.new($scripting_container, &block))
+      self.native.setOnFocusChangeListener(Java::com.droiuby.client.core.listeners.FocusChangeListenerWrapper.new($scripting_container, &block))
     end
   end
 end
