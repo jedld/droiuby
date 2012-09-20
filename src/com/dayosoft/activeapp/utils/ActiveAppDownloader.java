@@ -150,7 +150,7 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean> implemen
 			if (asset_name.startsWith("/")) {
 				asset_name = asset_name.substring(1);
 			}
-			return Utils.query(baseUrl + "/" + asset_name, targetActivity);
+			return Utils.query(baseUrl + "/" + asset_name, targetActivity, app.getName());
 		}
 	}
 
@@ -160,7 +160,7 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean> implemen
 		if (url.indexOf("asset:") != -1) {
 			responseBody = Utils.loadAsset(c, url);
 		} else {
-			responseBody = Utils.query(url, c);
+			responseBody = Utils.query(url, c, null);
 		}
 		if (responseBody != null) {
 			Log.d(ActiveAppDownloader.class.toString(), responseBody);

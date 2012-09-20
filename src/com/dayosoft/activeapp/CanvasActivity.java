@@ -46,7 +46,7 @@ public class CanvasActivity extends DroiubyActivity {
 				Editor editor = prefs.edit();
 				URL url;
 				url = new URL(application.getBaseUrl());
-				editor.putString(url.getProtocol() + "_" + url.getHost(), "");
+				editor.putString(url.getProtocol() + "_" + url.getHost() + "_" + application.getName(), "");
 				editor.commit();
 				getExecutionBundle().setCurrentUrl(null);
 			} catch (MalformedURLException e) {

@@ -48,8 +48,10 @@ class DroiubyHttpResponseHandler extends BasicResponseHandler {
 
 	Context context;
 	URL requestURL;
+	String namespace;
 
-	public DroiubyHttpResponseHandler(String url, Context context) {
+	public DroiubyHttpResponseHandler(String url, Context context, String namespace) {
+		this.namespace = namespace;
 		try {
 			requestURL = new URL(url);
 		} catch (MalformedURLException e) {
@@ -61,21 +63,27 @@ class DroiubyHttpResponseHandler extends BasicResponseHandler {
 
 	public String handleResponse(HttpResponse response)
 			throws ClientProtocolException, IOException {
-		for (Header header : response.getAllHeaders()) {
-			Log.d(this.getClass().toString(),
-					"Location Header " + header.getName() + "="
-							+ header.getValue());
-		}
-
+		Utils.logHeaders(response.getAllHeaders(), this.getClass());
+		long content_length = response.getEntity().getContentLength(); 
 		Log.d(this.getClass().toString(), "status = "
 				+ response.getStatusLine().getStatusCode());
 		Log.d(this.getClass().toString(), "reason = "
 				+ response.getStatusLine().getReasonPhrase());
+		Log.d(this.getClass().toString(), "content length = " + content_length
+				);
 		StringBuffer result = new StringBuffer();
 		Reader reader = new InputStreamReader(response.getEntity().getContent());
-		for (int i = 0 ; i < response.getEntity().getContentLength(); i++) {
-			result.append((char)reader.read());
+		
+		if (content_length < 0) {
+			while (reader.ready()) {
+				result.append((char)reader.read());
+			}
+		} else {
+			for (int i = 0 ; i < response.getEntity().getContentLength(); i++) {
+				result.append((char)reader.read());
+			}
 		}
+		
 		String responseBody = result.toString();
 		Log.d(this.getClass().toString(), "response = " + result.toString());
 		if (response.getStatusLine().getStatusCode() < 300) {
@@ -83,7 +91,7 @@ class DroiubyHttpResponseHandler extends BasicResponseHandler {
 			SharedPreferences prefs = context.getSharedPreferences("cookies",context.MODE_PRIVATE);
 			Editor edit = prefs.edit();
 			for (Header header : headers) {
-				String name = requestURL.getProtocol() + "_" + requestURL.getHost();
+				String name = requestURL.getProtocol() + "_" + requestURL.getHost()+ "_" + namespace;
 				String value = header.getValue();
 				Log.d(this.getClass().toString(), "Saving coookie " + name
 						+ " = " + value);
@@ -143,12 +151,19 @@ public class Utils {
 		return null;
 	}
 
-	public static String load(Context c, String url) {
+	public static void logHeaders(Header[] headers, Class context) {
+		for (Header header : headers) {
+			Log.d(context.getName(),
+					"Location Header " + header.getName() + "="
+							+ header.getValue());
+		}
+	}
+	public static String load(Context c, String url, String namespace) {
 		Log.d(ActiveAppDownloader.class.toString(), "loading " + url);
 		if (url.indexOf("asset:") != -1) {
 			return Utils.loadAsset(c, url);
 		} else {
-			return Utils.query(url, c);
+			return Utils.query(url, c, namespace);
 		}
 	}
 
@@ -173,11 +188,11 @@ public class Utils {
 		return null;
 	}
 
-	public static String query(String url, Context c) {
-		return query(url, c, Utils.HTTP_GET);
+	public static String query(String url, Context c, String namespace) {
+		return query(url, c, namespace, Utils.HTTP_GET);
 	}
 
-	public static String query(String url, Context c, int method) {
+	public static String query(String url, Context c, String namespace, int method) {
 		Log.d(Utils.class.toString(), "query url = " + url);
 		HttpClient httpclient = new DefaultHttpClient();
 		HttpUriRequest request = null;
@@ -197,8 +212,9 @@ public class Utils {
 		SharedPreferences prefs = c
 				.getSharedPreferences("cookies", c.MODE_PRIVATE);
 		String cookie = prefs.getString(parsedURL.getProtocol() + "_"
-				+ parsedURL.getHost(), null);
-		if (cookie!=null) {
+				+ parsedURL.getHost() + "_" + namespace, null);
+		
+		if (namespace!=null && cookie!=null) {
 			if (!cookie.toString().trim().equals("")) {
 				request.setHeader("Cookie", cookie.toString());
 				Log.d(Utils.class.toString(), "setting cookie = " + cookie.toString());
@@ -212,6 +228,7 @@ public class Utils {
 		Display display = wm.getDefaultDisplay();
 		DisplayMetrics metrics = new DisplayMetrics();
 		display.getMetrics(metrics);
+		request.setHeader("Accept","text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
 		request.setHeader("Droiuby-Height",
 				Integer.toString(metrics.heightPixels));
 		request.setHeader("Droiuby-Width",
@@ -221,9 +238,11 @@ public class Utils {
 		request.setHeader("Droiuby-OS",
 				"android " + Integer.valueOf(android.os.Build.VERSION.SDK_INT));
 
+		
 		ResponseHandler<String> responseHandler = new DroiubyHttpResponseHandler(
-				url, c);
+				url, c, namespace);
 		try {
+			Utils.logHeaders(request.getAllHeaders(), Utils.class);
 			String responseString = httpclient
 					.execute(request, responseHandler);
 
