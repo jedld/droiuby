@@ -10,24 +10,25 @@
         android:layout_height="wrap_content"
         android:text="Application URL"
         android:textAppearance="?android:attr/textAppearanceMedium" />
-
+
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
-
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+
         <EditText
             android:id="@+id/editTextApplicationURL"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:ems="10" >
 
             <requestFocus />
         </EditText>
-
+
         <Button
             android:id="@+id/buttonRun"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="0"
             android:text="Run" />
