@@ -71,21 +71,11 @@ class DroiubyHttpResponseHandler extends BasicResponseHandler {
 		Log.d(this.getClass().toString(), "reason = "
 				+ response.getStatusLine().getReasonPhrase());
 		Log.d(this.getClass().toString(), "content length = " + content_length);
-		StringBuffer result = new StringBuffer();
-		Reader reader = new InputStreamReader(response.getEntity().getContent());
-		if (content_length < 0) {
-			while (reader.ready()) {
-				result.append((char) reader.read());
-			}
-		} else {
-			for (int i = 0; i < response.getEntity().getContentLength(); i++) {
-				result.append((char) reader.read());
-			}
-		}
-
-		String responseBody = result.toString();
-		Log.d(this.getClass().toString(), "response = " + result.toString());
+		
 		if (response.getStatusLine().getStatusCode() < 300) {
+			String responseBody = super.handleResponse(response);
+			Log.d(this.getClass().toString(), "response = " + responseBody);
+			
 			Header headers[] = response.getHeaders("Set-Cookie");
 			SharedPreferences prefs = context.getSharedPreferences("cookies",
 					context.MODE_PRIVATE);
