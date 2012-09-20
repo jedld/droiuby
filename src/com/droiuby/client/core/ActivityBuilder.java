@@ -308,6 +308,17 @@ public class ActivityBuilder {
 		} else if (selector.startsWith("@preload:")) {
 			String name = selector.substring(9);
 			return preloadedResource.get(name);
+		} else if (selector.startsWith(".")) { 
+			String name = selector.substring(1);
+			if (classViewDictionary.containsKey(name)) {
+				ArrayList<View> object_list = new ArrayList<View>(); 
+				ArrayList<Integer> list = classViewDictionary.get(name);
+				for(int id : list) {
+					object_list.add(context.findViewById(id));
+				}
+				return object_list;
+			}
+			return null;
 		} else {
 			String name = selector.substring(1);
 			int id = getDrawableId(name);

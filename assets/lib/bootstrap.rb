@@ -12,6 +12,10 @@ def current_page_url
   $execution_bundle.getCurrentUrl
 end
 
+def launch(url)
+  Java::com.droiuby.client.core.ActivityBuilder.loadApp($current_activity, url) 
+end
+
 def render(url, params = {})
   http_method = Java::com.droiuby.client.utils.Utils::HTTP_GET
   if params[:method] && (params[:method] == :post)
@@ -48,7 +52,14 @@ def V(selectors = nil)
   else
     view = $current_activity_builder.findViewByName(selectors)
   end
-  wrap_native_view(view) if view
+  if (view.kind_of? Java::java.util.ArrayList)
+    view.toArray.to_a.collect do |element|
+      wrap_native_view(element)
+    end
+  else
+    wrap_native_view(view) if view
+  end
+  
 end
 
 def _P

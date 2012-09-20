@@ -179,14 +179,16 @@ class ViewWrapper
     level.times { |i| spaces << '  '}
       
     id_attr = self.id
-    name_attr = "" 
+    name_attr = ""
+    class_attr = "" 
     
     if tag
       id_attr = tag.getView_id
       name_attr = tag.getView_name
+      class_attr = tag.getView_class
     end
     
-    puts "#{spaces}#{self.class.name} id=\"#{id_attr}\" name=\"#{name_attr}\"\n"
+    puts "#{spaces}#{self.class.name} id=\"#{id_attr}\" name=\"#{name_attr}\" class=\"#{class_attr}\"\n"
     self.children.each { |c|
       c.p_tree(level + 1)
     } if self.respond_to? :children
