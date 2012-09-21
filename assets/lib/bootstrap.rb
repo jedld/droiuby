@@ -12,6 +12,10 @@ def current_page_url
   $execution_bundle.getCurrentUrl
 end
 
+def reverse_resolve(view_id)
+  $current_activity_builder.reverseLookupId(view_id)
+end
+
 def launch(url)
   Java::com.droiuby.client.core.ActivityBuilder.loadApp($current_activity, url) 
 end

@@ -13,12 +13,28 @@ class ViewWrapper
     @view.getId
   end
 
+  def bottom
+    @view.getBottom
+  end
+  
+  def bottom=(value)
+    @view.setBottom(value)
+  end
+  
   def x
     @view.getLeft
   end
 
   def y
     @view.getTop
+  end
+  
+  def x=(x)
+    @view.setX(x)
+  end
+  
+  def y=(y)
+    @view.setY(y)
   end
 
   def width

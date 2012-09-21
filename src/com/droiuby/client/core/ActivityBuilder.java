@@ -56,6 +56,66 @@ import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+class ReverseIdResolver {
+	static ReverseIdResolver instance;
+	Context context;
+
+	HashMap<Integer, String> resolveCache;
+
+	protected ReverseIdResolver(Context context) {
+		this.context = context;
+	}
+
+	public static ReverseIdResolver getInstance(Context context) {
+		if (instance == null) {
+			instance = new ReverseIdResolver(context);
+		}
+		return instance;
+	}
+
+	public String resolve(int id) {
+		String packageName = context.getApplicationContext().getPackageName();
+		if (resolveCache == null) {
+			resolveCache = new HashMap<Integer, String>();
+			Class c;
+			try {
+				c = Class.forName(packageName + ".R");
+				for (Class sc : c.getDeclaredClasses()) {
+					if (sc.getName().equals("id")) {
+						for (Field f : sc.getFields()) {
+							String name = f.getName();
+							if (f.getType() == Integer.class) {
+								resolveCache.put(f.getInt(sc.newInstance()),
+										name);
+							}
+						}
+					}
+				}
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalArgumentException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InstantiationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+		}
+		;
+		if (resolveCache.containsKey(id)) {
+			return resolveCache.get(id);
+		}
+		return null;
+
+	}
+
+}
+
 class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 
 	ActiveApp app;
@@ -73,7 +133,9 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 	int method;
 
 	public ActivityBootstrapper(ExecutionBundle executionBundle, ActiveApp app,
-			String pageUrl, int method, Activity targetActivity, Document cachedActivityDocument, DocumentReadyListener onReadyListener) {
+			String pageUrl, int method, Activity targetActivity,
+			Document cachedActivityDocument,
+			DocumentReadyListener onReadyListener) {
 		this.app = app;
 		this.pageUrl = pageUrl;
 		this.executionBundle = executionBundle;
@@ -108,13 +170,13 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 				if (asset_name.startsWith("/")) {
 					asset_name = asset_name.substring(1);
 				}
-				
+
 				if (baseUrl.endsWith("/")) {
 					baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
 				}
-				
-				return Utils.query(baseUrl + "/" + asset_name, targetActivity, app.getName(), 
-						method);
+
+				return Utils.query(baseUrl + "/" + asset_name, targetActivity,
+						app.getName(), method);
 			}
 		}
 	}
@@ -129,8 +191,9 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 			return null;
 		}
 		try {
-			if (mainActivityDocument==null) {
-				mainActivityDocument = sax.build(new StringReader(responseBody));
+			if (mainActivityDocument == null) {
+				mainActivityDocument = sax
+						.build(new StringReader(responseBody));
 			}
 		} catch (JDOMException e) {
 			// TODO Auto-generated catch block
@@ -176,10 +239,10 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 		super.onPostExecute(result);
 		if (result != null) {
 			result.build();
-			if (onReadyListener!=null) {
+			if (onReadyListener != null) {
 				onReadyListener.onDocumentReady(mainActivityDocument);
 			}
-			
+
 			try {
 				if (preParsedScript != null) {
 					long start = System.currentTimeMillis();
@@ -194,7 +257,7 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 			} catch (EvalFailedException e) {
 				Log.e(this.getClass().toString(), e.getMessage());
 			}
-			
+
 		}
 	}
 }
@@ -208,6 +271,7 @@ public class ActivityBuilder {
 	Activity context;
 	Element rootElement;
 	View rootView;
+
 	public View getRootView() {
 		return rootView;
 	}
@@ -220,7 +284,6 @@ public class ActivityBuilder {
 	HashMap<String, Drawable> preloadedResource = new HashMap<String, Drawable>();
 	HashMap<String, Integer> namedViewDictionary = new HashMap<String, Integer>();
 	HashMap<String, ArrayList<Integer>> classViewDictionary = new HashMap<String, ArrayList<Integer>>();
-	
 
 	public HashMap<String, ArrayList<Integer>> getClassViewDictionary() {
 		return classViewDictionary;
@@ -268,15 +331,18 @@ public class ActivityBuilder {
 	}
 
 	public static void loadApp(Context c, String applicationUrl) {
-		AppDownloader downloader = new AppDownloader(c, applicationUrl, CanvasActivity.class);
+		AppDownloader downloader = new AppDownloader(c, applicationUrl,
+				CanvasActivity.class);
 		downloader.execute();
 	}
-	
+
 	public static void loadLayout(ExecutionBundle executionBundle,
-			ActiveApp app, String pageUrl, int method, Activity targetActivity, Document cachedDocument, DocumentReadyListener onReadyListener) {
+			ActiveApp app, String pageUrl, int method, Activity targetActivity,
+			Document cachedDocument, DocumentReadyListener onReadyListener) {
 
 		ActivityBootstrapper bootstrapper = new ActivityBootstrapper(
-				executionBundle, app, pageUrl, method, targetActivity, cachedDocument, onReadyListener);
+				executionBundle, app, pageUrl, method, targetActivity,
+				cachedDocument, onReadyListener);
 		bootstrapper.execute();
 	}
 
@@ -313,12 +379,12 @@ public class ActivityBuilder {
 		} else if (selector.startsWith("@preload:")) {
 			String name = selector.substring(9);
 			return preloadedResource.get(name);
-		} else if (selector.startsWith(".")) { 
+		} else if (selector.startsWith(".")) {
 			String name = selector.substring(1);
 			if (classViewDictionary.containsKey(name)) {
-				ArrayList<View> object_list = new ArrayList<View>(); 
+				ArrayList<View> object_list = new ArrayList<View>();
 				ArrayList<Integer> list = classViewDictionary.get(name);
-				for(int id : list) {
+				for (int id : list) {
 					object_list.add(context.findViewById(id));
 				}
 				return object_list;
@@ -371,6 +437,10 @@ public class ActivityBuilder {
 		}
 
 		v.setAlpha(alpha);
+	}
+
+	public String reverseLookupId(int id) {
+		return ReverseIdResolver.getInstance(context).resolve(id);
 	}
 
 	public RelativeLayout.LayoutParams setRelativeLayoutParams(Element e) {
@@ -586,23 +656,6 @@ public class ActivityBuilder {
 		}
 	}
 
-	private void handleDrawable(Element e, View child) {
-		String src = e.getAttributeValue("background");
-		ImageView imageView = new ImageView(context);
-		if (src != null) {
-			if (src.indexOf("@drawable:") != -1) {
-				String drawable = src.substring(10);
-				int resId = getDrawableId(drawable);
-				if (resId != 0) {
-					child.setBackgroundResource(resId);
-				}
-			} else {
-				UrlImageViewHelper.setUrlDrawable(imageView, src,
-						"setBackgroundDrawable");
-			}
-		}
-	}
-
 	private void registerTextView(ViewGroup group, TextView child, Element e) {
 		String drawable_left = e.getAttributeValue("drawable_left");
 		Drawable drawableLeft = null, drawableTop = null, drawableRight = null, drawableBottom = null;
@@ -719,6 +772,12 @@ public class ActivityBuilder {
 						.getDataAttributes();
 				dataAttributes
 						.put(attribute_name.substring(5), attribute_value);
+			} else if (attribute_name.equals("x")) {
+				child.setX(Float.parseFloat(attribute_value));
+			} else if (attribute_name.equals("y")) {
+				child.setY(Float.parseFloat(attribute_value));
+			} else if (attribute_name.equals("bottom")) {
+				child.setBottom(toPixels(attribute_value));
 			} else if (attribute_name.equals("min_height")) {
 				child.setMinimumHeight(toPixels(attribute_value));
 			} else if (attribute_name.equals("min_width")) {
@@ -766,7 +825,7 @@ public class ActivityBuilder {
 		} else {
 			group.addView(child, setParams(e));
 		}
-		
+
 		if (this.rootView == null) {
 			rootView = child;
 		}
