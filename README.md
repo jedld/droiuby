@@ -33,18 +33,18 @@ Remember this is still highly experimental and things could change really quickl
 Why use Droiuby?
 ----------------
 
-Droiuby allows you to easily convert your existing site so that it uses native controls on your
+- Droiuby allows you to easily convert your existing site so that it uses native controls on your
 device. It is not based on HTML/javascript but rather uses a custom markup that translates
 "directly" to a native control. Also it uses JRuby as a "frontend" scripting language
 which enables you to have direct access to native classes while taking advantage of ruby's
 "programmer friendliness".
 
-If you already have a website, you only need to create a separate set of markup for droiuby and switch
+- If you already have a website, you only need to create a separate set of markup for droiuby and switch
 to that markup when a droiuby user agent is detected (a mechanism existing sites already use
 when handling mobile devices)
 
-Droiuby sacrifices standards and portability for performance and access to native features. In this regard,
-droiuby behaves more like a web browser than a framework.
+- The "code and refresh" nature of droiuby is perfect for rapid prototyping a native app to your
+product managers and clients.
 
 So what does the "app" look like?
 -----------------------------
@@ -159,8 +159,12 @@ main.rb - A ruby script that allows you to hook on to events (notice the control
 	  puts "This instance method was called #{str}"
 	end
 
-Installation
+Installation / Documentation / Usage
 ------------
+
+Refer to the wiki here:
+
+[https://github.com/jedld/droiuby/wiki](https://github.com/jedld/droiuby/wiki)
 
 Issues
 ------
@@ -173,6 +177,7 @@ Similar Projects
 
 - ruboto
 - phonegap
+- appcelerator
 
 Compile Notes
 -------------
