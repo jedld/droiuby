@@ -108,6 +108,11 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 				if (asset_name.startsWith("/")) {
 					asset_name = asset_name.substring(1);
 				}
+				
+				if (baseUrl.endsWith("/")) {
+					baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
+				}
+				
 				return Utils.query(baseUrl + "/" + asset_name, targetActivity, app.getName(), 
 						method);
 			}

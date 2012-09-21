@@ -221,6 +221,7 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean> implemen
 		if (executionBundle.getCurrentUrl()!=null) {
 			targetUrl = executionBundle.getCurrentUrl();
 		}
+		Log.d(this.getClass().toString(), "target url = " + targetUrl);
 		ActivityBuilder.loadLayout(executionBundle, app, targetUrl, Utils.HTTP_GET, targetActivity, this.mainActivityDocument, this);
 	}
 
