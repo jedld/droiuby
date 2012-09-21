@@ -30,6 +30,16 @@ public class CanvasActivity extends DroiubyActivity {
 	}
 
 	@Override
+	protected void onStart() {
+		// TODO Auto-generated method stub
+		super.onStart();
+		if (console!=null) {
+			console.setContainer(executionBundle.getContainer());
+			console.setActivity(this);
+		}
+	}
+
+	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		// Handle item selection
 		switch (item.getItemId()) {

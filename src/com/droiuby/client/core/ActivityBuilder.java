@@ -84,10 +84,8 @@ class ReverseIdResolver {
 					if (sc.getName().equals("id")) {
 						for (Field f : sc.getFields()) {
 							String name = f.getName();
-							if (f.getType() == Integer.class) {
 								resolveCache.put(f.getInt(sc.newInstance()),
 										name);
-							}
 						}
 					}
 				}
@@ -106,7 +104,6 @@ class ReverseIdResolver {
 			}
 
 		}
-		;
 		if (resolveCache.containsKey(id)) {
 			return resolveCache.get(id);
 		}

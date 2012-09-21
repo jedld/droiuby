@@ -37,7 +37,8 @@ public abstract class DroiubyActivity extends Activity implements
 	/** Called when the activity is first created. */
 	ActiveApp application;
 	AppCache cache;
-	ExecutionBundle executionBundle;
+	protected ExecutionBundle executionBundle;
+	
 	public ExecutionBundle getExecutionBundle() {
 		return executionBundle;
 	}
@@ -48,7 +49,7 @@ public abstract class DroiubyActivity extends Activity implements
 
 	ActiveAppDownloader downloader;
 	String currentUrl;
-	private WebConsole console;
+	protected WebConsole console;
 
 	private ExecutionBundle getNewScriptingContainer() {
 		ExecutionBundle bundle = new ExecutionBundle();
