@@ -26,17 +26,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class WebConsole extends NanoHTTPD {
 
-	ScriptingContainer container;
+	WeakReference<ScriptingContainer> containerRef;
 	public static WebConsole instance;
 	WeakReference<Activity> activity;
 	AssetManager manager;
+	int referenceCount = 0;
 
 	public ScriptingContainer getContainer() {
-		return container;
+		return containerRef.get();
 	}
 
 	public void setContainer(ScriptingContainer container) {
-		this.container = container;
+		this.containerRef = new WeakReference<ScriptingContainer>(container);
 	}
 
 	public static WebConsole getInstance() {
@@ -47,33 +48,42 @@ public class WebConsole extends NanoHTTPD {
 		WebConsole.instance = instance;
 	}
 
-	public WeakReference<Activity> getActivity() {
-		return activity;
+	public Activity getActivity() {
+		return activity.get();
 	}
 
-	public void setActivity(WeakReference<Activity> activity) {
-		this.activity = activity;
+	public void setActivity(Activity activity) {
+		this.activity = new WeakReference<Activity>(activity);
+		this.manager = activity.getAssets();
 	}
 
 	public static boolean uiPosted = false;
 
-	protected WebConsole(int port, File wwwroot, Activity activity,
-			ScriptingContainer container) throws IOException {
+	protected WebConsole(int port, File wwwroot)
+			throws IOException {
 		super(port, wwwroot);
-		this.activity = new WeakReference<Activity>(activity);
-		this.container = container;
-		this.manager = activity.getAssets();
 		Log.d(this.getClass().toString(), "Starting HTTPD server on port "
 				+ port);
 	}
 
-	public static WebConsole getInstance(int port, File wwwroot,
-			Activity activity, ScriptingContainer container) throws IOException {
+	public static WebConsole getInstance(int port, File wwwroot) throws IOException {
 		if (instance == null) {
-			instance = new WebConsole(port, wwwroot, activity, container);
+			instance = new WebConsole(port, wwwroot);
 		}
-		;
+		instance.incrementReference();
 		return instance;
+	}
+
+	public void incrementReference() {
+		referenceCount++;
+	}
+
+	public void shutdownConsole() {
+		referenceCount--;
+		if (referenceCount <= 0) {
+			instance = null;
+			this.stop();
+		}
 	}
 
 	public static void execute(ScriptingContainer container,
@@ -107,75 +117,69 @@ public class WebConsole extends NanoHTTPD {
 		Response response;
 		if (uri.startsWith("/console")) {
 			final String statement = params.getProperty("cmd", "");
-
-			OutputStream output = new OutputStream() {
-				private StringBuilder string = new StringBuilder();
-
-				@Override
-				public void write(int b) throws IOException {
-					this.string.append((char) b);
-				}
-
-				public String toString() {
-					return this.string.toString();
-				}
-			};
-
-			StringWriter writer = new StringWriter();
-			container.setWriter(writer);
-			StringBuffer resultStr = new StringBuffer();
-			ObjectMapper mapper = new ObjectMapper();
-
 			final Map<String, String> resultMap = new HashMap<String, String>();
-			resultMap.put("cmd", statement);
-			try {
-				final EmbedEvalUnit evalUnit = container.parse(statement, 0);
+			StringBuffer resultStr = new StringBuffer();
+			final ScriptingContainer container = containerRef.get();
+			
+			if (container == null) {
+				resultMap.put("err", "true");
+				resultMap.put("result","No JRuby instance attached. Make sure an activity is visible before issuing console commands");
+			} else {
+				StringWriter writer = new StringWriter();
+				container.setWriter(writer);
+				ObjectMapper mapper = new ObjectMapper();
 
-				WebConsole.uiPosted = false;
-				if (activity.get() != null) {
-					activity.get().runOnUiThread(new Runnable() {
-						public void run() {
-							execute(container, evalUnit, resultMap);
-							WebConsole.uiPosted = true;
+				resultMap.put("cmd", statement);
+				try {
+					final EmbedEvalUnit evalUnit = container
+							.parse(statement, 0);
+
+					WebConsole.uiPosted = false;
+					if (activity.get() != null) {
+						activity.get().runOnUiThread(new Runnable() {
+							public void run() {
+								execute(container, evalUnit, resultMap);
+								WebConsole.uiPosted = true;
+							}
+						});
+						while (!uiPosted) {
+							Thread.sleep(100);
 						}
-					});
-					while (!uiPosted) {
-						Thread.sleep(100);
+					} else {
+						container.put("inspect_target", evalUnit.run());
+						container
+								.runScriptlet("puts \"=> #{inspect_target.inspect}\"");
 					}
-				} else {
-					container.put("inspect_target", evalUnit.run());
-					container
-							.runScriptlet("puts \"=> #{inspect_target.inspect}\"");
+
+					writer.flush();
+					if (!resultMap.containsKey("err")) {
+						resultMap.put("result", writer.getBuffer().toString());
+					}
+				} catch (org.jruby.embed.ParseFailedException e) {
+					resultMap.put("parse_failed", "true");
+					resultMap.put("err", "true");
+					resultMap.put("result", e.getMessage());
+				} catch (org.jruby.embed.InvokeFailedException e) {
+					resultMap.put("parse_failed", "true");
+					resultMap.put("err", "true");
+					resultMap.put("result", e.getMessage());
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
 
-				writer.flush();
-				if (!resultMap.containsKey("err")) {
-					resultMap.put("result", writer.getBuffer().toString());
+				try {
+					resultStr.append(mapper.writeValueAsString(resultMap));
+				} catch (JsonGenerationException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (JsonMappingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
-			} catch (org.jruby.embed.ParseFailedException e) {
-				resultMap.put("parse_failed", "true");
-				resultMap.put("err", "true");
-				resultMap.put("result", e.getMessage());
-			} catch (org.jruby.embed.InvokeFailedException e) {
-				resultMap.put("parse_failed", "true");
-				resultMap.put("err", "true");
-				resultMap.put("result", e.getMessage());
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-			try {
-				resultStr.append(mapper.writeValueAsString(resultMap));
-			} catch (JsonGenerationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (JsonMappingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
 			response = new Response(NanoHTTPD.HTTP_OK, "application/json",
 					resultStr.toString());

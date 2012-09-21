@@ -157,7 +157,7 @@ public abstract class DroiubyActivity extends Activity implements
 	protected void onDestroy() {
 		// TODO Auto-generated method stub
 		super.onDestroy();
-		console.stop();
+		console.shutdownConsole();
 	}
 
 	@Override
@@ -182,8 +182,9 @@ public abstract class DroiubyActivity extends Activity implements
 			web_public_loc = this.getCacheDir().getCanonicalPath() + "/www";
 			File webroot = new File(web_public_loc);
 			webroot.mkdirs();
-			console = WebConsole.getInstance(4000, webroot, this,
-					executionBundle.getContainer());
+			console = WebConsole.getInstance(4000, webroot);
+			console.setContainer(executionBundle.getContainer());
+			console.setActivity(this);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
