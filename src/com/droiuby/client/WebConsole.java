@@ -37,6 +37,7 @@ public class WebConsole extends NanoHTTPD {
 	}
 
 	public void setContainer(ScriptingContainer container) {
+		Log.d(this.getClass().toString(),"Setting container to " + container.toString());
 		this.containerRef = new WeakReference<ScriptingContainer>(container);
 	}
 
@@ -120,11 +121,11 @@ public class WebConsole extends NanoHTTPD {
 			final Map<String, String> resultMap = new HashMap<String, String>();
 			StringBuffer resultStr = new StringBuffer();
 			final ScriptingContainer container = containerRef.get();
-			
 			if (container == null) {
 				resultMap.put("err", "true");
 				resultMap.put("result","No JRuby instance attached. Make sure an activity is visible before issuing console commands");
 			} else {
+				
 				StringWriter writer = new StringWriter();
 				container.setWriter(writer);
 				ObjectMapper mapper = new ObjectMapper();
@@ -133,11 +134,13 @@ public class WebConsole extends NanoHTTPD {
 				try {
 					final EmbedEvalUnit evalUnit = container
 							.parse(statement, 0);
-
+					Activity currentActivity = activity.get(); 
 					WebConsole.uiPosted = false;
-					if (activity.get() != null) {
-						activity.get().runOnUiThread(new Runnable() {
+					if (currentActivity!= null) {
+						Log.d(this.getClass().toString(),"Current Activity " + currentActivity.toString());
+						currentActivity.runOnUiThread(new Runnable() {
 							public void run() {
+								Log.d(this.getClass().toString(),"Running command on " + container.toString());
 								execute(container, evalUnit, resultMap);
 								WebConsole.uiPosted = true;
 							}

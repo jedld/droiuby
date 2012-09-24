@@ -220,8 +220,9 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 		executionBundle.setCurrentUrl(pageUrl);
 		AssetManager manager = targetActivity.getAssets();
 		try {
-			scriptingContainer.parse(manager.open("lib/bootstrap.rb"),
-					"lib/bootstrap.rb").run();
+			scriptingContainer.put("$container_payload", executionBundle.getPayload());
+			scriptingContainer.runScriptlet(manager.open("lib/bootstrap.rb"),
+					"lib/bootstrap.rb");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -267,16 +268,11 @@ public class ActivityBuilder {
 
 	Activity context;
 	Element rootElement;
-	View rootView;
-
+	
 	public View getRootView() {
-		return rootView;
+		return context.findViewById(android.R.id.content);
 	}
-
-	public void setRootView(View rootView) {
-		this.rootView = rootView;
-	}
-
+	
 	ViewGroup target;
 	HashMap<String, Drawable> preloadedResource = new HashMap<String, Drawable>();
 	HashMap<String, Integer> namedViewDictionary = new HashMap<String, Integer>();
@@ -345,7 +341,6 @@ public class ActivityBuilder {
 
 	public void build() {
 		target.removeAllViews();
-		rootView = null;
 		try {
 			parse(rootElement, target);
 		} catch (Exception e) {
@@ -823,9 +818,6 @@ public class ActivityBuilder {
 			group.addView(child, setParams(e));
 		}
 
-		if (this.rootView == null) {
-			rootView = child;
-		}
 	}
 
 	public void parse(Element element, ViewGroup view) {

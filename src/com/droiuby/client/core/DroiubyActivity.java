@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jruby.CompatVersion;
+import org.jruby.embed.LocalContextScope;
 import org.jruby.embed.LocalVariableBehavior;
 import org.jruby.embed.ScriptingContainer;
 
@@ -53,10 +54,9 @@ public abstract class DroiubyActivity extends Activity implements
 
 	private ExecutionBundle getNewScriptingContainer() {
 		ExecutionBundle bundle = new ExecutionBundle();
-		ScriptingContainer container = new ScriptingContainer(
+		ScriptingContainer container = new ScriptingContainer(LocalContextScope.SINGLETHREAD,
 				LocalVariableBehavior.PERSISTENT);
 		RubyContainerPayload payload = new RubyContainerPayload();
-
 		payload.setCurrentActivity(this);
 		payload.setContainer(container);
 		container.setObjectSpaceEnabled(false);
@@ -74,8 +74,6 @@ public abstract class DroiubyActivity extends Activity implements
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
-		container.put("container_payload", payload);
 		bundle.setContainer(container);
 		bundle.setPayload(payload);
 		return bundle;
@@ -165,6 +163,7 @@ public abstract class DroiubyActivity extends Activity implements
 	protected void onResume() {
 		// TODO Auto-generated method stub
 		super.onResume();
+		Log.d(this.getClass().toString(), "onResume() called");
 		setupConsole();
 	}
 

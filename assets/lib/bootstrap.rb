@@ -1,10 +1,10 @@
 puts 'initializing bootstrap'
 
-$current_activity = container_payload.getCurrentActivity
-$current_activity_builder = container_payload.getActivityBuilder
-$scripting_container = container_payload.getContainer
-$execution_bundle = container_payload.getExecutionBundle
-$current_app = container_payload.getActiveApp
+$current_activity = $container_payload.getCurrentActivity
+$current_activity_builder = $container_payload.getActivityBuilder
+$scripting_container = $container_payload.getContainer
+$execution_bundle = $container_payload.getExecutionBundle
+$current_app = $container_payload.getActiveApp
 
 puts $current_activity.getClass.toString
 
