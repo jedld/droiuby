@@ -1,23 +1,35 @@
 puts 'initializing bootstrap'
 
-$current_activity = $container_payload.getCurrentActivity
-$current_activity_builder = $container_payload.getActivityBuilder
-$scripting_container = $container_payload.getContainer
-$execution_bundle = $container_payload.getExecutionBundle
-$current_app = $container_payload.getActiveApp
+def _scripting_container
+  $container_payload.getContainer
+end
 
-puts $current_activity.getClass.toString
+def _current_app
+  $container_payload.getActiveApp
+end
 
-def current_page_url
-  $execution_bundle.getCurrentUrl
+def _execution_bundle
+  $container_payload.getExecutionBundle
+end
+
+def _current_activity
+  $container_payload.getCurrentActivity
+end
+
+def _activity_builder
+  $container_payload.getActivityBuilder
+end
+
+def _current_page_url
+  _execution_bundle.getCurrentUrl
 end
 
 def reverse_resolve(view_id)
-  $current_activity_builder.reverseLookupId(view_id)
+  _activity_builder.reverseLookupId(view_id)
 end
 
 def launch(url)
-  Java::com.droiuby.client.core.ActivityBuilder.loadApp($current_activity, url) 
+  Java::com.droiuby.client.core.ActivityBuilder.loadApp(_current_activity, url) 
 end
 
 def render(url, params = {})
@@ -25,7 +37,7 @@ def render(url, params = {})
   if params[:method] && (params[:method] == :post)
     http_method = Java::com.droiuby.client.utils.Utils::HTTP_POST
   end
-  Java::com.droiuby.client.core.ActivityBuilder.loadLayout($execution_bundle, $current_app, url, http_method, $current_activity, nil, nil)
+  Java::com.droiuby.client.core.ActivityBuilder.loadLayout(_execution_bundle, _current_app, url, http_method, _current_activity, nil, nil)
 end
 
 def wrap_native_view(view)
@@ -52,9 +64,9 @@ end
 
 def V(selectors = nil)
   if selectors.nil? # Get root node if nil
-    view = $current_activity_builder.getRootView
+    view = _activity_builder.getRootView
   else
-    view = $current_activity_builder.findViewByName(selectors)
+    view = _activity_builder.findViewByName(selectors)
   end
   if (view.kind_of? Java::java.util.ArrayList)
     view.toArray.to_a.collect do |element|
@@ -67,7 +79,7 @@ def V(selectors = nil)
 end
 
 def _P
-  Preferences.new($current_activity.getCurrentPreferences)
+  Preferences.new(_current_activity.getCurrentPreferences)
 end
 
 def async
@@ -83,7 +95,7 @@ def async_get(url, &block)
 end
 
 def http_get(url)
-  Java::com.droiuby.client.utils.Utils.load($current_activity, url);
+  Java::com.droiuby.client.utils.Utils.load(_current_activity, url);
 end
 
 class ActivityWrapper
@@ -91,16 +103,16 @@ class ActivityWrapper
   end
 
   def me
-    $current_activity
+    _current_activity
   end
 
   class << self
     def on_click(name, &block)
       view = V(name).tap { |v|
-        v.native.setOnClickListener(Java::com.droiuby.client.core.OnClickListenerBridge.new($scripting_container, v.id))
+        v.native.setOnClickListener(Java::com.droiuby.client.core.OnClickListenerBridge.new(_scripting_container, v.id))
       }
       define_method("on_click_listener_for_#{view.id.to_s}".to_sym) do |n_view|
-        $main_activty.instance_exec(wrap_native_view(n_view),&block)
+        _current_activity.instance_exec(wrap_native_view(n_view),&block)
       end
     end
   end

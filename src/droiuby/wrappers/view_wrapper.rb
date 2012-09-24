@@ -1,6 +1,16 @@
 require 'droiuby/wrappers/animation'
+require 'droiuby/wrappers/java_helpers/view_helper'
 
 class ViewWrapper
+  
+  include Droiuby::ViewHelper
+  
+  java_attr_accessor :right, :left, :top, :bottom, :x, :y, :alpha, :rotation, :pivot_x, :pivot_y, :translation_x, 
+    :translation_y, :scroll_x, :scroll_y, :scale_x, :scale_y, :rotation_x, :rotation_y, :camera_distance,
+    :padding_left, :padding_top, :padding_right, :padding_bottom
+    
+  java_attr_reader :id, :width, :height, :measured_with, :measured_height, :background
+  
   def initialize(view = nil)
     unless view.nil?
       @view = view
@@ -9,56 +19,8 @@ class ViewWrapper
     end
   end
 
-  def id
-    @view.getId
-  end
-
-  def bottom
-    @view.getBottom
-  end
-  
-  def bottom=(value)
-    @view.setBottom(value)
-  end
-  
-  def x
-    @view.getLeft
-  end
-
-  def y
-    @view.getTop
-  end
-  
-  def x=(x)
-    @view.setX(x)
-  end
-  
-  def y=(y)
-    @view.setY(y)
-  end
-
-  def width
-    @view.getWidth
-  end
-
-  def height
-    @view.getHeight
-  end
-
-  def measured_width
-    @view.getMeasuredWidth
-  end
-
-  def measured_height
-    @view.getMeasuredHeight
-  end
-
   def native
     @view
-  end
-
-  def background
-    @view.getBackground
   end
 
   def background_color=(value)
@@ -70,23 +32,27 @@ class ViewWrapper
   end
 
   def gone?
-    @view.getVisibility == Java::android.view.View::GONE
+    hidden?
   end
 
+  def hidden?
+    @view.getVisibility == Java::android.view.View::GONE
+  end
+  
+  def show!
+    @view.setVisibility(Java::android.view.View::VISIBLE)
+  end
+  
+  def hide!
+    @view.setVisibility(Java::android.view.View::GONE)
+  end
+  
   def visible=(flag)
     @view.setVisibility(flag ? Java::android.view.View::VISIBLE : Java::android.view.View::INVISIBLE)
   end
 
   def visible?
     @view.getVisibility == Java::android.view.View::VISIBLE
-  end
-
-  def alpha
-    @view.getAlpha
-  end
-
-  def alpha=(a)
-    @view.setAlpha(a)
   end
 
   def enabled=(flag)
@@ -97,70 +63,10 @@ class ViewWrapper
     @view.isEnabled
   end
 
-  def rotation
-    @view.getRotation
+  def parent
+    wrap_native_view(@view.getParent)
   end
-
-  def rotation=(rotation)
-    @view.setRotation(rotation)
-  end
-
-  def pivot_x
-    @view.getPivotX
-  end
-
-  def pivot_x=(pivot)
-    @view.setPivotX(pivot)
-  end
-
-  def pivot_y
-    @view.getPivotY
-  end
-
-  def pivot_y=(pivot)
-    @view.setPivotY(pivot)
-  end
-
-  def translation_x=(translation)
-    @view.setTranslationX(translation)
-  end
-
-  def translation_x
-    @view.getTranslationX
-  end
-
-  def translation_y=(translation)
-    @view.setTranslationY(translation)
-  end
-
-  def translation_y
-    @view.getTranslationY
-  end
-
-  def scale_x
-    @view.getScaleX
-  end
-
-  def scale_x=(scale)
-    @view.setScaleX(scale)
-  end
-
-  def scale_y
-    @view.getScaleY
-  end
-
-  def scale_y=(scale)
-    @view.setScaleY(scale)
-  end
-
-  def camera_distance
-    @view.getCameraDistance
-  end
-
-  def camera_distance=(value)
-    @view.setCameraDistance(value)
-  end
-
+  
   def blink
     orig_alpha = self.alpha
     view = self
@@ -235,11 +141,11 @@ class ViewWrapper
   def on(event,&block)
     case(event.to_sym)
     when :click
-      self.native.setOnClickListener(Java::com.droiuby.client.core.listeners.ViewOnClickListener.new($scripting_container, &block))
+      self.native.setOnClickListener(Java::com.droiuby.client.core.listeners.ViewOnClickListener.new(_scripting_container, &block))
     when :long_click
-      self.native.setOnLongClickListener(Java::com.droiuby.client.core.listeners.ViewOnLongClickListener.new($scripting_container, &block))
+      self.native.setOnLongClickListener(Java::com.droiuby.client.core.listeners.ViewOnLongClickListener.new(_scripting_container, &block))
     when :focus_changed
-      self.native.setOnFocusChangeListener(Java::com.droiuby.client.core.listeners.FocusChangeListenerWrapper.new($scripting_container, &block))
+      self.native.setOnFocusChangeListener(Java::com.droiuby.client.core.listeners.FocusChangeListenerWrapper.new(_scripting_container, &block))
     end
   end
 end
