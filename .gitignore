@@ -1,2 +1,3 @@
 gen/**/*
+src_ruby_classes/**/*
 bin

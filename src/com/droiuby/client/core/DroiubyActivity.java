@@ -59,7 +59,9 @@ public abstract class DroiubyActivity extends Activity implements
 		RubyContainerPayload payload = new RubyContainerPayload();
 		payload.setCurrentActivity(this);
 		payload.setContainer(container);
+		
 		container.setObjectSpaceEnabled(false);
+	
 		container.setCompatVersion(CompatVersion.RUBY1_9);
 		try {
 			container.setHomeDirectory(this.getCacheDir().getCanonicalPath()

@@ -222,7 +222,7 @@ public class Utils {
 		DisplayMetrics metrics = new DisplayMetrics();
 		display.getMetrics(metrics);
 		request.setHeader("Accept",
-				"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
+				"text/html,application/xhtml+xml,application/xml,application/x-ruby;q=0.9,*/*;q=0.8");
 		request.setHeader("Droiuby-Height",
 				Integer.toString(metrics.heightPixels));
 		request.setHeader("Droiuby-Width",
@@ -271,6 +271,11 @@ public class Utils {
 
 					dir.mkdirs();
 				} else {
+					
+					File file = new File(outputdir + filename);
+					File dir = new File(file.getParent());
+					dir.mkdirs();
+					
 					FileOutputStream fout = new FileOutputStream(outputdir
 							+ filename);
 

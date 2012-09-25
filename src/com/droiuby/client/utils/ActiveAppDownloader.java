@@ -195,8 +195,12 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean> implemen
 
 			try {
 				AssetManager manager = targetActivity.getAssets();
+				long before = System.currentTimeMillis();
 				scriptingContainer.parse(manager.open("lib/loader.rb"),
 						"lib/loader.rb").run();
+				long difference = System.currentTimeMillis() - before;
+				Log.d(this.getClass().toString(), "built-in libraries loaded in " + difference + "ms");
+				
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
