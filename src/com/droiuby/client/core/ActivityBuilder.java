@@ -218,15 +218,10 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 		executionBundle.getPayload().setExecutionBundle(executionBundle);
 		executionBundle.getPayload().setActiveApp(app);
 		executionBundle.setCurrentUrl(pageUrl);
-		AssetManager manager = targetActivity.getAssets();
-		try {
-			scriptingContainer.put("$container_payload", executionBundle.getPayload());
-			scriptingContainer.runScriptlet(manager.open("lib/bootstrap.rb"),
-					"lib/bootstrap.rb");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+
+		scriptingContainer.put("$container_payload", executionBundle.getPayload());
+		scriptingContainer.runScriptlet("require 'droiuby/bootstrap'");
+
 		builder.preload();
 		return builder;
 	}

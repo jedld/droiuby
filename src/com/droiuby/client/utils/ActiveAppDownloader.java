@@ -192,17 +192,8 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean> implemen
 	}
 
 	public Boolean download() {
-
-			try {
-				AssetManager manager = targetActivity.getAssets();
-				scriptingContainer.parse(manager.open("lib/loader.rb"),
-						"lib/loader.rb").run();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-			return true;
+		scriptingContainer.runScriptlet("require 'droiuby/loader'");
+		return true;
 
 	}
 
