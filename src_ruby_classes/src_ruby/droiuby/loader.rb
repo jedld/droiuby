@@ -1,6 +1,5 @@
 
-require 'droiuby/support/string'
-require 'droiuby/support/to_query'
+require 'active_support/core_ext'
 require 'droiuby/wrappers/async'
 require 'droiuby/wrappers/view_group_wrapper'
 require 'droiuby/wrappers/linear_layout'

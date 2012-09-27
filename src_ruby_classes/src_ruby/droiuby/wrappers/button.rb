@@ -1,0 +1,2 @@
+class ButtonWrapper < TextViewWrapper
+end
