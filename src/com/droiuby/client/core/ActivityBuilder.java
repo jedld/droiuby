@@ -263,6 +263,7 @@ public class ActivityBuilder {
 
 	Activity context;
 	Element rootElement;
+	View topView;
 	
 	public View getRootView() {
 		return context.findViewById(android.R.id.content);
@@ -327,7 +328,7 @@ public class ActivityBuilder {
 	public static void loadLayout(ExecutionBundle executionBundle,
 			ActiveApp app, String pageUrl, int method, Activity targetActivity,
 			Document cachedDocument, DocumentReadyListener onReadyListener) {
-
+		Log.d("LOADLAYOUT", "page URL = " + pageUrl);
 		ActivityBootstrapper bootstrapper = new ActivityBootstrapper(
 				executionBundle, app, pageUrl, method, targetActivity,
 				cachedDocument, onReadyListener);
