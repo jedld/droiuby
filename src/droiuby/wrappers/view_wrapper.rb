@@ -110,7 +110,17 @@ class ViewWrapper
       class_attr = tag.getView_class
     end
     
-    puts "#{spaces}#{self.class.name} id=\"#{id_attr}\" name=\"#{name_attr}\" class=\"#{class_attr}\"\n"
+    data_attribute_list = []
+    if _extras
+      attributes = _extras.getDataAttributes
+      
+      attributes.keySet.each do |key|
+        data_attribute_list << "data-#{key}=\"#{self.data(key)}\""
+      end
+    end
+    
+    
+    puts "#{spaces}#{self.class.name} id=\"#{id_attr}\" name=\"#{name_attr}\" class=\"#{class_attr}\" #{data_attribute_list.join(' ')}\n"
     self.children.each { |c|
       c.p_tree(level + 1)
     } if self.respond_to? :children
@@ -127,13 +137,10 @@ class ViewWrapper
   end
   
   def data(key)
-    unless native.getTag.nil?
-      tag = native.getTag
-      if tag.kind_of? Java::com.droiuby.client.core.ViewExtras
-        data_attributes = tag.getDataAttributes
-        if data_attributes.containsKey(key)
-          data_attributes.get(key)
-        end
+    if _extras
+      data_attributes = _extras.getDataAttributes
+      if data_attributes.containsKey(key)
+        data_attributes.get(key)
       end
     end
   end
@@ -147,5 +154,16 @@ class ViewWrapper
     when :focus_changed
       self.native.setOnFocusChangeListener(Java::com.droiuby.client.core.listeners.FocusChangeListenerWrapper.new(_scripting_container, &block))
     end
+  end
+  
+  protected
+  
+  def _extras
+    unless native.getTag.nil?
+      tag = native.getTag
+      if tag.kind_of? Java::com.droiuby.client.core.ViewExtras
+        tag
+      end
+     end
   end
 end

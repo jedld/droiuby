@@ -65,9 +65,12 @@ end
 def V(selectors = nil)
   if selectors.nil? # Get root node if nil
     view = _activity_builder.getRootView
+  elsif (selectors == 'top')
+    view = _activity_builder.getTopView
   else
     view = _activity_builder.findViewByName(selectors)
   end
+  
   if (view.kind_of? Java::java.util.ArrayList)
     view.toArray.to_a.collect do |element|
       wrap_native_view(element)

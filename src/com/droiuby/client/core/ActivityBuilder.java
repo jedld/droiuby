@@ -84,8 +84,7 @@ class ReverseIdResolver {
 					if (sc.getName().equals("id")) {
 						for (Field f : sc.getFields()) {
 							String name = f.getName();
-								resolveCache.put(f.getInt(sc.newInstance()),
-										name);
+							resolveCache.put(f.getInt(sc.newInstance()), name);
 						}
 					}
 				}
@@ -145,36 +144,41 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 	}
 
 	public String loadAsset(String asset_name, int method) {
-		if (asset_name.startsWith("asset:")) {
-			return Utils.loadAsset(targetActivity, asset_name);
-		} else {
-			if (baseUrl.indexOf("asset:") != -1) {
-				return Utils.loadAsset(targetActivity, baseUrl + asset_name);
-			} else if (baseUrl.indexOf("file:") != -1) {
-				return Utils.loadFile(asset_name);
-			} else if (baseUrl.indexOf("sdcard:") != -1) {
-				File directory = Environment.getExternalStorageDirectory();
-				try {
-					String asset_path = directory.getCanonicalPath()
-							+ asset_name;
-					return Utils.loadFile(asset_path);
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				return null;
+		if (asset_name != null) {
+			if (asset_name.startsWith("asset:")) {
+				return Utils.loadAsset(targetActivity, asset_name);
 			} else {
-				if (asset_name.startsWith("/")) {
-					asset_name = asset_name.substring(1);
-				}
+				if (baseUrl.indexOf("asset:") != -1) {
+					return Utils
+							.loadAsset(targetActivity, baseUrl + asset_name);
+				} else if (baseUrl.indexOf("file:") != -1) {
+					return Utils.loadFile(asset_name);
+				} else if (baseUrl.indexOf("sdcard:") != -1) {
+					File directory = Environment.getExternalStorageDirectory();
+					try {
+						String asset_path = directory.getCanonicalPath()
+								+ asset_name;
+						return Utils.loadFile(asset_path);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					return null;
+				} else {
+					if (asset_name.startsWith("/")) {
+						asset_name = asset_name.substring(1);
+					}
 
-				if (baseUrl.endsWith("/")) {
-					baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
-				}
+					if (baseUrl.endsWith("/")) {
+						baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
+					}
 
-				return Utils.query(baseUrl + "/" + asset_name, targetActivity,
-						app.getName(), method);
+					return Utils.query(baseUrl + "/" + asset_name,
+							targetActivity, app.getName(), method);
+				}
 			}
+		} else {
+			return null;
 		}
 	}
 
@@ -219,7 +223,8 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 		executionBundle.getPayload().setActiveApp(app);
 		executionBundle.setCurrentUrl(pageUrl);
 
-		scriptingContainer.put("$container_payload", executionBundle.getPayload());
+		scriptingContainer.put("$container_payload",
+				executionBundle.getPayload());
 		scriptingContainer.runScriptlet("require 'droiuby/bootstrap'");
 
 		builder.preload();
@@ -264,11 +269,15 @@ public class ActivityBuilder {
 	Activity context;
 	Element rootElement;
 	View topView;
-	
+
+	public View getTopView() {
+		return topView;
+	}
+
 	public View getRootView() {
 		return context.findViewById(android.R.id.content);
 	}
-	
+
 	ViewGroup target;
 	HashMap<String, Drawable> preloadedResource = new HashMap<String, Drawable>();
 	HashMap<String, Integer> namedViewDictionary = new HashMap<String, Integer>();
@@ -812,6 +821,10 @@ public class ActivityBuilder {
 			((RelativeLayout) group).addView(child, setRelativeLayoutParams(e));
 		} else {
 			group.addView(child, setParams(e));
+		}
+
+		if (this.topView == null) {
+			this.topView = group;
 		}
 
 	}
