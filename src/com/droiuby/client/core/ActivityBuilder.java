@@ -54,6 +54,8 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 
 class ReverseIdResolver {
@@ -537,6 +539,22 @@ public class ActivityBuilder {
 		return params;
 	}
 
+	public TableRow.LayoutParams setTableParams(Element e, LayoutParams p) {
+		TableRow.LayoutParams tableLayoutParams = new TableRow.LayoutParams(p);
+
+		String column = e.getAttributeValue("column");
+		if (column != null) {
+			tableLayoutParams.column = Integer.parseInt(column);
+		}
+
+		String span = e.getAttributeValue("span");
+		if (span != null) {
+			tableLayoutParams.span = Integer.parseInt(span);
+		}
+
+		return tableLayoutParams;
+	}
+
 	public LayoutParams setParams(Element e) {
 		int width = LayoutParams.WRAP_CONTENT;
 		int height = LayoutParams.WRAP_CONTENT;
@@ -570,8 +588,8 @@ public class ActivityBuilder {
 			weight = Float.parseFloat(e.getAttributeValue("weight"));
 		}
 
-		if (e.getAttributeValue("gravity") != null) {
-			String gravityStr = e.getAttributeValue("gravity");
+		if (e.getAttributeValue("g") != null) {
+			String gravityStr = e.getAttributeValue("g");
 
 			if (gravityStr.equalsIgnoreCase("left")) {
 				gravity |= Gravity.LEFT;
@@ -653,17 +671,53 @@ public class ActivityBuilder {
 		}
 	}
 
-	private void registerTextView(ViewGroup group, TextView child, Element e) {
-		String drawable_left = e.getAttributeValue("drawable_left");
-		Drawable drawableLeft = null, drawableTop = null, drawableRight = null, drawableBottom = null;
-		// if (drawable_left!=null) {
-		// drawableLeft = new ImageView(context);
-		// UrlImageViewHelper.setUrlDrawable(drawableLeft, drawable_left);
-		// }
-		//
+	private void registerTextView(ViewGroup group, TextView textView, Element e) {
+		String fontSize = e.getAttributeValue("size");
+		if (fontSize != null) {
+			textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP,
+					Float.parseFloat(fontSize));
+		}
 
-		child.setCompoundDrawables(drawableLeft, drawableTop, drawableRight,
-				drawableBottom);
+		String gravityStr = e.getAttributeValue("gravity");
+		if (gravityStr != null) {
+			int gravity = 0;
+			if (gravityStr.equalsIgnoreCase("left")) {
+				gravity |= Gravity.LEFT;
+			} else if (gravityStr.equalsIgnoreCase("right")) {
+				gravity |= Gravity.RIGHT;
+			}
+
+			if (gravityStr.equalsIgnoreCase("top")) {
+				gravity |= Gravity.TOP;
+			} else if (gravityStr.equalsIgnoreCase("bottom")) {
+				gravity |= Gravity.BOTTOM;
+			}
+
+			if (gravityStr.equalsIgnoreCase("center")) {
+				gravity |= Gravity.CENTER;
+			}
+			textView.setGravity(gravity);
+		}
+
+		String color = e.getAttributeValue("color");
+		if (color != null) {
+			textView.setTextColor(Color.parseColor(color));
+		}
+
+		String style = e.getAttributeValue("style");
+		if (style != null) {
+			if (style.equalsIgnoreCase("bold")) {
+				textView.setTextAppearance(context, R.style.boldText);
+			} else if (style.equalsIgnoreCase("italic")) {
+				textView.setTextAppearance(context, R.style.italicText);
+			} else if (style.equalsIgnoreCase("normal")) {
+				textView.setTextAppearance(context, R.style.normalText);
+			}
+		}
+
+		String content = e.getTextTrim() != null ? e.getTextTrim() : "";
+		textView.setText(content);
+		registerView(group, textView, e);
 	}
 
 	private int toPixels(String measurement) {
@@ -688,10 +742,11 @@ public class ActivityBuilder {
 
 		ViewExtras extras = new ViewExtras();
 
+		int hash_code = Math.abs((int) (Math.random() * Integer.MAX_VALUE));
+		child.setId(hash_code);
+
 		if (e.getAttributeValue("id") != null) {
 			String attr_name = e.getAttributeValue("id");
-			int hash_code = Math.abs(attr_name.hashCode());
-			child.setId(hash_code);
 			extras.setView_id(attr_name);
 			namedViewDictionary.put(attr_name, hash_code);
 		}
@@ -817,7 +872,9 @@ public class ActivityBuilder {
 		setAlpha(child, e);
 
 		// RelativeLayout specific stuff
-		if (group instanceof RelativeLayout) {
+		if (group instanceof TableRow) {
+			group.addView(child, this.setTableParams(e, setParams(e)));
+		} else if (group instanceof RelativeLayout) {
 			((RelativeLayout) group).addView(child, setRelativeLayoutParams(e));
 		} else {
 			group.addView(child, setParams(e));
@@ -874,6 +931,14 @@ public class ActivityBuilder {
 					view.addView(scroll_view, setParams(e));
 					parse(e, scroll_view);
 				}
+			} else if (node_name.equals("table")) {
+				TableLayout table_layout = new TableLayout(context);
+				registerView(view, table_layout, e);
+				parse(e, table_layout);
+			} else if (node_name.equals("row")) {
+				TableRow table_row = new TableRow(context);
+				registerView(view, table_row, e);
+				parse(e, table_row);
 			} else if (node_name.equals("web")) {
 				WebView webview = new WebView(context);
 				String url = e.getAttributeValue("src");
@@ -898,31 +963,7 @@ public class ActivityBuilder {
 				parse(e, list_view);
 			} else if (node_name.equals("t")) {
 				TextView textView = new TextView(context);
-				String fontSize = e.getAttributeValue("size");
-				if (fontSize != null) {
-					textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP,
-							Float.parseFloat(fontSize));
-				}
-
-				String color = e.getAttributeValue("color");
-				if (color != null) {
-					textView.setTextColor(Color.parseColor(color));
-				}
-
-				String style = e.getAttributeValue("style");
-				if (style != null) {
-					if (style.equalsIgnoreCase("bold")) {
-						textView.setTextAppearance(context, R.style.boldText);
-					} else if (style.equalsIgnoreCase("italic")) {
-						textView.setTextAppearance(context, R.style.italicText);
-					} else if (style.equalsIgnoreCase("normal")) {
-						textView.setTextAppearance(context, R.style.normalText);
-					}
-				}
-
-				String content = e.getTextTrim() != null ? e.getTextTrim() : "";
-				textView.setText(content);
-				registerView(view, textView, e);
+				registerTextView(view, textView, e);
 			} else if (node_name.equals("button")) {
 				Button button = new Button(context);
 				String content = e.getTextTrim() != null ? e.getTextTrim() : "";
@@ -967,7 +1008,7 @@ public class ActivityBuilder {
 				if (value != null) {
 					editText.setText(value);
 				}
-				registerView(view, editText, e);
+				registerTextView(view, editText, e);
 			} else if (node_name.equals("img")) {
 				ImageView img = new ImageView(context);
 				String src = e.getAttributeValue("src");
