@@ -872,8 +872,11 @@ public class ActivityBuilder {
 		setAlpha(child, e);
 
 		// RelativeLayout specific stuff
-		if (group instanceof TableRow) {
-			group.addView(child, this.setTableParams(e, setParams(e)));
+		if (group instanceof TableLayout) {
+			((TableLayout) group).addView(child, new TableLayout.LayoutParams(
+					setParams(e)));
+		} else if (group instanceof TableRow) {
+			((TableRow)group).addView(child);
 		} else if (group instanceof RelativeLayout) {
 			((RelativeLayout) group).addView(child, setRelativeLayoutParams(e));
 		} else {
@@ -937,6 +940,7 @@ public class ActivityBuilder {
 				parse(e, table_layout);
 			} else if (node_name.equals("row")) {
 				TableRow table_row = new TableRow(context);
+				table_row.setLayoutParams(setTableParams(e, setParams(e)));
 				registerView(view, table_row, e);
 				parse(e, table_row);
 			} else if (node_name.equals("web")) {
