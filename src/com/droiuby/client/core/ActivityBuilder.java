@@ -555,6 +555,26 @@ public class ActivityBuilder {
 		return tableLayoutParams;
 	}
 
+	private int parseGravity(String gravityStr) {
+		int gravity = 0;
+		if (gravityStr.equalsIgnoreCase("left")) {
+			gravity |= Gravity.LEFT;
+		} else if (gravityStr.equalsIgnoreCase("right")) {
+			gravity |= Gravity.RIGHT;
+		}
+
+		if (gravityStr.equalsIgnoreCase("top")) {
+			gravity |= Gravity.TOP;
+		} else if (gravityStr.equalsIgnoreCase("bottom")) {
+			gravity |= Gravity.BOTTOM;
+		}
+
+		if (gravityStr.equalsIgnoreCase("center")) {
+			gravity |= Gravity.CENTER;
+		}
+		return gravity;
+	}
+	
 	public LayoutParams setParams(Element e) {
 		int width = LayoutParams.WRAP_CONTENT;
 		int height = LayoutParams.WRAP_CONTENT;
@@ -588,26 +608,6 @@ public class ActivityBuilder {
 			weight = Float.parseFloat(e.getAttributeValue("weight"));
 		}
 
-		if (e.getAttributeValue("g") != null) {
-			String gravityStr = e.getAttributeValue("g");
-
-			if (gravityStr.equalsIgnoreCase("left")) {
-				gravity |= Gravity.LEFT;
-			} else if (gravityStr.equalsIgnoreCase("right")) {
-				gravity |= Gravity.RIGHT;
-			}
-
-			if (gravityStr.equalsIgnoreCase("top")) {
-				gravity |= Gravity.TOP;
-			} else if (gravityStr.equalsIgnoreCase("bottom")) {
-				gravity |= Gravity.BOTTOM;
-			}
-
-			if (gravityStr.equalsIgnoreCase("center")) {
-				gravity |= Gravity.CENTER;
-			}
-		}
-
 		// Margins
 		String lm = e.getAttributeValue("left_margin");
 		if (lm != null) {
@@ -628,7 +628,11 @@ public class ActivityBuilder {
 		if (bm != null) {
 			bottomMargin = toPixels(bm);
 		}
-
+		
+		if (e.getAttributeValue("g") != null) {
+			gravity = parseGravity(e.getAttributeValue("g"));
+		}
+		
 		LayoutParams params = new LayoutParams(width, height, weight);
 		params.leftMargin = leftMargin;
 		params.topMargin = topMargin;
@@ -896,9 +900,7 @@ public class ActivityBuilder {
 			if (node_name.equals("div") || node_name.equals("span")) {
 				FrameLayout layout = new FrameLayout(context);
 				if ((e.getAttributeValue("foreground_gravity") != null)) {
-					int gravity = Integer.parseInt(e
-							.getAttributeValue("foreground_gravity"));
-					layout.setForegroundGravity(gravity);
+					layout.setForegroundGravity(parseGravity(e.getAttributeValue("foreground_gravity")));
 				}
 				registerView(view, layout, e);
 				parse(e, layout);
@@ -907,9 +909,7 @@ public class ActivityBuilder {
 				if (type.equals("frame")) {
 					FrameLayout layout = new FrameLayout(context);
 					if ((e.getAttributeValue("foreground_gravity") != null)) {
-						int gravity = Integer.parseInt(e
-								.getAttributeValue("foreground_gravity"));
-						layout.setForegroundGravity(gravity);
+						layout.setForegroundGravity(parseGravity(e.getAttributeValue("foreground_gravity")));
 					}
 					registerView(view, layout, e);
 					parse(e, layout);
@@ -972,7 +972,7 @@ public class ActivityBuilder {
 				Button button = new Button(context);
 				String content = e.getTextTrim() != null ? e.getTextTrim() : "";
 				button.setText(content);
-				registerView(view, button, e);
+				registerTextView(view, button, e);
 			} else if (node_name.equals("image_button")) {
 				ImageButton button = new ImageButton(context);
 
