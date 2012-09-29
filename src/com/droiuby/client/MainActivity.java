@@ -7,10 +7,13 @@ import java.util.List;
 import com.droiuby.client.R;
 import com.droiuby.client.core.ActivityBuilder;
 import com.droiuby.client.utils.Utils;
+import com.droiuby.client.utils.intents.IntentIntegrator;
+import com.droiuby.client.utils.intents.IntentResult;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.os.AsyncTask;
@@ -82,10 +85,11 @@ public class MainActivity extends Activity implements OnClickListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 		Button runButton = (Button) findViewById(R.id.buttonRun);
+		Button qrCodeButton = (Button) findViewById(R.id.buttonQRCode);
 		applicationURL = (EditText) findViewById(R.id.editTextApplicationURL);
 		applicationURL.setText("http://droiuby.herokuapp.com/droiuby");
 		runButton.setOnClickListener(this);
-
+		qrCodeButton.setOnClickListener(this);
 		settings = getSharedPreferences("droiuby", MODE_PRIVATE);
 		if (!settings.contains("ruby.library_initialized")) {
 			new InitializeLibrary(this).execute();
@@ -96,7 +100,18 @@ public class MainActivity extends Activity implements OnClickListener {
 		switch (v.getId()) {
 		case R.id.buttonRun:
 			ActivityBuilder.loadApp(this, applicationURL.getText().toString());
+			break;
+		case R.id.buttonQRCode:
+			IntentIntegrator integrator = new IntentIntegrator(this);
+			integrator.initiateScan();
+			break;
 		}
 
 	}
+	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+		  IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
+		  if (scanResult != null) {
+			  applicationURL.setText(scanResult.getContents());
+		  }
+		}
 }
