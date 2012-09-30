@@ -96,7 +96,8 @@ class ReverseIdResolver {
 			try {
 				c = Class.forName(packageName + ".R");
 				for (Class sc : c.getDeclaredClasses()) {
-					if (sc.getName().equals("id")) {
+					Log.d(this.getClass().toString(),"class = " + sc.getName());
+					if (sc.getName().equals("com.droiuby.client.R$id")) {
 						for (Field f : sc.getFields()) {
 							String name = f.getName();
 							int key = f.getInt(sc.newInstance());
