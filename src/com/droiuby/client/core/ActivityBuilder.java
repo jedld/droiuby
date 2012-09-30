@@ -96,12 +96,13 @@ class ReverseIdResolver {
 			try {
 				c = Class.forName(packageName + ".R");
 				for (Class sc : c.getDeclaredClasses()) {
-					Log.d(this.getClass().toString(),"class = " + sc.getName());
+					Log.d(this.getClass().toString(), "class = " + sc.getName());
 					if (sc.getName().equals("com.droiuby.client.R$id")) {
 						for (Field f : sc.getFields()) {
 							String name = f.getName();
 							int key = f.getInt(sc.newInstance());
-							Log.d(this.getClass().toString(), "Storing " + name + " = " + key);
+							Log.d(this.getClass().toString(), "Storing " + name
+									+ " = " + key);
 							resolveCache.put(key, name);
 						}
 					}
@@ -121,7 +122,7 @@ class ReverseIdResolver {
 			}
 
 		}
-		if (resolveCache.get(id)!=null) {
+		if (resolveCache.get(id) != null) {
 			return resolveCache.get(id);
 		}
 		return null;
@@ -405,10 +406,22 @@ public class ActivityBuilder {
 				return object_list;
 			}
 			return null;
+		} else if (selector.startsWith("^")) {
+			String name = selector.substring(1);
+			int id = getViewById(name);
+			if (id != 0) {
+				return context.findViewById(id);
+			} else {
+				return null;
+			}
 		} else {
 			String name = selector.substring(1);
 			int id = getDrawableId(name);
-			return context.findViewById(id);
+			if (id != 0) {
+				return context.findViewById(id);
+			} else {
+				return null;
+			}
 		}
 	}
 
@@ -590,7 +603,7 @@ public class ActivityBuilder {
 		}
 		return gravity;
 	}
-	
+
 	public LayoutParams setParams(Element e) {
 		int width = LayoutParams.WRAP_CONTENT;
 		int height = LayoutParams.WRAP_CONTENT;
@@ -644,11 +657,11 @@ public class ActivityBuilder {
 		if (bm != null) {
 			bottomMargin = toPixels(bm);
 		}
-		
+
 		if (e.getAttributeValue("g") != null) {
 			gravity = parseGravity(e.getAttributeValue("g"));
 		}
-		
+
 		LayoutParams params = new LayoutParams(width, height, weight);
 		params.leftMargin = leftMargin;
 		params.topMargin = topMargin;
@@ -656,6 +669,24 @@ public class ActivityBuilder {
 		params.rightMargin = rightMargin;
 		params.gravity = gravity;
 		return params;
+	}
+
+	public int getViewById(String viewId) {
+		Field f;
+		try {
+			f = R.id.class.getField(viewId);
+			return f.getInt(new R.id());
+		} catch (NoSuchFieldException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return 0;
 	}
 
 	public int getDrawableId(String drawable) {
@@ -719,6 +750,8 @@ public class ActivityBuilder {
 		if (e.getAttributeValue("id") != null) {
 			String attr_name = e.getAttributeValue("id");
 			extras.setView_id(attr_name);
+			Log.d(this.getClass().toString(), attr_name + " = " + hash_code
+					+ " stored.");
 			namedViewDictionary.put(attr_name, hash_code);
 		}
 
@@ -729,13 +762,6 @@ public class ActivityBuilder {
 
 		if (e.getAttributeValue("class") != null) {
 			String class_name = e.getAttributeValue("class");
-			if (child.getId() == 0) {
-				int id = 0;
-				do {
-					id = (int) (Math.random() * Integer.MAX_VALUE);
-				} while (namedViewDictionary.containsValue(id));
-				child.setId(id);
-			}
 			for (String item : class_name.split(" ")) {
 				ArrayList<Integer> list = classViewDictionary.get(item);
 				if (list == null) {
@@ -757,7 +783,7 @@ public class ActivityBuilder {
 						.getDataAttributes();
 				dataAttributes
 						.put(attribute_name.substring(5), attribute_value);
-			} 
+			}
 
 		}
 
@@ -768,7 +794,7 @@ public class ActivityBuilder {
 			((TableLayout) group).addView(child, new TableLayout.LayoutParams(
 					setParams(e)));
 		} else if (group instanceof TableRow) {
-			((TableRow)group).addView(child);
+			((TableRow) group).addView(child);
 		} else if (group instanceof RelativeLayout) {
 			((RelativeLayout) group).addView(child, setRelativeLayoutParams(e));
 		} else {
@@ -784,10 +810,10 @@ public class ActivityBuilder {
 	public void parse(Element element, ViewGroup view) {
 		List<Element> elems = element.getChildren();
 		for (Element e : elems) {
-			
+
 			String node_name = e.getName().toLowerCase();
 			ViewBuilder builder = null;
-			
+
 			if (node_name.equals("div") || node_name.equals("span")) {
 				builder = FrameLayoutBuilder.getInstance(this, context);
 			} else if (node_name.equals("layout")) {
@@ -831,8 +857,8 @@ public class ActivityBuilder {
 			} else if (node_name.equals("img")) {
 				builder = ImageViewBuilder.getInstance(this, context);
 			}
-			
-			if (builder!=null) {
+
+			if (builder != null) {
 				registerView(view, builder.build(e), e);
 			}
 		}

@@ -110,7 +110,7 @@ class ViewWrapper
       class_attr = tag.getView_class
     else
       rid = reverse_resolve(id_attr)
-      id_attr = "@#{rid}" unless rid.nil?
+      id_attr = "^#{rid}" unless rid.nil?
     end
     
     data_attribute_list = []
