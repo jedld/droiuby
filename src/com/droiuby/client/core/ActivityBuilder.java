@@ -21,6 +21,11 @@ import org.jruby.embed.ScriptingContainer;
 import com.droiuby.client.AppDownloader;
 import com.droiuby.client.CanvasActivity;
 import com.droiuby.client.R;
+import com.droiuby.client.core.builder.ButtonViewBuilder;
+import com.droiuby.client.core.builder.ImageViewBuilder;
+import com.droiuby.client.core.builder.ListViewBuilder;
+import com.droiuby.client.core.builder.TextViewBuilder;
+import com.droiuby.client.core.builder.ViewBuilder;
 import com.droiuby.client.core.listeners.DocumentReadyListener;
 import com.droiuby.client.utils.ActiveAppDownloader;
 import com.droiuby.client.utils.Utils;
@@ -555,8 +560,8 @@ public class ActivityBuilder {
 		return tableLayoutParams;
 	}
 
-	private int parseGravity(String gravityStr) {
-		int gravity = 0;
+	public int parseGravity(String gravityStr) {
+		int gravity = Gravity.NO_GRAVITY;
 		if (gravityStr.equalsIgnoreCase("left")) {
 			gravity |= Gravity.LEFT;
 		} else if (gravityStr.equalsIgnoreCase("right")) {
@@ -642,7 +647,7 @@ public class ActivityBuilder {
 		return params;
 	}
 
-	private int getDrawableId(String drawable) {
+	public int getDrawableId(String drawable) {
 		try {
 			Field f = R.drawable.class.getField(drawable);
 			return f.getInt(new R.drawable());
@@ -760,44 +765,6 @@ public class ActivityBuilder {
 			extras.setView_name(name);
 		}
 
-		String background_color = e.getAttributeValue("background_color");
-		if (background_color != null) {
-			child.setBackgroundColor(Color.parseColor(background_color));
-		}
-
-		if (e.getAttributeValue("rotation") != null) {
-			float rotation = Float.parseFloat(e.getAttributeValue("rotation"));
-			child.setRotation(rotation);
-		}
-
-		if (e.getAttributeValue("rotation_x") != null) {
-			float rotation_x = Float.parseFloat(e
-					.getAttributeValue("rotation_x"));
-			child.setRotationX(rotation_x);
-		}
-
-		if (e.getAttributeValue("rotation_y") != null) {
-			float rotation_y = Float.parseFloat(e
-					.getAttributeValue("rotation_y"));
-			child.setRotationY(rotation_y);
-		}
-
-		if (e.getAttributeValue("pivot_x") != null) {
-			float pivot_x = Float.parseFloat(e.getAttributeValue("pivot_x"));
-			child.setPivotX(pivot_x);
-		}
-
-		if (e.getAttributeValue("pivot_y") != null) {
-			float pivot_y = Float.parseFloat(e.getAttributeValue("pivot_y"));
-			child.setPivotY(pivot_y);
-		}
-
-		if (e.getAttribute("camera_distance") != null) {
-			float camera_distance = Float.parseFloat(e
-					.getAttributeValue("camera_distance"));
-			child.setCameraDistance(camera_distance);
-		}
-
 		if (e.getAttributeValue("class") != null) {
 			String class_name = e.getAttributeValue("class");
 			if (child.getId() == 0) {
@@ -828,52 +795,11 @@ public class ActivityBuilder {
 						.getDataAttributes();
 				dataAttributes
 						.put(attribute_name.substring(5), attribute_value);
-			} else if (attribute_name.equals("x")) {
-				child.setX(Float.parseFloat(attribute_value));
-			} else if (attribute_name.equals("y")) {
-				child.setY(Float.parseFloat(attribute_value));
-			} else if (attribute_name.equals("bottom")) {
-				child.setBottom(toPixels(attribute_value));
-			} else if (attribute_name.equals("min_height")) {
-				child.setMinimumHeight(toPixels(attribute_value));
-			} else if (attribute_name.equals("min_width")) {
-				child.setMinimumWidth(toPixels(attribute_value));
-			} else if (attribute_name.equals("background")) {
-				if (attribute_value != null) {
-					if (attribute_value.startsWith("@drawable:")) {
-						String drawable = attribute_value.substring(10);
-						int resId = getDrawableId(drawable);
-						if (resId != 0) {
-							child.setBackgroundResource(resId);
-						}
-					} else if (attribute_value.startsWith("@preload:")) {
-						Drawable drawable = (Drawable) this
-								.findViewByName(attribute_value);
-						child.setBackgroundDrawable(drawable);
-					} else {
-						UrlImageViewHelper.setUrlDrawable(child,
-								attribute_value, "setBackgroundDrawable");
-					}
-				}
-			} else if (attribute_name.equals("enabled")) {
-				child.setEnabled(attribute_value.equalsIgnoreCase("false") ? false
-						: true);
-			} else if (attribute_name.equals("visibility")) {
-				if (attribute_value.equalsIgnoreCase("hidden")
-						|| attribute_value.equalsIgnoreCase("gone")) {
-					child.setVisibility(View.GONE);
-				} else if (attribute_name.equals("invisible")) {
-					child.setVisibility(View.INVISIBLE);
-				} else if (attribute_name.equals("visible")) {
-					child.setVisibility(View.VISIBLE);
-				}
-			}
+			} 
 
 		}
 
 		child.setTag(extras);
-
-		setAlpha(child, e);
 
 		// RelativeLayout specific stuff
 		if (group instanceof TableLayout) {
@@ -896,7 +822,10 @@ public class ActivityBuilder {
 	public void parse(Element element, ViewGroup view) {
 		List<Element> elems = element.getChildren();
 		for (Element e : elems) {
+			
 			String node_name = e.getName().toLowerCase();
+			ViewBuilder builder = null;
+			
 			if (node_name.equals("div") || node_name.equals("span")) {
 				FrameLayout layout = new FrameLayout(context);
 				if ((e.getAttributeValue("foreground_gravity") != null)) {
@@ -962,20 +891,13 @@ public class ActivityBuilder {
 				});
 				registerView(view, webview, e);
 			} else if (node_name.equals("list")) {
-				ListView list_view = new ListView(context);
-				view.addView(list_view, setParams(e));
-				parse(e, list_view);
+				builder = ListViewBuilder.getInstance(this, context);
 			} else if (node_name.equals("t")) {
-				TextView textView = new TextView(context);
-				registerTextView(view, textView, e);
+				builder = TextViewBuilder.getInstance(this, context);
 			} else if (node_name.equals("button")) {
-				Button button = new Button(context);
-				String content = e.getTextTrim() != null ? e.getTextTrim() : "";
-				button.setText(content);
-				registerTextView(view, button, e);
+				builder = ButtonViewBuilder.getInstance(this, context);
 			} else if (node_name.equals("image_button")) {
 				ImageButton button = new ImageButton(context);
-
 				this.handleIconDrawable(e, button);
 				registerView(view, button, e);
 			} else if (node_name.equals("checkbox")) {
@@ -984,57 +906,13 @@ public class ActivityBuilder {
 				checkbox.setText(content);
 				registerView(view, checkbox, e);
 			} else if (node_name.equals("input")) {
-				EditText editText = new EditText(context);
-
-				String hint = e.getAttributeValue("hint");
-				if (hint != null) {
-					editText.setHint(hint);
-				}
-
-				String color = e.getAttributeValue("color");
-				if (color != null) {
-					if (color.startsWith("#")) {
-						color = color.substring(1);
-					}
-					int val = Integer.parseInt(color, 16);
-					editText.setTextColor(val);
-				}
-
-				String type = e.getAttributeValue("type");
-				if (type != null) {
-					if (type.equals("password")) {
-						editText.setTransformationMethod(PasswordTransformationMethod
-								.getInstance());
-					}
-				}
-
-				String value = e.getAttributeValue("value");
-				if (value != null) {
-					editText.setText(value);
-				}
-				registerTextView(view, editText, e);
+				builder = ButtonViewBuilder.getInstance(this, context);
 			} else if (node_name.equals("img")) {
-				ImageView img = new ImageView(context);
-				String src = e.getAttributeValue("src");
-
-				if (src != null) {
-					if (src.startsWith("@drawable:")) {
-						String drawable = src.substring(10);
-						int resId = getDrawableId(drawable);
-						if (resId != 0) {
-							img.setImageResource(resId);
-						}
-					} else if (src.startsWith("@preload:")) {
-						Drawable drawable = (Drawable) this.findViewByName(src);
-						if (drawable != null) {
-							img.setImageDrawable(drawable);
-						}
-					} else {
-						UrlImageViewHelper.setUrlDrawable(img, src,
-								"setImageDrawable");
-					}
-				}
-				registerView(view, img, e);
+				builder = ImageViewBuilder.getInstance(this, context);
+			}
+			
+			if (builder!=null) {
+				registerView(view, builder.build(e), e);
 			}
 		}
 	}
