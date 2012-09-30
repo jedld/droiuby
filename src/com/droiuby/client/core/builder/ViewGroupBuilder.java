@@ -10,7 +10,7 @@ import com.droiuby.client.core.ActivityBuilder;
 
 public class ViewGroupBuilder extends ViewBuilder {
 
-	protected ViewGroupBuilder(ActivityBuilder builder, Context context) {
+	public ViewGroupBuilder(ActivityBuilder builder, Context context) {
 		super(builder, context);
 		// TODO Auto-generated constructor stub
 	}

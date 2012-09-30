@@ -10,18 +10,9 @@ import com.droiuby.client.core.ActivityBuilder;
 
 public class FrameLayoutBuilder extends ViewGroupBuilder {
 
-	static FrameLayoutBuilder instance;
 	
-	protected FrameLayoutBuilder(ActivityBuilder builder, Context context) {
+	public FrameLayoutBuilder(ActivityBuilder builder, Context context) {
 		super(builder, context);
-	}
-	
-	public static FrameLayoutBuilder getInstance(ActivityBuilder builder,
-			Context context) {
-		if (instance == null) {
-			instance = new FrameLayoutBuilder(builder, context);
-		}
-		return instance;
 	}
 
 	@Override

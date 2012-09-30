@@ -5,7 +5,6 @@ import org.jdom2.Element;
 import android.content.Context;
 import android.graphics.Color;
 import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.View;
 import android.widget.TextView;
 
@@ -15,18 +14,8 @@ import com.droiuby.client.core.ActivityBuilder;
 
 public class TextViewBuilder extends ViewBuilder {
 
-	static TextViewBuilder instance;
-	
-	protected TextViewBuilder(ActivityBuilder builder, Context context) {
+	public TextViewBuilder(ActivityBuilder builder, Context context) {
 		super(builder, context);
-	}
-	
-	public static ViewBuilder getInstance(ActivityBuilder builder,
-			Context context) {
-		if (instance == null) {
-			instance = new TextViewBuilder(builder, context);
-		}
-		return instance;
 	}
 
 	@Override

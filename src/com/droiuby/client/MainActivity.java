@@ -87,7 +87,7 @@ public class MainActivity extends Activity implements OnClickListener {
 		Button runButton = (Button) findViewById(R.id.buttonRun);
 		Button qrCodeButton = (Button) findViewById(R.id.buttonQRCode);
 		applicationURL = (EditText) findViewById(R.id.editTextApplicationURL);
-		applicationURL.setText("http://droiuby.herokuapp.com/droiuby");
+		applicationURL.setText("http://192.168.1.13:3000/droiuby");
 		runButton.setOnClickListener(this);
 		qrCodeButton.setOnClickListener(this);
 		settings = getSharedPreferences("droiuby", MODE_PRIVATE);

@@ -10,19 +10,9 @@ import com.droiuby.client.core.ActivityBuilder;
 
 public class LinearLayoutBuilder extends ViewGroupBuilder {
 	
-	static LinearLayoutBuilder instance;
-	
-	protected LinearLayoutBuilder(ActivityBuilder builder, Context context) {
+	public LinearLayoutBuilder(ActivityBuilder builder, Context context) {
 		super(builder, context);
 		// TODO Auto-generated constructor stub
-	}
-
-	public static LinearLayoutBuilder getInstance(ActivityBuilder builder,
-			Context context) {
-		if (instance == null) {
-			instance = new LinearLayoutBuilder(builder, context);
-		}
-		return instance;
 	}
 
 	@Override

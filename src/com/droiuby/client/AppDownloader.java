@@ -1,15 +1,11 @@
 package com.droiuby.client;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.widget.Toast;
-
 import com.droiuby.client.core.ActiveApp;
-import com.droiuby.client.core.DroiubyActivity;
 import com.droiuby.client.utils.ActiveAppDownloader;
 
 public class AppDownloader extends AsyncTask<Void, Void, ActiveApp> {

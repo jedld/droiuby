@@ -1,41 +1,26 @@
 package com.droiuby.client.core.builder;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
 import org.jdom2.Attribute;
 import org.jdom2.Element;
-
-import com.droiuby.client.core.ActivityBuilder;
-import com.droiuby.client.core.ViewExtras;
-import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
 
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.View;
-import android.view.ViewGroup;
+
+import com.droiuby.client.core.ActivityBuilder;
+import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
 
 public class ViewBuilder {
 
-	static ViewBuilder instance;
 	Context context;
 	ActivityBuilder builder;
 
-	protected ViewBuilder(ActivityBuilder builder, Context context) {
+	public ViewBuilder(ActivityBuilder builder, Context context) {
 		this.context = context;
 		this.builder = builder;
-	}
-
-	public static ViewBuilder getInstance(ActivityBuilder builder,
-			Context context) {
-		if (instance == null) {
-			instance = new ViewBuilder(builder, context);
-		}
-		return instance;
 	}
 
 	public View getView() {

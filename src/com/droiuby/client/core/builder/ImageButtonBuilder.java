@@ -10,18 +10,9 @@ import com.droiuby.client.core.ActivityBuilder;
 
 public class ImageButtonBuilder extends ImageViewBuilder {
 
-	static ImageButtonBuilder instance;
 	
-	protected ImageButtonBuilder(ActivityBuilder builder, Context context) {
+	public ImageButtonBuilder(ActivityBuilder builder, Context context) {
 		super(builder, context);
-	}
-
-	public static ImageButtonBuilder getInstance(ActivityBuilder builder,
-			Context context) {
-		if (instance == null) {
-			instance = new ImageButtonBuilder(builder, context);
-		}
-		return instance;
 	}
 
 	@Override

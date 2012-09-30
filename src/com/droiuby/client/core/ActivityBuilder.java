@@ -319,6 +319,7 @@ public class ActivityBuilder {
 			HashMap<String, Integer> namedViewDictionary) {
 		this.namedViewDictionary = namedViewDictionary;
 	}
+	
 
 	public ActivityBuilder(Document document, Activity context) {
 		this.context = context;
@@ -815,13 +816,13 @@ public class ActivityBuilder {
 			ViewBuilder builder = null;
 
 			if (node_name.equals("div") || node_name.equals("span")) {
-				builder = FrameLayoutBuilder.getInstance(this, context);
+				builder = new FrameLayoutBuilder(this, context);
 			} else if (node_name.equals("layout")) {
 				String type = e.getAttributeValue("type").toLowerCase();
 				if (type.equals("frame")) {
-					builder = FrameLayoutBuilder.getInstance(this, context);
+					builder = new FrameLayoutBuilder(this, context);
 				} else if (type.equals("linear")) {
-					builder = LinearLayoutBuilder.getInstance(this, context);
+					builder = new LinearLayoutBuilder(this, context);
 				} else if (type.equals("relative")) {
 					RelativeLayout layout = new RelativeLayout(context);
 					registerView(view, layout, e);
@@ -841,21 +842,21 @@ public class ActivityBuilder {
 				registerView(view, table_row, e);
 				parse(e, table_row);
 			} else if (node_name.equals("web")) {
-				builder = WebViewBuilder.getInstance(this, context);
+				builder = new WebViewBuilder(this, context);
 			} else if (node_name.equals("list")) {
-				builder = ListViewBuilder.getInstance(this, context);
+				builder = new ListViewBuilder(this, context);
 			} else if (node_name.equals("t")) {
-				builder = TextViewBuilder.getInstance(this, context);
+				builder = new TextViewBuilder(this, context);
 			} else if (node_name.equals("button")) {
-				builder = ButtonViewBuilder.getInstance(this, context);
+				builder = new ButtonViewBuilder(this, context);
 			} else if (node_name.equals("image_button")) {
-				builder = ImageButtonBuilder.getInstance(this, context);
+				builder = new ImageButtonBuilder(this, context);
 			} else if (node_name.equals("checkbox")) {
-				builder = CheckBoxBuilder.getInstance(this, context);
+				builder = new CheckBoxBuilder(this, context);
 			} else if (node_name.equals("input")) {
-				builder = EditTextBuilder.getInstance(this, context);
+				builder = new EditTextBuilder(this, context);
 			} else if (node_name.equals("img")) {
-				builder = ImageViewBuilder.getInstance(this, context);
+				builder = new ImageViewBuilder(this, context);
 			}
 
 			if (builder != null) {

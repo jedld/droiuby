@@ -8,9 +8,10 @@ import android.widget.AbsoluteLayout;
 
 import com.droiuby.client.core.ActivityBuilder;
 
+@SuppressWarnings("deprecation")
 public class AbsoluteLayoutBuilder extends ViewGroupBuilder {
 
-	protected AbsoluteLayoutBuilder(ActivityBuilder builder, Context context) {
+	public AbsoluteLayoutBuilder(ActivityBuilder builder, Context context) {
 		super(builder, context);
 	}
 

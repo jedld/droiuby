@@ -2,6 +2,7 @@ package com.droiuby.client.core.builder;
 
 import org.jdom2.Element;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.View;
 import android.webkit.WebView;
@@ -11,19 +12,9 @@ import com.droiuby.client.core.ActivityBuilder;
 
 public class WebViewBuilder extends AbsoluteLayoutBuilder {
 
-	static WebViewBuilder instance;
-	
-	protected WebViewBuilder(ActivityBuilder builder, Context context) {
+	public WebViewBuilder(ActivityBuilder builder, Context context) {
 		super(builder, context);
 		// TODO Auto-generated constructor stub
-	}
-	
-	public static WebViewBuilder getInstance(ActivityBuilder builder,
-			Context context) {
-		if (instance == null) {
-			instance = new WebViewBuilder(builder, context);
-		}
-		return instance;
 	}
 
 	@Override
@@ -32,6 +23,7 @@ public class WebViewBuilder extends AbsoluteLayoutBuilder {
 		return new WebView(context);
 	}
 
+	@SuppressLint("SetJavaScriptEnabled")
 	@Override
 	protected View setParams(View child, Element e) {
 		WebView webview = (WebView)child;

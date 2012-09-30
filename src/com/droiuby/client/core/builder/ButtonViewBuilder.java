@@ -12,16 +12,8 @@ public class ButtonViewBuilder extends TextViewBuilder {
 
 	static ButtonViewBuilder instance;
 	
-	protected ButtonViewBuilder(ActivityBuilder builder, Context context) {
+	public ButtonViewBuilder(ActivityBuilder builder, Context context) {
 		super(builder, context);
-	}
-
-	public static ViewBuilder getInstance(ActivityBuilder builder,
-			Context context) {
-		if (instance == null) {
-			instance = new ButtonViewBuilder(builder, context);
-		}
-		return instance;
 	}
 	
 	@Override

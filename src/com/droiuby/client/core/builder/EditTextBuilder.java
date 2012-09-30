@@ -13,21 +13,13 @@ public class EditTextBuilder extends TextViewBuilder {
 
 	static EditTextBuilder instance;
 	
-	protected EditTextBuilder(ActivityBuilder builder, Context context) {
+	public EditTextBuilder(ActivityBuilder builder, Context context) {
 		super(builder, context);
 	}
 
 	@Override
 	public View getView() {
 		return new EditText(context);
-	}
-	
-	public static ViewBuilder getInstance(ActivityBuilder builder,
-			Context context) {
-		if (instance == null) {
-			instance = new EditTextBuilder(builder, context);
-		}
-		return instance;
 	}
 
 	@Override

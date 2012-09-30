@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
@@ -43,6 +44,37 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
 import android.view.WindowManager;
+
+class DroiubyCookie implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -7903895180302847726L;
+	
+	public String getCookie() {
+		return cookie;
+	}
+	public void setCookie(String cookie) {
+		this.cookie = cookie;
+	}
+	public long getExpiration() {
+		return expiration;
+	}
+	public void setExpiration(long expiration) {
+		this.expiration = expiration;
+	}
+	String cookie;
+	long expiration;
+	
+	public static DroiubyCookie parse(String raw_cookie) {
+		DroiubyCookie cookie = new DroiubyCookie();
+		String[] rawCookieParams = raw_cookie.split(";");
+		cookie.setCookie(rawCookieParams[0]);
+		return cookie;
+	}
+	
+}
 
 class DroiubyHttpResponseHandler extends BasicResponseHandler {
 
@@ -86,7 +118,7 @@ class DroiubyHttpResponseHandler extends BasicResponseHandler {
 				String value = header.getValue();
 				Log.d(this.getClass().toString(), "Saving coookie " + name
 						+ " = " + value);
-				edit.putString(name, value);
+				edit.putString(name, DroiubyCookie.parse(value).cookie);
 			}
 			edit.apply();
 			return responseBody;
@@ -150,7 +182,7 @@ public class Utils {
 	}
 
 	public static String load(Context c, String url, String namespace) {
-		Log.d(ActiveAppDownloader.class.toString(), "loading " + url);
+		Log.d(ActiveAppDownloader.class.toString(), "loading " + url + " under namespace = " + namespace);
 		if (url.indexOf("asset:") != -1) {
 			return Utils.loadAsset(c, url);
 		} else {
@@ -203,8 +235,11 @@ public class Utils {
 		}
 		SharedPreferences prefs = c.getSharedPreferences("cookies",
 				c.MODE_PRIVATE);
-		String cookie = prefs.getString(parsedURL.getProtocol() + "_"
-				+ parsedURL.getHost() + "_" + namespace, null);
+		
+		String cookie_pref_name = parsedURL.getProtocol() + "_"
+				+ parsedURL.getHost() + "_" + namespace;
+		Log.d("COOKIE", "Loading cookie from " + cookie_pref_name);
+		String cookie = prefs.getString(cookie_pref_name, null);
 
 		if (namespace != null && cookie != null) {
 			if (!cookie.toString().trim().equals("")) {
@@ -222,7 +257,7 @@ public class Utils {
 		DisplayMetrics metrics = new DisplayMetrics();
 		display.getMetrics(metrics);
 		request.setHeader("Accept",
-				"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
+				"text/html,application/xhtml+xml,application/xml,application/x-ruby;q=0.9,*/*;q=0.8");
 		request.setHeader("Droiuby-Height",
 				Integer.toString(metrics.heightPixels));
 		request.setHeader("Droiuby-Width",

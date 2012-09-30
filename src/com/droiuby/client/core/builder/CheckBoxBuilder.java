@@ -12,17 +12,9 @@ public class CheckBoxBuilder extends ButtonViewBuilder {
 
 	static CheckBoxBuilder instance;
 	
-	protected CheckBoxBuilder(ActivityBuilder builder, Context context) {
+	public CheckBoxBuilder(ActivityBuilder builder, Context context) {
 		super(builder, context);
 		// TODO Auto-generated constructor stub
-	}
-	
-	public static CheckBoxBuilder getInstance(ActivityBuilder builder,
-			Context context) {
-		if (instance == null) {
-			instance = new CheckBoxBuilder(builder, context);
-		}
-		return instance;
 	}
 
 	@Override
