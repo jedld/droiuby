@@ -36,7 +36,7 @@ public class ImageViewBuilder extends ViewBuilder {
 	@Override
 	protected View setParams(View child, Element e) {
 		String src = e.getAttributeValue("src");
-		ImageView img = new ImageView(context);
+		ImageView img = (ImageView)child;
 		if (src != null) {
 			if (src.startsWith("@drawable:")) {
 				String drawable = src.substring(10);

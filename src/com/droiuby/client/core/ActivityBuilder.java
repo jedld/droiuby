@@ -22,10 +22,16 @@ import com.droiuby.client.AppDownloader;
 import com.droiuby.client.CanvasActivity;
 import com.droiuby.client.R;
 import com.droiuby.client.core.builder.ButtonViewBuilder;
+import com.droiuby.client.core.builder.CheckBoxBuilder;
+import com.droiuby.client.core.builder.EditTextBuilder;
+import com.droiuby.client.core.builder.FrameLayoutBuilder;
+import com.droiuby.client.core.builder.ImageButtonBuilder;
 import com.droiuby.client.core.builder.ImageViewBuilder;
+import com.droiuby.client.core.builder.LinearLayoutBuilder;
 import com.droiuby.client.core.builder.ListViewBuilder;
 import com.droiuby.client.core.builder.TextViewBuilder;
 import com.droiuby.client.core.builder.ViewBuilder;
+import com.droiuby.client.core.builder.WebViewBuilder;
 import com.droiuby.client.core.listeners.DocumentReadyListener;
 import com.droiuby.client.utils.ActiveAppDownloader;
 import com.droiuby.client.utils.Utils;
@@ -42,6 +48,7 @@ import android.os.Environment;
 import android.text.Layout;
 import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
+import android.util.SparseArray;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -67,7 +74,7 @@ class ReverseIdResolver {
 	static ReverseIdResolver instance;
 	Context context;
 
-	HashMap<Integer, String> resolveCache;
+	SparseArray<String> resolveCache;
 
 	protected ReverseIdResolver(Context context) {
 		this.context = context;
@@ -83,7 +90,8 @@ class ReverseIdResolver {
 	public String resolve(int id) {
 		String packageName = context.getApplicationContext().getPackageName();
 		if (resolveCache == null) {
-			resolveCache = new HashMap<Integer, String>();
+			Log.d(this.getClass().toString(), "Initializing resolve cache ... ");
+			resolveCache = new SparseArray<String>();
 			Class c;
 			try {
 				c = Class.forName(packageName + ".R");
@@ -91,7 +99,9 @@ class ReverseIdResolver {
 					if (sc.getName().equals("id")) {
 						for (Field f : sc.getFields()) {
 							String name = f.getName();
-							resolveCache.put(f.getInt(sc.newInstance()), name);
+							int key = f.getInt(sc.newInstance());
+							Log.d(this.getClass().toString(), "Storing " + name + " = " + key);
+							resolveCache.put(key, name);
 						}
 					}
 				}
@@ -110,7 +120,7 @@ class ReverseIdResolver {
 			}
 
 		}
-		if (resolveCache.containsKey(id)) {
+		if (resolveCache.get(id)!=null) {
 			return resolveCache.get(id);
 		}
 		return null;
@@ -664,7 +674,7 @@ public class ActivityBuilder {
 		return 0;
 	}
 
-	private void handleIconDrawable(Element e, ImageButton child) {
+	public void handleIconDrawable(Element e, ImageButton child) {
 		String src = e.getAttributeValue("background");
 		if (src != null) {
 			if (src.indexOf("@drawable:") != -1) {
@@ -678,55 +688,6 @@ public class ActivityBuilder {
 						"setBackgroundDrawable");
 			}
 		}
-	}
-
-	private void registerTextView(ViewGroup group, TextView textView, Element e) {
-		String fontSize = e.getAttributeValue("size");
-		if (fontSize != null) {
-			textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP,
-					Float.parseFloat(fontSize));
-		}
-
-		String gravityStr = e.getAttributeValue("gravity");
-		if (gravityStr != null) {
-			int gravity = 0;
-			if (gravityStr.equalsIgnoreCase("left")) {
-				gravity |= Gravity.LEFT;
-			} else if (gravityStr.equalsIgnoreCase("right")) {
-				gravity |= Gravity.RIGHT;
-			}
-
-			if (gravityStr.equalsIgnoreCase("top")) {
-				gravity |= Gravity.TOP;
-			} else if (gravityStr.equalsIgnoreCase("bottom")) {
-				gravity |= Gravity.BOTTOM;
-			}
-
-			if (gravityStr.equalsIgnoreCase("center")) {
-				gravity |= Gravity.CENTER;
-			}
-			textView.setGravity(gravity);
-		}
-
-		String color = e.getAttributeValue("color");
-		if (color != null) {
-			textView.setTextColor(Color.parseColor(color));
-		}
-
-		String style = e.getAttributeValue("style");
-		if (style != null) {
-			if (style.equalsIgnoreCase("bold")) {
-				textView.setTextAppearance(context, R.style.boldText);
-			} else if (style.equalsIgnoreCase("italic")) {
-				textView.setTextAppearance(context, R.style.italicText);
-			} else if (style.equalsIgnoreCase("normal")) {
-				textView.setTextAppearance(context, R.style.normalText);
-			}
-		}
-
-		String content = e.getTextTrim() != null ? e.getTextTrim() : "";
-		textView.setText(content);
-		registerView(group, textView, e);
 	}
 
 	private int toPixels(String measurement) {
@@ -827,33 +788,13 @@ public class ActivityBuilder {
 			ViewBuilder builder = null;
 			
 			if (node_name.equals("div") || node_name.equals("span")) {
-				FrameLayout layout = new FrameLayout(context);
-				if ((e.getAttributeValue("foreground_gravity") != null)) {
-					layout.setForegroundGravity(parseGravity(e.getAttributeValue("foreground_gravity")));
-				}
-				registerView(view, layout, e);
-				parse(e, layout);
+				builder = FrameLayoutBuilder.getInstance(this, context);
 			} else if (node_name.equals("layout")) {
 				String type = e.getAttributeValue("type").toLowerCase();
 				if (type.equals("frame")) {
-					FrameLayout layout = new FrameLayout(context);
-					if ((e.getAttributeValue("foreground_gravity") != null)) {
-						layout.setForegroundGravity(parseGravity(e.getAttributeValue("foreground_gravity")));
-					}
-					registerView(view, layout, e);
-					parse(e, layout);
+					builder = FrameLayoutBuilder.getInstance(this, context);
 				} else if (type.equals("linear")) {
-					int orientation = LinearLayout.VERTICAL;
-					if ((e.getAttributeValue("orientation") != null)
-							&& e.getAttributeValue("orientation")
-									.equalsIgnoreCase("horizontal")) {
-						orientation = LinearLayout.HORIZONTAL;
-					}
-					LinearLayout layout = new LinearLayout(context);
-					layout.setOrientation(orientation);
-					registerView(view, layout, e);
-
-					parse(e, layout);
+					builder = LinearLayoutBuilder.getInstance(this, context);
 				} else if (type.equals("relative")) {
 					RelativeLayout layout = new RelativeLayout(context);
 					registerView(view, layout, e);
@@ -873,23 +814,7 @@ public class ActivityBuilder {
 				registerView(view, table_row, e);
 				parse(e, table_row);
 			} else if (node_name.equals("web")) {
-				WebView webview = new WebView(context);
-				String url = e.getAttributeValue("src");
-				if (url != null) {
-					webview.loadUrl(url);
-				}
-				webview.loadUrl(url);
-				webview.getSettings().setJavaScriptEnabled(true);
-				webview.setWebViewClient(new WebViewClient() {
-					@Override
-					public boolean shouldOverrideUrlLoading(WebView view,
-							String url) {
-						view.loadUrl(url);
-						return false;
-
-					}
-				});
-				registerView(view, webview, e);
+				builder = WebViewBuilder.getInstance(this, context);
 			} else if (node_name.equals("list")) {
 				builder = ListViewBuilder.getInstance(this, context);
 			} else if (node_name.equals("t")) {
@@ -897,16 +822,11 @@ public class ActivityBuilder {
 			} else if (node_name.equals("button")) {
 				builder = ButtonViewBuilder.getInstance(this, context);
 			} else if (node_name.equals("image_button")) {
-				ImageButton button = new ImageButton(context);
-				this.handleIconDrawable(e, button);
-				registerView(view, button, e);
+				builder = ImageButtonBuilder.getInstance(this, context);
 			} else if (node_name.equals("checkbox")) {
-				CheckBox checkbox = new CheckBox(context);
-				String content = e.getTextTrim() != null ? e.getTextTrim() : "";
-				checkbox.setText(content);
-				registerView(view, checkbox, e);
+				builder = CheckBoxBuilder.getInstance(this, context);
 			} else if (node_name.equals("input")) {
-				builder = ButtonViewBuilder.getInstance(this, context);
+				builder = EditTextBuilder.getInstance(this, context);
 			} else if (node_name.equals("img")) {
 				builder = ImageViewBuilder.getInstance(this, context);
 			}

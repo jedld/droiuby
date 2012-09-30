@@ -4,35 +4,27 @@ import org.jdom2.Element;
 
 import android.content.Context;
 import android.view.View;
-import android.view.ViewGroup;
+import android.widget.AbsoluteLayout;
 
 import com.droiuby.client.core.ActivityBuilder;
 
-public class ViewGroupBuilder extends ViewBuilder {
+public class AbsoluteLayoutBuilder extends ViewGroupBuilder {
 
-	protected ViewGroupBuilder(ActivityBuilder builder, Context context) {
+	protected AbsoluteLayoutBuilder(ActivityBuilder builder, Context context) {
 		super(builder, context);
-		// TODO Auto-generated constructor stub
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public View getView() {
 		// TODO Auto-generated method stub
-		return super.getView();
+		return new AbsoluteLayout(context);
 	}
 
 	@Override
 	protected View setParams(View child, Element e) {
 		// TODO Auto-generated method stub
 		return super.setParams(child, e);
-	}
-
-	@Override
-	public View build(Element element) {
-		ViewGroup group = (ViewGroup)super.build(element);
-		
-		builder.parse(element, group);
-		return group;
 	}
 
 }
