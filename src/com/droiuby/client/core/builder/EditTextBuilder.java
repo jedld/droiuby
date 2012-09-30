@@ -25,6 +25,8 @@ public class EditTextBuilder extends TextViewBuilder {
 	@Override
 	protected View setParams(View child, Element e) {
 		EditText editText = (EditText)child;
+		super.setParams(child, e);
+		
 		String hint = e.getAttributeValue("hint");
 		if (hint != null) {
 			editText.setHint(hint);
@@ -51,7 +53,7 @@ public class EditTextBuilder extends TextViewBuilder {
 		if (value != null) {
 			editText.setText(value);
 		}
-		return super.setParams(child, e);
+		return child;
 	}
 
 }
