@@ -7,12 +7,11 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.StringTokenizer;
-
 import org.jdom2.Attribute;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
+import org.jdom2.input.JDOMParseException;
 import org.jdom2.input.SAXBuilder;
 import org.jruby.embed.EmbedEvalUnit;
 import org.jruby.embed.EvalFailedException;
@@ -29,43 +28,31 @@ import com.droiuby.client.core.builder.ImageButtonBuilder;
 import com.droiuby.client.core.builder.ImageViewBuilder;
 import com.droiuby.client.core.builder.LinearLayoutBuilder;
 import com.droiuby.client.core.builder.ListViewBuilder;
+import com.droiuby.client.core.builder.RelativeLayoutBuilder;
+import com.droiuby.client.core.builder.ScrollViewBuilder;
 import com.droiuby.client.core.builder.TextViewBuilder;
 import com.droiuby.client.core.builder.ViewBuilder;
 import com.droiuby.client.core.builder.WebViewBuilder;
 import com.droiuby.client.core.listeners.DocumentReadyListener;
-import com.droiuby.client.utils.ActiveAppDownloader;
 import com.droiuby.client.utils.Utils;
 import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Environment;
-import android.text.Layout;
-import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.util.SparseArray;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
-import android.widget.ListView;
 import android.widget.RelativeLayout;
-import android.widget.ScrollView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -140,6 +127,8 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 	String baseUrl;
 	String controller;
 	String pageUrl;
+	String errorMsg;
+
 	ExecutionBundle executionBundle;
 
 	DocumentReadyListener onReadyListener;
@@ -215,10 +204,24 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 				mainActivityDocument = sax
 						.build(new StringReader(responseBody));
 			}
-		} catch (JDOMException e) {
+		} catch (JDOMParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			responseBody = "<activity><t>" + e.getMessage() + "</t></activity>";
+			try {
+				mainActivityDocument = sax
+						.build(new StringReader(responseBody));
+			} catch (JDOMException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (JDOMException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -232,9 +235,14 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 					+ controller);
 			String controller_content = "class MainActivity < ActivityWrapper\n"
 					+ loadAsset(controller, Utils.HTTP_GET) + "\n end\n";
+			long start = System.currentTimeMillis();
 			preParsedScript = Utils.preParseRuby(scriptingContainer,
 					controller_content, targetActivity);
+			long elapsed = System.currentTimeMillis() - start;
+			Log.d(this.getClass().toString(),
+					"controller preparse: elapsed time = " + elapsed + "ms");
 		}
+
 		ActivityBuilder builder = new ActivityBuilder(mainActivityDocument,
 				targetActivity);
 		executionBundle.getPayload().setActivityBuilder(builder);
@@ -255,21 +263,25 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 		// TODO Auto-generated method stub
 		super.onPostExecute(result);
 		if (result != null) {
+			long start = System.currentTimeMillis();
 			result.build();
+			long elapsed = System.currentTimeMillis() - start;
+			Log.d(this.getClass().toString(), "build activity: elapsed time = "
+					+ elapsed + "ms");
 			if (onReadyListener != null) {
 				onReadyListener.onDocumentReady(mainActivityDocument);
 			}
 
 			try {
 				if (preParsedScript != null) {
-					long start = System.currentTimeMillis();
+					start = System.currentTimeMillis();
 					preParsedScript.run();
 					scriptingContainer
 							.runScriptlet("$main_activty = MainActivity.new; $main_activty.on_create");
-					long elapsed = System.currentTimeMillis() - start;
+					elapsed = System.currentTimeMillis() - start;
 					Log.d(this.getClass().toString(),
-							"ruby segment: on_create() elapsed time = "
-									+ elapsed + "ms");
+							"controller on_create(): elapsed time = " + elapsed
+									+ "ms");
 				}
 			} catch (EvalFailedException e) {
 				Log.e(this.getClass().toString(), e.getMessage());
@@ -319,7 +331,6 @@ public class ActivityBuilder {
 			HashMap<String, Integer> namedViewDictionary) {
 		this.namedViewDictionary = namedViewDictionary;
 	}
-	
 
 	public ActivityBuilder(Document document, Activity context) {
 		this.context = context;
@@ -386,8 +397,14 @@ public class ActivityBuilder {
 			String name = selector.substring(1);
 			if (namedViewDictionary.containsKey(name)) {
 				int id = namedViewDictionary.get(name);
-				return context.findViewById(id);
+				View view = context.findViewById(id);
+				if (view == null) {
+					Log.w(this.getClass().toString(),
+							"findViewById cannot locate " + name);
+				}
+				return view;
 			}
+			Log.w(this.getClass().toString(), "unknown id selector " + name);
 			return null;
 		} else if (selector.startsWith("@drawable:")) {
 			String name = selector.substring(10);
@@ -472,15 +489,31 @@ public class ActivityBuilder {
 		return ReverseIdResolver.getInstance(context).resolve(id);
 	}
 
+	private void addRule(Element e, RelativeLayout.LayoutParams params,
+			String attribute, int property) {
+		String attributeString = e.getAttributeValue(attribute);
+		if (attributeString != null) {
+			View view = (View) this.findViewByName(attributeString);
+			if (view != null) {
+				Log.d(this.getClass().toString(), "loading " + attributeString
+						+ " view = " + view.getClass().toString());
+				params.addRule(property, view.getId());
+			} else {
+				Log.e(this.getClass().toString(), "cannot locate "
+						+ attributeString);
+			}
+		}
+	}
+
 	public RelativeLayout.LayoutParams setRelativeLayoutParams(Element e) {
-		int width = LayoutParams.WRAP_CONTENT;
-		int height = LayoutParams.WRAP_CONTENT;
+		int width = android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+		int height = android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 		int leftMargin = 0, rightMargin = 0, topMargin = 0, bottomMargin = 0;
 
 		if (e.getAttributeValue("height") != null) {
 
 			if (e.getAttributeValue("height").equalsIgnoreCase("match")) {
-				height = LayoutParams.MATCH_PARENT;
+				height = android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 			} else {
 				height = toPixels(e.getAttributeValue("height"));
 			}
@@ -488,7 +521,7 @@ public class ActivityBuilder {
 
 		if (e.getAttributeValue("width") != null) {
 			if (e.getAttributeValue("width").equalsIgnoreCase("match")) {
-				width = LayoutParams.MATCH_PARENT;
+				width = android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 			} else {
 				width = toPixels(e.getAttributeValue("width"));
 			}
@@ -518,29 +551,10 @@ public class ActivityBuilder {
 		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
 				width, height);
 
-		String left_of = e.getAttributeValue("left_of");
-		if (left_of != null) {
-			View view = (View) this.findViewByName(left_of);
-			params.addRule(RelativeLayout.LEFT_OF, view.getId());
-		}
-
-		String right_of = e.getAttributeValue("right_of");
-		if (right_of != null) {
-			View view = (View) this.findViewByName(right_of);
-			params.addRule(RelativeLayout.RIGHT_OF, view.getId());
-		}
-
-		String below = e.getAttributeValue("below");
-		if (below != null) {
-			View view = (View) this.findViewByName(below);
-			params.addRule(RelativeLayout.BELOW, view.getId());
-		}
-
-		String above = e.getAttributeValue("above");
-		if (above != null) {
-			View view = (View) this.findViewByName(above);
-			params.addRule(RelativeLayout.ABOVE, view.getId());
-		}
+		addRule(e, params, "left_of", RelativeLayout.LEFT_OF);
+		addRule(e, params, "right_of", RelativeLayout.RIGHT_OF);
+		addRule(e, params, "below", RelativeLayout.BELOW);
+		addRule(e, params, "above", RelativeLayout.ABOVE);
 
 		String parent_left = e.getAttributeValue("parent_left");
 		if (parent_left != null) {
@@ -606,8 +620,8 @@ public class ActivityBuilder {
 	}
 
 	public LayoutParams setParams(Element e) {
-		int width = LayoutParams.WRAP_CONTENT;
-		int height = LayoutParams.WRAP_CONTENT;
+		int width = android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+		int height = android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
 		float weight = 0;
 		int leftMargin = 0, rightMargin = 0, topMargin = 0, bottomMargin = 0;
@@ -616,9 +630,9 @@ public class ActivityBuilder {
 		if (e.getAttributeValue("height") != null) {
 
 			if (e.getAttributeValue("height").equalsIgnoreCase("match")) {
-				height = LayoutParams.MATCH_PARENT;
+				height = android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 			} else if (e.getAttributeValue("height").equalsIgnoreCase("wrap")) {
-				height = LayoutParams.WRAP_CONTENT;
+				height = android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 			} else {
 				height = toPixels(e.getAttributeValue("height"));
 			}
@@ -626,9 +640,9 @@ public class ActivityBuilder {
 
 		if (e.getAttributeValue("width") != null) {
 			if (e.getAttributeValue("width").equalsIgnoreCase("match")) {
-				width = LayoutParams.MATCH_PARENT;
+				width = android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 			} else if (e.getAttributeValue("width").equalsIgnoreCase("wrap")) {
-				width = LayoutParams.WRAP_CONTENT;
+				width = android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 			} else {
 				width = toPixels(e.getAttributeValue("width"));
 			}
@@ -754,6 +768,9 @@ public class ActivityBuilder {
 			Log.d(this.getClass().toString(), attr_name + " = " + hash_code
 					+ " stored.");
 			namedViewDictionary.put(attr_name, hash_code);
+		} else {
+			extras.setView_id(Integer.toString(hash_code));
+			namedViewDictionary.put(Integer.toString(hash_code), hash_code);
 		}
 
 		if (e.getAttributeValue("name") != null) {
@@ -789,7 +806,9 @@ public class ActivityBuilder {
 		}
 
 		child.setTag(extras);
-
+		Log.d(this.getClass().toString(), "Adding "
+				+ child.getClass().toString() + " to "
+				+ group.getClass().toString());
 		// RelativeLayout specific stuff
 		if (group instanceof TableLayout) {
 			((TableLayout) group).addView(child, new TableLayout.LayoutParams(
@@ -824,13 +843,9 @@ public class ActivityBuilder {
 				} else if (type.equals("linear")) {
 					builder = new LinearLayoutBuilder(this, context);
 				} else if (type.equals("relative")) {
-					RelativeLayout layout = new RelativeLayout(context);
-					registerView(view, layout, e);
-					parse(e, layout);
+					builder = new RelativeLayoutBuilder(this, context);
 				} else if (type.equals("scroll")) {
-					ScrollView scroll_view = new ScrollView(context);
-					view.addView(scroll_view, setParams(e));
-					parse(e, scroll_view);
+					builder = new ScrollViewBuilder(this, context);
 				}
 			} else if (node_name.equals("table")) {
 				TableLayout table_layout = new TableLayout(context);
@@ -860,7 +875,15 @@ public class ActivityBuilder {
 			}
 
 			if (builder != null) {
-				registerView(view, builder.build(e), e);
+				
+				//build and add the view to its parent
+				View currentView = builder.build(e);
+				registerView(view, currentView, e);
+				
+				//handle ViewGroups which can have subelements
+				if (builder.hasSubElements()) {
+					parse(e, (ViewGroup) currentView);
+				}
 			}
 		}
 	}

@@ -27,12 +27,7 @@ public class ViewGroupBuilder extends ViewBuilder {
 		return super.setParams(child, e);
 	}
 
-	@Override
-	public View build(Element element) {
-		ViewGroup group = (ViewGroup)super.build(element);
-		
-		builder.parse(element, group);
-		return group;
+	public boolean hasSubElements() {
+		return true;
 	}
-
 }

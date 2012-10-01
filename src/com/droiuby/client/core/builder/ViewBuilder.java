@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 
@@ -121,6 +122,7 @@ public class ViewBuilder {
 	}
 
 	public View build(Element element) {
+		Log.d(this.getClass().toString(), "build.");
 		View view = getView();
 		setParams(view, element);
 		return view;
@@ -151,5 +153,9 @@ public class ViewBuilder {
 			minWidth = Integer.parseInt(measurement);
 		}
 		return minWidth;
+	}
+	
+	public boolean hasSubElements() {
+		return false;
 	}
 }
