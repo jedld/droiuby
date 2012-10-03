@@ -3,6 +3,8 @@ package com.droiuby.client.core.listeners;
 import org.jruby.embed.ScriptingContainer;
 import org.jruby.runtime.builtin.IRubyObject;
 
+import com.droiuby.client.core.ExecutionBundle;
+
 import android.animation.Animator;
 import android.animation.Animator.AnimatorListener;
 
@@ -11,9 +13,9 @@ public class AnimationListenerWrapper extends ListenerWrapper implements
 
 	String target;
 
-	public AnimationListenerWrapper(ScriptingContainer container,
+	public AnimationListenerWrapper(ExecutionBundle bundle,
 			String target, IRubyObject block) {
-		super(container, block);
+		super(bundle, block);
 		this.target = target;
 	}
 

@@ -11,12 +11,19 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.ScrollView;
+import android.widget.TextView;
 
 public class CanvasActivity extends DroiubyActivity {
 
 	ViewGroup target;
 	ActiveApp application;
+	RelativeLayout topview;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -25,7 +32,7 @@ public class CanvasActivity extends DroiubyActivity {
 		Bundle params = this.getIntent().getExtras();
 		application = (ActiveApp) params.getSerializable("application");
 		target = (ViewGroup) this.findViewById(R.id.mainLayout);
-
+		topview = (RelativeLayout) target;
 		setupApplication(application, target);
 	}
 
@@ -48,6 +55,25 @@ public class CanvasActivity extends DroiubyActivity {
 			break;
 		case R.id.itemConsole:
 			this.showConsoleInfo();
+			break;
+		case R.id.itemLog:
+			
+			if (findViewById(R.id.loglayout)==null) {
+				View logview = getLayoutInflater().inflate(R.layout.log, null);
+				RelativeLayout.LayoutParams logPos = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, 200);
+				logPos.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, R.id.mainLayout);
+				topview.addView(logview, logPos);
+			}
+			
+			LinearLayout errorListLayout = (LinearLayout)findViewById(R.id.errorLogGroup);
+			ScrollView scroll = (ScrollView)findViewById(R.id.scrollViewLog);
+			errorListLayout.removeAllViews();
+			for(String error : executionBundle.getScriptErrors()) {
+				TextView errorText = new TextView(this);
+				errorText.setText(error);
+				errorListLayout.addView(errorText, LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+			}
+		
 			break;
 		case R.id.itemClearCache:
 			SharedPreferences prefs = getSharedPreferences("cookies",

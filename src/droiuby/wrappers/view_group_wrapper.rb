@@ -20,8 +20,12 @@ class ViewGroupWrapper < ViewWrapper
     end
   end
 
-  def to_front!(child)
-    @view.bringChildToFront(self.to_native(target_view))
+  def to_front!(child = nil)
+    if child.nil?
+      super
+    else
+      @view.bringChildToFront(self.to_native(child))
+    end
   end
 
   def count

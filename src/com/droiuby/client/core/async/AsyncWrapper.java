@@ -3,6 +3,8 @@ package com.droiuby.client.core.async;
 import org.jruby.embed.ScriptingContainer;
 import org.jruby.runtime.builtin.IRubyObject;
 
+import com.droiuby.client.core.ExecutionBundle;
+
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -43,9 +45,11 @@ public class AsyncWrapper extends AsyncTask<Object, Object, Object> {
 	}
 
 	ScriptingContainer container;
+	private ExecutionBundle bundle;
 
-	public AsyncWrapper(ScriptingContainer container) {
-		this.container = container;
+	public AsyncWrapper(ExecutionBundle bundle) {
+		this.bundle = bundle;
+		this.container = bundle.getContainer();
 	}
 
 	@Override
@@ -53,12 +57,25 @@ public class AsyncWrapper extends AsyncTask<Object, Object, Object> {
 		// TODO Auto-generated method stub
 		super.onPostExecute(result);
 		if (post_execute != null) {
-			String targetName = getTargetName();
-			Log.d(this.getClass().toString(), "post executing ..." + targetName);
-			container.put(targetName, post_execute);
-			container.put(targetName + "_result", result);
-			container.runScriptlet(targetName + ".call(" + targetName
-					+ "_result)");
+
+			try {
+				String targetName = getTargetName();
+
+				Log.d(this.getClass().toString(), "post executing ..."
+						+ targetName);
+				container.put(targetName, post_execute);
+				container.put(targetName + "_result", result);
+				container.runScriptlet(targetName + ".call(" + targetName
+						+ "_result)");
+			} catch (org.jruby.embed.EvalFailedException e) {
+				Log.d(this.getClass().toString(),
+						"eval failed: " + e.getMessage());
+				e.printStackTrace();
+				bundle.addError(e.getMessage());
+			} catch (org.jruby.embed.ParseFailedException e) {
+				e.printStackTrace();
+				bundle.addError(e.getMessage());
+			}
 		}
 	}
 
@@ -81,11 +98,22 @@ public class AsyncWrapper extends AsyncTask<Object, Object, Object> {
 	protected Object doInBackground(Object... params) {
 		// TODO Auto-generated method stub
 		if (background_task != null) {
-			String targetName = getTargetName();
-			Log.d(this.getClass().toString(), "background executing ..."
-					+ targetName);
-			container.put(targetName, background_task);
-			return container.runScriptlet(targetName + ".call");
+			try {
+				String targetName = getTargetName();
+				Log.d(this.getClass().toString(), "background executing ..."
+						+ targetName);
+				container.put(targetName, background_task);
+
+				return container.runScriptlet(targetName + ".call");
+			} catch (org.jruby.embed.EvalFailedException e) {
+				Log.d(this.getClass().toString(),
+						"eval failed: " + e.getMessage());
+				e.printStackTrace();
+				bundle.addError(e.getMessage());
+			} catch (org.jruby.embed.ParseFailedException e) {
+				e.printStackTrace();
+				bundle.addError(e.getMessage());
+			}
 		}
 		return null;
 	}

@@ -1,4 +1,4 @@
-package com.droiuby.client.core;
+package com.droiuby.client.core.listeners;
 
 import org.jruby.embed.ScriptingContainer;
 

@@ -112,7 +112,7 @@ class ActivityWrapper
   class << self
     def on_click(name, &block)
       view = V(name).tap { |v|
-        v.native.setOnClickListener(Java::com.droiuby.client.core.OnClickListenerBridge.new(_scripting_container, v.id))
+        v.native.setOnClickListener(Java::com.droiuby.client.core.OnClickListenerBridge.new(_execution_bundle, v.id))
       }
       define_method("on_click_listener_for_#{view.id.to_s}".to_sym) do |n_view|
         _current_activity.instance_exec(wrap_native_view(n_view),&block)

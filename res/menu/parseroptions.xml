@@ -3,6 +3,7 @@
     <item android:id="@+id/itemRefresh" android:titleCondensed="refresh" android:title="refresh"></item>
     <item android:id="@+id/itemConsole" android:titleCondensed="Console" android:title="Show Console Server"></item>
     <item android:id="@+id/itemClearCache" android:title="Clear Cache" android:titleCondensed="Clear Cache"></item>
+    <item android:id="@+id/itemLog" android:titleCondensed="Logs" android:title="Show Logs"></item>
     
 
 </menu>

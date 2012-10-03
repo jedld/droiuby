@@ -47,6 +47,10 @@ class ViewWrapper
     @view.setVisibility(Java::android.view.View::GONE)
   end
   
+  def to_front!
+    @view.bringToFront
+  end
+  
   def visible=(flag)
     @view.setVisibility(flag ? Java::android.view.View::VISIBLE : Java::android.view.View::INVISIBLE)
   end
@@ -151,11 +155,11 @@ class ViewWrapper
   def on(event,&block)
     case(event.to_sym)
     when :click
-      self.native.setOnClickListener(Java::com.droiuby.client.core.listeners.ViewOnClickListener.new(_scripting_container, &block))
+      self.native.setOnClickListener(Java::com.droiuby.client.core.listeners.ViewOnClickListener.new(_execution_bundle, &block))
     when :long_click
-      self.native.setOnLongClickListener(Java::com.droiuby.client.core.listeners.ViewOnLongClickListener.new(_scripting_container, &block))
+      self.native.setOnLongClickListener(Java::com.droiuby.client.core.listeners.ViewOnLongClickListener.new(_execution_bundle, &block))
     when :focus_changed
-      self.native.setOnFocusChangeListener(Java::com.droiuby.client.core.listeners.FocusChangeListenerWrapper.new(_scripting_container, &block))
+      self.native.setOnFocusChangeListener(Java::com.droiuby.client.core.listeners.FocusChangeListenerWrapper.new(_execution_bundle, &block))
     end
   end
   

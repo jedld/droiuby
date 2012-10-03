@@ -2,15 +2,18 @@ droiuby = {
 	history : [],
 	pointer : null,
 	passCommand: function(command) {
-		if (command == 'clear') {
+		if (command == 'clear!') {
 			$('#output').empty();
 			$('#command').val('');
 			droiuby.history = [];
 			droiuby.pointer = null;
+		} else if (command=='clear') { 
+			$('#output').empty();
+			$('#command').val('');
 		} else {
 			droiuby.history.push(command);
 			if (droiuby.history.length > 10) {
-				droiuby.history.pop();
+				droiuby.history.shift();
 			}
 			;
 

@@ -1,6 +1,6 @@
 class AsyncWrapper
   def initialize
-    @native = Java::com.droiuby.client.core.async.AsyncWrapper.new($scripting_container)
+    @native = Java::com.droiuby.client.core.async.AsyncWrapper.new(_execution_bundle)
   end
   
   def native

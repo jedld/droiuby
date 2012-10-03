@@ -3,17 +3,21 @@ package com.droiuby.client.core.listeners;
 import org.jruby.embed.ScriptingContainer;
 import org.jruby.runtime.builtin.IRubyObject;
 
+import com.droiuby.client.core.ExecutionBundle;
+
 import android.util.Log;
 import android.view.View;
 
 public abstract class ListenerWrapper {
 
 	IRubyObject block;
+	ExecutionBundle bundle;
 	ScriptingContainer container;
 
-	public ListenerWrapper(ScriptingContainer container, IRubyObject block) {
+	public ListenerWrapper(ExecutionBundle bundle, IRubyObject block) {
 		this.block = block;
-		this.container = container;
+		this.bundle = bundle;
+		this.container = bundle.getContainer();
 	}
 
 	protected boolean execute(Object view) {
@@ -25,8 +29,10 @@ public abstract class ListenerWrapper {
 		} catch (org.jruby.embed.EvalFailedException e) {
 			Log.d(this.getClass().toString(), "eval failed: " + e.getMessage());
 			e.printStackTrace();
+			bundle.addError(e.getMessage());
 		} catch (org.jruby.embed.ParseFailedException e) {
 			e.printStackTrace();
+			bundle.addError(e.getMessage());
 		}
 		return false;
 	}

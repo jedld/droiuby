@@ -15,6 +15,7 @@ import org.jdom2.input.JDOMParseException;
 import org.jdom2.input.SAXBuilder;
 import org.jruby.embed.EmbedEvalUnit;
 import org.jruby.embed.EvalFailedException;
+import org.jruby.embed.ParseFailedException;
 import org.jruby.embed.ScriptingContainer;
 
 import com.droiuby.client.AppDownloader;
@@ -236,8 +237,13 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 			String controller_content = "class MainActivity < ActivityWrapper\n"
 					+ loadAsset(controller, Utils.HTTP_GET) + "\n end\n";
 			long start = System.currentTimeMillis();
-			preParsedScript = Utils.preParseRuby(scriptingContainer,
-					controller_content, targetActivity);
+			try {
+				preParsedScript = Utils.preParseRuby(scriptingContainer,
+						controller_content, targetActivity);
+			} catch (ParseFailedException e) {
+				e.printStackTrace();
+				executionBundle.addError(e.getMessage());
+			}
 			long elapsed = System.currentTimeMillis() - start;
 			Log.d(this.getClass().toString(),
 					"controller preparse: elapsed time = " + elapsed + "ms");
@@ -284,6 +290,7 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 									+ "ms");
 				}
 			} catch (EvalFailedException e) {
+				executionBundle.addError(e.getMessage());
 				Log.e(this.getClass().toString(), e.getMessage());
 			}
 
@@ -875,12 +882,12 @@ public class ActivityBuilder {
 			}
 
 			if (builder != null) {
-				
-				//build and add the view to its parent
+
+				// build and add the view to its parent
 				View currentView = builder.build(e);
 				registerView(view, currentView, e);
-				
-				//handle ViewGroups which can have subelements
+
+				// handle ViewGroups which can have subelements
 				if (builder.hasSubElements()) {
 					parse(e, (ViewGroup) currentView);
 				}

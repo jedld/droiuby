@@ -3,14 +3,16 @@ package com.droiuby.client.core.listeners;
 import org.jruby.embed.ScriptingContainer;
 import org.jruby.runtime.builtin.IRubyObject;
 
+import com.droiuby.client.core.ExecutionBundle;
+
 import android.view.View;
 import android.view.View.OnClickListener;
 
 public class ViewOnClickListener extends ListenerWrapper implements
 		OnClickListener {
 
-	public ViewOnClickListener(ScriptingContainer container, IRubyObject block) {
-		super(container, block);
+	public ViewOnClickListener(ExecutionBundle bundle, IRubyObject block) {
+		super(bundle, block);
 	}
 
 	public void onClick(View view) {
