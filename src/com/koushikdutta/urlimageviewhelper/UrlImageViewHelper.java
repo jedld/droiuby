@@ -20,9 +20,6 @@ import org.apache.http.client.params.HttpClientParams;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 
-import com.larvalabs.svgandroid.SVG;
-import com.larvalabs.svgandroid.SVGParser;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
@@ -69,10 +66,10 @@ public final class UrlImageViewHelper {
 				.getConfiguration());
 	}
 
-	private static Drawable loadSVGDrawableFromStream(InputStream stream) {
-		SVG svg = SVGParser.getSVGFromInputStream(stream);
-		return svg.createPictureDrawable();
-	};
+//	private static Drawable loadSVGDrawableFromStream(InputStream stream) {
+//		SVG svg = SVGParser.getSVGFromInputStream(stream);
+//		return svg.createPictureDrawable();
+//	};
 
 	private static Drawable loadDrawableFromStream(Context context,
 			InputStream stream) {
@@ -278,11 +275,7 @@ public final class UrlImageViewHelper {
 			fos.close();
 			is.close();
 			FileInputStream fis = context.openFileInput(filename);
-			if (url.endsWith(".svg")) {
-				return loadSVGDrawableFromStream(fis);
-			} else {
-				return loadDrawableFromStream(context, fis);
-			}
+			return loadDrawableFromStream(context, fis);
 		} catch (Exception ex) {
 			Log.e(LOGTAG, "Exception during Image download of " + url, ex);
 			return null;
@@ -326,11 +319,7 @@ public final class UrlImageViewHelper {
 								+ cacheDurationMs) {
 
 					FileInputStream fis = context.openFileInput(filename);
-					if (url.endsWith(".svg")) {
-						drawable = loadSVGDrawableFromStream(fis);
-					} else {
 						drawable = loadDrawableFromStream(context, fis);
-					}
 					fis.close();
 					return drawable;
 				} else {
@@ -380,11 +369,7 @@ public final class UrlImageViewHelper {
 					// (System.currentTimeMillis() - file.lastModified()) +
 					// "ms old.");
 					FileInputStream fis = context.openFileInput(filename);
-					if (url.endsWith(".svg")) {
-						drawable = loadSVGDrawableFromStream(fis);
-					} else {
-						drawable = loadDrawableFromStream(context, fis);
-					}
+					drawable = loadDrawableFromStream(context, fis);
 					fis.close();
 					if (view != null)
 						setViewDrawable(view, drawable, method);

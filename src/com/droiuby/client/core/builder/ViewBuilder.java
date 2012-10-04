@@ -36,36 +36,36 @@ public class ViewBuilder {
 		}
 
 		if (e.getAttributeValue("rotation") != null) {
-			float rotation = Float.parseFloat(e.getAttributeValue("rotation"));
-			child.setRotation(rotation);
+//			float rotation = Float.parseFloat(e.getAttributeValue("rotation"));
+//			child.setRotation(rotation);
 		}
 
 		if (e.getAttributeValue("rotation_x") != null) {
-			float rotation_x = Float.parseFloat(e
-					.getAttributeValue("rotation_x"));
-			child.setRotationX(rotation_x);
+//			float rotation_x = Float.parseFloat(e
+//					.getAttributeValue("rotation_x"));
+//			child.setRotationX(rotation_x);
 		}
 
 		if (e.getAttributeValue("rotation_y") != null) {
-			float rotation_y = Float.parseFloat(e
-					.getAttributeValue("rotation_y"));
-			child.setRotationY(rotation_y);
+//			float rotation_y = Float.parseFloat(e
+//					.getAttributeValue("rotation_y"));
+//			child.setRotationY(rotation_y);
 		}
 
 		if (e.getAttributeValue("pivot_x") != null) {
-			float pivot_x = Float.parseFloat(e.getAttributeValue("pivot_x"));
-			child.setPivotX(pivot_x);
+//			float pivot_x = Float.parseFloat(e.getAttributeValue("pivot_x"));
+//			child.setPivotX(pivot_x);
 		}
 
 		if (e.getAttributeValue("pivot_y") != null) {
-			float pivot_y = Float.parseFloat(e.getAttributeValue("pivot_y"));
-			child.setPivotY(pivot_y);
+//			float pivot_y = Float.parseFloat(e.getAttributeValue("pivot_y"));
+//			child.setPivotY(pivot_y);
 		}
 
 		if (e.getAttribute("camera_distance") != null) {
-			float camera_distance = Float.parseFloat(e
-					.getAttributeValue("camera_distance"));
-			child.setCameraDistance(camera_distance);
+//			float camera_distance = Float.parseFloat(e
+//					.getAttributeValue("camera_distance"));
+//			child.setCameraDistance(camera_distance);
 		}
 
 		for (Attribute attribute : e.getAttributes()) {
@@ -74,11 +74,11 @@ public class ViewBuilder {
 			String attribute_value = attribute.getValue();
 
 			if (attribute_name.equals("x")) {
-				child.setX(Float.parseFloat(attribute_value));
+//				child.setX(Float.parseFloat(attribute_value));
 			} else if (attribute_name.equals("y")) {
-				child.setY(Float.parseFloat(attribute_value));
+//				child.setY(Float.parseFloat(attribute_value));
 			} else if (attribute_name.equals("bottom")) {
-				child.setBottom(toPixels(attribute_value));
+//				child.setBottom(toPixels(attribute_value));
 			} else if (attribute_name.equals("min_height")) {
 				child.setMinimumHeight(toPixels(attribute_value));
 			} else if (attribute_name.equals("min_width")) {
@@ -129,12 +129,12 @@ public class ViewBuilder {
 	}
 
 	protected void setAlpha(View v, Element e) {
-		float alpha = 1;
-		if (e.getAttributeValue("alpha") != null) {
-			alpha = Float.parseFloat(e.getAttributeValue("alpha"));
-		}
-
-		v.setAlpha(alpha);
+//		float alpha = 1;
+//		if (e.getAttributeValue("alpha") != null) {
+//			alpha = Float.parseFloat(e.getAttributeValue("alpha"));
+//		}
+//
+//		v.setAlpha(alpha);
 	}
 
 	protected int toPixels(String measurement) {

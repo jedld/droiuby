@@ -53,6 +53,8 @@ public class EditTextBuilder extends TextViewBuilder {
 		if (value != null) {
 			editText.setText(value);
 		}
+		
+		
 		return child;
 	}
 

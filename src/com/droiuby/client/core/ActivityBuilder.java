@@ -493,12 +493,6 @@ public class ActivityBuilder {
 	}
 
 	public void setAlpha(View v, Element e) {
-		float alpha = 1;
-		if (e.getAttributeValue("alpha") != null) {
-			alpha = Float.parseFloat(e.getAttributeValue("alpha"));
-		}
-
-		v.setAlpha(alpha);
 	}
 
 	public String reverseLookupId(int id) {
