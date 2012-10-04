@@ -152,6 +152,15 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 		this.method = method;
 	}
 
+		
+	@Override
+	protected void onPreExecute() {
+		// TODO Auto-generated method stub
+		super.onPreExecute();
+		targetActivity.setRequestedOrientation(app.getInitiallOrientation());
+	}
+
+
 	public String loadAsset(String asset_name, int method) {
 		if (asset_name != null) {
 			if (asset_name.startsWith("asset:")) {

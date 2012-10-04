@@ -9,6 +9,8 @@ import com.droiuby.client.core.DroiubyActivity;
 
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -29,6 +31,12 @@ public class CanvasActivity extends DroiubyActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.canvas);
+		int default_orientation = getResources().getConfiguration().orientation;
+		if (default_orientation == Configuration.ORIENTATION_LANDSCAPE) {
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+		} else {
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+		}
 		Bundle params = this.getIntent().getExtras();
 		application = (ActiveApp) params.getSerializable("application");
 		target = (ViewGroup) this.findViewById(R.id.mainLayout);
@@ -40,7 +48,7 @@ public class CanvasActivity extends DroiubyActivity {
 	protected void onStart() {
 		// TODO Auto-generated method stub
 		super.onStart();
-		if (console!=null) {
+		if (console != null) {
 			console.setContainer(executionBundle.getContainer());
 			console.setActivity(this);
 		}
@@ -57,23 +65,26 @@ public class CanvasActivity extends DroiubyActivity {
 			this.showConsoleInfo();
 			break;
 		case R.id.itemLog:
-			
-			if (findViewById(R.id.loglayout)==null) {
+
+			if (findViewById(R.id.loglayout) == null) {
 				View logview = getLayoutInflater().inflate(R.layout.log, null);
-				RelativeLayout.LayoutParams logPos = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, 200);
-				logPos.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, R.id.mainLayout);
+				RelativeLayout.LayoutParams logPos = new RelativeLayout.LayoutParams(
+						LayoutParams.MATCH_PARENT, 200);
+				logPos.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM,
+						R.id.mainLayout);
 				topview.addView(logview, logPos);
 			}
-			
-			LinearLayout errorListLayout = (LinearLayout)findViewById(R.id.errorLogGroup);
-			ScrollView scroll = (ScrollView)findViewById(R.id.scrollViewLog);
+
+			LinearLayout errorListLayout = (LinearLayout) findViewById(R.id.errorLogGroup);
+			ScrollView scroll = (ScrollView) findViewById(R.id.scrollViewLog);
 			errorListLayout.removeAllViews();
-			for(String error : executionBundle.getScriptErrors()) {
+			for (String error : executionBundle.getScriptErrors()) {
 				TextView errorText = new TextView(this);
 				errorText.setText(error);
-				errorListLayout.addView(errorText, LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+				errorListLayout.addView(errorText, LayoutParams.MATCH_PARENT,
+						LayoutParams.WRAP_CONTENT);
 			}
-		
+
 			break;
 		case R.id.itemClearCache:
 			SharedPreferences prefs = getSharedPreferences("cookies",
@@ -83,7 +94,8 @@ public class CanvasActivity extends DroiubyActivity {
 				Editor editor = prefs.edit();
 				URL url;
 				url = new URL(application.getBaseUrl());
-				editor.putString(url.getProtocol() + "_" + url.getHost() + "_" + application.getName(), "");
+				editor.putString(url.getProtocol() + "_" + url.getHost() + "_"
+						+ application.getName(), "");
 				editor.commit();
 				getExecutionBundle().setCurrentUrl(null);
 			} catch (MalformedURLException e) {

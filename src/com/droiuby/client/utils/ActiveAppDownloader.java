@@ -36,6 +36,7 @@ import com.droiuby.client.core.listeners.DocumentReadyListener;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.pm.ActivityInfo;
 import android.content.res.AssetManager;
 import android.os.AsyncTask;
 import android.os.Environment;
@@ -44,7 +45,8 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
-public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean> implements DocumentReadyListener {
+public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
+		implements DocumentReadyListener {
 
 	String baseUrl;
 	Activity targetActivity;
@@ -58,7 +60,7 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean> implemen
 	ArrayList<EmbedEvalUnit> evalUnits = new ArrayList<EmbedEvalUnit>();
 	OnDownloadCompleteListener listener;
 	OnUrlChangedListener urlChangedListener;
-	
+
 	public OnUrlChangedListener getUrlChangedListener() {
 		return urlChangedListener;
 	}
@@ -88,7 +90,7 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean> implemen
 		this.scriptingContainer = executionBundle.getContainer();
 		this.payload = executionBundle.getPayload();
 		this.listener = listener;
-		if (cache!=null) {
+		if (cache != null) {
 			this.mainActivityDocument = cache.getMainActivityDocument();
 		}
 	}
@@ -150,7 +152,8 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean> implemen
 			if (asset_name.startsWith("/")) {
 				asset_name = asset_name.substring(1);
 			}
-			return Utils.query(baseUrl + "/" + asset_name, targetActivity, app.getName());
+			return Utils.query(baseUrl + "/" + asset_name, targetActivity,
+					app.getName());
 		}
 	}
 
@@ -174,11 +177,30 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean> implemen
 						.getText();
 				String baseUrl = rootElem.getChildText("base_url");
 				String mainActivity = rootElem.getChildText("main");
+
 				ActiveApp app = new ActiveApp();
 				app.setDescription(appDescription);
 				app.setName(appName);
 				app.setBaseUrl(baseUrl);
 				app.setMainUrl(mainActivity);
+				app.setInitiallOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+
+				String orientation = rootElem.getChildText("orientation");
+				if (orientation != null) {
+					if (orientation.equals("landscape")) {
+						app.setInitiallOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+					} else if (orientation.equals("portrait")) {
+						app.setInitiallOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+					} else if (orientation.equals("sensor_landscape")) {
+						app.setInitiallOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+					} else if (orientation.equals("sensor_portrait")) {
+						app.setInitiallOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
+					} else if (orientation.equals("auto")) {
+						app.setInitiallOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+					} else {
+						app.setInitiallOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+					}
+				}
 				return app;
 			} catch (JDOMException e) {
 				// TODO Auto-generated catch block
@@ -209,11 +231,13 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean> implemen
 		super.onPostExecute(result);
 		Log.d(this.getClass().toString(), "Loading activity builder...");
 		String targetUrl = app.getMainUrl();
-		if (executionBundle.getCurrentUrl()!=null) {
+		if (executionBundle.getCurrentUrl() != null) {
 			targetUrl = executionBundle.getCurrentUrl();
 		}
 		Log.d(this.getClass().toString(), "target url = " + targetUrl);
-		ActivityBuilder.loadLayout(executionBundle, app, targetUrl, Utils.HTTP_GET, targetActivity, this.mainActivityDocument, this);
+		ActivityBuilder
+				.loadLayout(executionBundle, app, targetUrl, Utils.HTTP_GET,
+						targetActivity, this.mainActivityDocument, this);
 	}
 
 	public void onDocumentReady(Document mainActivity) {
