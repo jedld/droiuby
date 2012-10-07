@@ -40,6 +40,19 @@ def render(url, params = {})
   Java::com.droiuby.client.core.ActivityBuilder.loadLayout(_execution_bundle, _current_app, url, http_method, _current_activity, nil, nil)
 end
 
+def toast(text = '', duration = :short)
+  j_duration = Java::android.widget.Toast::LENGTH_SHORT
+
+  j_duration = case(duration)
+  when :short
+    Java::android.widget.Toast::LENGTH_SHORT
+  when :long
+    Java::android.widget.Toast::LENGTH_LONG
+  end
+
+  Java::android.widget.Toast.makeText(_current_activity, text, j_duration).show();
+end
+
 def wrap_native_view(view)
   return nil unless view
 
@@ -60,6 +73,11 @@ def wrap_native_view(view)
   else
     view
   end
+end
+
+def wrap_motion_event(event)
+  return nil unless event
+  MotionEventsWrapper.new(event)  
 end
 
 def V(selectors = nil)
@@ -120,18 +138,4 @@ class ActivityWrapper
     end
   end
 
-  protected
-
-  def toast(text = '', duration = :short)
-    j_duration = Java::android.widget.Toast::LENGTH_SHORT
-
-    j_duration = case(duration)
-    when :short
-      Java::android.widget.Toast::LENGTH_SHORT
-    when :long
-      Java::android.widget.Toast::LENGTH_LONG
-    end
-
-    Java::android.widget.Toast.makeText(me, text, j_duration).show();
-  end
 end

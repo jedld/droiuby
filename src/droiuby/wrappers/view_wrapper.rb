@@ -160,6 +160,8 @@ class ViewWrapper
       self.native.setOnLongClickListener(Java::com.droiuby.client.core.listeners.ViewOnLongClickListener.new(_execution_bundle, &block))
     when :focus_changed
       self.native.setOnFocusChangeListener(Java::com.droiuby.client.core.listeners.FocusChangeListenerWrapper.new(_execution_bundle, &block))
+    when :touch
+      self.native.setOnTouchListener(Java::com.droiuby.client.core.listeners.OnTouchListenerWrapper.new(_execution_bundle, &block))
     end
   end
   
