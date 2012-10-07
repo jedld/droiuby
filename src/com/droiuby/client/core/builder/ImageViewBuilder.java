@@ -41,7 +41,8 @@ public class ImageViewBuilder extends ViewBuilder {
 					img.setImageDrawable(drawable);
 				}
 			} else {
-				UrlImageViewHelper.setUrlDrawable(img, src,
+
+				UrlImageViewHelper.setUrlDrawable(img, builder.normalizeUrl(src),
 						"setImageDrawable");
 			}
 		}

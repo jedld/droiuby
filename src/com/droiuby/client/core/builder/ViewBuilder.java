@@ -97,7 +97,7 @@ public class ViewBuilder {
 						child.setBackgroundDrawable(drawable);
 					} else {
 						UrlImageViewHelper.setUrlDrawable(child,
-								attribute_value, "setBackgroundDrawable");
+								builder.normalizeUrl(attribute_value), "setBackgroundDrawable");
 					}
 				}
 			} else if (attribute_name.equals("enabled")) {

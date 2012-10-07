@@ -152,14 +152,12 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 		this.method = method;
 	}
 
-		
 	@Override
 	protected void onPreExecute() {
 		// TODO Auto-generated method stub
 		super.onPreExecute();
 		targetActivity.setRequestedOrientation(app.getInitiallOrientation());
 	}
-
 
 	public String loadAsset(String asset_name, int method) {
 		if (asset_name != null) {
@@ -259,7 +257,7 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 		}
 
 		ActivityBuilder builder = new ActivityBuilder(mainActivityDocument,
-				targetActivity);
+				targetActivity, baseUrl);
 		executionBundle.getPayload().setActivityBuilder(builder);
 		executionBundle.getPayload().setExecutionBundle(executionBundle);
 		executionBundle.getPayload().setActiveApp(app);
@@ -317,6 +315,15 @@ public class ActivityBuilder {
 	Activity context;
 	Element rootElement;
 	View topView;
+	String baseUrl;
+
+	public String getBaseUrl() {
+		return baseUrl;
+	}
+
+	public void setBaseUrl(String baseUrl) {
+		this.baseUrl = baseUrl;
+	}
 
 	public View getTopView() {
 		return topView;
@@ -349,16 +356,22 @@ public class ActivityBuilder {
 		this.namedViewDictionary = namedViewDictionary;
 	}
 
-	public ActivityBuilder(Document document, Activity context) {
-		this.context = context;
-		this.rootElement = document.getRootElement();
-		this.target = (ViewGroup) context.findViewById(R.id.mainLayout);
+	public ActivityBuilder(Document document, Activity context, String baseUrl) {
+		setup(document, context, baseUrl,
+				(ViewGroup) context.findViewById(R.id.mainLayout));
 	}
 
-	public ActivityBuilder(Document document, Activity context, ViewGroup target) {
+	public ActivityBuilder(Document document, Activity context, String baseUrl,
+			ViewGroup target) {
+		setup(document, context, baseUrl, target);
+	}
+
+	private void setup(Document document, Activity context, String baseUrl,
+			ViewGroup target) {
 		this.target = target;
 		this.context = context;
 		this.rootElement = document.getRootElement();
+		this.baseUrl = baseUrl;
 	}
 
 	public void preload() {
@@ -406,6 +419,21 @@ public class ActivityBuilder {
 
 	public void setMargins(View v, Element e) {
 
+	}
+
+	public String normalizeUrl(String url) {
+		// prepend base url if not full url
+		if (!url.startsWith("http:") && !url.startsWith("https:")) {
+			String base_url = this.baseUrl;
+			if (!baseUrl.endsWith("/")) {
+				base_url = base_url + "/";
+			}
+			if (url.startsWith("/")) {
+				url = url.substring(1);
+			}
+			url = base_url + url;
+		}
+		return url;
 	}
 
 	public Object findViewByName(String selector) {
@@ -748,7 +776,7 @@ public class ActivityBuilder {
 					child.setImageResource(resId);
 				}
 			} else {
-				UrlImageViewHelper.setUrlDrawable(child, src,
+				UrlImageViewHelper.setUrlDrawable(child, normalizeUrl(src),
 						"setBackgroundDrawable");
 			}
 		}
