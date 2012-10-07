@@ -295,6 +295,7 @@ public final class UrlImageViewHelper {
 	private static Object setViewDrawable(View view, Drawable drawable,
 			String method) {
 		try {
+			Log.d("IMAGE HELPER", "Setting image to " + method);
 			Method m = view.getClass().getMethod(method, Drawable.class);
 			return m.invoke(view, drawable);
 		} catch (NoSuchMethodException e) {
@@ -367,7 +368,7 @@ public final class UrlImageViewHelper {
 				callback.onLoaded(view, drawable, url, method, true);
 			return;
 		}
-
+		Log.d("URL Helper", "loading image from url = " + url);
 		final String filename = getFilenameForUrl(url);
 
 		File file = context.getFileStreamPath(filename);
@@ -464,7 +465,7 @@ public final class UrlImageViewHelper {
 			}
 
 		};
-		downloader.execute();
+		downloader.execute(method);
 	}
 
 	private static Hashtable<View, String> mPendingViews = new Hashtable<View, String>();

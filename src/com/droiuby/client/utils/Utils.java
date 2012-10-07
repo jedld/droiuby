@@ -36,6 +36,8 @@ import org.jruby.embed.LocalContextScope;
 import org.jruby.embed.LocalVariableBehavior;
 import org.jruby.embed.ScriptingContainer;
 
+import com.droiuby.client.core.ExecutionBundle;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -182,12 +184,12 @@ public class Utils {
 		}
 	}
 
-	public static String load(Context c, String url, String namespace) {
-		Log.d(ActiveAppDownloader.class.toString(), "loading " + url + " under namespace = " + namespace);
+	public static String load(Context c, String url, ExecutionBundle bundle) {
+		Log.d(ActiveAppDownloader.class.toString(), "loading " + url + " under namespace = " + bundle.getPayload().getActiveApp().getBaseUrl());
 		if (url.indexOf("asset:") != -1) {
 			return Utils.loadAsset(c, url);
 		} else {
-			return Utils.query(url, c, namespace);
+			return Utils.query(url, c, bundle.getPayload().getActiveApp().getBaseUrl());
 		}
 	}
 

@@ -98,7 +98,7 @@ def async_get(url, &block)
 end
 
 def http_get(url)
-  Java::com.droiuby.client.utils.Utils.load(_current_activity, url);
+  Java::com.droiuby.client.utils.Utils.load(_current_activity, url, _execution_bundle);
 end
 
 class ActivityWrapper

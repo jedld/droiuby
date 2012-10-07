@@ -270,6 +270,7 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 		scriptingContainer.runScriptlet("require 'droiuby/bootstrap'");
 
 		builder.preload();
+		System.gc();
 		return builder;
 	}
 
