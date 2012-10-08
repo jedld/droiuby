@@ -373,13 +373,14 @@ public final class UrlImageViewHelper {
 
 		File file = context.getFileStreamPath(filename);
 		if (file.exists()) {
+			Log.d("URL IMAGE HELPER", "file " + filename + "found!... loading...");
 			try {
 				if (cacheDurationMs == CACHE_DURATION_INFINITE
 						|| System.currentTimeMillis() < file.lastModified()
 								+ cacheDurationMs) {
-					// Log.i(LOGTAG, "File Cache hit on: " + url + ". " +
-					// (System.currentTimeMillis() - file.lastModified()) +
-					// "ms old.");
+					 Log.i(LOGTAG, "File Cache hit on: " + url + ". " +
+					 (System.currentTimeMillis() - file.lastModified()) +
+					 "ms old.");
 					FileInputStream fis = context.openFileInput(filename);
 					if (url.endsWith(".svg")) {
 						drawable = loadSVGDrawableFromStream(fis);
@@ -394,7 +395,7 @@ public final class UrlImageViewHelper {
 						callback.onLoaded(view, drawable, url, method, true);
 					return;
 				} else {
-					// Log.i(LOGTAG, "File cache has expired. Refreshing.");
+					 Log.i(LOGTAG, "File cache has expired. Refreshing.");
 				}
 			} catch (Exception ex) {
 			}
@@ -434,10 +435,12 @@ public final class UrlImageViewHelper {
 			@Override
 			protected Drawable doInBackground(String... params) {
 				method = params[0];
+				Log.d(this.getClass().toString(), "downloading " + url + " to method " + method);
 				return downloadFromUrlAsync(context, url, filename);
 			}
-
-			protected void onPostExecute(BitmapDrawable result) {
+			
+			@Override
+			protected void onPostExecute(Drawable result) {
 				Drawable usableResult = result;
 				if (usableResult == null)
 					usableResult = defaultDrawable;
