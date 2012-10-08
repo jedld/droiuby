@@ -460,15 +460,14 @@ public class ActivityBuilder {
 			return preloadedResource.get(name);
 		} else if (selector.startsWith(".")) {
 			String name = selector.substring(1);
+			ArrayList<View> object_list = new ArrayList<View>();
 			if (classViewDictionary.containsKey(name)) {
-				ArrayList<View> object_list = new ArrayList<View>();
 				ArrayList<Integer> list = classViewDictionary.get(name);
 				for (int id : list) {
 					object_list.add(context.findViewById(id));
 				}
-				return object_list;
 			}
-			return null;
+			return object_list;
 		} else if (selector.startsWith("^")) {
 			String name = selector.substring(1);
 			int id = getViewById(name);
