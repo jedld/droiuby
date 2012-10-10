@@ -75,6 +75,7 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 		AppCache cache = new AppCache();
 		cache.setMainActivityDocument(mainActivityDocument);
 		cache.setEvalUnits(evalUnits);
+		cache.setExecutionBundle(executionBundle);
 		return cache;
 	}
 
@@ -214,14 +215,16 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 	}
 
 	public Boolean download() {
-		scriptingContainer.runScriptlet("require 'droiuby/loader'");
+		if (!executionBundle.isLibraryInitialized()) {
+			Log.d(this.getClass().toString(), "initializing Droiuby library");
+			scriptingContainer.runScriptlet("require 'droiuby/loader'");
+			executionBundle.setLibraryInitialized(true);
+		}
 		return true;
-
 	}
 
 	@Override
 	protected Boolean doInBackground(Void... arg0) {
-		// TODO Auto-generated method stub
 		return download();
 	}
 
@@ -236,7 +239,7 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 		}
 		Log.d(this.getClass().toString(), "target url = " + targetUrl);
 		ActivityBuilder
-				.loadLayout(executionBundle, app, targetUrl, Utils.HTTP_GET,
+				.loadLayout(executionBundle, app, targetUrl, false, Utils.HTTP_GET,
 						targetActivity, this.mainActivityDocument, this);
 	}
 

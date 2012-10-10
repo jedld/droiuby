@@ -52,32 +52,32 @@ public abstract class DroiubyActivity extends Activity implements
 	String currentUrl;
 	protected WebConsole console;
 
-	private ExecutionBundle getNewScriptingContainer() {
-		ExecutionBundle bundle = new ExecutionBundle();
-		ScriptingContainer container = new ScriptingContainer(LocalContextScope.SINGLETHREAD,
-				LocalVariableBehavior.PERSISTENT);
-		RubyContainerPayload payload = new RubyContainerPayload();
-		payload.setCurrentActivity(this);
-		payload.setContainer(container);
-		container.setObjectSpaceEnabled(false);
-		container.setCompatVersion(CompatVersion.RUBY1_9);
-		try {
-			container.setHomeDirectory(this.getCacheDir().getCanonicalPath()
-					+ "/jruby/home");
-			List<String> loadPaths = new ArrayList();
-			loadPaths.add(this.getCacheDir().getCanonicalPath()
-					+ "/jruby/vendor");
-			loadPaths.add(this.getCacheDir().getCanonicalPath()
-					+ "/jruby/vendor/lib");
-			container.setLoadPaths(loadPaths);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		bundle.setContainer(container);
-		bundle.setPayload(payload);
-		return bundle;
-	}
+//	private ExecutionBundle getNewScriptingContainer() {
+//		ExecutionBundle bundle = new ExecutionBundle();
+//		ScriptingContainer container = new ScriptingContainer(LocalContextScope.SINGLETHREAD,
+//				LocalVariableBehavior.PERSISTENT);
+//		RubyContainerPayload payload = new RubyContainerPayload();
+//		payload.setCurrentActivity(this);
+//		payload.setContainer(container);
+//		container.setObjectSpaceEnabled(false);
+//		container.setCompatVersion(CompatVersion.RUBY1_9);
+//		try {
+//			container.setHomeDirectory(this.getCacheDir().getCanonicalPath()
+//					+ "/jruby/home");
+//			List<String> loadPaths = new ArrayList();
+//			loadPaths.add(this.getCacheDir().getCanonicalPath()
+//					+ "/jruby/vendor");
+//			loadPaths.add(this.getCacheDir().getCanonicalPath()
+//					+ "/jruby/vendor/lib");
+//			container.setLoadPaths(loadPaths);
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		bundle.setContainer(container);
+//		bundle.setPayload(payload);
+//		return bundle;
+//	}
 
 	public SharedPreferences getCurrentPreferences() {
 		try {
@@ -133,8 +133,12 @@ public abstract class DroiubyActivity extends Activity implements
 				+ application.getName());
 		final AppCache cache = (AppCache) getLastNonConfigurationInstance();
 		this.application = application;
-		if (executionBundle == null) {
-			executionBundle = getNewScriptingContainer();
+		
+		if (cache != null) {
+			executionBundle = cache.getExecutionBundle();
+		} else {
+			ExecutionBundleFactory factory = ExecutionBundleFactory.getInstance();
+			executionBundle = factory.getNewScriptingContainer(this, application.getBaseUrl());
 		}
 
 		downloader = new ActiveAppDownloader(application, this, target, cache,

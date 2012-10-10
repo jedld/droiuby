@@ -37,7 +37,9 @@ def render(url, params = {})
   if params[:method] && (params[:method] == :post)
     http_method = Java::com.droiuby.client.utils.Utils::HTTP_POST
   end
-  Java::com.droiuby.client.core.ActivityBuilder.loadLayout(_execution_bundle, _current_app, url, http_method, _current_activity, nil, nil)
+  
+  new_activity = params[:new_activity] ? true : false;
+  Java::com.droiuby.client.core.ActivityBuilder.loadLayout(_execution_bundle, _current_app, url, new_activity, http_method, _current_activity, nil, nil)
 end
 
 def toast(text = '', duration = :short)

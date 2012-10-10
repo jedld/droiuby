@@ -7,9 +7,20 @@ import org.jruby.embed.ScriptingContainer;
 import com.droiuby.client.core.interfaces.OnUrlChangedListener;
 
 public class ExecutionBundle {
+	
 	ScriptingContainer container;
 	OnUrlChangedListener urlChangedListener;
 	String currentUrl;
+	boolean libraryInitialized = false;
+	
+	public boolean isLibraryInitialized() {
+		return libraryInitialized;
+	}
+
+	public void setLibraryInitialized(boolean libraryInitialized) {
+		this.libraryInitialized = libraryInitialized;
+	}
+
 	ArrayList<String> scriptErrors = new ArrayList<String>();
 
 	public ArrayList<String> getScriptErrors() {

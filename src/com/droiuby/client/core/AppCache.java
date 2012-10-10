@@ -8,6 +8,15 @@ import org.jruby.embed.EmbedEvalUnit;
 public class AppCache {
 	EmbedEvalUnit evalUnit;
 	ArrayList<EmbedEvalUnit> evalUnits;
+	ExecutionBundle executionBundle;
+
+	public ExecutionBundle getExecutionBundle() {
+		return executionBundle;
+	}
+
+	public void setExecutionBundle(ExecutionBundle executionBundle) {
+		this.executionBundle = executionBundle;
+	}
 
 	public ArrayList<EmbedEvalUnit> getEvalUnits() {
 		return evalUnits;

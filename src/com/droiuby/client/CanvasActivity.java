@@ -3,9 +3,16 @@ package com.droiuby.client;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import org.jdom2.Document;
+
 import com.droiuby.client.R;
 import com.droiuby.client.core.ActiveApp;
+import com.droiuby.client.core.ActivityBuilder;
 import com.droiuby.client.core.DroiubyActivity;
+import com.droiuby.client.core.ExecutionBundle;
+import com.droiuby.client.core.ExecutionBundleFactory;
+import com.droiuby.client.core.listeners.DocumentReadyListener;
+import com.droiuby.client.utils.Utils;
 
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -21,7 +28,7 @@ import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-public class CanvasActivity extends DroiubyActivity {
+public class CanvasActivity extends DroiubyActivity implements DocumentReadyListener {
 
 	ViewGroup target;
 	ActiveApp application;
@@ -39,9 +46,24 @@ public class CanvasActivity extends DroiubyActivity {
 		}
 		Bundle params = this.getIntent().getExtras();
 		application = (ActiveApp) params.getSerializable("application");
+		 
 		target = (ViewGroup) this.findViewById(R.id.mainLayout);
 		topview = (RelativeLayout) target;
-		setupApplication(application, target);
+		
+		String pageUrl = (String) params.getString("startUrl");
+		if (application!=null && pageUrl!= null) {
+			ExecutionBundleFactory factory = ExecutionBundleFactory.getInstance();
+			if (factory.bundleAvailableFor(application.getBaseUrl())) {
+				executionBundle = factory.getNewScriptingContainer(this, application.getBaseUrl());
+				ActivityBuilder
+				.loadLayout(executionBundle, application, pageUrl, false, Utils.HTTP_GET,
+						this, null, this);
+			} else {
+				setupApplication(application, target);
+			}
+		} else {
+			setupApplication(application, target);
+		}
 	}
 
 	@Override
@@ -105,6 +127,11 @@ public class CanvasActivity extends DroiubyActivity {
 
 		}
 		return false;
+	}
+
+	public void onDocumentReady(Document mainActivity) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

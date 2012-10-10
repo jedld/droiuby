@@ -15,7 +15,7 @@ class ViewWrapper
     unless view.nil?
       @view = view
     else
-      @view = Java::android.view.View.new
+      @view = Java::android.view.View.new(_current_activity)
     end
   end
 

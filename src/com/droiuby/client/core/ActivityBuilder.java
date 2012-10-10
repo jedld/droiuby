@@ -40,6 +40,7 @@ import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -78,7 +79,7 @@ class ReverseIdResolver {
 	public String resolve(int id) {
 		String packageName = context.getApplicationContext().getPackageName();
 		if (resolveCache == null) {
-			Log.d(this.getClass().toString(), "Initializing resolve cache ... ");
+//			Log.d(this.getClass().toString(), "Initializing resolve cache ... ");
 			resolveCache = new SparseArray<String>();
 			Class c;
 			try {
@@ -89,8 +90,8 @@ class ReverseIdResolver {
 						for (Field f : sc.getFields()) {
 							String name = f.getName();
 							int key = f.getInt(sc.newInstance());
-							Log.d(this.getClass().toString(), "Storing " + name
-									+ " = " + key);
+//							Log.d(this.getClass().toString(), "Storing " + name
+//									+ " = " + key);
 							resolveCache.put(key, name);
 						}
 					}
@@ -202,7 +203,7 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 	protected ActivityBuilder doInBackground(Void... params) {
 		String responseBody = loadAsset(pageUrl, method);
 		if (responseBody != null) {
-			Log.d(this.getClass().toString(), responseBody);
+//			Log.d(this.getClass().toString(), responseBody);
 		} else {
 			Log.d(this.getClass().toString(), "response empty.");
 			return null;
@@ -395,14 +396,23 @@ public class ActivityBuilder {
 		downloader.execute();
 	}
 
+	
 	public static void loadLayout(ExecutionBundle executionBundle,
-			ActiveApp app, String pageUrl, int method, Activity targetActivity,
+			ActiveApp app, String pageUrl, boolean newActivity, int method, Activity targetActivity,
 			Document cachedDocument, DocumentReadyListener onReadyListener) {
-		Log.d("LOADLAYOUT", "page URL = " + pageUrl);
-		ActivityBootstrapper bootstrapper = new ActivityBootstrapper(
-				executionBundle, app, pageUrl, method, targetActivity,
-				cachedDocument, onReadyListener);
-		bootstrapper.execute();
+		if (newActivity) {
+			Intent intent = new Intent(targetActivity, targetActivity.getClass());
+			intent.putExtra("application", app);
+			intent.putExtra("method", method);
+			intent.putExtra("startUrl", pageUrl);
+			targetActivity.startActivity(intent);			
+		} else {
+			Log.d("LOADLAYOUT", "page URL = " + pageUrl);
+			ActivityBootstrapper bootstrapper = new ActivityBootstrapper(
+					executionBundle, app, pageUrl, method, targetActivity,
+					cachedDocument, onReadyListener);
+			bootstrapper.execute();
+		}
 	}
 
 	public void build() {
@@ -850,9 +860,9 @@ public class ActivityBuilder {
 		}
 
 		child.setTag(extras);
-		Log.d(this.getClass().toString(), "Adding "
-				+ child.getClass().toString() + " to "
-				+ group.getClass().toString());
+//		Log.d(this.getClass().toString(), "Adding "
+//				+ child.getClass().toString() + " to "
+//				+ group.getClass().toString());
 		// RelativeLayout specific stuff
 		if (group instanceof TableLayout) {
 			((TableLayout) group).addView(child, new TableLayout.LayoutParams(

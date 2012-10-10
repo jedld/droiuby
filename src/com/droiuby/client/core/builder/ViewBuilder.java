@@ -30,11 +30,6 @@ public class ViewBuilder {
 
 	protected View setParams(View child, Element e) {
 
-		String background_color = e.getAttributeValue("background_color");
-		if (background_color != null) {
-			child.setBackgroundColor(Color.parseColor(background_color));
-		}
-
 		if (e.getAttributeValue("rotation") != null) {
 			float rotation = Float.parseFloat(e.getAttributeValue("rotation"));
 			child.setRotation(rotation);
@@ -75,6 +70,8 @@ public class ViewBuilder {
 
 			if (attribute_name.equals("x")) {
 				child.setX(Float.parseFloat(attribute_value));
+			} else if (attribute_name.equals("background_color")) {
+				child.setBackgroundColor(Color.parseColor(attribute_value));
 			} else if (attribute_name.equals("y")) {
 				child.setY(Float.parseFloat(attribute_value));
 			} else if (attribute_name.equals("bottom")) {
@@ -85,7 +82,10 @@ public class ViewBuilder {
 				child.setMinimumWidth(toPixels(attribute_value));
 			} else if (attribute_name.equals("background")) {
 				if (attribute_value != null) {
-					if (attribute_value.startsWith("@drawable:")) {
+					if (attribute_value.startsWith("#")) {
+						child.setBackgroundColor(Color
+								.parseColor(attribute_value));
+					} else if (attribute_value.startsWith("@drawable:")) {
 						String drawable = attribute_value.substring(10);
 						int resId = builder.getDrawableId(drawable);
 						if (resId != 0) {
@@ -97,7 +97,8 @@ public class ViewBuilder {
 						child.setBackgroundDrawable(drawable);
 					} else {
 						UrlImageViewHelper.setUrlDrawable(child,
-								builder.normalizeUrl(attribute_value), "setBackgroundDrawable");
+								builder.normalizeUrl(attribute_value),
+								"setBackgroundDrawable");
 					}
 				}
 			} else if (attribute_name.equals("enabled")) {
@@ -122,7 +123,7 @@ public class ViewBuilder {
 	}
 
 	public View build(Element element) {
-		Log.d(this.getClass().toString(), "build.");
+//		Log.d(this.getClass().toString(), "build.");
 		View view = getView();
 		setParams(view, element);
 		return view;
@@ -154,7 +155,7 @@ public class ViewBuilder {
 		}
 		return minWidth;
 	}
-	
+
 	public boolean hasSubElements() {
 		return false;
 	}
