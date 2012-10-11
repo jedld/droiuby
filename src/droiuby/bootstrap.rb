@@ -13,7 +13,7 @@ def _execution_bundle
 end
 
 def _current_activity
-  $container_payload.getCurrentActivity
+  _execution_bundle.getCurrentActivity
 end
 
 def _activity_builder
@@ -38,7 +38,7 @@ def render(url, params = {})
     http_method = Java::com.droiuby.client.utils.Utils::HTTP_POST
   end
   
-  new_activity = params[:new_activity] ? true : false;
+  new_activity = params[:activity] ? true : false;
   Java::com.droiuby.client.core.ActivityBuilder.loadLayout(_execution_bundle, _current_app, url, new_activity, http_method, _current_activity, nil, nil)
 end
 

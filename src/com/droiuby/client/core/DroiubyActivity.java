@@ -139,6 +139,7 @@ public abstract class DroiubyActivity extends Activity implements
 		} else {
 			ExecutionBundleFactory factory = ExecutionBundleFactory.getInstance();
 			executionBundle = factory.getNewScriptingContainer(this, application.getBaseUrl());
+			executionBundle.setCurrentActivity(this);
 		}
 
 		downloader = new ActiveAppDownloader(application, this, target, cache,
@@ -169,6 +170,7 @@ public abstract class DroiubyActivity extends Activity implements
 		super.onResume();
 		Log.d(this.getClass().toString(), "onResume() called");
 		setupConsole();
+		executionBundle.setCurrentActivity(this);
 	}
 
 	@Override

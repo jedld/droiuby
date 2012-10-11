@@ -405,12 +405,13 @@ public class ActivityBuilder {
 			intent.putExtra("application", app);
 			intent.putExtra("method", method);
 			intent.putExtra("startUrl", pageUrl);
+			Log.d("LOADLAYOUT", "-> new Activity Page URL = " + pageUrl);
 			targetActivity.startActivity(intent);			
 		} else {
 			Log.d("LOADLAYOUT", "page URL = " + pageUrl);
 			ActivityBootstrapper bootstrapper = new ActivityBootstrapper(
 					executionBundle, app, pageUrl, method, targetActivity,
-					cachedDocument, onReadyListener);
+					null, onReadyListener);
 			bootstrapper.execute();
 		}
 	}

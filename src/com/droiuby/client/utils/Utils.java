@@ -109,7 +109,7 @@ class DroiubyHttpResponseHandler extends BasicResponseHandler {
 		
 		if (response.getStatusLine().getStatusCode() < 300) {
 			String responseBody = super.handleResponse(response);
-//			Log.d(this.getClass().toString(), "response = " + responseBody);
+			Log.d(this.getClass().toString(), "response = " + responseBody);
 			
 			Header headers[] = response.getHeaders("Set-Cookie");
 			SharedPreferences prefs = context.getSharedPreferences("cookies",
