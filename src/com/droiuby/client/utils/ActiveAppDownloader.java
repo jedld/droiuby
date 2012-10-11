@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Vector;
 
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
@@ -28,6 +29,7 @@ import com.droiuby.client.R;
 import com.droiuby.client.core.ActiveApp;
 import com.droiuby.client.core.ActivityBuilder;
 import com.droiuby.client.core.AppCache;
+import com.droiuby.client.core.AssetDownloadCompleteListener;
 import com.droiuby.client.core.ExecutionBundle;
 import com.droiuby.client.core.OnDownloadCompleteListener;
 import com.droiuby.client.core.RubyContainerPayload;
@@ -60,6 +62,7 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 	ArrayList<EmbedEvalUnit> evalUnits = new ArrayList<EmbedEvalUnit>();
 	OnDownloadCompleteListener listener;
 	OnUrlChangedListener urlChangedListener;
+	Vector <Object>resultBundle = new Vector <Object>();
 
 	public OnUrlChangedListener getUrlChangedListener() {
 		return urlChangedListener;
@@ -161,6 +164,8 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 	public static ActiveApp loadApp(Context c, String url) {
 		String responseBody = null;
 		Log.d(ActiveAppDownloader.class.toString(), "loading " + url);
+//		AssetDownloadWorker worker = AssetDownloadWorker(c, activeApp, bundle, 
+//				asset_name, resultBundle, null, )
 		if (url.indexOf("asset:") != -1) {
 			responseBody = Utils.loadAsset(c, url);
 		} else {
