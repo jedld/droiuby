@@ -7,7 +7,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Vector;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
@@ -30,11 +34,13 @@ import com.droiuby.client.core.ActiveApp;
 import com.droiuby.client.core.ActivityBuilder;
 import com.droiuby.client.core.AppCache;
 import com.droiuby.client.core.AssetDownloadCompleteListener;
+import com.droiuby.client.core.AssetDownloadWorker;
 import com.droiuby.client.core.ExecutionBundle;
 import com.droiuby.client.core.OnDownloadCompleteListener;
 import com.droiuby.client.core.RubyContainerPayload;
 import com.droiuby.client.core.interfaces.OnUrlChangedListener;
 import com.droiuby.client.core.listeners.DocumentReadyListener;
+import com.droiuby.client.core.postprocessor.ScriptPreparser;
 
 import android.app.Activity;
 import android.content.Context;
@@ -62,7 +68,7 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 	ArrayList<EmbedEvalUnit> evalUnits = new ArrayList<EmbedEvalUnit>();
 	OnDownloadCompleteListener listener;
 	OnUrlChangedListener urlChangedListener;
-	Vector <Object>resultBundle = new Vector <Object>();
+	Vector<Object> resultBundle = new Vector<Object>();
 
 	public OnUrlChangedListener getUrlChangedListener() {
 		return urlChangedListener;
@@ -164,8 +170,6 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 	public static ActiveApp loadApp(Context c, String url) {
 		String responseBody = null;
 		Log.d(ActiveAppDownloader.class.toString(), "loading " + url);
-//		AssetDownloadWorker worker = AssetDownloadWorker(c, activeApp, bundle, 
-//				asset_name, resultBundle, null, )
 		if (url.indexOf("asset:") != -1) {
 			responseBody = Utils.loadAsset(c, url);
 		} else {
@@ -207,6 +211,19 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 						app.setInitiallOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
 					}
 				}
+
+				List<Element> assets = rootElem.getChildren("assets");
+				for (Element asset : assets) {
+					String asset_name = asset.getAttributeValue("name");
+					String asset_type = asset.getAttributeValue("type");
+					int type_int = ActiveApp.ASSET_TYPE_SCRIPT;
+					if (asset_type.equals("script")) {
+						type_int = ActiveApp.ASSET_TYPE_SCRIPT;
+					}
+
+					app.addAsset(asset_name, type_int);
+				}
+
 				return app;
 			} catch (JDOMException e) {
 				// TODO Auto-generated catch block
@@ -224,6 +241,37 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 			Log.d(this.getClass().toString(), "initializing Droiuby library");
 			scriptingContainer.runScriptlet("require 'droiuby/loader'");
 			executionBundle.setLibraryInitialized(true);
+			Vector<Object> resultBundle = new Vector<Object>();
+			HashMap<String, Integer> asset_map = app.getAssets();
+			if (app.getAssets().size() > 0) {
+				ExecutorService thread_pool = Executors
+						.newFixedThreadPool(Runtime.getRuntime()
+								.availableProcessors() + 1);
+				for (String asset_name : app.getAssets().keySet()) {
+					int asset_type = asset_map.get(asset_name);
+					AssetDownloadCompleteListener listener = null;
+					if (asset_type == ActiveApp.ASSET_TYPE_SCRIPT) {
+						listener = new ScriptPreparser();
+					}
+					Log.d(this.getClass().toString(),"downloading " + asset_name + " ...");
+					AssetDownloadWorker worker = new AssetDownloadWorker(
+							targetActivity, app, executionBundle, asset_name,
+							resultBundle, listener, Utils.HTTP_GET);
+					thread_pool.execute(worker);
+				}
+				thread_pool.shutdown();
+				try {
+					thread_pool.awaitTermination(0, null);
+					for(Object elem : resultBundle) {
+						if (elem instanceof EmbedEvalUnit) {
+							((EmbedEvalUnit)elem).run();
+						}
+					}
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 		}
 		return true;
 	}
@@ -244,8 +292,9 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 		}
 		Log.d(this.getClass().toString(), "target url = " + targetUrl);
 		ActivityBuilder
-				.loadLayout(executionBundle, app, targetUrl, false, Utils.HTTP_GET,
-						targetActivity, this.mainActivityDocument, this);
+				.loadLayout(executionBundle, app, targetUrl, false,
+						Utils.HTTP_GET, targetActivity,
+						this.mainActivityDocument, this);
 	}
 
 	public void onDocumentReady(Document mainActivity) {

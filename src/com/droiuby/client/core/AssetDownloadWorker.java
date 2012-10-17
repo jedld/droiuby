@@ -5,13 +5,14 @@ import java.io.IOException;
 import java.util.Vector;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Environment;
 
 import com.droiuby.client.utils.Utils;
 
 public class AssetDownloadWorker implements Runnable {
 	
-	Activity targetActivity;
+	Context context;
 	ActiveApp activeApp;
 	ExecutionBundle bundle;
 	String assetName;
@@ -19,9 +20,9 @@ public class AssetDownloadWorker implements Runnable {
 	Vector <Object>resultBundle;
 	AssetDownloadCompleteListener onCompleteListener;
 	
-	public AssetDownloadWorker(Activity targetActivity, ActiveApp activeApp, ExecutionBundle bundle, 
+	public AssetDownloadWorker(Context context, ActiveApp activeApp, ExecutionBundle bundle, 
 			String assetName, Vector <Object>resultBundle, AssetDownloadCompleteListener onCompleteListener, int method) {
-		this.targetActivity = targetActivity;
+		this.context = context;
 		this.activeApp = activeApp;
 		this.bundle = bundle;
 		this.assetName = assetName;
@@ -33,11 +34,11 @@ public class AssetDownloadWorker implements Runnable {
 	public String loadAsset() {
 		if (assetName != null) {
 			if (assetName.startsWith("asset:")) {
-				return Utils.loadAsset(targetActivity, assetName);
+				return Utils.loadAsset(context, assetName);
 			} else {
 				if (activeApp.getBaseUrl().indexOf("asset:") != -1) {
 					return Utils
-							.loadAsset(targetActivity, activeApp.getBaseUrl() + assetName);
+							.loadAsset(context, activeApp.getBaseUrl() + assetName);
 				} else if (activeApp.getBaseUrl().indexOf("file:") != -1) {
 					return Utils.loadFile(assetName);
 				} else if (activeApp.getBaseUrl().indexOf("sdcard:") != -1) {
@@ -63,7 +64,7 @@ public class AssetDownloadWorker implements Runnable {
 					}
 
 					return Utils.query(baseUrl + "/" + assetName,
-							targetActivity, activeApp.getName(), method);
+							context, activeApp.getName(), method);
 				}
 			}
 		} else {
@@ -73,7 +74,7 @@ public class AssetDownloadWorker implements Runnable {
 	
 	
 	public void run() {
-		onCompleteListener.onComplete(bundle, assetName, resultBundle.add(loadAsset()));
+		resultBundle.add(onCompleteListener.onComplete(bundle, assetName, loadAsset()));
 		this.notifyAll();
 	}
 
