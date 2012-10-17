@@ -256,6 +256,7 @@ public final class UrlImageViewHelper {
 		AndroidHttpClient client = AndroidHttpClient.newInstance(context
 				.getPackageName());
 		try {
+			Log.d("IMAGE Download","url = " + url);
 			HttpGet get = new HttpGet(url);
 			final HttpParams httpParams = new BasicHttpParams();
 			HttpClientParams.setRedirecting(httpParams, true);

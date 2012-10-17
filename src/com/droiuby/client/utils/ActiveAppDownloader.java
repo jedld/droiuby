@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
+import java.util.concurrent.TimeUnit;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
@@ -255,13 +255,13 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 					}
 					Log.d(this.getClass().toString(),"downloading " + asset_name + " ...");
 					AssetDownloadWorker worker = new AssetDownloadWorker(
-							targetActivity, app, executionBundle, asset_name,
+							targetActivity, app, executionBundle, asset_name, Utils.ASSET_TYPE_TEXT,
 							resultBundle, listener, Utils.HTTP_GET);
 					thread_pool.execute(worker);
 				}
 				thread_pool.shutdown();
 				try {
-					thread_pool.awaitTermination(0, null);
+					thread_pool.awaitTermination(240, TimeUnit.SECONDS);
 					for(Object elem : resultBundle) {
 						if (elem instanceof EmbedEvalUnit) {
 							((EmbedEvalUnit)elem).run();

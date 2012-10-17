@@ -28,20 +28,26 @@ import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.params.HttpClientParams;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpParams;
 import org.jruby.CompatVersion;
 import org.jruby.embed.EmbedEvalUnit;
 import org.jruby.embed.LocalContextScope;
 import org.jruby.embed.LocalVariableBehavior;
 import org.jruby.embed.ScriptingContainer;
 
+import com.droiuby.client.core.ActiveApp;
 import com.droiuby.client.core.ExecutionBundle;
+import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.os.Environment;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
@@ -53,30 +59,33 @@ class DroiubyCookie implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = -7903895180302847726L;
-	
+
 	public String getCookie() {
 		return cookie;
 	}
+
 	public void setCookie(String cookie) {
 		this.cookie = cookie;
 	}
+
 	public long getExpiration() {
 		return expiration;
 	}
+
 	public void setExpiration(long expiration) {
 		this.expiration = expiration;
 	}
+
 	String cookie;
 	long expiration;
-	
+
 	public static DroiubyCookie parse(String raw_cookie) {
 		DroiubyCookie cookie = new DroiubyCookie();
 		String[] rawCookieParams = raw_cookie.split(";");
 		cookie.setCookie(rawCookieParams[0]);
 		return cookie;
 	}
-	
-	
+
 }
 
 class DroiubyHttpResponseHandler extends BasicResponseHandler {
@@ -106,11 +115,11 @@ class DroiubyHttpResponseHandler extends BasicResponseHandler {
 		Log.d(this.getClass().toString(), "reason = "
 				+ response.getStatusLine().getReasonPhrase());
 		Log.d(this.getClass().toString(), "content length = " + content_length);
-		
+
 		if (response.getStatusLine().getStatusCode() < 300) {
 			String responseBody = super.handleResponse(response);
-//			Log.d(this.getClass().toString(), "response = " + responseBody);
-			
+			// Log.d(this.getClass().toString(), "response = " + responseBody);
+
 			Header headers[] = response.getHeaders("Set-Cookie");
 			SharedPreferences prefs = context.getSharedPreferences("cookies",
 					context.MODE_PRIVATE);
@@ -136,6 +145,9 @@ public class Utils {
 
 	public static final int HTTP_GET = 1;
 	public static final int HTTP_POST = 2;
+
+	public static final int ASSET_TYPE_TEXT = 0;
+	public static final int ASSET_TYPE_IMAGE = 1;
 
 	public static ScriptingContainer evalRuby(String statement,
 			Activity activity) {
@@ -185,11 +197,14 @@ public class Utils {
 	}
 
 	public static String load(Context c, String url, ExecutionBundle bundle) {
-		Log.d(ActiveAppDownloader.class.toString(), "loading " + url + " under namespace = " + bundle.getPayload().getActiveApp().getBaseUrl());
+		Log.d(ActiveAppDownloader.class.toString(), "loading " + url
+				+ " under namespace = "
+				+ bundle.getPayload().getActiveApp().getBaseUrl());
 		if (url.indexOf("asset:") != -1) {
 			return Utils.loadAsset(c, url);
 		} else {
-			return Utils.query(url, c, bundle.getPayload().getActiveApp().getBaseUrl());
+			return Utils.query(url, c, bundle.getPayload().getActiveApp()
+					.getBaseUrl());
 		}
 	}
 
@@ -238,7 +253,7 @@ public class Utils {
 		}
 		SharedPreferences prefs = c.getSharedPreferences("cookies",
 				c.MODE_PRIVATE);
-		
+
 		String cookie_pref_name = parsedURL.getProtocol() + "_"
 				+ parsedURL.getHost() + "_" + namespace;
 		Log.d("COOKIE", "Loading cookie from " + cookie_pref_name);
@@ -251,6 +266,11 @@ public class Utils {
 						"setting cookie = " + cookie.toString());
 			}
 		}
+
+		final HttpParams httpParams = new BasicHttpParams();
+		HttpClientParams.setRedirecting(httpParams, true);
+		request.setParams(httpParams);
+
 		request.setHeader(
 				"User-Agent",
 				"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/21.0.1180.89 Safari/537.1 Droiuby/1.0 (Android)");
@@ -259,7 +279,8 @@ public class Utils {
 		Display display = wm.getDefaultDisplay();
 		DisplayMetrics metrics = new DisplayMetrics();
 		display.getMetrics(metrics);
-		request.setHeader("Accept",
+		request.setHeader(
+				"Accept",
 				"text/html,application/xhtml+xml,application/xml,application/x-ruby;q=0.9,*/*;q=0.8");
 		request.setHeader("Droiuby-Height",
 				Integer.toString(metrics.heightPixels));
@@ -273,7 +294,7 @@ public class Utils {
 		ResponseHandler<String> responseHandler = new DroiubyHttpResponseHandler(
 				url, c, namespace);
 		try {
-//			Utils.logHeaders(request.getAllHeaders(), Utils.class);
+			// Utils.logHeaders(request.getAllHeaders(), Utils.class);
 			String responseString = httpclient
 					.execute(request, responseHandler);
 
@@ -328,5 +349,64 @@ public class Utils {
 		}
 
 		return true;
+	}
+
+	public static Object loadAppAsset(ActiveApp app, Context context,
+			String asset_name, int asset_type, int method) {
+		if (asset_name != null) {
+			if (asset_name.startsWith("asset:")) {
+				return Utils.loadAsset(context, asset_name);
+			} else {
+				String baseUrl = app.getBaseUrl();
+				Log.d("Utils","base url = " + baseUrl);
+				if (baseUrl.indexOf("asset:") != -1) {
+					return Utils.loadAsset(context, baseUrl + asset_name);
+				} else if (baseUrl.indexOf("file:") != -1) {
+					return Utils.loadFile(asset_name);
+				} else if (baseUrl.indexOf("sdcard:") != -1) {
+					File directory = Environment.getExternalStorageDirectory();
+					try {
+						String asset_path = directory.getCanonicalPath()
+								+ asset_name;
+						return Utils.loadFile(asset_path);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					return null;
+				} else {
+					String query_url = null;
+
+					if (asset_name.startsWith("http:")
+							|| asset_name.startsWith("https:")) {
+						query_url = asset_name;
+					} else {
+
+						if (asset_name.startsWith("/")) {
+							asset_name = asset_name.substring(1);
+						}
+
+						if (baseUrl.endsWith("/")) {
+							baseUrl = baseUrl
+									.substring(0, baseUrl.length() - 1);
+						}
+
+						query_url = baseUrl + "/" + asset_name;
+					}
+					if (asset_type == Utils.ASSET_TYPE_TEXT) {
+						return Utils.query(query_url, context, app.getName(),
+								method);
+					} else if (asset_type == Utils.ASSET_TYPE_IMAGE) {
+						return UrlImageViewHelper
+								.downloadFromUrlAsync(context, query_url,
+										UrlImageViewHelper
+												.getFilenameForUrl(query_url));
+					}
+					return null;
+				}
+			}
+		} else {
+			return null;
+		}
 	}
 }

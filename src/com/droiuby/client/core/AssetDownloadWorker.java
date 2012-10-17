@@ -7,6 +7,7 @@ import java.util.Vector;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Environment;
+import android.util.Log;
 
 import com.droiuby.client.utils.Utils;
 
@@ -16,12 +17,12 @@ public class AssetDownloadWorker implements Runnable {
 	ActiveApp activeApp;
 	ExecutionBundle bundle;
 	String assetName;
-	int method;
+	int method, assetType;
 	Vector <Object>resultBundle;
 	AssetDownloadCompleteListener onCompleteListener;
 	
 	public AssetDownloadWorker(Context context, ActiveApp activeApp, ExecutionBundle bundle, 
-			String assetName, Vector <Object>resultBundle, AssetDownloadCompleteListener onCompleteListener, int method) {
+			String assetName, int assetType, Vector <Object>resultBundle, AssetDownloadCompleteListener onCompleteListener, int method) {
 		this.context = context;
 		this.activeApp = activeApp;
 		this.bundle = bundle;
@@ -29,6 +30,7 @@ public class AssetDownloadWorker implements Runnable {
 		this.method = method;
 		this.resultBundle = resultBundle;
 		this.onCompleteListener = onCompleteListener;
+		this.assetType = assetType;
 	}
 	
 	public String loadAsset() {
@@ -72,10 +74,9 @@ public class AssetDownloadWorker implements Runnable {
 		}
 	}
 	
-	
+
 	public void run() {
-		resultBundle.add(onCompleteListener.onComplete(bundle, assetName, loadAsset()));
-		this.notifyAll();
+		resultBundle.add(onCompleteListener.onComplete(bundle, assetName, Utils.loadAppAsset(activeApp, context, assetName, assetType, method)));
 	}
 
 }
