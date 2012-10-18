@@ -19,6 +19,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.apache.http.Header;
+import org.apache.http.HeaderElement;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -117,6 +118,18 @@ class DroiubyHttpResponseHandler extends BasicResponseHandler {
 		Log.d(this.getClass().toString(), "content length = " + content_length);
 
 		if (response.getStatusLine().getStatusCode() < 300) {
+
+			Header encheader = response.getEntity().getContentEncoding();
+			if (encheader != null) {
+				HeaderElement[] codecs = encheader.getElements();
+				for (int i = 0; i < codecs.length; i++) {
+					if (codecs[i].getName().equalsIgnoreCase("gzip")) {
+						response.setEntity(new GzipDecompressingEntity(response
+								.getEntity()));
+					}
+				}
+			}
+
 			String responseBody = super.handleResponse(response);
 			// Log.d(this.getClass().toString(), "response = " + responseBody);
 
@@ -282,6 +295,7 @@ public class Utils {
 		request.setHeader(
 				"Accept",
 				"text/html,application/xhtml+xml,application/xml,application/x-ruby;q=0.9,*/*;q=0.8");
+		request.setHeader("Accept-Encoding","gzip, deflate");
 		request.setHeader("Droiuby-Height",
 				Integer.toString(metrics.heightPixels));
 		request.setHeader("Droiuby-Width",
@@ -294,7 +308,7 @@ public class Utils {
 		ResponseHandler<String> responseHandler = new DroiubyHttpResponseHandler(
 				url, c, namespace);
 		try {
-			// Utils.logHeaders(request.getAllHeaders(), Utils.class);
+			Utils.logHeaders(request.getAllHeaders(), Utils.class);
 			String responseString = httpclient
 					.execute(request, responseHandler);
 
@@ -358,7 +372,7 @@ public class Utils {
 				return Utils.loadAsset(context, asset_name);
 			} else {
 				String baseUrl = app.getBaseUrl();
-				Log.d("Utils","base url = " + baseUrl);
+				Log.d("Utils", "base url = " + baseUrl);
 				if (baseUrl.indexOf("asset:") != -1) {
 					return Utils.loadAsset(context, baseUrl + asset_name);
 				} else if (baseUrl.indexOf("file:") != -1) {
