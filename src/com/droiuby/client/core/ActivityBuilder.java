@@ -262,7 +262,6 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 				if (preParsedScript != null) {
 					start = System.currentTimeMillis();
 					preParsedScript.run();
-
 				}
 				
 				scriptingContainer.runScriptlet("require 'droiuby/preload'\nstart_droiuby_plugins\n");

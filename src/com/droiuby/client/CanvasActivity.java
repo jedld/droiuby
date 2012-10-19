@@ -120,6 +120,7 @@ public class CanvasActivity extends DroiubyActivity implements DocumentReadyList
 						+ application.getName(), "");
 				editor.commit();
 				getExecutionBundle().setCurrentUrl(null);
+				getExecutionBundle().setLibraryInitialized(false);
 			} catch (MalformedURLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
