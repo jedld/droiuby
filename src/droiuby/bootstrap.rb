@@ -141,3 +141,4 @@ class ActivityWrapper
   end
 
 end
+

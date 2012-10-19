@@ -211,17 +211,22 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 						app.setInitiallOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
 					}
 				}
+				if (rootElem.getChild("assets") != null) {
+					List<Element> assets = rootElem.getChild("assets")
+							.getChildren("resource");
+					Log.d("APP DOWNLOADER", "downloading assets ... ");
+					for (Element asset : assets) {
+						String asset_name = asset.getAttributeValue("name");
+						String asset_type = asset.getAttributeValue("type");
+						Log.d("APP DOWNLOADER", "loading asset " + asset_name
+								+ ".");
+						int type_int = ActiveApp.ASSET_TYPE_SCRIPT;
+						if (asset_type.equals("script")) {
+							type_int = ActiveApp.ASSET_TYPE_SCRIPT;
+						}
 
-				List<Element> assets = rootElem.getChildren("assets");
-				for (Element asset : assets) {
-					String asset_name = asset.getAttributeValue("name");
-					String asset_type = asset.getAttributeValue("type");
-					int type_int = ActiveApp.ASSET_TYPE_SCRIPT;
-					if (asset_type.equals("script")) {
-						type_int = ActiveApp.ASSET_TYPE_SCRIPT;
+						app.addAsset(asset_name, type_int);
 					}
-
-					app.addAsset(asset_name, type_int);
 				}
 
 				return app;
@@ -253,18 +258,21 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 					if (asset_type == ActiveApp.ASSET_TYPE_SCRIPT) {
 						listener = new ScriptPreparser();
 					}
-					Log.d(this.getClass().toString(),"downloading " + asset_name + " ...");
+					Log.d(this.getClass().toString(), "downloading "
+							+ asset_name + " ...");
 					AssetDownloadWorker worker = new AssetDownloadWorker(
-							targetActivity, app, executionBundle, asset_name, Utils.ASSET_TYPE_TEXT,
-							resultBundle, listener, Utils.HTTP_GET);
+							targetActivity, app, executionBundle, asset_name,
+							Utils.ASSET_TYPE_TEXT, resultBundle, listener,
+							Utils.HTTP_GET);
 					thread_pool.execute(worker);
 				}
 				thread_pool.shutdown();
 				try {
 					thread_pool.awaitTermination(240, TimeUnit.SECONDS);
-					for(Object elem : resultBundle) {
+					for (Object elem : resultBundle) {
+						Log.d(this.getClass().toString(), "executing asset");
 						if (elem instanceof EmbedEvalUnit) {
-							((EmbedEvalUnit)elem).run();
+							((EmbedEvalUnit) elem).run();
 						}
 					}
 				} catch (InterruptedException e) {

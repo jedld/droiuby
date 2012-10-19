@@ -85,7 +85,8 @@ class ReverseIdResolver {
 	public String resolve(int id) {
 		String packageName = context.getApplicationContext().getPackageName();
 		if (resolveCache == null) {
-//			Log.d(this.getClass().toString(), "Initializing resolve cache ... ");
+			// Log.d(this.getClass().toString(),
+			// "Initializing resolve cache ... ");
 			resolveCache = new SparseArray<String>();
 			Class c;
 			try {
@@ -96,8 +97,9 @@ class ReverseIdResolver {
 						for (Field f : sc.getFields()) {
 							String name = f.getName();
 							int key = f.getInt(sc.newInstance());
-//							Log.d(this.getClass().toString(), "Storing " + name
-//									+ " = " + key);
+							// Log.d(this.getClass().toString(), "Storing " +
+							// name
+							// + " = " + key);
 							resolveCache.put(key, name);
 						}
 					}
@@ -168,9 +170,10 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 
 	@Override
 	protected ActivityBuilder doInBackground(Void... params) {
-		String responseBody = (String) Utils.loadAppAsset(app, targetActivity, pageUrl, Utils.ASSET_TYPE_TEXT, method);
+		String responseBody = (String) Utils.loadAppAsset(app, targetActivity,
+				pageUrl, Utils.ASSET_TYPE_TEXT, method);
 		if (responseBody != null) {
-//			Log.d(this.getClass().toString(), responseBody);
+			// Log.d(this.getClass().toString(), responseBody);
 		} else {
 			Log.d(this.getClass().toString(), "response empty.");
 			return null;
@@ -210,7 +213,8 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 			Log.d("Activity loader", "loading controller file " + baseUrl
 					+ controller);
 			String controller_content = "class MainActivity < ActivityWrapper\n"
-					+ Utils.loadAppAsset(app, targetActivity, controller, Utils.ASSET_TYPE_TEXT, Utils.HTTP_GET) + "\n end\n";
+					+ Utils.loadAppAsset(app, targetActivity, controller,
+							Utils.ASSET_TYPE_TEXT, Utils.HTTP_GET) + "\n end\n";
 			long start = System.currentTimeMillis();
 			try {
 				preParsedScript = Utils.preParseRuby(scriptingContainer,
@@ -258,12 +262,19 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 				if (preParsedScript != null) {
 					start = System.currentTimeMillis();
 					preParsedScript.run();
+
+				}
+				
+				scriptingContainer.runScriptlet("require 'droiuby/preload'\nstart_droiuby_plugins\n");
+				
+				if (preParsedScript != null) {
 					scriptingContainer
 							.runScriptlet("$main_activty = MainActivity.new; $main_activty.on_create");
 					elapsed = System.currentTimeMillis() - start;
 					Log.d(this.getClass().toString(),
 							"controller on_create(): elapsed time = " + elapsed
 									+ "ms");
+
 				}
 			} catch (EvalFailedException e) {
 				executionBundle.addError(e.getMessage());
@@ -344,31 +355,31 @@ public class ActivityBuilder {
 
 	public void preload(ExecutionBundle bundle) {
 		List<Element> children = rootElement.getChildren("preload");
-		ExecutorService thread_pool = Executors
-				.newFixedThreadPool(Runtime.getRuntime()
-						.availableProcessors() + 1);
+		ExecutorService thread_pool = Executors.newFixedThreadPool(Runtime
+				.getRuntime().availableProcessors() + 1);
 		Vector<Object> resultBundle = new Vector<Object>();
 		for (Element elem : children) {
 			String name = elem.getAttributeValue("id");
 			String type = elem.getAttributeValue("type");
 			String src = elem.getAttributeValue("src");
-			
-			Log.d(this.getClass().toString(),"downloading " + src + " ...");
+
+			Log.d(this.getClass().toString(), "downloading " + src + " ...");
 			int asset_type = Utils.ASSET_TYPE_TEXT;
 			if (type.equals("image")) {
 				asset_type = Utils.ASSET_TYPE_IMAGE;
 			}
 			AssetPreloadParser parser = new AssetPreloadParser(name, type, this);
-			AssetDownloadWorker worker = new AssetDownloadWorker(
-					context, bundle.getPayload().getActiveApp(), bundle, src, asset_type,
-					resultBundle, parser, Utils.HTTP_GET);
+			AssetDownloadWorker worker = new AssetDownloadWorker(context,
+					bundle.getPayload().getActiveApp(), bundle, src,
+					asset_type, resultBundle, parser, Utils.HTTP_GET);
 			thread_pool.execute(worker);
 		}
 		thread_pool.shutdown();
 		try {
-			Log.d(this.getClass().toString(),"Waiting for download workers to finish.....");
+			Log.d(this.getClass().toString(),
+					"Waiting for download workers to finish.....");
 			thread_pool.awaitTermination(240, TimeUnit.SECONDS);
-			Log.d(this.getClass().toString(),"Download workers .... done.");
+			Log.d(this.getClass().toString(), "Download workers .... done.");
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -389,17 +400,18 @@ public class ActivityBuilder {
 		downloader.execute();
 	}
 
-	
 	public static void loadLayout(ExecutionBundle executionBundle,
-			ActiveApp app, String pageUrl, boolean newActivity, int method, Activity targetActivity,
-			Document cachedDocument, DocumentReadyListener onReadyListener) {
+			ActiveApp app, String pageUrl, boolean newActivity, int method,
+			Activity targetActivity, Document cachedDocument,
+			DocumentReadyListener onReadyListener) {
 		if (newActivity) {
-			Intent intent = new Intent(targetActivity, targetActivity.getClass());
+			Intent intent = new Intent(targetActivity,
+					targetActivity.getClass());
 			intent.putExtra("application", app);
 			intent.putExtra("method", method);
 			intent.putExtra("startUrl", pageUrl);
 			Log.d("LOADLAYOUT", "-> new Activity Page URL = " + pageUrl);
-			targetActivity.startActivity(intent);			
+			targetActivity.startActivity(intent);
 		} else {
 			Log.d("LOADLAYOUT", "page URL = " + pageUrl);
 			ActivityBootstrapper bootstrapper = new ActivityBootstrapper(
@@ -854,9 +866,9 @@ public class ActivityBuilder {
 		}
 
 		child.setTag(extras);
-//		Log.d(this.getClass().toString(), "Adding "
-//				+ child.getClass().toString() + " to "
-//				+ group.getClass().toString());
+		// Log.d(this.getClass().toString(), "Adding "
+		// + child.getClass().toString() + " to "
+		// + group.getClass().toString());
 		// RelativeLayout specific stuff
 		if (group instanceof TableLayout) {
 			((TableLayout) group).addView(child, new TableLayout.LayoutParams(

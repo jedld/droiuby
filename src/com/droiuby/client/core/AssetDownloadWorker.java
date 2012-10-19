@@ -76,7 +76,10 @@ public class AssetDownloadWorker implements Runnable {
 	
 
 	public void run() {
-		resultBundle.add(onCompleteListener.onComplete(bundle, assetName, Utils.loadAppAsset(activeApp, context, assetName, assetType, method)));
+		Object result = onCompleteListener.onComplete(bundle, assetName, Utils.loadAppAsset(activeApp, context, assetName, assetType, method));
+		if (result!=null) {
+			resultBundle.add(result);
+		}
 	}
 
 }
