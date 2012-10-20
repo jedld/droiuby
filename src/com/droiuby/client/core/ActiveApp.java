@@ -1,15 +1,18 @@
 package com.droiuby.client.core;
 
 import java.io.Serializable;
+import java.util.HashMap;
 
 public class ActiveApp implements Serializable {
 
+	public static final int ASSET_TYPE_SCRIPT = 0;
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 4120098422645102827L;
 
 	String name, description, baseUrl, mainUrl;
+	HashMap <String, Integer> assets = new HashMap <String, Integer>();
 	
 	public int getInitiallOrientation() {
 		return initiallOrientation;
@@ -52,4 +55,18 @@ public class ActiveApp implements Serializable {
 	public void setDescription(String description) {
 		this.description = description;
 	}
+	
+	public void addAsset(String name, int type) {
+		this.assets.put(name, type);
+	}
+
+	public HashMap<String, Integer> getAssets() {
+		return assets;
+	}
+
+	public void setAssets(HashMap<String, Integer> assets) {
+		this.assets = assets;
+	}
+	
+
 }

@@ -35,23 +35,6 @@ class InitializeLibrary extends AsyncTask<Void, Void, Void> {
 	@Override
 	protected Void doInBackground(Void... arg0) {
 		// TODO Auto-generated method stub
-		try {
-			String extract_path = context.getCacheDir().getCanonicalPath()
-					+ "/jruby/vendor";
-			File vendor = new File(extract_path);
-			vendor.mkdirs();
-			AssetManager manager = context.getAssets();
-			String[] files = manager.list("lib/vendor");
-			for (String file : files) {
-				Log.d(this.getClass().toString(), "Unpacking " + file + " to "
-						+ vendor.getCanonicalPath() + " .... ");
-				Utils.unpackZip(manager.open("lib/vendor/" + file),
-						vendor.getCanonicalPath() + "/");
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		return null;
 	}
 
@@ -87,7 +70,7 @@ public class MainActivity extends Activity implements OnClickListener {
 		Button runButton = (Button) findViewById(R.id.buttonRun);
 		Button qrCodeButton = (Button) findViewById(R.id.buttonQRCode);
 		applicationURL = (EditText) findViewById(R.id.editTextApplicationURL);
-		applicationURL.setText("http://droiuby.heroku.com/droiuby");
+		applicationURL.setText("http://droiuby.herokuapp.com/droiuby");
 		runButton.setOnClickListener(this);
 		qrCodeButton.setOnClickListener(this);
 		settings = getSharedPreferences("droiuby", MODE_PRIVATE);

@@ -24,8 +24,7 @@ public abstract class ListenerWrapper {
 		try {
 			container.put("_receiver", block);
 			container.put("_view", view);
-			container.runScriptlet("_receiver.call(wrap_native_view(_view))");
-			return true;
+			return (Boolean)container.runScriptlet("!!_receiver.call(wrap_native_view(_view))");
 		} catch (org.jruby.embed.EvalFailedException e) {
 			Log.d(this.getClass().toString(), "eval failed: " + e.getMessage());
 			e.printStackTrace();

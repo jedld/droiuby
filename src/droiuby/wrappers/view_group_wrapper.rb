@@ -12,11 +12,11 @@ class ViewGroupWrapper < ViewWrapper
 
   def append(markup_or_view)
     if markup_or_view.kind_of? String
-      $current_activity_builder.parsePartialAppendChildren(@view,markup_or_view)
+      _activity_builder.parsePartialAppendChildren(@view,markup_or_view)
     elsif markup_or_view.kind_of? ViewWrapper
-      $current_activity_builder.appendChild(@view,  markup_or_view.native)
+      _activity_builder.appendChild(@view,  markup_or_view.native)
     elsif markup_or_view.kind_of? Java::android.view.View.new
-      $current_activity_builder.appendChild(@view,  markup_or_view)
+      _activity_builder.appendChild(@view,  markup_or_view)
     end
   end
 

@@ -253,6 +253,7 @@ public final class UrlImageViewHelper {
 		AndroidHttpClient client = AndroidHttpClient.newInstance(context
 				.getPackageName());
 		try {
+			Log.d("IMAGE Download","url = " + url);
 			HttpGet get = new HttpGet(url);
 			final HttpParams httpParams = new BasicHttpParams();
 			HttpClientParams.setRedirecting(httpParams, true);
@@ -288,6 +289,7 @@ public final class UrlImageViewHelper {
 	private static Object setViewDrawable(View view, Drawable drawable,
 			String method) {
 		try {
+			Log.d("IMAGE HELPER", "Setting image to " + method);
 			Method m = view.getClass().getMethod(method, Drawable.class);
 			return m.invoke(view, drawable);
 		} catch (NoSuchMethodException e) {
@@ -356,18 +358,19 @@ public final class UrlImageViewHelper {
 				callback.onLoaded(view, drawable, url, method, true);
 			return;
 		}
-
+		Log.d("URL Helper", "loading image from url = " + url);
 		final String filename = getFilenameForUrl(url);
 
 		File file = context.getFileStreamPath(filename);
 		if (file.exists()) {
+			Log.d("URL IMAGE HELPER", "file " + filename + "found!... loading...");
 			try {
 				if (cacheDurationMs == CACHE_DURATION_INFINITE
 						|| System.currentTimeMillis() < file.lastModified()
 								+ cacheDurationMs) {
-					// Log.i(LOGTAG, "File Cache hit on: " + url + ". " +
-					// (System.currentTimeMillis() - file.lastModified()) +
-					// "ms old.");
+					 Log.i(LOGTAG, "File Cache hit on: " + url + ". " +
+					 (System.currentTimeMillis() - file.lastModified()) +
+					 "ms old.");
 					FileInputStream fis = context.openFileInput(filename);
 					drawable = loadDrawableFromStream(context, fis);
 					fis.close();
@@ -378,7 +381,7 @@ public final class UrlImageViewHelper {
 						callback.onLoaded(view, drawable, url, method, true);
 					return;
 				} else {
-					// Log.i(LOGTAG, "File cache has expired. Refreshing.");
+					 Log.i(LOGTAG, "File cache has expired. Refreshing.");
 				}
 			} catch (Exception ex) {
 			}
@@ -418,10 +421,12 @@ public final class UrlImageViewHelper {
 			@Override
 			protected Drawable doInBackground(String... params) {
 				method = params[0];
+				Log.d(this.getClass().toString(), "downloading " + url + " to method " + method);
 				return downloadFromUrlAsync(context, url, filename);
 			}
-
-			protected void onPostExecute(BitmapDrawable result) {
+			
+			@Override
+			protected void onPostExecute(Drawable result) {
 				Drawable usableResult = result;
 				if (usableResult == null)
 					usableResult = defaultDrawable;
@@ -449,7 +454,7 @@ public final class UrlImageViewHelper {
 			}
 
 		};
-		downloader.execute();
+		downloader.execute(method);
 	}
 
 	private static Hashtable<View, String> mPendingViews = new Hashtable<View, String>();

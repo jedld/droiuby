@@ -52,17 +52,6 @@ public abstract class DroiubyActivity extends Activity implements
 	String currentUrl;
 	protected WebConsole console;
 
-	private ExecutionBundle getNewScriptingContainer() {
-		ExecutionBundle bundle = new ExecutionBundle();
-		ScriptingContainer container = new ScriptingContainer(LocalContextScope.SINGLETHREAD,
-				LocalVariableBehavior.PERSISTENT);
-		RubyContainerPayload payload = new RubyContainerPayload();
-		payload.setCurrentActivity(this);
-		payload.setContainer(container);
-		bundle.setContainer(container);
-		bundle.setPayload(payload);
-		return bundle;
-	}
 
 	public SharedPreferences getCurrentPreferences() {
 		try {
@@ -118,8 +107,13 @@ public abstract class DroiubyActivity extends Activity implements
 				+ application.getName());
 		final AppCache cache = (AppCache) getLastNonConfigurationInstance();
 		this.application = application;
-		if (executionBundle == null) {
-			executionBundle = getNewScriptingContainer();
+		
+		if (cache != null) {
+			executionBundle = cache.getExecutionBundle();
+		} else {
+			ExecutionBundleFactory factory = ExecutionBundleFactory.getInstance();
+			executionBundle = factory.getNewScriptingContainer(this, application.getBaseUrl());
+			executionBundle.setCurrentActivity(this);
 		}
 
 		downloader = new ActiveAppDownloader(application, this, target, cache,
@@ -150,6 +144,7 @@ public abstract class DroiubyActivity extends Activity implements
 		super.onResume();
 		Log.d(this.getClass().toString(), "onResume() called");
 		setupConsole();
+		executionBundle.setCurrentActivity(this);
 	}
 
 	@Override
@@ -164,10 +159,7 @@ public abstract class DroiubyActivity extends Activity implements
 	private void setupConsole() {
 		String web_public_loc;
 		try {
-			web_public_loc = this.getCacheDir().getCanonicalPath() + "/www";
-			File webroot = new File(web_public_loc);
-			webroot.mkdirs();
-			console = WebConsole.getInstance(4000, webroot);
+			console = WebConsole.getInstance(4000);
 			console.setContainer(executionBundle.getContainer());
 			console.setActivity(this);
 		} catch (IOException e) {

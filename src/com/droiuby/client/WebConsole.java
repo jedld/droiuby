@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringWriter;
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -21,8 +22,6 @@ import android.util.Log;
 import com.droiuby.client.utils.NanoHTTPD;
 import com.droiuby.client.utils.NanoHTTPD.Response;
 import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class WebConsole extends NanoHTTPD {
 
@@ -37,7 +36,8 @@ public class WebConsole extends NanoHTTPD {
 	}
 
 	public void setContainer(ScriptingContainer container) {
-		Log.d(this.getClass().toString(),"Setting container to " + container.toString());
+		Log.d(this.getClass().toString(),
+				"Setting container to " + container.toString());
 		this.containerRef = new WeakReference<ScriptingContainer>(container);
 	}
 
@@ -60,16 +60,15 @@ public class WebConsole extends NanoHTTPD {
 
 	public static boolean uiPosted = false;
 
-	protected WebConsole(int port, File wwwroot)
-			throws IOException {
-		super(port, wwwroot);
+	protected WebConsole(int port) throws IOException {
+		super(port, null);
 		Log.d(this.getClass().toString(), "Starting HTTPD server on port "
 				+ port);
 	}
 
-	public static WebConsole getInstance(int port, File wwwroot) throws IOException {
+	public static WebConsole getInstance(int port) throws IOException {
 		if (instance == null) {
-			instance = new WebConsole(port, wwwroot);
+			instance = new WebConsole(port);
 		}
 		instance.incrementReference();
 		return instance;
@@ -111,6 +110,28 @@ public class WebConsole extends NanoHTTPD {
 		}
 	}
 
+	String escapeJSON(String str) {
+		return "\"" + str.replace("\\", "\\\\").replace("\"", "\\\"") + "\"";
+	}
+
+	String mapToJSON(Map<String, String> resultMap) {
+		StringBuffer jsonString = new StringBuffer();
+		jsonString.append("{");
+		boolean first = true;
+		for (String key : resultMap.keySet()) {
+			if (!first) {
+				jsonString.append(",");
+			} else {
+				first = false;
+			}
+			jsonString.append(escapeJSON(key) + ":"
+					+ escapeJSON(resultMap.get(key)));
+
+		}
+		jsonString.append("}");
+		return jsonString.toString();
+	}
+
 	@Override
 	public Response serve(String uri, String method, Properties header,
 			Properties params, Properties files) {
@@ -123,24 +144,28 @@ public class WebConsole extends NanoHTTPD {
 			final ScriptingContainer container = containerRef.get();
 			if (container == null) {
 				resultMap.put("err", "true");
-				resultMap.put("result","No JRuby instance attached. Make sure an activity is visible before issuing console commands");
+				resultMap
+						.put("result",
+								"No JRuby instance attached. Make sure an activity is visible before issuing console commands");
 			} else {
-				
+
 				StringWriter writer = new StringWriter();
 				container.setWriter(writer);
-				ObjectMapper mapper = new ObjectMapper();
 
 				resultMap.put("cmd", statement);
 				try {
 					final EmbedEvalUnit evalUnit = container
 							.parse(statement, 0);
-					Activity currentActivity = activity.get(); 
+					Activity currentActivity = activity.get();
 					WebConsole.uiPosted = false;
-					if (currentActivity!= null) {
-						Log.d(this.getClass().toString(),"Current Activity " + currentActivity.toString());
+					if (currentActivity != null) {
+						Log.d(this.getClass().toString(), "Current Activity "
+								+ currentActivity.toString());
 						currentActivity.runOnUiThread(new Runnable() {
 							public void run() {
-								Log.d(this.getClass().toString(),"Running command on " + container.toString());
+								Log.d(this.getClass().toString(),
+										"Running command on "
+												+ container.toString());
 								execute(container, evalUnit, resultMap);
 								WebConsole.uiPosted = true;
 							}
@@ -171,18 +196,8 @@ public class WebConsole extends NanoHTTPD {
 					e.printStackTrace();
 				}
 
-				try {
-					resultStr.append(mapper.writeValueAsString(resultMap));
-				} catch (JsonGenerationException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (JsonMappingException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				resultStr.append(mapToJSON(resultMap));
+
 			}
 			response = new Response(NanoHTTPD.HTTP_OK, "application/json",
 					resultStr.toString());

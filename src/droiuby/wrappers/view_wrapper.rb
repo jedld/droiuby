@@ -15,7 +15,7 @@ class ViewWrapper
     unless view.nil?
       @view = view
     else
-      @view = Java::android.view.View.new
+      @view = Java::android.view.View.new(_current_activity)
     end
   end
 
@@ -100,7 +100,9 @@ class ViewWrapper
     self.native.performClick
   end
   
-  def p_tree(level = 0)
+def p_tree(level = 0, nodes = {})
+    
+    return '' if level > 20
     spaces = ''
     level.times { |i| spaces << '  '}
       
@@ -126,10 +128,9 @@ class ViewWrapper
       end
     end
     
-    
     puts "#{spaces}#{self.class.name} id=\"#{id_attr}\" name=\"#{name_attr}\" class=\"#{class_attr}\" #{data_attribute_list.join(' ')}\n"
     self.children.each { |c|
-      c.p_tree(level + 1)
+        c.p_tree(level + 1, nodes)
     } if self.respond_to? :children
   end
 
@@ -160,6 +161,8 @@ class ViewWrapper
       self.native.setOnLongClickListener(Java::com.droiuby.client.core.listeners.ViewOnLongClickListener.new(_execution_bundle, &block))
     when :focus_changed
       self.native.setOnFocusChangeListener(Java::com.droiuby.client.core.listeners.FocusChangeListenerWrapper.new(_execution_bundle, &block))
+    when :touch
+      self.native.setOnTouchListener(Java::com.droiuby.client.core.listeners.OnTouchListenerWrapper.new(_execution_bundle, &block))
     end
   end
   

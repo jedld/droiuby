@@ -267,7 +267,5 @@ raise "Please, use ruby 1.9.0 or later." if RUBY_VERSION < "1.9.0"
 class CGI
 end
 
-require 'cgi/core'
-require 'cgi/cookie'
 require 'cgi/util'
-CGI.autoload(:HtmlExtension, 'cgi/html')
+

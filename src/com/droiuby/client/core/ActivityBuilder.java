@@ -7,6 +7,11 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Vector;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
 import org.jdom2.Attribute;
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -35,11 +40,13 @@ import com.droiuby.client.core.builder.TextViewBuilder;
 import com.droiuby.client.core.builder.ViewBuilder;
 import com.droiuby.client.core.builder.WebViewBuilder;
 import com.droiuby.client.core.listeners.DocumentReadyListener;
+import com.droiuby.client.core.postprocessor.AssetPreloadParser;
 import com.droiuby.client.utils.Utils;
 import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -78,7 +85,8 @@ class ReverseIdResolver {
 	public String resolve(int id) {
 		String packageName = context.getApplicationContext().getPackageName();
 		if (resolveCache == null) {
-			Log.d(this.getClass().toString(), "Initializing resolve cache ... ");
+			// Log.d(this.getClass().toString(),
+			// "Initializing resolve cache ... ");
 			resolveCache = new SparseArray<String>();
 			Class c;
 			try {
@@ -89,8 +97,9 @@ class ReverseIdResolver {
 						for (Field f : sc.getFields()) {
 							String name = f.getName();
 							int key = f.getInt(sc.newInstance());
-							Log.d(this.getClass().toString(), "Storing " + name
-									+ " = " + key);
+							// Log.d(this.getClass().toString(), "Storing " +
+							// name
+							// + " = " + key);
 							resolveCache.put(key, name);
 						}
 					}
@@ -152,7 +161,6 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 		this.method = method;
 	}
 
-		
 	@Override
 	protected void onPreExecute() {
 		// TODO Auto-generated method stub
@@ -160,51 +168,12 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 		targetActivity.setRequestedOrientation(app.getInitiallOrientation());
 	}
 
-
-	public String loadAsset(String asset_name, int method) {
-		if (asset_name != null) {
-			if (asset_name.startsWith("asset:")) {
-				return Utils.loadAsset(targetActivity, asset_name);
-			} else {
-				if (baseUrl.indexOf("asset:") != -1) {
-					return Utils
-							.loadAsset(targetActivity, baseUrl + asset_name);
-				} else if (baseUrl.indexOf("file:") != -1) {
-					return Utils.loadFile(asset_name);
-				} else if (baseUrl.indexOf("sdcard:") != -1) {
-					File directory = Environment.getExternalStorageDirectory();
-					try {
-						String asset_path = directory.getCanonicalPath()
-								+ asset_name;
-						return Utils.loadFile(asset_path);
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					return null;
-				} else {
-					if (asset_name.startsWith("/")) {
-						asset_name = asset_name.substring(1);
-					}
-
-					if (baseUrl.endsWith("/")) {
-						baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
-					}
-
-					return Utils.query(baseUrl + "/" + asset_name,
-							targetActivity, app.getName(), method);
-				}
-			}
-		} else {
-			return null;
-		}
-	}
-
 	@Override
 	protected ActivityBuilder doInBackground(Void... params) {
-		String responseBody = loadAsset(pageUrl, method);
+		String responseBody = (String) Utils.loadAppAsset(app, targetActivity,
+				pageUrl, Utils.ASSET_TYPE_TEXT, method);
 		if (responseBody != null) {
-			Log.d(this.getClass().toString(), responseBody);
+			// Log.d(this.getClass().toString(), responseBody);
 		} else {
 			Log.d(this.getClass().toString(), "response empty.");
 			return null;
@@ -244,7 +213,8 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 			Log.d("Activity loader", "loading controller file " + baseUrl
 					+ controller);
 			String controller_content = "class MainActivity < ActivityWrapper\n"
-					+ loadAsset(controller, Utils.HTTP_GET) + "\n end\n";
+					+ Utils.loadAppAsset(app, targetActivity, controller,
+							Utils.ASSET_TYPE_TEXT, Utils.HTTP_GET) + "\n end\n";
 			long start = System.currentTimeMillis();
 			try {
 				preParsedScript = Utils.preParseRuby(scriptingContainer,
@@ -259,7 +229,7 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 		}
 
 		ActivityBuilder builder = new ActivityBuilder(mainActivityDocument,
-				targetActivity);
+				targetActivity, baseUrl);
 		executionBundle.getPayload().setActivityBuilder(builder);
 		executionBundle.getPayload().setExecutionBundle(executionBundle);
 		executionBundle.getPayload().setActiveApp(app);
@@ -269,7 +239,8 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 				executionBundle.getPayload());
 		scriptingContainer.runScriptlet("require 'droiuby/bootstrap'");
 
-		builder.preload();
+		builder.preload(executionBundle);
+		System.gc();
 		return builder;
 	}
 
@@ -291,12 +262,18 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 				if (preParsedScript != null) {
 					start = System.currentTimeMillis();
 					preParsedScript.run();
+				}
+				
+				scriptingContainer.runScriptlet("require 'droiuby/preload'\nstart_droiuby_plugins\n");
+				
+				if (preParsedScript != null) {
 					scriptingContainer
 							.runScriptlet("$main_activty = MainActivity.new; $main_activty.on_create");
 					elapsed = System.currentTimeMillis() - start;
 					Log.d(this.getClass().toString(),
 							"controller on_create(): elapsed time = " + elapsed
 									+ "ms");
+
 				}
 			} catch (EvalFailedException e) {
 				executionBundle.addError(e.getMessage());
@@ -316,6 +293,15 @@ public class ActivityBuilder {
 	Activity context;
 	Element rootElement;
 	View topView;
+	String baseUrl;
+
+	public String getBaseUrl() {
+		return baseUrl;
+	}
+
+	public void setBaseUrl(String baseUrl) {
+		this.baseUrl = baseUrl;
+	}
 
 	public View getTopView() {
 		return topView;
@@ -326,7 +312,7 @@ public class ActivityBuilder {
 	}
 
 	ViewGroup target;
-	HashMap<String, Drawable> preloadedResource = new HashMap<String, Drawable>();
+	HashMap<String, Object> preloadedResource = new HashMap<String, Object>();
 	HashMap<String, Integer> namedViewDictionary = new HashMap<String, Integer>();
 	HashMap<String, ArrayList<Integer>> classViewDictionary = new HashMap<String, ArrayList<Integer>>();
 
@@ -348,31 +334,63 @@ public class ActivityBuilder {
 		this.namedViewDictionary = namedViewDictionary;
 	}
 
-	public ActivityBuilder(Document document, Activity context) {
-		this.context = context;
-		this.rootElement = document.getRootElement();
-		this.target = (ViewGroup) context.findViewById(R.id.mainLayout);
+	public ActivityBuilder(Document document, Activity context, String baseUrl) {
+		setup(document, context, baseUrl,
+				(ViewGroup) context.findViewById(R.id.mainLayout));
 	}
 
-	public ActivityBuilder(Document document, Activity context, ViewGroup target) {
+	public ActivityBuilder(Document document, Activity context, String baseUrl,
+			ViewGroup target) {
+		setup(document, context, baseUrl, target);
+	}
+
+	private void setup(Document document, Activity context, String baseUrl,
+			ViewGroup target) {
 		this.target = target;
 		this.context = context;
 		this.rootElement = document.getRootElement();
+		this.baseUrl = baseUrl;
 	}
 
-	public void preload() {
+	public void preload(ExecutionBundle bundle) {
 		List<Element> children = rootElement.getChildren("preload");
+		ExecutorService thread_pool = Executors.newFixedThreadPool(Runtime
+				.getRuntime().availableProcessors() + 1);
+		Vector<Object> resultBundle = new Vector<Object>();
 		for (Element elem : children) {
 			String name = elem.getAttributeValue("id");
 			String type = elem.getAttributeValue("type");
 			String src = elem.getAttributeValue("src");
+
+			Log.d(this.getClass().toString(), "downloading " + src + " ...");
+			int asset_type = Utils.ASSET_TYPE_TEXT;
 			if (type.equals("image")) {
-				Log.d(this.getClass().toString(), "preloading " + src + " ... ");
-				Drawable drawable = UrlImageViewHelper.downloadFromUrl(context,
-						src, UrlImageViewHelper.CACHE_DURATION_ONE_DAY);
-				this.preloadedResource.put(name, drawable);
+				asset_type = Utils.ASSET_TYPE_IMAGE;
 			}
+			AssetPreloadParser parser = new AssetPreloadParser(name, type, this);
+			AssetDownloadWorker worker = new AssetDownloadWorker(context,
+					bundle.getPayload().getActiveApp(), bundle, src,
+					asset_type, resultBundle, parser, Utils.HTTP_GET);
+			thread_pool.execute(worker);
 		}
+		thread_pool.shutdown();
+		try {
+			Log.d(this.getClass().toString(),
+					"Waiting for download workers to finish.....");
+			thread_pool.awaitTermination(240, TimeUnit.SECONDS);
+			Log.d(this.getClass().toString(), "Download workers .... done.");
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public HashMap<String, Object> getPreloadedResource() {
+		return preloadedResource;
+	}
+
+	public void setPreloadedResource(HashMap<String, Object> preloadedResource) {
+		this.preloadedResource = preloadedResource;
 	}
 
 	public static void loadApp(Context c, String applicationUrl) {
@@ -382,13 +400,24 @@ public class ActivityBuilder {
 	}
 
 	public static void loadLayout(ExecutionBundle executionBundle,
-			ActiveApp app, String pageUrl, int method, Activity targetActivity,
-			Document cachedDocument, DocumentReadyListener onReadyListener) {
-		Log.d("LOADLAYOUT", "page URL = " + pageUrl);
-		ActivityBootstrapper bootstrapper = new ActivityBootstrapper(
-				executionBundle, app, pageUrl, method, targetActivity,
-				cachedDocument, onReadyListener);
-		bootstrapper.execute();
+			ActiveApp app, String pageUrl, boolean newActivity, int method,
+			Activity targetActivity, Document cachedDocument,
+			DocumentReadyListener onReadyListener) {
+		if (newActivity) {
+			Intent intent = new Intent(targetActivity,
+					targetActivity.getClass());
+			intent.putExtra("application", app);
+			intent.putExtra("method", method);
+			intent.putExtra("startUrl", pageUrl);
+			Log.d("LOADLAYOUT", "-> new Activity Page URL = " + pageUrl);
+			targetActivity.startActivity(intent);
+		} else {
+			Log.d("LOADLAYOUT", "page URL = " + pageUrl);
+			ActivityBootstrapper bootstrapper = new ActivityBootstrapper(
+					executionBundle, app, pageUrl, method, targetActivity,
+					null, onReadyListener);
+			bootstrapper.execute();
+		}
 	}
 
 	public void build() {
@@ -405,6 +434,21 @@ public class ActivityBuilder {
 
 	public void setMargins(View v, Element e) {
 
+	}
+
+	public String normalizeUrl(String url) {
+		// prepend base url if not full url
+		if (!url.startsWith("http:") && !url.startsWith("https:")) {
+			String base_url = this.baseUrl;
+			if (!baseUrl.endsWith("/")) {
+				base_url = base_url + "/";
+			}
+			if (url.startsWith("/")) {
+				url = url.substring(1);
+			}
+			url = base_url + url;
+		}
+		return url;
 	}
 
 	public Object findViewByName(String selector) {
@@ -431,15 +475,14 @@ public class ActivityBuilder {
 			return preloadedResource.get(name);
 		} else if (selector.startsWith(".")) {
 			String name = selector.substring(1);
+			ArrayList<View> object_list = new ArrayList<View>();
 			if (classViewDictionary.containsKey(name)) {
-				ArrayList<View> object_list = new ArrayList<View>();
 				ArrayList<Integer> list = classViewDictionary.get(name);
 				for (int id : list) {
 					object_list.add(context.findViewById(id));
 				}
-				return object_list;
 			}
-			return null;
+			return object_list;
 		} else if (selector.startsWith("^")) {
 			String name = selector.substring(1);
 			int id = getViewById(name);
@@ -741,7 +784,7 @@ public class ActivityBuilder {
 					child.setImageResource(resId);
 				}
 			} else {
-				UrlImageViewHelper.setUrlDrawable(child, src,
+				UrlImageViewHelper.setUrlDrawable(child, normalizeUrl(src),
 						"setBackgroundDrawable");
 			}
 		}
@@ -816,9 +859,9 @@ public class ActivityBuilder {
 		}
 
 		child.setTag(extras);
-		Log.d(this.getClass().toString(), "Adding "
-				+ child.getClass().toString() + " to "
-				+ group.getClass().toString());
+		// Log.d(this.getClass().toString(), "Adding "
+		// + child.getClass().toString() + " to "
+		// + group.getClass().toString());
 		// RelativeLayout specific stuff
 		if (group instanceof TableLayout) {
 			((TableLayout) group).addView(child, new TableLayout.LayoutParams(

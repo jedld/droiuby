@@ -13,7 +13,7 @@ def _execution_bundle
 end
 
 def _current_activity
-  $container_payload.getCurrentActivity
+  _execution_bundle.getCurrentActivity
 end
 
 def _activity_builder
@@ -37,7 +37,22 @@ def render(url, params = {})
   if params[:method] && (params[:method] == :post)
     http_method = Java::com.droiuby.client.utils.Utils::HTTP_POST
   end
-  Java::com.droiuby.client.core.ActivityBuilder.loadLayout(_execution_bundle, _current_app, url, http_method, _current_activity, nil, nil)
+  
+  new_activity = params[:activity] ? true : false;
+  Java::com.droiuby.client.core.ActivityBuilder.loadLayout(_execution_bundle, _current_app, url, new_activity, http_method, _current_activity, nil, nil)
+end
+
+def toast(text = '', duration = :short)
+  j_duration = Java::android.widget.Toast::LENGTH_SHORT
+
+  j_duration = case(duration)
+  when :short
+    Java::android.widget.Toast::LENGTH_SHORT
+  when :long
+    Java::android.widget.Toast::LENGTH_LONG
+  end
+
+  Java::android.widget.Toast.makeText(_current_activity, text, j_duration).show();
 end
 
 def wrap_native_view(view)
@@ -60,6 +75,11 @@ def wrap_native_view(view)
   else
     view
   end
+end
+
+def wrap_motion_event(event)
+  return nil unless event
+  MotionEventsWrapper.new(event)  
 end
 
 def V(selectors = nil)
@@ -98,7 +118,7 @@ def async_get(url, &block)
 end
 
 def http_get(url)
-  Java::com.droiuby.client.utils.Utils.load(_current_activity, url);
+  Java::com.droiuby.client.utils.Utils.load(_current_activity, url, _execution_bundle);
 end
 
 class ActivityWrapper
@@ -120,18 +140,5 @@ class ActivityWrapper
     end
   end
 
-  protected
-
-  def toast(text = '', duration = :short)
-    j_duration = Java::android.widget.Toast::LENGTH_SHORT
-
-    j_duration = case(duration)
-    when :short
-      Java::android.widget.Toast::LENGTH_SHORT
-    when :long
-      Java::android.widget.Toast::LENGTH_LONG
-    end
-
-    Java::android.widget.Toast.makeText(me, text, j_duration).show();
-  end
 end
+

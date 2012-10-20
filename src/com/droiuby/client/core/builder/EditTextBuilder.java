@@ -41,14 +41,6 @@ public class EditTextBuilder extends TextViewBuilder {
 			editText.setTextColor(val);
 		}
 
-		String type = e.getAttributeValue("type");
-		if (type != null) {
-			if (type.equals("password")) {
-				editText.setTransformationMethod(PasswordTransformationMethod
-						.getInstance());
-			}
-		}
-
 		String value = e.getAttributeValue("value");
 		if (value != null) {
 			editText.setText(value);

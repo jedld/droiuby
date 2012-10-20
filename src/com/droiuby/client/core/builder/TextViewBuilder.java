@@ -4,6 +4,8 @@ import org.jdom2.Element;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.text.method.PasswordTransformationMethod;
+import android.text.method.SingleLineTransformationMethod;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.TextView;
@@ -57,6 +59,19 @@ public class TextViewBuilder extends ViewBuilder {
 			}
 		}
 
+		String type = e.getAttributeValue("type");
+		if (type != null) {
+			if (type.equals("password")) {
+				textView.setTransformationMethod(PasswordTransformationMethod
+						.getInstance());
+			}
+		}
+		
+		String single_line = e.getAttributeValue("single_line");
+		if (single_line!=null && single_line.equals("true")) {
+			textView.setSingleLine();
+		}
+		
 		String content = e.getTextTrim() != null ? e.getTextTrim() : "";
 		textView.setText(content);
 		return child;
