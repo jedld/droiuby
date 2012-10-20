@@ -59,21 +59,6 @@ public abstract class DroiubyActivity extends Activity implements
 		RubyContainerPayload payload = new RubyContainerPayload();
 		payload.setCurrentActivity(this);
 		payload.setContainer(container);
-		container.setObjectSpaceEnabled(false);
-		container.setCompatVersion(CompatVersion.RUBY1_9);
-		try {
-			container.setHomeDirectory(this.getCacheDir().getCanonicalPath()
-					+ "/jruby/home");
-			List<String> loadPaths = new ArrayList();
-			loadPaths.add(this.getCacheDir().getCanonicalPath()
-					+ "/jruby/vendor");
-			loadPaths.add(this.getCacheDir().getCanonicalPath()
-					+ "/jruby/vendor/lib");
-			container.setLoadPaths(loadPaths);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		bundle.setContainer(container);
 		bundle.setPayload(payload);
 		return bundle;

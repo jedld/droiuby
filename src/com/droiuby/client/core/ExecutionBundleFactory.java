@@ -43,21 +43,6 @@ public class ExecutionBundleFactory {
 					LocalVariableBehavior.PERSISTENT);
 			RubyContainerPayload payload = new RubyContainerPayload();
 			payload.setContainer(container);
-			container.setObjectSpaceEnabled(false);
-			container.setCompatVersion(CompatVersion.RUBY1_9);
-			try {
-				container.setHomeDirectory(context.getCacheDir()
-						.getCanonicalPath() + "/jruby/home");
-				List<String> loadPaths = new ArrayList<String>();
-				loadPaths.add(context.getCacheDir().getCanonicalPath()
-						+ "/jruby/vendor");
-				loadPaths.add(context.getCacheDir().getCanonicalPath()
-						+ "/jruby/vendor/lib");
-				container.setLoadPaths(loadPaths);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 			bundle.setContainer(container);
 			bundle.setPayload(payload);
 			return bundle;

@@ -138,8 +138,7 @@ public class Utils {
 	public static ScriptingContainer evalRuby(String statement,
 			Activity activity) {
 		ScriptingContainer container = new ScriptingContainer(
-				LocalContextScope.CONCURRENT, LocalVariableBehavior.TRANSIENT);
-		container.setCompatVersion(CompatVersion.RUBY1_9);
+				LocalContextScope.THREADSAFE, LocalVariableBehavior.TRANSIENT);
 		return evalRuby(container, statement, activity);
 	}
 

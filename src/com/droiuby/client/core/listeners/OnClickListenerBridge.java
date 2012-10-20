@@ -18,7 +18,6 @@ public class OnClickListenerBridge implements OnClickListener {
 		scriptingContainer.put("native_view", v);
 		scriptingContainer.runScriptlet("$main_activty.on_click_listener_for_"
 				+ v.getId() + "(native_view)");
-		scriptingContainer.remove("native_view");
 	}
 
 }
