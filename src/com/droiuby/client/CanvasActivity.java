@@ -11,6 +11,7 @@ import com.droiuby.client.core.ActivityBuilder;
 import com.droiuby.client.core.DroiubyActivity;
 import com.droiuby.client.core.ExecutionBundle;
 import com.droiuby.client.core.ExecutionBundleFactory;
+import com.droiuby.client.core.callbacks.OnAppDownloadComplete;
 import com.droiuby.client.core.listeners.DocumentReadyListener;
 import com.droiuby.client.utils.Utils;
 
@@ -28,7 +29,8 @@ import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-public class CanvasActivity extends DroiubyActivity implements DocumentReadyListener {
+public class CanvasActivity extends DroiubyActivity implements
+		DocumentReadyListener, OnAppDownloadComplete {
 
 	ViewGroup target;
 	ActiveApp application;
@@ -45,24 +47,33 @@ public class CanvasActivity extends DroiubyActivity implements DocumentReadyList
 			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 		}
 		Bundle params = this.getIntent().getExtras();
-		application = (ActiveApp) params.getSerializable("application");
-		 
-		target = (ViewGroup) this.findViewById(R.id.mainLayout);
-		topview = (RelativeLayout) target;
-		
-		String pageUrl = (String) params.getString("startUrl");
-		if (application!=null && pageUrl!= null) {
-			ExecutionBundleFactory factory = ExecutionBundleFactory.getInstance();
-			if (factory.bundleAvailableFor(application.getBaseUrl())) {
-				executionBundle = factory.getNewScriptingContainer(this, application.getBaseUrl());
-				ActivityBuilder
-				.loadLayout(executionBundle, application, pageUrl, false, Utils.HTTP_GET,
-						this, null, this);
-			} else {
-				setupApplication(application, target);
+		if (params != null) {
+			application = (ActiveApp) params.getSerializable("application");
+			if (application != null) {
+				target = (ViewGroup) this.findViewById(R.id.mainLayout);
+				topview = (RelativeLayout) target;
+
+				String pageUrl = (String) params.getString("startUrl");
+				if (application != null && pageUrl != null) {
+					ExecutionBundleFactory factory = ExecutionBundleFactory
+							.getInstance();
+					if (factory.bundleAvailableFor(application.getBaseUrl())) {
+						executionBundle = factory.getNewScriptingContainer(
+								this, application.getBaseUrl());
+						ActivityBuilder.loadLayout(executionBundle,
+								application, pageUrl, false, Utils.HTTP_GET,
+								this, null, this);
+					} else {
+						setupApplication(application, target);
+					}
+				} else {
+					setupApplication(application, target);
+				}
 			}
 		} else {
-			setupApplication(application, target);
+			AppDownloader downloader = new AppDownloader(this,
+					"asset:launcher/config.xml", this.getClass(), this);
+			downloader.execute();
 		}
 	}
 
@@ -132,7 +143,12 @@ public class CanvasActivity extends DroiubyActivity implements DocumentReadyList
 
 	public void onDocumentReady(Document mainActivity) {
 		// TODO Auto-generated method stub
-		
+
+	}
+
+	public void onDownloadComplete(ActiveApp app) {
+		setupApplication(app, (ViewGroup) this.findViewById(R.id.mainLayout));
+		onResume();
 	}
 
 }

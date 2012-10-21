@@ -37,7 +37,6 @@ public class WebConsole extends NanoHTTPD {
 	}
 
 	public void setContainer(ScriptingContainer container) {
-		Log.d(this.getClass().toString(),"Setting container to " + container.toString());
 		this.containerRef = new WeakReference<ScriptingContainer>(container);
 	}
 

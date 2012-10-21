@@ -1,0 +1,7 @@
+<app_descriptor>
+    <name>Launcher</name>
+    <description>The Droiuby Launcher</description>
+    <launcher_icon>http://www.android.com/images/brand/droid.gif</launcher_icon>
+    <base_url>asset:launcher/</base_url>
+    <main>launcher.xml</main>
+</app_descriptor>

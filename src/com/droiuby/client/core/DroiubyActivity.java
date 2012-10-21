@@ -52,33 +52,6 @@ public abstract class DroiubyActivity extends Activity implements
 	String currentUrl;
 	protected WebConsole console;
 
-//	private ExecutionBundle getNewScriptingContainer() {
-//		ExecutionBundle bundle = new ExecutionBundle();
-//		ScriptingContainer container = new ScriptingContainer(LocalContextScope.SINGLETHREAD,
-//				LocalVariableBehavior.PERSISTENT);
-//		RubyContainerPayload payload = new RubyContainerPayload();
-//		payload.setCurrentActivity(this);
-//		payload.setContainer(container);
-//		container.setObjectSpaceEnabled(false);
-//		container.setCompatVersion(CompatVersion.RUBY1_9);
-//		try {
-//			container.setHomeDirectory(this.getCacheDir().getCanonicalPath()
-//					+ "/jruby/home");
-//			List<String> loadPaths = new ArrayList();
-//			loadPaths.add(this.getCacheDir().getCanonicalPath()
-//					+ "/jruby/vendor");
-//			loadPaths.add(this.getCacheDir().getCanonicalPath()
-//					+ "/jruby/vendor/lib");
-//			container.setLoadPaths(loadPaths);
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//		bundle.setContainer(container);
-//		bundle.setPayload(payload);
-//		return bundle;
-//	}
-
 	public SharedPreferences getCurrentPreferences() {
 		try {
 			SharedPreferences prefs = null;
@@ -170,7 +143,9 @@ public abstract class DroiubyActivity extends Activity implements
 		super.onResume();
 		Log.d(this.getClass().toString(), "onResume() called");
 		setupConsole();
-		executionBundle.setCurrentActivity(this);
+		if (executionBundle!=null) {
+			executionBundle.setCurrentActivity(this);
+		}
 	}
 
 	@Override
@@ -189,7 +164,11 @@ public abstract class DroiubyActivity extends Activity implements
 			File webroot = new File(web_public_loc);
 			webroot.mkdirs();
 			console = WebConsole.getInstance(4000, webroot);
-			console.setContainer(executionBundle.getContainer());
+			ScriptingContainer container = null;
+			if (executionBundle!=null) {
+				container = executionBundle.getContainer();
+			}
+			console.setContainer(container);
 			console.setActivity(this);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

@@ -1,0 +1,6 @@
+<activity controller="launcher_script.rb">
+    <layout type="linear" width="match" height="match" orientation="vertical">
+        <input id="app_url" hint="Enter app URL" name="app_url" value="http://droiuby.herokuapp.com/droiuby" width="match"></input>
+        <button id="run" width="match" height="wrap" >Run</button>
+    </layout>
+</activity>
