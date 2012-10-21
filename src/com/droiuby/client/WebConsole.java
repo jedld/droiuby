@@ -111,7 +111,8 @@ public class WebConsole extends NanoHTTPD {
 	}
 
 	String escapeJSON(String str) {
-		return "\"" + str.replace("\\", "\\\\").replace("\"", "\\\"") + "\"";
+		return "\"" + str.replace("\\", "\\\\").replace("\"", "\\\"").
+				replace("\n", "\\n").replace("\r", "\\r").replace("\t", "\\t") + "\"";
 	}
 
 	String mapToJSON(Map<String, String> resultMap) {
@@ -124,9 +125,12 @@ public class WebConsole extends NanoHTTPD {
 			} else {
 				first = false;
 			}
-			jsonString.append(escapeJSON(key) + ":"
-					+ escapeJSON(resultMap.get(key)));
-
+			String value = resultMap.get(key);
+			if (value == null) {
+				jsonString.append("null");
+			} else {
+				jsonString.append(escapeJSON(key) + ":" + escapeJSON(value));
+			}
 		}
 		jsonString.append("}");
 		return jsonString.toString();
@@ -197,6 +201,8 @@ public class WebConsole extends NanoHTTPD {
 				}
 
 				resultStr.append(mapToJSON(resultMap));
+				Log.d(this.getClass().toString(),
+						"JSON = " + resultStr.toString());
 
 			}
 			response = new Response(NanoHTTPD.HTTP_OK, "application/json",
