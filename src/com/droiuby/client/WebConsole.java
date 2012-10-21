@@ -21,8 +21,6 @@ import android.util.Log;
 import com.droiuby.client.utils.NanoHTTPD;
 import com.droiuby.client.utils.NanoHTTPD.Response;
 import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class WebConsole extends NanoHTTPD {
 
@@ -110,6 +108,32 @@ public class WebConsole extends NanoHTTPD {
 		}
 	}
 
+	String escapeJSON(String str) {
+		return "\"" + str.replace("\\", "\\\\").replace("\"", "\\\"").
+				replace("\n", "\\n").replace("\r", "\\r").replace("\t", "\\t") + "\"";
+	}
+
+	String mapToJSON(Map<String, String> resultMap) {
+		StringBuffer jsonString = new StringBuffer();
+		jsonString.append("{");
+		boolean first = true;
+		for (String key : resultMap.keySet()) {
+			if (!first) {
+				jsonString.append(",");
+			} else {
+				first = false;
+			}
+			String value = resultMap.get(key);
+			if (value == null) {
+				jsonString.append("null");
+			} else {
+				jsonString.append(escapeJSON(key) + ":" + escapeJSON(value));
+			}
+		}
+		jsonString.append("}");
+		return jsonString.toString();
+	}
+	
 	@Override
 	public Response serve(String uri, String method, Properties header,
 			Properties params, Properties files) {
@@ -127,7 +151,6 @@ public class WebConsole extends NanoHTTPD {
 				
 				StringWriter writer = new StringWriter();
 				container.setWriter(writer);
-				ObjectMapper mapper = new ObjectMapper();
 
 				resultMap.put("cmd", statement);
 				try {
@@ -170,19 +193,9 @@ public class WebConsole extends NanoHTTPD {
 					e.printStackTrace();
 				}
 
-				try {
-					resultStr.append(mapper.writeValueAsString(resultMap));
-				} catch (JsonGenerationException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (JsonMappingException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				resultStr.append(mapToJSON(resultMap));
 			}
+			
 			response = new Response(NanoHTTPD.HTTP_OK, "application/json",
 					resultStr.toString());
 		} else {
