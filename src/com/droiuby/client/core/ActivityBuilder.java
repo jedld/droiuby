@@ -263,9 +263,10 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 					start = System.currentTimeMillis();
 					preParsedScript.run();
 				}
-				
-				scriptingContainer.runScriptlet("require 'droiuby/preload'\nstart_droiuby_plugins\n");
-				
+
+				scriptingContainer
+						.runScriptlet("require 'droiuby/preload'\nstart_droiuby_plugins\n");
+
 				if (preParsedScript != null) {
 					scriptingContainer
 							.runScriptlet("$main_activty = MainActivity.new; $main_activty.on_create");
@@ -315,7 +316,7 @@ public class ActivityBuilder {
 	HashMap<String, Object> preloadedResource = new HashMap<String, Object>();
 	HashMap<String, Integer> namedViewDictionary = new HashMap<String, Integer>();
 	HashMap<String, ArrayList<Integer>> classViewDictionary = new HashMap<String, ArrayList<Integer>>();
-
+	HashMap<String , ArrayList<Integer>> tagViewDictionary = new HashMap<String, ArrayList<Integer>>(); 
 	public HashMap<String, ArrayList<Integer>> getClassViewDictionary() {
 		return classViewDictionary;
 	}
@@ -491,14 +492,28 @@ public class ActivityBuilder {
 			} else {
 				return null;
 			}
-		} else {
+		} else if (selector.startsWith("+")){
 			String name = selector.substring(1);
 			int id = getDrawableId(name);
 			if (id != 0) {
 				return context.findViewById(id);
 			} else {
-				return null;
+				try {
+					return context.findViewById(Integer.parseInt(name));
+				} catch (java.lang.NumberFormatException e) {
+					e.printStackTrace();
+					return null;
+				}
 			}
+		} else {
+			ArrayList<View> object_list = new ArrayList<View>();
+			if (tagViewDictionary.containsKey(selector)) {
+				ArrayList<Integer> list = tagViewDictionary.get(selector);
+				for (int id : list) {
+					object_list.add(context.findViewById(id));
+				}
+			}
+			return object_list;
 		}
 	}
 
@@ -831,6 +846,7 @@ public class ActivityBuilder {
 			extras.setView_id(Integer.toString(hash_code));
 			namedViewDictionary.put(Integer.toString(hash_code), hash_code);
 		}
+		
 
 		if (e.getAttributeValue("name") != null) {
 			String name = e.getAttributeValue("name");
@@ -850,6 +866,13 @@ public class ActivityBuilder {
 			extras.setView_class(class_name);
 		}
 
+		ArrayList<Integer> list = tagViewDictionary.get(e.getName());
+		if (list == null) {
+			list = new ArrayList<Integer>();
+			tagViewDictionary.put(e.getName(), list);
+		}
+		list.add(child.getId());
+		
 		for (Attribute attribute : e.getAttributes()) {
 
 			String attribute_name = attribute.getName();

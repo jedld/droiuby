@@ -13,3 +13,17 @@ def start_droiuby_plugins
     plugin.after_bootstrap
   end
 end
+
+def after_view_setup
+  $droiuby_plugins.each do |plugin|
+    puts "plugin attach #{plugin.class.to_s}"
+    plugin.after_view_setup
+  end  
+end
+
+def after_partial_setup(view_group)
+  $droiuby_plugins.each do |plugin|
+    puts "plugin attach #{plugin.class.to_s}"
+    plugin.after_partial_setup(view_group)
+  end
+end

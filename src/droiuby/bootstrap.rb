@@ -40,6 +40,8 @@ def render(url, params = {})
   
   new_activity = params[:activity] ? true : false;
   Java::com.droiuby.client.core.ActivityBuilder.loadLayout(_execution_bundle, _current_app, url, new_activity, http_method, _current_activity, nil, nil)
+  #execute plugins
+  after_view_setup
 end
 
 def toast(text = '', duration = :short)
