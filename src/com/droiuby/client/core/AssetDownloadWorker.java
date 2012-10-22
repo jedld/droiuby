@@ -4,10 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Vector;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Environment;
-import android.util.Log;
 
 import com.droiuby.client.utils.Utils;
 

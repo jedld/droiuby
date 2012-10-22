@@ -3,6 +3,7 @@ require 'droiuby/wrappers/view_wrapper'
 class ViewGroupWrapper < ViewWrapper
   def inner=(markup)
     _activity_builder.parsePartialReplaceChildren(@view,markup)
+    after_partial_setup(self)
   end
 
   #TODO: support reverse markup generation
@@ -18,6 +19,7 @@ class ViewGroupWrapper < ViewWrapper
     elsif markup_or_view.kind_of? Java::android.view.View.new
       _activity_builder.appendChild(@view,  markup_or_view)
     end
+    after_partial_setup(self)
   end
 
   def to_front!(child = nil)

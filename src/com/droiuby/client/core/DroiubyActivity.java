@@ -4,21 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 
-import org.jruby.CompatVersion;
-import org.jruby.embed.LocalContextScope;
-import org.jruby.embed.LocalVariableBehavior;
 import org.jruby.embed.ScriptingContainer;
-
-import com.droiuby.client.R;
-import com.droiuby.client.R.id;
-import com.droiuby.client.R.layout;
-import com.droiuby.client.R.menu;
-import com.droiuby.client.WebConsole;
-import com.droiuby.client.core.interfaces.OnUrlChangedListener;
-import com.droiuby.client.utils.ActiveAppDownloader;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -26,12 +13,14 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.ViewGroup;
+
+import com.droiuby.client.R;
+import com.droiuby.client.WebConsole;
+import com.droiuby.client.utils.ActiveAppDownloader;
 
 public abstract class DroiubyActivity extends Activity implements
 		OnDownloadCompleteListener {
@@ -51,7 +40,6 @@ public abstract class DroiubyActivity extends Activity implements
 	ActiveAppDownloader downloader;
 	String currentUrl;
 	protected WebConsole console;
-
 
 	public SharedPreferences getCurrentPreferences() {
 		try {
@@ -144,7 +132,9 @@ public abstract class DroiubyActivity extends Activity implements
 		super.onResume();
 		Log.d(this.getClass().toString(), "onResume() called");
 		setupConsole();
-		executionBundle.setCurrentActivity(this);
+		if (executionBundle!=null) {
+			executionBundle.setCurrentActivity(this);
+		}
 	}
 
 	@Override
@@ -159,8 +149,16 @@ public abstract class DroiubyActivity extends Activity implements
 	private void setupConsole() {
 		String web_public_loc;
 		try {
-			console = WebConsole.getInstance(4000);
-			console.setContainer(executionBundle.getContainer());
+
+			web_public_loc = this.getCacheDir().getCanonicalPath() + "/www";
+			File webroot = new File(web_public_loc);
+			webroot.mkdirs();
+			console = WebConsole.getInstance(4000, webroot);
+			ScriptingContainer container = null;
+			if (executionBundle!=null) {
+				container = executionBundle.getContainer();
+			}
+			console.setContainer(container);
 			console.setActivity(this);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

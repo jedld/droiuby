@@ -1,10 +1,7 @@
 package com.droiuby.client.core;
 
-import java.io.IOException;
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 import org.jruby.CompatVersion;
 import org.jruby.embed.LocalContextScope;
@@ -12,7 +9,6 @@ import org.jruby.embed.LocalVariableBehavior;
 import org.jruby.embed.ScriptingContainer;
 
 import android.app.Activity;
-import android.content.Context;
 import android.util.Log;
 
 public class ExecutionBundleFactory {

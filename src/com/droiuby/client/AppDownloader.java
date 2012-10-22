@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import com.droiuby.client.core.ActiveApp;
+import com.droiuby.client.core.callbacks.OnAppDownloadComplete;
 import com.droiuby.client.utils.ActiveAppDownloader;
 
 public class AppDownloader extends AsyncTask<Void, Void, ActiveApp> {
@@ -13,6 +14,15 @@ public class AppDownloader extends AsyncTask<Void, Void, ActiveApp> {
 	Context c;
 	private ProgressDialog progress_dialog;
 	Class activityClass;
+	OnAppDownloadComplete onDownloadComplete;
+
+	public AppDownloader(Context c, String url, Class activityClass,
+			OnAppDownloadComplete listener) {
+		this.c = c;
+		this.url = url;
+		this.activityClass = activityClass;
+		this.onDownloadComplete = listener;
+	}
 
 	public AppDownloader(Context c, String url, Class activityClass) {
 		this.c = c;
@@ -31,7 +41,7 @@ public class AppDownloader extends AsyncTask<Void, Void, ActiveApp> {
 	@Override
 	protected ActiveApp doInBackground(Void... params) {
 		try {
-		return ActiveAppDownloader.loadApp(c, url);
+			return ActiveAppDownloader.loadApp(c, url);
 		} catch (Exception e) {
 			return null;
 		}
@@ -40,20 +50,23 @@ public class AppDownloader extends AsyncTask<Void, Void, ActiveApp> {
 	@Override
 	protected void onPostExecute(ActiveApp result) {
 		super.onPostExecute(result);
-		
 		if (progress_dialog != null) {
 			progress_dialog.dismiss();
 		}
-		if (result != null) {
-			Intent intent = new Intent(c, activityClass);
-			intent.putExtra("application", result);
-			c.startActivity(intent);
+		if (this.onDownloadComplete != null) {
+			onDownloadComplete.onDownloadComplete(result);
 		} else {
-			AlertDialog.Builder builder = new AlertDialog.Builder(c);
-			builder.setMessage("Unable to download access app at " + url)
-					.setCancelable(true).create();
+
+			if (result != null) {
+				Intent intent = new Intent(c, activityClass);
+				intent.putExtra("application", result);
+				c.startActivity(intent);
+			} else {
+				AlertDialog.Builder builder = new AlertDialog.Builder(c);
+				builder.setMessage("Unable to download access app at " + url)
+						.setCancelable(true).create();
+			}
 		}
-		
 	}
 
 }

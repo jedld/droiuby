@@ -36,8 +36,6 @@ public class WebConsole extends NanoHTTPD {
 	}
 
 	public void setContainer(ScriptingContainer container) {
-		Log.d(this.getClass().toString(),
-				"Setting container to " + container.toString());
 		this.containerRef = new WeakReference<ScriptingContainer>(container);
 	}
 
@@ -66,7 +64,7 @@ public class WebConsole extends NanoHTTPD {
 				+ port);
 	}
 
-	public static WebConsole getInstance(int port) throws IOException {
+	public static WebConsole getInstance(int port, File webroot) throws IOException {
 		if (instance == null) {
 			instance = new WebConsole(port);
 		}
@@ -135,7 +133,7 @@ public class WebConsole extends NanoHTTPD {
 		jsonString.append("}");
 		return jsonString.toString();
 	}
-
+	
 	@Override
 	public Response serve(String uri, String method, Properties header,
 			Properties params, Properties files) {
@@ -201,10 +199,8 @@ public class WebConsole extends NanoHTTPD {
 				}
 
 				resultStr.append(mapToJSON(resultMap));
-				Log.d(this.getClass().toString(),
-						"JSON = " + resultStr.toString());
-
 			}
+			
 			response = new Response(NanoHTTPD.HTTP_OK, "application/json",
 					resultStr.toString());
 		} else {
