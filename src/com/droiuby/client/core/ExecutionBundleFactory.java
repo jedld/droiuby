@@ -41,19 +41,13 @@ public class ExecutionBundleFactory {
 		payload.setContainer(container);
 		container.setObjectSpaceEnabled(false);
 		container.setCompatVersion(CompatVersion.RUBY1_9);
-		try {
-			container.setHomeDirectory(context.getCacheDir().getCanonicalPath()
-					+ "/jruby/home");
-			List<String> loadPaths = new ArrayList<String>();
-			loadPaths.add(context.getCacheDir().getCanonicalPath()
-					+ "/jruby/vendor");
-			loadPaths.add(context.getCacheDir().getCanonicalPath()
-					+ "/jruby/vendor/lib");
-			container.setLoadPaths(loadPaths);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		String data_dir = context.getApplicationInfo().dataDir;
+		Log.d(this.getClass().toString(), "data directory in " + data_dir);
+		container.setHomeDirectory(data_dir + "/jruby/home");
+		List<String> loadPaths = new ArrayList<String>();
+		loadPaths.add(data_dir + "/jruby/vendor");
+		loadPaths.add(data_dir + "/jruby/vendor/lib");
+		container.setLoadPaths(loadPaths);
 		bundle.setLibraryInitialized(false);
 		bundle.setContainer(container);
 		bundle.setPayload(payload);

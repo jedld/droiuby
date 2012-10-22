@@ -14,6 +14,16 @@ public class ExecutionBundle {
 	OnUrlChangedListener urlChangedListener;
 	Activity currentActivity;
 	String currentUrl;
+	Object currentController;
+	
+	public Object getCurrentController() {
+		return currentController;
+	}
+
+	public void setCurrentController(Object currentController) {
+		this.currentController = currentController;
+	}
+
 	boolean libraryInitialized = false;	
 	
 	public Activity getCurrentActivity() {
