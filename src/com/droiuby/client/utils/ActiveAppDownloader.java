@@ -202,9 +202,9 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 					} else if (orientation.equals("portrait")) {
 						app.setInitiallOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 					} else if (orientation.equals("sensor_landscape")) {
-						app.setInitiallOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+						app.setInitiallOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 					} else if (orientation.equals("sensor_portrait")) {
-						app.setInitiallOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
+						app.setInitiallOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 					} else if (orientation.equals("auto")) {
 						app.setInitiallOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
 					} else {

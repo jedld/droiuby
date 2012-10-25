@@ -145,7 +145,7 @@ class DroiubyHttpResponseHandler extends BasicResponseHandler {
 						+ " = " + value);
 				edit.putString(name, DroiubyCookie.parse(value).cookie);
 			}
-			edit.apply();
+			edit.commit();
 			return responseBody;
 		} else {
 			return null;
