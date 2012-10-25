@@ -87,6 +87,7 @@ public class WebConsole extends NanoHTTPD {
 	public static void execute(ScriptingContainer container,
 			EmbedEvalUnit evalUnit, Map<String, String> resultMap) {
 		try {
+			
 			container.put("inspect_target", evalUnit.run());
 			container.runScriptlet("puts \"=> #{inspect_target.inspect}\"");
 		} catch (org.jruby.embed.EvalFailedException e) {

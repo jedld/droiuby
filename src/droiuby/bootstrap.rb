@@ -85,6 +85,10 @@ def wrap_native(object)
   end
 end
 
+def android
+  Droiuby::Android
+end
+
 def wrap_motion_event(event)
   return nil unless event
   MotionEventsWrapper.new(event)  
