@@ -1,7 +1,9 @@
 package com.droiuby.client.core;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import org.jruby.CompatVersion;
 import org.jruby.embed.LocalContextScope;
@@ -37,6 +39,13 @@ public class ExecutionBundleFactory {
 		payload.setContainer(container);
 		container.setObjectSpaceEnabled(false);
 		container.setCompatVersion(CompatVersion.RUBY1_9);
+		String data_dir = context.getApplicationInfo().dataDir;
+		Log.d(this.getClass().toString(), "data directory in " + data_dir);
+		container.setHomeDirectory(data_dir + "/jruby/home");
+		List<String> loadPaths = new ArrayList<String>();
+		loadPaths.add(data_dir + "/jruby/vendor");
+		loadPaths.add(data_dir + "/jruby/vendor/lib");
+		container.setLoadPaths(loadPaths);
 		bundle.setLibraryInitialized(false);
 		bundle.setContainer(container);
 		bundle.setPayload(payload);

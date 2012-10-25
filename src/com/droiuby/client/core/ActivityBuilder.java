@@ -265,8 +265,9 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 						.runScriptlet("require 'droiuby/preload'\nstart_droiuby_plugins\n");
 
 				if (preParsedScript != null) {
-					scriptingContainer
-							.runScriptlet("$main_activty = MainActivity.new; $main_activty.on_create");
+					executionBundle
+							.setCurrentController(scriptingContainer
+									.runScriptlet("$main_activity = MainActivity.new; $main_activity.on_create; $main_activity"));
 					elapsed = System.currentTimeMillis() - start;
 					Log.d(this.getClass().toString(),
 							"controller on_create(): elapsed time = " + elapsed
@@ -313,7 +314,8 @@ public class ActivityBuilder {
 	HashMap<String, Object> preloadedResource = new HashMap<String, Object>();
 	HashMap<String, Integer> namedViewDictionary = new HashMap<String, Integer>();
 	HashMap<String, ArrayList<Integer>> classViewDictionary = new HashMap<String, ArrayList<Integer>>();
-	HashMap<String , ArrayList<Integer>> tagViewDictionary = new HashMap<String, ArrayList<Integer>>(); 
+	HashMap<String, ArrayList<Integer>> tagViewDictionary = new HashMap<String, ArrayList<Integer>>();
+
 	public HashMap<String, ArrayList<Integer>> getClassViewDictionary() {
 		return classViewDictionary;
 	}
@@ -489,7 +491,7 @@ public class ActivityBuilder {
 			} else {
 				return null;
 			}
-		} else if (selector.startsWith("+")){
+		} else if (selector.startsWith("+")) {
 			String name = selector.substring(1);
 			int id = getDrawableId(name);
 			if (id != 0) {
@@ -837,7 +839,6 @@ public class ActivityBuilder {
 			extras.setView_id(Integer.toString(hash_code));
 			namedViewDictionary.put(Integer.toString(hash_code), hash_code);
 		}
-		
 
 		if (e.getAttributeValue("name") != null) {
 			String name = e.getAttributeValue("name");
@@ -863,7 +864,7 @@ public class ActivityBuilder {
 			tagViewDictionary.put(e.getName(), list);
 		}
 		list.add(child.getId());
-		
+
 		for (Attribute attribute : e.getAttributes()) {
 
 			String attribute_name = attribute.getName();

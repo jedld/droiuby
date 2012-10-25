@@ -79,6 +79,16 @@ def wrap_native_view(view)
   end
 end
 
+def wrap_native(object)
+  if (object.class == Java::android.content.Intent)
+    return IntentWrapper.new(object)
+  end
+end
+
+def android
+  Droiuby::Android
+end
+
 def wrap_motion_event(event)
   return nil unless event
   MotionEventsWrapper.new(event)  
@@ -142,5 +152,8 @@ class ActivityWrapper
     end
   end
 
+  def on_activity_result(request_code, result_code, intent)
+    
+  end
 end
 
