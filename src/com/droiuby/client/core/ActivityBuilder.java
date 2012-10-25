@@ -41,6 +41,7 @@ import com.droiuby.client.core.builder.ViewBuilder;
 import com.droiuby.client.core.builder.WebViewBuilder;
 import com.droiuby.client.core.listeners.DocumentReadyListener;
 import com.droiuby.client.core.postprocessor.AssetPreloadParser;
+import com.droiuby.client.core.postprocessor.CssPreloadParser;
 import com.droiuby.client.utils.Utils;
 import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
 
@@ -366,11 +367,17 @@ public class ActivityBuilder {
 			String src = elem.getAttributeValue("src");
 
 			Log.d(this.getClass().toString(), "downloading " + src + " ...");
+			AssetDownloadCompleteListener parser = null;
+			
 			int asset_type = Utils.ASSET_TYPE_TEXT;
 			if (type.equals("image")) {
 				asset_type = Utils.ASSET_TYPE_IMAGE;
+				parser = new AssetPreloadParser(name, type, this);
+			} else if (type.equals("css")) {
+				asset_type = Utils.ASSET_TYPE_CSS;
+				parser = new CssPreloadParser();
 			}
-			AssetPreloadParser parser = new AssetPreloadParser(name, type, this);
+			
 			AssetDownloadWorker worker = new AssetDownloadWorker(context,
 					bundle.getPayload().getActiveApp(), bundle, src,
 					asset_type, resultBundle, parser, Utils.HTTP_GET);

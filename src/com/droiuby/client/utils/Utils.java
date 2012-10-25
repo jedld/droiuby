@@ -161,6 +161,7 @@ public class Utils {
 
 	public static final int ASSET_TYPE_TEXT = 0;
 	public static final int ASSET_TYPE_IMAGE = 1;
+	public static final int ASSET_TYPE_CSS = 2;
 
 	public static ScriptingContainer evalRuby(String statement,
 			Activity activity) {
