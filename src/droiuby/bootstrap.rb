@@ -85,7 +85,7 @@ def wrap_native(object)
   end
 end
 
-def android
+def Android
   Droiuby::Android
 end
 
