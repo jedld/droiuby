@@ -1,5 +1,8 @@
 package com.droiuby.client.core.listeners;
 
+import org.jruby.RubyNil;
+import org.jruby.RubyProc;
+import org.jruby.javasupport.JavaUtil;
 import org.jruby.runtime.builtin.IRubyObject;
 
 import android.util.Log;
@@ -11,7 +14,7 @@ import com.droiuby.client.core.ExecutionBundle;
 
 public class OnTouchListenerWrapper extends ListenerWrapper implements OnTouchListener{
 
-	public OnTouchListenerWrapper(ExecutionBundle bundle, IRubyObject block) {
+	public OnTouchListenerWrapper(ExecutionBundle bundle, RubyProc block) {
 		super(bundle, block);
 	}
 
@@ -21,10 +24,11 @@ public class OnTouchListenerWrapper extends ListenerWrapper implements OnTouchLi
 	
 	protected boolean execute(Object view, MotionEvent motionEvent) {
 		try {
-			container.put("_receiver", block);
-			container.put("_view", view);
-			container.put("_motion_event", motionEvent);
-			return (Boolean)container.runScriptlet("!!_receiver.call(wrap_native_view(_view), wrap_motion_event(_motion_event))");
+			IRubyObject wrapped_view = JavaUtil.convertJavaToRuby(container.getProvider().getRuntime(), view);
+			IRubyObject wrapped_motion_event  = JavaUtil.convertJavaToRuby(container.getProvider().getRuntime(), motionEvent);
+			IRubyObject args[] =new IRubyObject[] { wrapped_view, wrapped_motion_event };
+			IRubyObject return_value = block.call19(container.getProvider().getRuntime().getCurrentContext(), args , null);
+			return this.toBoolean(return_value);
 		} catch (org.jruby.embed.EvalFailedException e) {
 			Log.d(this.getClass().toString(), "eval failed: " + e.getMessage());
 			e.printStackTrace();

@@ -1,5 +1,6 @@
 package com.droiuby.client.core.listeners;
 
+import org.jruby.RubyProc;
 import org.jruby.embed.ScriptingContainer;
 import org.jruby.runtime.builtin.IRubyObject;
 
@@ -14,7 +15,7 @@ public class AnimationListenerWrapper extends ListenerWrapper implements
 	String target;
 
 	public AnimationListenerWrapper(ExecutionBundle bundle,
-			String target, IRubyObject block) {
+			String target, RubyProc block) {
 		super(bundle, block);
 		this.target = target;
 	}
