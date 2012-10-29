@@ -87,8 +87,9 @@ class Animator
     end
 
     def on(event, &block)
-      if [:cancel, :start, :end, :repeat ].include?(event) 
-        self.native.addListener(Java::com.droiuby.client.core.listeners.AnimationListenerWrapper.new(_execution_bundle, event.to_s, &block))
+      if [:cancel, :start, :end, :repeat ].include?(event)
+        auto_wrap_block = Proc.new { |v| block.call(wrap_native_view(v))}
+        self.native.addListener(Java::com.droiuby.client.core.listeners.AnimationListenerWrapper.new(_execution_bundle, event.to_s, auto_wrap_block))
       end
       self
     end

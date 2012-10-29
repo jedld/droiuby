@@ -1,6 +1,7 @@
 package com.droiuby.client.core.listeners;
 
 import org.jruby.RubyBoolean;
+import org.jruby.RubyProc;
 import org.jruby.embed.ScriptingContainer;
 import org.jruby.runtime.builtin.IRubyObject;
 
@@ -14,15 +15,13 @@ public class ViewOnLongClickListener extends ListenerWrapper implements
 		OnLongClickListener {
 
 	public ViewOnLongClickListener(ExecutionBundle bundle,
-			IRubyObject block) {
+			RubyProc block) {
 		super(bundle, block);
 	}
 
 	public boolean onLongClick(View view) {
 		try {
-			container.put("_receiver", block);
-			container.put("_view", view);
-			return (Boolean) container.runScriptlet("!!_receiver.call(_view)");
+			return (Boolean) this.execute(view);
 		} catch (org.jruby.embed.EvalFailedException e) {
 			Log.d(this.getClass().toString(), "eval failed: " + e.getMessage());
 			e.printStackTrace();

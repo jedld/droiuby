@@ -156,13 +156,17 @@ def p_tree(level = 0, nodes = {})
   def on(event,&block)
     case(event.to_sym)
     when :click
-      self.native.setOnClickListener(Java::com.droiuby.client.core.listeners.ViewOnClickListener.new(_execution_bundle, &block))
+      auto_wrap_block = Proc.new { |v| block.call(wrap_native_view(v))}
+      self.native.setOnClickListener(Java::com.droiuby.client.core.listeners.ViewOnClickListener.new(_execution_bundle, auto_wrap_block))
     when :long_click
-      self.native.setOnLongClickListener(Java::com.droiuby.client.core.listeners.ViewOnLongClickListener.new(_execution_bundle, &block))
+      auto_wrap_block = Proc.new { |v| block.call(wrap_native_view(v))}
+      self.native.setOnLongClickListener(Java::com.droiuby.client.core.listeners.ViewOnLongClickListener.new(_execution_bundle, auto_wrap_block))
     when :focus_changed
-      self.native.setOnFocusChangeListener(Java::com.droiuby.client.core.listeners.FocusChangeListenerWrapper.new(_execution_bundle, &block))
+      auto_wrap_block = Proc.new { |v| block.call(wrap_native_view(v))}
+      self.native.setOnFocusChangeListener(Java::com.droiuby.client.core.listeners.FocusChangeListenerWrapper.new(_execution_bundle, auto_wrap_block))
     when :touch
-      self.native.setOnTouchListener(Java::com.droiuby.client.core.listeners.OnTouchListenerWrapper.new(_execution_bundle, &block))
+      auto_wrap_block = Proc.new { |v, motion_event| block.call(wrap_native_view(v), wrap_motion_event(motion_event))}
+      self.native.setOnTouchListener(Java::com.droiuby.client.core.listeners.OnTouchListenerWrapper.new(_execution_bundle, auto_wrap_block))
     end
   end
   
