@@ -22,6 +22,7 @@ import org.jruby.embed.EmbedEvalUnit;
 import org.jruby.embed.EvalFailedException;
 import org.jruby.embed.ParseFailedException;
 import org.jruby.embed.ScriptingContainer;
+import org.jruby.runtime.builtin.IRubyObject;
 
 import com.droiuby.client.AppDownloader;
 import com.droiuby.client.CanvasActivity;
@@ -215,7 +216,7 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 					+ controller);
 			String controller_content = "class MainActivity < ActivityWrapper\n"
 					+ Utils.loadAppAsset(app, targetActivity, controller,
-							Utils.ASSET_TYPE_TEXT, Utils.HTTP_GET) + "\n end\n";
+							Utils.ASSET_TYPE_TEXT, Utils.HTTP_GET) + "\n end\nMainActivity.new\n";
 			long start = System.currentTimeMillis();
 			try {
 				preParsedScript = Utils.preParseRuby(scriptingContainer,
@@ -260,23 +261,22 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 			}
 
 			try {
+				IRubyObject mainActivityController = null;
 				if (preParsedScript != null) {
 					start = System.currentTimeMillis();
-					preParsedScript.run();
+					mainActivityController = preParsedScript.run();
+					executionBundle.setCurrentController(mainActivityController);
 				}
 
 				scriptingContainer
 						.runScriptlet("require 'droiuby/preload'\nstart_droiuby_plugins\n");
 
 				if (preParsedScript != null) {
-					executionBundle
-							.setCurrentController(scriptingContainer
-									.runScriptlet("$main_activity = MainActivity.new; $main_activity.on_create; $main_activity"));
+					mainActivityController.callMethod(executionBundle.container.getProvider().getRuntime().getCurrentContext(), "on_create");
 					elapsed = System.currentTimeMillis() - start;
 					Log.d(this.getClass().toString(),
 							"controller on_create(): elapsed time = " + elapsed
 									+ "ms");
-
 				}
 			} catch (EvalFailedException e) {
 				executionBundle.addError(e.getMessage());
