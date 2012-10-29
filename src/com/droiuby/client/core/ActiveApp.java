@@ -10,6 +10,7 @@ public class ActiveApp implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 4120098422645102827L;
+	public static final int ASSET_TYPE_CSS = 3;
 
 	String name, description, baseUrl, mainUrl;
 	HashMap <String, Integer> assets = new HashMap <String, Integer>();

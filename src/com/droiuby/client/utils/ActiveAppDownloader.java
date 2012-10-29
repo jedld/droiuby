@@ -40,6 +40,7 @@ import com.droiuby.client.core.OnDownloadCompleteListener;
 import com.droiuby.client.core.RubyContainerPayload;
 import com.droiuby.client.core.interfaces.OnUrlChangedListener;
 import com.droiuby.client.core.listeners.DocumentReadyListener;
+import com.droiuby.client.core.postprocessor.CssPreloadParser;
 import com.droiuby.client.core.postprocessor.ScriptPreparser;
 
 import android.app.Activity;
@@ -223,6 +224,8 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 						int type_int = ActiveApp.ASSET_TYPE_SCRIPT;
 						if (asset_type.equals("script")) {
 							type_int = ActiveApp.ASSET_TYPE_SCRIPT;
+						} else if (asset_type.equals("css")) {
+							type_int = ActiveApp.ASSET_TYPE_CSS;
 						}
 
 						app.addAsset(asset_name, type_int);
@@ -257,6 +260,8 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 					AssetDownloadCompleteListener listener = null;
 					if (asset_type == ActiveApp.ASSET_TYPE_SCRIPT) {
 						listener = new ScriptPreparser();
+					} else if (asset_type == ActiveApp.ASSET_TYPE_CSS) {
+						listener = new CssPreloadParser();
 					}
 					Log.d(this.getClass().toString(), "downloading "
 							+ asset_name + " ...");
@@ -269,6 +274,7 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 				thread_pool.shutdown();
 				try {
 					thread_pool.awaitTermination(240, TimeUnit.SECONDS);
+					
 					for (Object elem : resultBundle) {
 						Log.d(this.getClass().toString(), "executing asset");
 						if (elem instanceof EmbedEvalUnit) {

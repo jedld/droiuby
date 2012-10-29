@@ -72,7 +72,7 @@ public class CanvasActivity extends DroiubyActivity implements
 			}
 		} else {
 			AppDownloader downloader = new AppDownloader(this,
-					"asset:launcher/config.xml", this.getClass(), this);
+					"http://droiuby.herokuapp.com/app/config/calculator.xml", this.getClass(), this);
 			downloader.execute();
 		}
 	}
