@@ -121,16 +121,29 @@ def async
   AsyncWrapper.new
 end
 
-def async_get(url, &block)
+def async_get(url, params = {}, options ={}, &block)
   async.perform {
-    http_get(url)
+    http_get(url, params, options)
   }.done { |result|
     block.call result
   }
 end
 
-def http_get(url)
-  Java::com.droiuby.client.utils.Utils.load(_current_activity, url, _execution_bundle);
+def http_get(url, params = {}, options = {})
+  
+  encoded_params = []
+    
+  params.each do |k,v|
+    encoded_params << "#{k.to_s}=#{CGI::escape(v.to_s)}"
+  end
+  
+  url_string = url
+  
+  if encoded_params.size > 0
+    url_string = "#{url}?#{encoded_params.join('&')}"
+  end
+  
+  Java::com.droiuby.client.utils.Utils.load(_current_activity, url_string, _execution_bundle);
 end
 
 class ActivityWrapper
