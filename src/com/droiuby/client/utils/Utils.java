@@ -214,7 +214,10 @@ public class Utils {
 		Log.d(ActiveAppDownloader.class.toString(), "loading " + url
 				+ " under namespace = "
 				+ bundle.getPayload().getActiveApp().getBaseUrl());
-		if (url.indexOf("asset:") != -1) {
+		if (!url.startsWith("http:") && !url.startsWith("https:")) {
+			url = bundle.getPayload().getActiveApp().getBaseUrl() + url;
+		}
+		if (url.startsWith("asset:")) {
 			return Utils.loadAsset(c, url);
 		} else {
 			return Utils.query(url, c, bundle.getPayload().getActiveApp()
@@ -249,9 +252,11 @@ public class Utils {
 
 	public static String query(String url, Context c, String namespace,
 			int method) {
-		Log.d(Utils.class.toString(), "query url = " + url);
+
 		HttpClient httpclient = new DefaultHttpClient();
 		HttpUriRequest request = null;
+
+		Log.d(Utils.class.toString(), "query url = " + url);
 		if (method == Utils.HTTP_GET) {
 			request = new HttpGet(url);
 		} else {
@@ -296,7 +301,7 @@ public class Utils {
 		request.setHeader(
 				"Accept",
 				"text/html,application/xhtml+xml,application/xml,application/x-ruby;q=0.9,*/*;q=0.8");
-		request.setHeader("Accept-Encoding","gzip, deflate");
+		request.setHeader("Accept-Encoding", "gzip, deflate");
 		request.setHeader("Droiuby-Height",
 				Integer.toString(metrics.heightPixels));
 		request.setHeader("Droiuby-Width",
