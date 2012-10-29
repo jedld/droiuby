@@ -1,38 +1,49 @@
 package com.droiuby.client.core;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
-import com.osbcp.cssparser.PropertyValue;
-import com.osbcp.cssparser.Rule;
+import android.content.Context;
+import android.view.View;
+
+import com.droiuby.client.core.builder.ViewBuilder;
 
 public class CssRules {
-	List<Rule> rules;
-	HashMap <String, List<PropertyValue>> classStyleLookup = new HashMap <String, List<PropertyValue>>();
+	ArrayList<CssRule> rules = new ArrayList<CssRule>();
 
-	public HashMap<String, List<PropertyValue>> getClassStyleLookup() {
-		return classStyleLookup;
-	}
-
-	public void setClassStyleLookup(
-			HashMap<String, List<PropertyValue>> classStyleLookup) {
-		this.classStyleLookup = classStyleLookup;
-	}
-
-	public void addClass(String cssClass, List<PropertyValue> property) {
-		List<PropertyValue> current_property = classStyleLookup.get(cssClass);
-		if (current_property!=null) {
-			current_property.addAll(property);
-		} else {
-			classStyleLookup.put(cssClass, property);
-		}
-	}
-	
-	public List<Rule> getRules() {
+	public ArrayList<CssRule> getRules() {
 		return rules;
 	}
 
-	public void setRules(List<Rule> rules) {
+	public void setRules(ArrayList<CssRule> rules) {
 		this.rules = rules;
+	}
+	
+	public void addRule(CssRule rule) {
+		rules.add(rule);
+	}
+	
+	public void apply(ActivityBuilder activityBuilder, Context context) {
+		for(CssRule rule: rules) {
+			Object result = activityBuilder.findViewByName(rule.getSelector());
+			if (result instanceof View) {
+				setRuleToView(activityBuilder, context, rule, result);
+			} else
+			if (result instanceof ArrayList<?>) {
+				for(View view : (ArrayList<View>)result) {
+					setRuleToView(activityBuilder, context, rule, view);
+				}
+			}
+		}
+	}
+
+	private void setRuleToView(ActivityBuilder activityBuilder,
+			Context context, CssRule rule, Object result) {
+		ViewBuilder viewBuilder = ViewBuilder.getBuilderForView((View)result, context, activityBuilder);
+		HashMap <String,String> propertyMap = new HashMap <String,String>();
+		for(PropertyValue property : rule.getProperties()) {
+			propertyMap.put(property.getProperty(), property.getValue());
+		}
+		viewBuilder.setParamsFromProperty((View)result, propertyMap);
 	}
 }

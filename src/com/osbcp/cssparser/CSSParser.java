@@ -20,6 +20,7 @@ package com.osbcp.cssparser;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.droiuby.client.core.PropertyValue;
 import com.osbcp.cssparser.IncorrectFormatException.ErrorCode;
 
 /**

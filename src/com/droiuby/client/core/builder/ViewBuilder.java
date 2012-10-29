@@ -1,5 +1,7 @@
 package com.droiuby.client.core.builder;
 
+import java.util.HashMap;
+
 import org.jdom2.Attribute;
 import org.jdom2.Element;
 
@@ -12,6 +14,7 @@ import android.util.TypedValue;
 import android.view.View;
 
 import com.droiuby.client.core.ActivityBuilder;
+import com.droiuby.client.core.PropertyValue;
 import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
 
 public class ViewBuilder {
@@ -28,47 +31,40 @@ public class ViewBuilder {
 		return new View(context);
 	}
 
-	protected View setParams(View child, Element e) {
-
-		if (e.getAttributeValue("rotation") != null) {
-			float rotation = Float.parseFloat(e.getAttributeValue("rotation"));
-			child.setRotation(rotation);
+	protected View setParams(View child, Element elem) {
+		HashMap<String, String> propertyMap = new HashMap<String, String>();
+		for (Attribute attribute : elem.getAttributes()) {
+			propertyMap.put(attribute.getName(), attribute.getValue());
 		}
+		return setParamsFromProperty(child, propertyMap);
+	}
 
-		if (e.getAttributeValue("rotation_x") != null) {
-			float rotation_x = Float.parseFloat(e
-					.getAttributeValue("rotation_x"));
-			child.setRotationX(rotation_x);
-		}
+	public View setParamsFromProperty(View child,
+			HashMap<String, String> propertyMap) {
 
-		if (e.getAttributeValue("rotation_y") != null) {
-			float rotation_y = Float.parseFloat(e
-					.getAttributeValue("rotation_y"));
-			child.setRotationY(rotation_y);
-		}
+		for (String key : propertyMap.keySet()) {
+			String attribute_name = key;
+			String attribute_value = propertyMap.get(key);
 
-		if (e.getAttributeValue("pivot_x") != null) {
-			float pivot_x = Float.parseFloat(e.getAttributeValue("pivot_x"));
-			child.setPivotX(pivot_x);
-		}
-
-		if (e.getAttributeValue("pivot_y") != null) {
-			float pivot_y = Float.parseFloat(e.getAttributeValue("pivot_y"));
-			child.setPivotY(pivot_y);
-		}
-
-		if (e.getAttribute("camera_distance") != null) {
-			float camera_distance = Float.parseFloat(e
-					.getAttributeValue("camera_distance"));
-			child.setCameraDistance(camera_distance);
-		}
-
-		for (Attribute attribute : e.getAttributes()) {
-
-			String attribute_name = attribute.getName();
-			String attribute_value = attribute.getValue();
-
-			if (attribute_name.equals("x")) {
+			if (attribute_name.equals("alpha")) {
+				float alpha = Float.parseFloat(attribute_value);
+				child.setAlpha(alpha);
+			} else if (attribute_name.equals("camera_distance")) {
+				float camera_distance = Float.parseFloat(attribute_value);
+				child.setCameraDistance(camera_distance);
+			} else if (attribute_name.equals("pivot_y")) {
+				float pivot_y = Float.parseFloat(attribute_value);
+				child.setPivotY(pivot_y);
+			} else if (attribute_name.equals("pivot_x")) {
+				float pivot_x = Float.parseFloat(attribute_value);
+				child.setPivotX(pivot_x);
+			} else if (attribute_name.equals("rotation_x")) {
+				float rotation_x = Float.parseFloat(attribute_value);
+				child.setRotationX(rotation_x);
+			} else if (attribute_name.equals("rotation")) {
+				float rotation = Float.parseFloat(attribute_value);
+				child.setRotation(rotation);
+			} else if (attribute_name.equals("x")) {
 				child.setX(Float.parseFloat(attribute_value));
 			} else if (attribute_name.equals("background_color")) {
 				child.setBackgroundColor(Color.parseColor(attribute_value));
@@ -117,13 +113,11 @@ public class ViewBuilder {
 
 		}
 
-		setAlpha(child, e);
-
 		return child;
 	}
 
 	public View build(Element element) {
-//		Log.d(this.getClass().toString(), "build.");
+		// Log.d(this.getClass().toString(), "build.");
 		View view = getView();
 		setParams(view, element);
 		return view;
@@ -158,5 +152,9 @@ public class ViewBuilder {
 
 	public boolean hasSubElements() {
 		return false;
+	}
+	
+	public static ViewBuilder getBuilderForView(View view, Context c, ActivityBuilder builder) {
+		return new ViewBuilder(builder,c);
 	}
 }

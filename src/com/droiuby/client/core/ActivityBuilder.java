@@ -145,6 +145,7 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 
 	DocumentReadyListener onReadyListener;
 	private EmbedEvalUnit preParsedScript;
+	Vector<Object> resultBundle;
 	SAXBuilder sax = new SAXBuilder();
 	int method;
 
@@ -216,7 +217,8 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 					+ controller);
 			String controller_content = "class MainActivity < ActivityWrapper\n"
 					+ Utils.loadAppAsset(app, targetActivity, controller,
-							Utils.ASSET_TYPE_TEXT, Utils.HTTP_GET) + "\n end\nMainActivity.new\n";
+							Utils.ASSET_TYPE_TEXT, Utils.HTTP_GET)
+					+ "\n end\nMainActivity.new\n";
 			long start = System.currentTimeMillis();
 			try {
 				preParsedScript = Utils.preParseRuby(scriptingContainer,
@@ -241,7 +243,7 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 				executionBundle.getPayload());
 		scriptingContainer.runScriptlet("require 'droiuby/bootstrap'");
 
-		builder.preload(executionBundle);
+		resultBundle = builder.preload(executionBundle);
 		System.gc();
 		return builder;
 	}
@@ -253,26 +255,42 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 		if (result != null) {
 			long start = System.currentTimeMillis();
 			result.build();
-			long elapsed = System.currentTimeMillis() - start;
-			Log.d(this.getClass().toString(), "build activity: elapsed time = "
-					+ elapsed + "ms");
+
 			if (onReadyListener != null) {
 				onReadyListener.onDocumentReady(mainActivityDocument);
 			}
+
+			for (Object bundle : resultBundle) {
+				if (bundle instanceof CssRules) {
+					CssRules rules = (CssRules) bundle;
+					long css_start = System.currentTimeMillis();
+					rules.apply(result, targetActivity);
+					long elapsed = System.currentTimeMillis() - css_start;
+					Log.d(this.getClass().toString(),
+							"apply css: elapsed time = " + elapsed + "ms");
+				}
+			}
+
+			long elapsed = System.currentTimeMillis() - start;
+			Log.d(this.getClass().toString(), "build activity: elapsed time = "
+					+ elapsed + "ms");
 
 			try {
 				IRubyObject mainActivityController = null;
 				if (preParsedScript != null) {
 					start = System.currentTimeMillis();
 					mainActivityController = preParsedScript.run();
-					executionBundle.setCurrentController(mainActivityController);
+					executionBundle
+							.setCurrentController(mainActivityController);
 				}
 
 				scriptingContainer
 						.runScriptlet("require 'droiuby/preload'\nstart_droiuby_plugins\n");
 
 				if (preParsedScript != null) {
-					mainActivityController.callMethod(executionBundle.container.getProvider().getRuntime().getCurrentContext(), "on_create");
+					mainActivityController.callMethod(executionBundle.container
+							.getProvider().getRuntime().getCurrentContext(),
+							"on_create");
 					elapsed = System.currentTimeMillis() - start;
 					Log.d(this.getClass().toString(),
 							"controller on_create(): elapsed time = " + elapsed
@@ -356,11 +374,12 @@ public class ActivityBuilder {
 		this.baseUrl = baseUrl;
 	}
 
-	public void preload(ExecutionBundle bundle) {
+	public Vector<Object> preload(ExecutionBundle bundle) {
 		List<Element> children = rootElement.getChildren("preload");
+		Vector<Object> resultBundle = new Vector<Object>();
 		ExecutorService thread_pool = Executors.newFixedThreadPool(Runtime
 				.getRuntime().availableProcessors() + 1);
-		Vector<Object> resultBundle = new Vector<Object>();
+
 		for (Element elem : children) {
 			String name = elem.getAttributeValue("id");
 			String type = elem.getAttributeValue("type");
@@ -368,7 +387,7 @@ public class ActivityBuilder {
 
 			Log.d(this.getClass().toString(), "downloading " + src + " ...");
 			AssetDownloadCompleteListener parser = null;
-			
+
 			int asset_type = Utils.ASSET_TYPE_TEXT;
 			if (type.equals("image")) {
 				asset_type = Utils.ASSET_TYPE_IMAGE;
@@ -377,7 +396,7 @@ public class ActivityBuilder {
 				asset_type = Utils.ASSET_TYPE_CSS;
 				parser = new CssPreloadParser();
 			}
-			
+
 			AssetDownloadWorker worker = new AssetDownloadWorker(context,
 					bundle.getPayload().getActiveApp(), bundle, src,
 					asset_type, resultBundle, parser, Utils.HTTP_GET);
@@ -393,6 +412,7 @@ public class ActivityBuilder {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		return resultBundle;
 	}
 
 	public HashMap<String, Object> getPreloadedResource() {

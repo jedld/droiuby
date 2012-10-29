@@ -15,7 +15,7 @@
  * information regarding copyright ownership.
  */
 
-package com.osbcp.cssparser;
+package com.droiuby.client.core;
 
 /**
  * Represents a property and its value of a CSS rule.
