@@ -25,7 +25,7 @@ public class ImageViewBuilder extends ViewBuilder {
 	}
 
 	@Override
-	protected View setParams(View child, Element e) {
+	public View setParams(View child, Element e) {
 		String src = e.getAttributeValue("src");
 		ImageView img = (ImageView)child;
 		if (src != null) {

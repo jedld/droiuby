@@ -37,6 +37,8 @@ import com.droiuby.client.core.builder.LinearLayoutBuilder;
 import com.droiuby.client.core.builder.ListViewBuilder;
 import com.droiuby.client.core.builder.RelativeLayoutBuilder;
 import com.droiuby.client.core.builder.ScrollViewBuilder;
+import com.droiuby.client.core.builder.TableBuilder;
+import com.droiuby.client.core.builder.TableRowBuilder;
 import com.droiuby.client.core.builder.TextViewBuilder;
 import com.droiuby.client.core.builder.ViewBuilder;
 import com.droiuby.client.core.builder.WebViewBuilder;
@@ -920,16 +922,7 @@ public class ActivityBuilder {
 		// + child.getClass().toString() + " to "
 		// + group.getClass().toString());
 		// RelativeLayout specific stuff
-		if (group instanceof TableLayout) {
-			((TableLayout) group).addView(child, new TableLayout.LayoutParams(
-					setParams(e)));
-		} else if (group instanceof TableRow) {
-			((TableRow) group).addView(child);
-		} else if (group instanceof RelativeLayout) {
-			((RelativeLayout) group).addView(child, setRelativeLayoutParams(e));
-		} else {
-			group.addView(child, setParams(e));
-		}
+		group.addView(child);
 
 		if (this.topView == null) {
 			this.topView = group;
@@ -958,14 +951,9 @@ public class ActivityBuilder {
 					builder = new ScrollViewBuilder(this, context);
 				}
 			} else if (node_name.equals("table")) {
-				TableLayout table_layout = new TableLayout(context);
-				registerView(view, table_layout, e);
-				parse(e, table_layout);
+				builder = new TableBuilder(this, context);
 			} else if (node_name.equals("row")) {
-				TableRow table_row = new TableRow(context);
-				table_row.setLayoutParams(setTableParams(e, setParams(e)));
-				registerView(view, table_row, e);
-				parse(e, table_row);
+				builder = new TableRowBuilder(this, context);
 			} else if (node_name.equals("web")) {
 				builder = new WebViewBuilder(this, context);
 			} else if (node_name.equals("list")) {
@@ -989,7 +977,8 @@ public class ActivityBuilder {
 				// build and add the view to its parent
 				View currentView = builder.build(e);
 				registerView(view, currentView, e);
-
+				builder.setParams(currentView, e);
+				
 				// handle ViewGroups which can have subelements
 				if (builder.hasSubElements()) {
 					parse(e, (ViewGroup) currentView);

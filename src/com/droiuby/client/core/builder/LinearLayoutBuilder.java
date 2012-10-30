@@ -21,7 +21,7 @@ public class LinearLayoutBuilder extends ViewGroupBuilder {
 	}
 
 	@Override
-	protected View setParams(View child, Element e) {
+	public View setParams(View child, Element e) {
 		int orientation = LinearLayout.VERTICAL;
 		LinearLayout layout = (LinearLayout)child;
 		if ((e.getAttributeValue("orientation") != null)

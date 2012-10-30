@@ -21,7 +21,7 @@ public class ImageButtonBuilder extends ImageViewBuilder {
 	}
 
 	@Override
-	protected View setParams(View child, Element e) {
+	public View setParams(View child, Element e) {
 		builder.handleIconDrawable(e, (ImageButton)child);
 		return super.setParams(child, e);
 	}

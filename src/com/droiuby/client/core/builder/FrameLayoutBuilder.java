@@ -21,7 +21,7 @@ public class FrameLayoutBuilder extends ViewGroupBuilder {
 	}
 
 	@Override
-	protected View setParams(View child, Element e) {
+	public View setParams(View child, Element e) {
 		FrameLayout layout = (FrameLayout)child;
 		if ((e.getAttributeValue("foreground_gravity") != null)) {
 			layout.setForegroundGravity(builder.parseGravity(e.getAttributeValue("foreground_gravity")));

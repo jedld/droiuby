@@ -22,7 +22,7 @@ public class ViewGroupBuilder extends ViewBuilder {
 	}
 
 	@Override
-	protected View setParams(View child, Element e) {
+	public View setParams(View child, Element e) {
 		// TODO Auto-generated method stub
 		return super.setParams(child, e);
 	}

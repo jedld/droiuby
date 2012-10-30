@@ -21,7 +21,7 @@ public class RelativeLayoutBuilder extends ViewGroupBuilder {
 	}
 
 	@Override
-	protected View setParams(View child, Element e) {
+	public View setParams(View child, Element e) {
 		return super.setParams(child, e);
 	}
 	

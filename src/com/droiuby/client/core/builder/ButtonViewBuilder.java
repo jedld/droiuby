@@ -22,7 +22,7 @@ public class ButtonViewBuilder extends TextViewBuilder {
 	}
 
 	@Override
-	protected View setParams(View child, Element e) {
+	public View setParams(View child, Element e) {
 		return super.setParams(child, e);
 	}
 

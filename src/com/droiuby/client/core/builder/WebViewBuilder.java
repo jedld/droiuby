@@ -25,7 +25,7 @@ public class WebViewBuilder extends AbsoluteLayoutBuilder {
 
 	@SuppressLint("SetJavaScriptEnabled")
 	@Override
-	protected View setParams(View child, Element e) {
+	public View setParams(View child, Element e) {
 		WebView webview = (WebView)child;
 		String url = e.getAttributeValue("src");
 		if (url != null) {

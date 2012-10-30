@@ -23,7 +23,7 @@ public class EditTextBuilder extends TextViewBuilder {
 	}
 
 	@Override
-	protected View setParams(View child, Element e) {
+	public View setParams(View child, Element e) {
 		EditText editText = (EditText)child;
 		super.setParams(child, e);
 		
