@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.droiuby.client"
     android:installLocation="auto"
-    android:versionCode="100"
-    android:versionName="alpha10" >
+    android:versionCode="101"
+    android:versionName="beta0.1" >
 
     <uses-sdk android:minSdkVersion="15" />
 

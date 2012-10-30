@@ -169,7 +169,6 @@ Refer to the wiki here:
 Issues
 ------
 
-- Apps are limited to one activity only since you can't really just create new activities programmatically in android.
 - Slow initial loading of apps
 
 Similar Projects
