@@ -11,10 +11,6 @@ import com.droiuby.client.core.ActivityBuilder;
 @SuppressWarnings("deprecation")
 public class AbsoluteLayoutBuilder extends ViewGroupBuilder {
 
-	public AbsoluteLayoutBuilder(ActivityBuilder builder, Context context) {
-		super(builder, context);
-	}
-
 	@SuppressWarnings("deprecation")
 	@Override
 	public View getView() {

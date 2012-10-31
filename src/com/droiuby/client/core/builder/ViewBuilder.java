@@ -22,12 +22,33 @@ import android.widget.TableRow;
 
 import com.droiuby.client.core.ActivityBuilder;
 import com.droiuby.client.core.PropertyValue;
+import com.droiuby.client.core.ViewExtras;
 import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
 
 public class ViewBuilder {
 
 	Context context;
 	ActivityBuilder builder;
+
+	public ViewBuilder() {
+
+	}
+
+	public Context getContext() {
+		return context;
+	}
+
+	public void setContext(Context context) {
+		this.context = context;
+	}
+
+	public ActivityBuilder getBuilder() {
+		return builder;
+	}
+
+	public void setBuilder(ActivityBuilder builder) {
+		this.builder = builder;
+	}
 
 	public ViewBuilder(ActivityBuilder builder, Context context) {
 		this.context = context;
@@ -38,13 +59,17 @@ public class ViewBuilder {
 		return new View(context);
 	}
 
-	public View setParams(View child, Element elem) {
+	public static HashMap<String, String> toPropertyMap(Element elem) {
 		HashMap<String, String> propertyMap = new HashMap<String, String>();
 		for (Attribute attribute : elem.getAttributes()) {
 			propertyMap.put(attribute.getName(), attribute.getValue());
 		}
-		setParamsFromProperty(child, propertyMap);
+		;
+		return propertyMap;
+	}
 
+	public View setParams(View child, Element elem) {
+		setParamsFromProperty(child, ViewBuilder.toPropertyMap(elem));
 		return child;
 	}
 
@@ -68,8 +93,8 @@ public class ViewBuilder {
 		return gravity;
 	}
 
-	private void addRule(HashMap<String, String> propertyMap, RelativeLayout.LayoutParams params,
-			String attribute, int property) {
+	private void addRule(HashMap<String, String> propertyMap,
+			RelativeLayout.LayoutParams params, String attribute, int property) {
 		String attributeString = propertyMap.get(attribute);
 		if (attributeString != null) {
 			View view = (View) builder.findViewByName(attributeString);
@@ -83,8 +108,9 @@ public class ViewBuilder {
 			}
 		}
 	}
-	
-	public RelativeLayout.LayoutParams setRelativeLayoutParams(HashMap<String, String> propertyMap) {
+
+	public RelativeLayout.LayoutParams setRelativeLayoutParams(
+			HashMap<String, String> propertyMap) {
 		int width = android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 		int height = android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 		int leftMargin = 0, rightMargin = 0, topMargin = 0, bottomMargin = 0;
@@ -92,26 +118,26 @@ public class ViewBuilder {
 		for (String key : propertyMap.keySet()) {
 			String attribute_name = key;
 			String attribute_value = propertyMap.get(key);
-			
+
 			if (attribute_name.equals("height")) {
 				if (attribute_value.equalsIgnoreCase("match")) {
 					height = android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 				} else {
 					height = toPixels(attribute_value);
 				}
-			} else
-			if (attribute_name.equals("width")) {
+			} else if (attribute_name.equals("width")) {
 				if (attribute_value.equalsIgnoreCase("match")) {
 					width = android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 				} else {
 					width = toPixels(attribute_value);
 				}
-			} else
-				if (attribute_name.equals("left_margin") || attribute_name.equals("margin-left")) {
+			} else if (attribute_name.equals("left_margin")
+					|| attribute_name.equals("margin-left")) {
 				leftMargin = toPixels(attribute_value);
-				} else
+			} else
 
-			if (attribute_name.equals("right_margin") || attribute_name.equals("margin-right")) {
+			if (attribute_name.equals("right_margin")
+					|| attribute_name.equals("margin-right")) {
 				rightMargin = toPixels(attribute_value);
 			} else if (attribute_name.equals("top_margin")) {
 				topMargin = toPixels(attribute_value);
@@ -154,7 +180,7 @@ public class ViewBuilder {
 		params.rightMargin = rightMargin;
 		return params;
 	}
-	
+
 	public LayoutParams setLayoutParams(HashMap<String, String> propertyMap) {
 		int width = android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 		int height = android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
@@ -286,23 +312,25 @@ public class ViewBuilder {
 		}
 
 		ViewParent parent = child.getParent();
-		
-		if (parent!=null) {
+
+		if (parent != null) {
 			if (parent instanceof RelativeLayout) {
 				child.setLayoutParams(setRelativeLayoutParams(propertyMap));
 			} else if (parent instanceof FrameLayout) {
-				child.setLayoutParams(new FrameLayout.LayoutParams(setLayoutParams(propertyMap)));
+				child.setLayoutParams(new FrameLayout.LayoutParams(
+						setLayoutParams(propertyMap)));
 			} else if (parent instanceof TableLayout) {
-				child.setLayoutParams(new TableLayout.LayoutParams(setLayoutParams(propertyMap)));
+				child.setLayoutParams(new TableLayout.LayoutParams(
+						setLayoutParams(propertyMap)));
 			} else if (parent instanceof TableRow) {
 				// Do not set Layout
 			} else {
-				child.setLayoutParams(setLayoutParams(propertyMap));	
+				child.setLayoutParams(setLayoutParams(propertyMap));
 			}
 		} else {
-			child.setLayoutParams(setLayoutParams(propertyMap));	
+			child.setLayoutParams(setLayoutParams(propertyMap));
 		}
-		
+
 		return child;
 	}
 
@@ -345,6 +373,26 @@ public class ViewBuilder {
 
 	public static ViewBuilder getBuilderForView(View view, Context c,
 			ActivityBuilder builder) {
-		return new ViewBuilder(builder, c);
+		Object tag = view.getTag();
+		if (tag != null && tag instanceof ViewExtras) {
+			ViewExtras viewExtras = (ViewExtras) tag;
+			Class<ViewBuilder> builderClass = viewExtras.getBuilder();
+			if (builderClass != null) {
+				try {
+					ViewBuilder viewBuilder = builderClass.newInstance();
+					viewBuilder.setBuilder(builder);
+					viewBuilder.setContext(c);
+					return viewBuilder;
+				} catch (InstantiationException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IllegalAccessException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			return null;
+		}
+		return null;
 	}
 }

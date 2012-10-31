@@ -2,12 +2,33 @@ package com.droiuby.client.core;
 
 import java.util.HashMap;
 
+import com.droiuby.client.core.builder.ViewBuilder;
+
 public class ViewExtras {
 
 	String view_name;
 	String view_class;
 	String view_id;
+	Class builder;
+	public Class getBuilder() {
+		return builder;
+	}
+
+	public void setBuilder(Class builder) {
+		this.builder = builder;
+	}
+
 	HashMap <String, String> dataAttributes = new HashMap<String,String>();
+	HashMap<String, String> propertyMap = new HashMap<String, String>();
+	
+	public HashMap<String, String> getPropertyMap() {
+		return propertyMap;
+	}
+
+	public void setPropertyMap(HashMap<String, String> propertyMap) {
+		this.propertyMap = propertyMap;
+	}
+
 	Object wrapper;
 
 	public HashMap<String, String> getDataAttributes() {

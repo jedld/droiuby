@@ -249,7 +249,7 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 			Log.d(this.getClass().toString(), "initializing Droiuby library");
 			scriptingContainer.runScriptlet("require 'droiuby/loader'");
 			executionBundle.setLibraryInitialized(true);
-			Vector<Object> resultBundle = new Vector<Object>();
+			ArrayList<Object> resultBundle = new ArrayList<Object>();
 			HashMap<String, Integer> asset_map = app.getAssets();
 			if (app.getAssets().size() > 0) {
 				ExecutorService thread_pool = Executors

@@ -16,10 +16,6 @@ import com.droiuby.client.core.ActivityBuilder;
 
 public class TextViewBuilder extends ViewBuilder {
 
-	public TextViewBuilder(ActivityBuilder builder, Context context) {
-		super(builder, context);
-	}
-
 	@Override
 	public View getView() {
 		return new TextView(context);

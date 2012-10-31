@@ -123,14 +123,14 @@ public class CssRules {
 	public void apply(ActivityBuilder activityBuilder, Context context) {
 		for (CssRule rule : rules) {
 			Object result = activityBuilder.findViewByName(rule.getSelector());
-			Log.d(this.getClass().toString(), "Apply CSS " + rule.getSelector());
 			if (result instanceof View) {
 				setRuleToView(activityBuilder, context, rule, result);
+				//apply element properties
+				activityBuilder.applyProperties((View)result);
 			} else if (result instanceof ArrayList) {
-				Log.d(this.getClass().toString(),
-						"Setting multiple view instances ...");
 				for (View view : (ArrayList<View>) result) {
-					setRuleToView(activityBuilder, context, rule, view);
+					setRuleToView(activityBuilder, context, rule, (View)view);
+					activityBuilder.applyProperties((View)view);
 				}
 			}
 		}

@@ -10,11 +10,6 @@ import com.droiuby.client.core.ActivityBuilder;
 
 public class ListViewBuilder extends ViewGroupBuilder {
 
-	public ListViewBuilder(ActivityBuilder builder, Context context) {
-		super(builder, context);
-		// TODO Auto-generated constructor stub
-	}
-
 	@Override
 	public View getView() {
 		return new ListView(context);

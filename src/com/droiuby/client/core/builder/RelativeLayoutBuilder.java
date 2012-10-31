@@ -11,10 +11,6 @@ import com.droiuby.client.core.ActivityBuilder;
 
 public class RelativeLayoutBuilder extends ViewGroupBuilder {
 
-	public RelativeLayoutBuilder(ActivityBuilder builder, Context context) {
-		super(builder, context);
-		// TODO Auto-generated constructor stub
-	}
 	@Override
 	public View getView() {
 		return new RelativeLayout(context);

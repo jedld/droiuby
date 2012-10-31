@@ -9,11 +9,6 @@ import android.widget.LinearLayout;
 import com.droiuby.client.core.ActivityBuilder;
 
 public class LinearLayoutBuilder extends ViewGroupBuilder {
-	
-	public LinearLayoutBuilder(ActivityBuilder builder, Context context) {
-		super(builder, context);
-		// TODO Auto-generated constructor stub
-	}
 
 	@Override
 	public View getView() {

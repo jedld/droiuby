@@ -147,7 +147,7 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 
 	DocumentReadyListener onReadyListener;
 	private EmbedEvalUnit preParsedScript;
-	Vector<Object> resultBundle;
+	ArrayList<Object> resultBundle;
 	SAXBuilder sax = new SAXBuilder();
 	int method;
 
@@ -256,22 +256,13 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 		super.onPostExecute(result);
 		if (result != null) {
 			long start = System.currentTimeMillis();
-			result.build();
+			View view = result.build();
 
 			if (onReadyListener != null) {
 				onReadyListener.onDocumentReady(mainActivityDocument);
 			}
 
-			for (Object bundle : resultBundle) {
-				if (bundle instanceof CssRules) {
-					CssRules rules = (CssRules) bundle;
-					long css_start = System.currentTimeMillis();
-					rules.apply(result, targetActivity);
-					long elapsed = System.currentTimeMillis() - css_start;
-					Log.d(this.getClass().toString(),
-							"apply css: elapsed time = " + elapsed + "ms");
-				}
-			}
+			result.applyStyle(view, resultBundle);
 
 			long elapsed = System.currentTimeMillis() - start;
 			Log.d(this.getClass().toString(), "build activity: elapsed time = "
@@ -376,9 +367,9 @@ public class ActivityBuilder {
 		this.baseUrl = baseUrl;
 	}
 
-	public Vector<Object> preload(ExecutionBundle bundle) {
+	public ArrayList<Object> preload(ExecutionBundle bundle) {
 		List<Element> children = rootElement.getChildren("preload");
-		Vector<Object> resultBundle = new Vector<Object>();
+		ArrayList<Object> resultBundle = new ArrayList<Object>();
 		ExecutorService thread_pool = Executors.newFixedThreadPool(Runtime
 				.getRuntime().availableProcessors() + 1);
 
@@ -452,7 +443,7 @@ public class ActivityBuilder {
 		}
 	}
 
-	public void build() {
+	public View build() {
 		target.removeAllViews();
 		try {
 			parse(rootElement, target);
@@ -462,6 +453,7 @@ public class ActivityBuilder {
 			view.setTextColor(Color.RED);
 			target.addView(view);
 		}
+		return target;
 	}
 
 	public void setMargins(View v, Element e) {
@@ -860,7 +852,8 @@ public class ActivityBuilder {
 		return minWidth;
 	}
 
-	private void registerView(ViewGroup group, View child, Element e) {
+	private void registerView(ViewGroup group, View child, Element e,
+			ViewBuilder builder) {
 
 		ViewExtras extras = new ViewExtras();
 
@@ -917,6 +910,8 @@ public class ActivityBuilder {
 
 		}
 
+		extras.setPropertyMap(ViewBuilder.toPropertyMap(e));
+		extras.setBuilder(builder.getClass());
 		child.setTag(extras);
 		// Log.d(this.getClass().toString(), "Adding "
 		// + child.getClass().toString() + " to "
@@ -930,6 +925,42 @@ public class ActivityBuilder {
 
 	}
 
+	public void applyStyle(View view, ArrayList<Object> resultBundle) {
+		long css_start = System.currentTimeMillis();
+
+		for (Object bundle : resultBundle) {
+			if (bundle instanceof CssRules) {
+				CssRules rules = (CssRules) bundle;
+				rules.apply(this, this.context);
+			}
+		}
+		long elapsed = System.currentTimeMillis() - css_start;
+
+		Log.d(this.getClass().toString(), "apply css: elapsed time = "
+				+ elapsed + "ms");
+	}
+
+	void applyProperties(View view) {
+
+		if (view != null) {
+			Object tag = view.getTag();
+			if (tag != null && tag instanceof ViewExtras) {
+				ViewExtras viewExtras = (ViewExtras) tag;
+				ViewBuilder builder = ViewBuilder.getBuilderForView(view,
+						context, this);
+				builder.setParamsFromProperty(view, viewExtras.getPropertyMap());
+			}
+//			
+//			if (view instanceof ViewGroup) {
+//				ViewGroup viewGroup = (ViewGroup) view;
+//				for (int i = 0; i < viewGroup.getChildCount(); i++) {
+//					View child = viewGroup.getChildAt(i);
+//					applyProperties(child);
+//				}
+//			}
+		}
+	}
+
 	public void parse(Element element, ViewGroup view) {
 		List<Element> elems = element.getChildren();
 		for (Element e : elems) {
@@ -938,47 +969,48 @@ public class ActivityBuilder {
 			ViewBuilder builder = null;
 
 			if (node_name.equals("div") || node_name.equals("span")) {
-				builder = new FrameLayoutBuilder(this, context);
+				builder = new FrameLayoutBuilder();
 			} else if (node_name.equals("layout")) {
 				String type = e.getAttributeValue("type").toLowerCase();
 				if (type.equals("frame")) {
-					builder = new FrameLayoutBuilder(this, context);
+					builder = new FrameLayoutBuilder();
 				} else if (type.equals("linear")) {
-					builder = new LinearLayoutBuilder(this, context);
+					builder = new LinearLayoutBuilder();
 				} else if (type.equals("relative")) {
-					builder = new RelativeLayoutBuilder(this, context);
+					builder = new RelativeLayoutBuilder();
 				} else if (type.equals("scroll")) {
-					builder = new ScrollViewBuilder(this, context);
+					builder = new ScrollViewBuilder();
 				}
 			} else if (node_name.equals("table")) {
-				builder = new TableBuilder(this, context);
+				builder = new TableBuilder();
 			} else if (node_name.equals("row")) {
-				builder = new TableRowBuilder(this, context);
+				builder = new TableRowBuilder();
 			} else if (node_name.equals("web")) {
-				builder = new WebViewBuilder(this, context);
+				builder = new WebViewBuilder();
 			} else if (node_name.equals("list")) {
-				builder = new ListViewBuilder(this, context);
+				builder = new ListViewBuilder();
 			} else if (node_name.equals("t")) {
-				builder = new TextViewBuilder(this, context);
+				builder = new TextViewBuilder();
 			} else if (node_name.equals("button")) {
-				builder = new ButtonViewBuilder(this, context);
+				builder = new ButtonViewBuilder();
 			} else if (node_name.equals("image_button")) {
-				builder = new ImageButtonBuilder(this, context);
+				builder = new ImageButtonBuilder();
 			} else if (node_name.equals("checkbox")) {
-				builder = new CheckBoxBuilder(this, context);
+				builder = new CheckBoxBuilder();
 			} else if (node_name.equals("input")) {
-				builder = new EditTextBuilder(this, context);
+				builder = new EditTextBuilder();
 			} else if (node_name.equals("img")) {
-				builder = new ImageViewBuilder(this, context);
+				builder = new ImageViewBuilder();
 			}
 
 			if (builder != null) {
 
 				// build and add the view to its parent
+				builder.setContext(context);
+				builder.setBuilder(this);
 				View currentView = builder.build(e);
-				registerView(view, currentView, e);
+				registerView(view, currentView, e, builder);
 				builder.setParams(currentView, e);
-				
 				// handle ViewGroups which can have subelements
 				if (builder.hasSubElements()) {
 					parse(e, (ViewGroup) currentView);

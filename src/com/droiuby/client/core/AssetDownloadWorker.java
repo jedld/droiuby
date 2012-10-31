@@ -2,6 +2,7 @@ package com.droiuby.client.core;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Vector;
 
 import android.app.Activity;
@@ -18,11 +19,11 @@ public class AssetDownloadWorker implements Runnable {
 	ExecutionBundle bundle;
 	String assetName;
 	int method, assetType;
-	Vector <Object>resultBundle;
+	ArrayList <Object>resultBundle;
 	AssetDownloadCompleteListener onCompleteListener;
 	
 	public AssetDownloadWorker(Context context, ActiveApp activeApp, ExecutionBundle bundle, 
-			String assetName, int assetType, Vector <Object>resultBundle, AssetDownloadCompleteListener onCompleteListener, int method) {
+			String assetName, int assetType, ArrayList <Object>resultBundle, AssetDownloadCompleteListener onCompleteListener, int method) {
 		this.context = context;
 		this.activeApp = activeApp;
 		this.bundle = bundle;

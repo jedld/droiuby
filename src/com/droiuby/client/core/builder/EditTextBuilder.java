@@ -13,10 +13,6 @@ public class EditTextBuilder extends TextViewBuilder {
 
 	static EditTextBuilder instance;
 	
-	public EditTextBuilder(ActivityBuilder builder, Context context) {
-		super(builder, context);
-	}
-
 	@Override
 	public View getView() {
 		return new EditText(context);

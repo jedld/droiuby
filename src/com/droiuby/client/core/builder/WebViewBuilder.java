@@ -12,11 +12,6 @@ import com.droiuby.client.core.ActivityBuilder;
 
 public class WebViewBuilder extends AbsoluteLayoutBuilder {
 
-	public WebViewBuilder(ActivityBuilder builder, Context context) {
-		super(builder, context);
-		// TODO Auto-generated constructor stub
-	}
-
 	@Override
 	public View getView() {
 		// TODO Auto-generated method stub

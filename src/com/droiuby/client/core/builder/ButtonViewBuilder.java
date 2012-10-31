@@ -11,11 +11,7 @@ import com.droiuby.client.core.ActivityBuilder;
 public class ButtonViewBuilder extends TextViewBuilder {
 
 	static ButtonViewBuilder instance;
-	
-	public ButtonViewBuilder(ActivityBuilder builder, Context context) {
-		super(builder, context);
-	}
-	
+
 	@Override
 	public View getView() {
 		return new Button(context);

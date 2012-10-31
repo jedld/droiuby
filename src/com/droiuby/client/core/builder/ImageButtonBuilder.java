@@ -10,11 +10,6 @@ import com.droiuby.client.core.ActivityBuilder;
 
 public class ImageButtonBuilder extends ImageViewBuilder {
 
-	
-	public ImageButtonBuilder(ActivityBuilder builder, Context context) {
-		super(builder, context);
-	}
-
 	@Override
 	public View getView() {
 		return new ImageButton(context);

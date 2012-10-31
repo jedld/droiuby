@@ -12,12 +12,6 @@ import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
 
 public class ImageViewBuilder extends ViewBuilder {
 
-	
-	public ImageViewBuilder(ActivityBuilder builder, Context context) {
-		super(builder, context);
-		// TODO Auto-generated constructor stub
-	}
-
 	@Override
 	public View getView() {
 		// TODO Auto-generated method stub

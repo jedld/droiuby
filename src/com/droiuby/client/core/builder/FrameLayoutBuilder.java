@@ -10,11 +10,6 @@ import com.droiuby.client.core.ActivityBuilder;
 
 public class FrameLayoutBuilder extends ViewGroupBuilder {
 
-	
-	public FrameLayoutBuilder(ActivityBuilder builder, Context context) {
-		super(builder, context);
-	}
-
 	@Override
 	public View getView() {
 		return new FrameLayout(context);

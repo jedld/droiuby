@@ -11,10 +11,6 @@ import com.droiuby.client.core.ActivityBuilder;
 
 public class ScrollViewBuilder extends ViewGroupBuilder {
 
-	public ScrollViewBuilder(ActivityBuilder builder, Context context) {
-		super(builder, context);
-	}
-	
 	@Override
 	public View getView() {
 		return new ScrollView(context);
