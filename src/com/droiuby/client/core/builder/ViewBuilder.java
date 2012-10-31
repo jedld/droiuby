@@ -13,6 +13,7 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup.MarginLayoutParams;
 import android.view.ViewParent;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
@@ -182,7 +183,7 @@ public class ViewBuilder {
 		return params;
 	}
 
-	public LayoutParams setLayoutParams(android.view.ViewGroup.LayoutParams layoutParams, HashMap<String, String> propertyMap) {
+	public android.view.ViewGroup.LayoutParams setLayoutParams(android.view.ViewGroup.LayoutParams layoutParams, HashMap<String, String> propertyMap) {
 		int width = android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 		int height = android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
@@ -192,14 +193,19 @@ public class ViewBuilder {
 		int gravity = Gravity.NO_GRAVITY;
 		
 		if (layoutParams!=null) {
-			if (layoutParams instanceof LinearLayout.LayoutParams) {
-				LinearLayout.LayoutParams linearlayoutParams = (LinearLayout.LayoutParams)layoutParams;
-				weight = linearlayoutParams.weight;
+			if (layoutParams instanceof MarginLayoutParams) {
+				MarginLayoutParams linearlayoutParams = (MarginLayoutParams)layoutParams;
+
 				leftMargin = linearlayoutParams.leftMargin;
 				rightMargin = linearlayoutParams.rightMargin;
 				topMargin = linearlayoutParams.topMargin;
 				bottomMargin = linearlayoutParams.bottomMargin;
-				gravity = linearlayoutParams.gravity;
+				
+				if (layoutParams instanceof LinearLayout.LayoutParams) {
+					LinearLayout.LayoutParams llparams = (LinearLayout.LayoutParams) layoutParams;
+					weight = llparams.weight;
+					gravity = llparams.gravity;
+				}
 			}
 			width = layoutParams.width;
 			height = layoutParams.height;
