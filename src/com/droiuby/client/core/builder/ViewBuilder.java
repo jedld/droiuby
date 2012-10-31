@@ -15,6 +15,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.ViewParent;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.RelativeLayout;
 import android.widget.TableLayout;
@@ -181,13 +182,28 @@ public class ViewBuilder {
 		return params;
 	}
 
-	public LayoutParams setLayoutParams(HashMap<String, String> propertyMap) {
+	public LayoutParams setLayoutParams(android.view.ViewGroup.LayoutParams layoutParams, HashMap<String, String> propertyMap) {
 		int width = android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 		int height = android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
+		
 		float weight = 0;
 		int leftMargin = 0, rightMargin = 0, topMargin = 0, bottomMargin = 0;
 		int gravity = Gravity.NO_GRAVITY;
+		
+		if (layoutParams!=null) {
+			if (layoutParams instanceof LinearLayout.LayoutParams) {
+				LinearLayout.LayoutParams linearlayoutParams = (LinearLayout.LayoutParams)layoutParams;
+				weight = linearlayoutParams.weight;
+				leftMargin = linearlayoutParams.leftMargin;
+				rightMargin = linearlayoutParams.rightMargin;
+				topMargin = linearlayoutParams.topMargin;
+				bottomMargin = linearlayoutParams.bottomMargin;
+				gravity = linearlayoutParams.gravity;
+			}
+			width = layoutParams.width;
+			height = layoutParams.height;
+		}
 
 		for (String key : propertyMap.keySet()) {
 			String attribute_name = key;
@@ -244,7 +260,7 @@ public class ViewBuilder {
 		for (String key : propertyMap.keySet()) {
 			String attribute_name = key;
 			String attribute_value = propertyMap.get(key);
-			if (attribute_name.equals("alpha")) {
+			if (attribute_name.equals("alpha") || attribute_name.equals("opacity")) {
 				float alpha = Float.parseFloat(attribute_value);
 				child.setAlpha(alpha);
 			} else if (attribute_name.equals("camera_distance")) {
@@ -264,7 +280,7 @@ public class ViewBuilder {
 				child.setRotation(rotation);
 			} else if (attribute_name.equals("x")) {
 				child.setX(Float.parseFloat(attribute_value));
-			} else if (attribute_name.equals("background_color")) {
+			} else if (attribute_name.equals("background_color") || attribute_name.equals("background-color")) {
 				child.setBackgroundColor(Color.parseColor(attribute_value));
 			} else if (attribute_name.equals("y")) {
 				child.setY(Float.parseFloat(attribute_value));
@@ -318,17 +334,17 @@ public class ViewBuilder {
 				child.setLayoutParams(setRelativeLayoutParams(propertyMap));
 			} else if (parent instanceof FrameLayout) {
 				child.setLayoutParams(new FrameLayout.LayoutParams(
-						setLayoutParams(propertyMap)));
+						setLayoutParams(child.getLayoutParams(), propertyMap)));
 			} else if (parent instanceof TableLayout) {
 				child.setLayoutParams(new TableLayout.LayoutParams(
-						setLayoutParams(propertyMap)));
+						setLayoutParams(child.getLayoutParams(), propertyMap)));
 			} else if (parent instanceof TableRow) {
 				// Do not set Layout
 			} else {
-				child.setLayoutParams(setLayoutParams(propertyMap));
+				child.setLayoutParams(setLayoutParams(child.getLayoutParams(), propertyMap));
 			}
 		} else {
-			child.setLayoutParams(setLayoutParams(propertyMap));
+			child.setLayoutParams(setLayoutParams(child.getLayoutParams(), propertyMap));
 		}
 
 		return child;

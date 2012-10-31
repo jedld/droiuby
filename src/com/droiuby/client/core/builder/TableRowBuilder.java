@@ -21,9 +21,9 @@ public class TableRowBuilder extends ViewGroupBuilder {
 	}
 	
 	@Override
-	public LayoutParams setLayoutParams(HashMap<String, String> propertyMap) {
+	public LayoutParams setLayoutParams(LayoutParams currentParams, HashMap<String, String> propertyMap) {
 		TableRow.LayoutParams tableLayoutParams = new TableRow.LayoutParams(
-				super.setLayoutParams(propertyMap));
+				super.setLayoutParams(currentParams, propertyMap));
 		Log.d(this.getClass().toString(),"Setting Layout Params");
 		for (String key : propertyMap.keySet()) {
 			String attribute_name = key;
