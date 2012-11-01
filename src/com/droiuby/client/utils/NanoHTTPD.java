@@ -25,6 +25,10 @@ import java.util.TimeZone;
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 
+import android.util.Log;
+
+import com.droiuby.client.core.interfaces.OnServerReadyListener;
+
 /**
  * A simple, tiny, nicely embeddable HTTP 1.0 (partially 1.1) server in Java
  * 
@@ -216,16 +220,27 @@ public class NanoHTTPD {
 	 * <p>
 	 * Throws an IOException if the socket is already in use
 	 */
-	public NanoHTTPD(int port, File wwwroot) throws IOException {
+	public NanoHTTPD(int port, File wwwroot,
+			final OnServerReadyListener listener) throws IOException {
 		myTcpPort = port;
 		this.myRootDir = wwwroot;
 		myServerSocket = new ServerSocket(myTcpPort);
 		myThread = new Thread(new Runnable() {
 			public void run() {
 				try {
-					while (true)
-						new HTTPSession(myServerSocket.accept());
+					boolean listener_triggered = false;
+					Log.d(this.getClass().toString(), "Creating socket ...");
+					while (true) {
+						
+						if (listener != null && !listener_triggered) {
+							listener_triggered = true;
+							listener.onServerReady();
+						}
+						Socket serverSocket = myServerSocket.accept();
+						new HTTPSession(serverSocket);
+					}
 				} catch (IOException ioe) {
+					ioe.printStackTrace();
 				}
 			}
 		});
@@ -242,45 +257,6 @@ public class NanoHTTPD {
 			myThread.join();
 		} catch (IOException ioe) {
 		} catch (InterruptedException e) {
-		}
-	}
-
-	/**
-	 * Starts as a standalone file server and waits for Enter.
-	 */
-	public static void main(String[] args) {
-		myOut.println("NanoHTTPD 1.25 (C) 2001,2005-2011 Jarno Elonen and (C) 2010 Konstantinos Togias\n"
-				+ "(Command line options: [-p port] [-d root-dir] [--licence])\n");
-
-		// Defaults
-		int port = 80;
-		File wwwroot = new File(".").getAbsoluteFile();
-
-		// Show licence if requested
-		for (int i = 0; i < args.length; ++i)
-			if (args[i].equalsIgnoreCase("-p"))
-				port = Integer.parseInt(args[i + 1]);
-			else if (args[i].equalsIgnoreCase("-d"))
-				wwwroot = new File(args[i + 1]).getAbsoluteFile();
-			else if (args[i].toLowerCase().endsWith("licence")) {
-				myOut.println(LICENCE + "\n");
-				break;
-			}
-
-		try {
-			new NanoHTTPD(port, wwwroot);
-		} catch (IOException ioe) {
-			myErr.println("Couldn't start server:\n" + ioe);
-			System.exit(-1);
-		}
-
-		myOut.println("Now serving files in port " + port + " from \""
-				+ wwwroot + "\"");
-		myOut.println("Hit Enter to stop.\n");
-
-		try {
-			System.in.read();
-		} catch (Throwable t) {
 		}
 	}
 

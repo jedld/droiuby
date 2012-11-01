@@ -21,6 +21,7 @@ import android.view.ViewGroup;
 
 import com.droiuby.client.R;
 import com.droiuby.client.WebConsole;
+import com.droiuby.client.core.interfaces.OnServerReadyListener;
 import com.droiuby.client.utils.ActiveAppDownloader;
 
 public abstract class DroiubyActivity extends Activity implements
@@ -122,16 +123,6 @@ public abstract class DroiubyActivity extends Activity implements
 		console.shutdownConsole();
 	}
 
-	@Override
-	protected void onResume() {
-		// TODO Auto-generated method stub
-		super.onResume();
-		Log.d(this.getClass().toString(), "onResume() called");
-		setupConsole();
-		if (executionBundle != null) {
-			executionBundle.setCurrentActivity(this);
-		}
-	}
 
 	@Override
 	public Object onRetainNonConfigurationInstance() {
@@ -142,13 +133,13 @@ public abstract class DroiubyActivity extends Activity implements
 		this.application = application;
 	}
 
-	private void setupConsole() {
+	protected void setupConsole(OnServerReadyListener listener) {
 		String web_public_loc;
 		try {
 			web_public_loc = this.getCacheDir().getCanonicalPath() + "/www";
 			File webroot = new File(web_public_loc);
 			webroot.mkdirs();
-			console = WebConsole.getInstance(4000, webroot);
+			console = WebConsole.getInstance(WebConsole.CONSOLE_PORT, webroot, listener);
 			ScriptingContainer container = null;
 			if (executionBundle != null) {
 				container = executionBundle.getContainer();

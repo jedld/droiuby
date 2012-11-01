@@ -12,6 +12,7 @@ import com.droiuby.client.core.DroiubyActivity;
 import com.droiuby.client.core.ExecutionBundle;
 import com.droiuby.client.core.ExecutionBundleFactory;
 import com.droiuby.client.core.callbacks.OnAppDownloadComplete;
+import com.droiuby.client.core.interfaces.OnServerReadyListener;
 import com.droiuby.client.core.listeners.DocumentReadyListener;
 import com.droiuby.client.utils.Utils;
 
@@ -19,38 +20,50 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
 public class CanvasActivity extends DroiubyActivity implements
-		DocumentReadyListener, OnAppDownloadComplete {
+		DocumentReadyListener, OnAppDownloadComplete, OnServerReadyListener {
 
 	ViewGroup target;
 	ActiveApp application;
 	RelativeLayout topview;
+	static final String START_URL = "asset:launcher/config.xml";
+	WebView webConsole;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.canvas);
 		int default_orientation = getResources().getConfiguration().orientation;
+		webConsole = (WebView) findViewById(R.id.console);
+		target = (ViewGroup) this.findViewById(R.id.mainLayout);
+		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+		
 		if (default_orientation == Configuration.ORIENTATION_LANDSCAPE) {
-			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+			target.setMinimumHeight(480);
+			target.setMinimumWidth(800);
 		} else {
-			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+			target.setMinimumHeight(800);
+			target.setMinimumWidth(480);
 		}
 		Bundle params = this.getIntent().getExtras();
 		if (params != null) {
 			application = (ActiveApp) params.getSerializable("application");
 			if (application != null) {
-				target = (ViewGroup) this.findViewById(R.id.mainLayout);
+				
 				topview = (RelativeLayout) target;
 
 				String pageUrl = (String) params.getString("startUrl");
@@ -71,10 +84,12 @@ public class CanvasActivity extends DroiubyActivity implements
 				}
 			}
 		} else {
-			AppDownloader downloader = new AppDownloader(this,
-					"asset:launcher/config.xml", this.getClass(), this);
+			AppDownloader downloader = new AppDownloader(this, START_URL,
+					this.getClass(), this);
 			downloader.execute();
 		}
+
+
 	}
 
 	@Override
@@ -84,6 +99,17 @@ public class CanvasActivity extends DroiubyActivity implements
 		if (console != null) {
 			console.setContainer(executionBundle.getContainer());
 			console.setActivity(this);
+		}
+	}
+
+	@Override
+	protected void onResume() {
+		// TODO Auto-generated method stub
+		super.onResume();
+		Log.d(this.getClass().toString(), "onResume() called");
+		setupConsole(this);
+		if (executionBundle != null) {
+			executionBundle.setCurrentActivity(this);
 		}
 	}
 
@@ -148,7 +174,29 @@ public class CanvasActivity extends DroiubyActivity implements
 
 	public void onDownloadComplete(ActiveApp app) {
 		setupApplication(app, (ViewGroup) this.findViewById(R.id.mainLayout));
+		application = app;
 		onResume();
 	}
 
+	public void onServerReady() {
+		runOnUiThread(new Runnable() {
+			public void run() {
+				webConsole.loadUrl("http://127.0.0.1:"
+						+ WebConsole.CONSOLE_PORT);
+				webConsole.getSettings().setJavaScriptEnabled(true);
+				webConsole.setVerticalScrollBarEnabled(true);
+				webConsole.setHorizontalScrollBarEnabled(true);
+				
+				webConsole.setBackgroundColor(Color.parseColor("#FFFFFF"));
+				webConsole.setWebViewClient(new WebViewClient() {
+					@Override
+					public boolean shouldOverrideUrlLoading(WebView view,
+							String url) {
+						view.loadUrl(url);
+						return false;
+					}
+				});
+			}
+		});
+	}
 }

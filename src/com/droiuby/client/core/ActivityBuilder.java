@@ -51,6 +51,7 @@ import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -170,7 +171,14 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 	protected void onPreExecute() {
 		// TODO Auto-generated method stub
 		super.onPreExecute();
-		targetActivity.setRequestedOrientation(app.getInitiallOrientation());
+		View mainLayout = targetActivity.findViewById(R.id.mainLayout);
+		if (app.getInitiallOrientation() == Configuration.ORIENTATION_LANDSCAPE) {
+			mainLayout.setMinimumHeight(480);
+			mainLayout.setMinimumWidth(800);
+		} else {
+			mainLayout.setMinimumHeight(800);
+			mainLayout.setMinimumWidth(480);
+		}
 	}
 
 	@Override

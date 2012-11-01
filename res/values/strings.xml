@@ -2,7 +2,7 @@
 <resources>
 
     <string name="hello">Hello World, AdroidActiveAppActivity!</string>
-    <string name="app_name">Droiuby</string>
+    <string name="app_name">Droiuby IDE</string>
     <string name="hello_world">Hello world!</string>
     <string name="menu_settings">Settings</string>
     <string name="title_activity_canvas">CanvasActivity</string>

@@ -18,6 +18,7 @@ import android.app.Activity;
 import android.content.res.AssetManager;
 import android.util.Log;
 
+import com.droiuby.client.core.interfaces.OnServerReadyListener;
 import com.droiuby.client.utils.NanoHTTPD;
 import com.droiuby.client.utils.NanoHTTPD.Response;
 import com.fasterxml.jackson.core.JsonGenerationException;
@@ -29,6 +30,7 @@ public class WebConsole extends NanoHTTPD {
 	WeakReference<Activity> activity;
 	AssetManager manager;
 	int referenceCount = 0;
+	public static final int CONSOLE_PORT = 4000;
 
 	public ScriptingContainer getContainer() {
 		return containerRef.get();
@@ -57,17 +59,18 @@ public class WebConsole extends NanoHTTPD {
 
 	public static boolean uiPosted = false;
 
-	protected WebConsole(int port, File wwwroot)
+	protected WebConsole(int port, File wwwroot, OnServerReadyListener listener)
 			throws IOException {
-		super(port, wwwroot);
+		super(port, wwwroot, listener);
 		Log.d(this.getClass().toString(), "Starting HTTPD server on port "
 				+ port);
 	}
 
-	public static WebConsole getInstance(int port, File wwwroot) throws IOException {
+	public static WebConsole getInstance(int port, File wwwroot, OnServerReadyListener listener) throws IOException {
 		if (instance == null) {
-			instance = new WebConsole(port, wwwroot);
+			instance = new WebConsole(port, wwwroot, listener);
 		}
+		listener.onServerReady();
 		instance.incrementReference();
 		return instance;
 	}
