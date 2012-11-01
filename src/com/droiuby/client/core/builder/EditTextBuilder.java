@@ -12,36 +12,24 @@ import com.droiuby.client.core.ActivityBuilder;
 public class EditTextBuilder extends TextViewBuilder {
 
 	static EditTextBuilder instance;
-	
+
 	@Override
 	public View getView() {
 		return new EditText(context);
 	}
 
 	@Override
-	public View setParams(View child, Element e) {
-		EditText editText = (EditText)child;
-		super.setParams(child, e);
-		
-		String hint = e.getAttributeValue("hint");
-		if (hint != null) {
-			editText.setHint(hint);
+	protected void mapAttribute(View child, String attribute_name,
+			String attribute_value) {
+		// TODO Auto-generated method stub
+		super.mapAttribute(child, attribute_name, attribute_value);
+		EditText editText = (EditText) child;
+		if (attribute_name.equals("hint")
+				|| attribute_name.equals("placeholder")) {
+			editText.setHint(attribute_value);
+		} else if (attribute_name.equals("value")) {
+			editText.setText(attribute_value);
 		}
-
-		String color = e.getAttributeValue("color");
-		if (color != null) {
-			if (color.startsWith("#")) {
-				color = color.substring(1);
-			}
-			int val = Integer.parseInt(color, 16);
-			editText.setTextColor(val);
-		}
-
-		String value = e.getAttributeValue("value");
-		if (value != null) {
-			editText.setText(value);
-		}
-		return child;
 	}
 
 }

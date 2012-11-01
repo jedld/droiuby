@@ -13,7 +13,6 @@ import android.widget.TextView;
 import com.droiuby.client.R;
 import com.droiuby.client.core.ActivityBuilder;
 
-
 public class TextViewBuilder extends ViewBuilder {
 
 	@Override
@@ -22,38 +21,55 @@ public class TextViewBuilder extends ViewBuilder {
 	}
 
 	@Override
-	public View setParams(View child, Element e) {
-		super.setParams(child, e);
-		
-		TextView textView = (TextView)child;
-		
-		String fontSize = e.getAttributeValue("size");
-		if (fontSize != null) {
+	protected void mapAttribute(View child, String attribute_name,
+			String attribute_value) {
+		// TODO Auto-generated method stub
+		super.mapAttribute(child, attribute_name, attribute_value);
+		TextView textView = (TextView) child;
+		if (attribute_name.equals("size")) {
 			textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP,
-					Float.parseFloat(fontSize));
-		}
-
-		String gravityStr = e.getAttributeValue("gravity");
-		if (gravityStr != null) {
-			int gravity = this.builder.parseGravity(gravityStr);
+					toSize(attribute_value));
+		} else if (attribute_name.equals("gravity")
+				|| attribute_name.equals("text-align")) {
+			int gravity = this.builder.parseGravity(attribute_value);
 			textView.setGravity(gravity);
-		}
-
-		String color = e.getAttributeValue("color");
-		if (color != null) {
-			textView.setTextColor(Color.parseColor(color));
-		}
-
-		String style = e.getAttributeValue("style");
-		if (style != null) {
-			if (style.equalsIgnoreCase("bold")) {
+		} else if (attribute_name.equals("color")) {
+			textView.setTextColor(Color.parseColor(attribute_value));
+		} else if (attribute_name.equals("style")
+				|| attribute_name.equals("text-decoration")) {
+			if (attribute_value.equalsIgnoreCase("bold")) {
 				textView.setTextAppearance(context, R.style.boldText);
-			} else if (style.equalsIgnoreCase("italic")) {
+			} else if (attribute_value.equalsIgnoreCase("italic")) {
 				textView.setTextAppearance(context, R.style.italicText);
-			} else if (style.equalsIgnoreCase("normal")) {
+			} else if (attribute_value.equalsIgnoreCase("normal")) {
 				textView.setTextAppearance(context, R.style.normalText);
 			}
+		} else if (attribute_name.equals("cursor_visible")
+				|| attribute_name.equals("cursor")) {
+			if (attribute_value.equals("true")) {
+				textView.setCursorVisible(true);
+			} else if (attribute_value.equals("false")
+					|| attribute_value.equals("none")) {
+				textView.setCursorVisible(false);
+			}
+		} else if (attribute_name.equals("scroll_horizontally")
+				|| attribute_name.equals("horizontally_scrolling")) {
+			if (attribute_value.equals("true")) {
+				textView.setHorizontallyScrolling(true);
+			} else if (attribute_value.equals("false")
+					|| attribute_value.equals("none")) {
+				textView.setCursorVisible(false);
+			}
 		}
+	}
+
+	@Override
+	public View setParams(View child, Element e) {
+		TextView textView = (TextView) child;
+		String content = e.getTextTrim() != null ? e.getTextTrim() : "";
+		textView.setText(content);
+
+		super.setParams(child, e);
 
 		String type = e.getAttributeValue("type");
 		if (type != null) {
@@ -62,16 +78,13 @@ public class TextViewBuilder extends ViewBuilder {
 						.getInstance());
 			}
 		}
-		
+
 		String single_line = e.getAttributeValue("single_line");
-		if (single_line!=null && single_line.equals("true")) {
+		if (single_line != null && single_line.equals("true")) {
 			textView.setSingleLine();
 		}
-		
-		String content = e.getTextTrim() != null ? e.getTextTrim() : "";
-		textView.setText(content);
+
 		return child;
 	}
-	
-	
+
 }

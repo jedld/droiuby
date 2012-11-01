@@ -12,21 +12,23 @@ public class LinearLayoutBuilder extends ViewGroupBuilder {
 
 	@Override
 	public View getView() {
-		return new LinearLayout(context);
-	}
-
-	@Override
-	public View setParams(View child, Element e) {
-		int orientation = LinearLayout.VERTICAL;
-		LinearLayout layout = (LinearLayout)child;
-		if ((e.getAttributeValue("orientation") != null)
-				&& e.getAttributeValue("orientation")
-						.equalsIgnoreCase("horizontal")) {
-			orientation = LinearLayout.HORIZONTAL;
-		}
-		layout.setOrientation(orientation);
-		return super.setParams(child, e);
+		LinearLayout layout =  new LinearLayout(context);
+		layout.setOrientation(LinearLayout.VERTICAL);
+		return layout;
 	}
 	
+	@Override
+	protected void mapAttribute(View child, String attribute_name,
+			String attribute_value) {
+		// TODO Auto-generated method stub
+		super.mapAttribute(child, attribute_name, attribute_value);
+		LinearLayout layout = (LinearLayout)child;
+		if (attribute_name.equals("orientation")) {
+			layout.setOrientation(LinearLayout.VERTICAL);
+			if (attribute_value.equals("horizontal")) {
+				layout.setOrientation(LinearLayout.HORIZONTAL);
+			}
+		}
+	}
 	
 }

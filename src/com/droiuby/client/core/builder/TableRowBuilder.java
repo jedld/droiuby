@@ -21,6 +21,7 @@ public class TableRowBuilder extends ViewGroupBuilder {
 		return new TableRow(context);
 	}
 	
+
 	@Override
 	public LayoutParams setLayoutParams(LayoutParams currentParams, HashMap<String, String> propertyMap) {
 		TableRow.LayoutParams tableLayoutParams = new TableRow.LayoutParams(

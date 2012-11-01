@@ -1,7 +1,8 @@
 <activity controller="launcher_script.rb">
+    <preload id="main_css" src="launcher.css" type="css"/>
     <layout type="linear" width="match" height="match" orientation="vertical">
-        <layout type="linear" width="match" height="wrap" orientation="horizontal">
-        	<input id="app_url" hint="Enter app URL" name="app_url" weight="1" value="http://droiuby.herokuapp.com/droiuby" width="match"></input>
+        <layout type="linear" width="match" height="60dip" orientation="horizontal">
+        	<input id="app_url" hint="Enter app URL" name="app_url" value="http://droiuby.herokuapp.com/droiuby"></input>
         	<image_button src="@drawable:qrcode" id="qrcode" width="wrap" height="match">QR Code</image_button>
         </layout>
         <button id="run" width="match" height="wrap" >Run</button>
