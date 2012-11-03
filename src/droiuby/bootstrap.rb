@@ -85,6 +85,11 @@ def wrap_native(object)
   end
 end
 
+def canvas(&block)
+  auto_wrap_block = Proc.new { |v| block.call(v)}
+  wrap_native_view(Java::com.droiuby.client.core.wrappers.ViewWrapper.new(auto_wrap_block, _execution_bundle))
+end
+
 def Android
   Droiuby::Android
 end
