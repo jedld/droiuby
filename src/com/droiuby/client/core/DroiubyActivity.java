@@ -15,11 +15,8 @@ import android.content.SharedPreferences;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.ViewGroup;
 
-import com.droiuby.client.R;
 import com.droiuby.client.WebConsole;
 import com.droiuby.client.utils.ActiveAppDownloader;
 
@@ -86,7 +83,7 @@ public abstract class DroiubyActivity extends Activity implements
 		alert.show();
 	}
 
-	protected void setupApplication(ActiveApp application, ViewGroup target) {
+	protected void setupApplication(ActiveApp application, ViewGroup target, int resId) {
 		Log.d(this.getClass().toString(), "Loading application at "
 				+ application.getName());
 		final AppCache cache = (AppCache) getLastNonConfigurationInstance();
@@ -103,17 +100,11 @@ public abstract class DroiubyActivity extends Activity implements
 		}
 
 		downloader = new ActiveAppDownloader(application, this, target, cache,
-				executionBundle, this);
+				executionBundle, this, resId);
 
 		downloader.execute();
 	}
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.parseroptions, menu);
-		return true;
-	}
 
 	@Override
 	protected void onDestroy() {

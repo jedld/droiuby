@@ -70,6 +70,7 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 	OnDownloadCompleteListener listener;
 	OnUrlChangedListener urlChangedListener;
 	Vector<Object> resultBundle = new Vector<Object>();
+	int resId;
 
 	public OnUrlChangedListener getUrlChangedListener() {
 		return urlChangedListener;
@@ -93,7 +94,7 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 
 	public ActiveAppDownloader(ActiveApp app, Activity targetActivity,
 			ViewGroup target, AppCache cache, ExecutionBundle executionBundle,
-			OnDownloadCompleteListener listener) {
+			OnDownloadCompleteListener listener, int resId) {
 		this.targetActivity = targetActivity;
 		this.app = app;
 		this.baseUrl = app.getBaseUrl();
@@ -101,6 +102,7 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 		this.scriptingContainer = executionBundle.getContainer();
 		this.payload = executionBundle.getPayload();
 		this.listener = listener;
+		this.resId = resId;
 		if (cache != null) {
 			this.mainActivityDocument = cache.getMainActivityDocument();
 		}
@@ -308,7 +310,7 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 		ActivityBuilder
 				.loadLayout(executionBundle, app, targetUrl, false,
 						Utils.HTTP_GET, targetActivity,
-						this.mainActivityDocument, this);
+						this.mainActivityDocument, this, resId);
 	}
 
 	public void onDocumentReady(Document mainActivity) {

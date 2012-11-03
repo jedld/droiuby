@@ -20,6 +20,8 @@ import android.content.SharedPreferences.Editor;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -62,12 +64,12 @@ public class CanvasActivity extends DroiubyActivity implements
 								this, application.getBaseUrl());
 						ActivityBuilder.loadLayout(executionBundle,
 								application, pageUrl, false, Utils.HTTP_GET,
-								this, null, this);
+								this, null, this , R.id.mainLayout);
 					} else {
-						setupApplication(application, target);
+						setupApplication(application, target, R.id.mainLayout);
 					}
 				} else {
-					setupApplication(application, target);
+					setupApplication(application, target, R.id.mainLayout);
 				}
 			}
 		} else {
@@ -92,7 +94,7 @@ public class CanvasActivity extends DroiubyActivity implements
 		// Handle item selection
 		switch (item.getItemId()) {
 		case R.id.itemRefresh:
-			setupApplication(application, target);
+			setupApplication(application, target, R.id.mainLayout);
 			break;
 		case R.id.itemConsole:
 			this.showConsoleInfo();
@@ -146,8 +148,15 @@ public class CanvasActivity extends DroiubyActivity implements
 
 	}
 
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.parseroptions, menu);
+		return true;
+	}
+	
 	public void onDownloadComplete(ActiveApp app) {
-		setupApplication(app, (ViewGroup) this.findViewById(R.id.mainLayout));
+		setupApplication(app, (ViewGroup) this.findViewById(R.id.mainLayout), R.id.mainLayout);
 		onResume();
 	}
 

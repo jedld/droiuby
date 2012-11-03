@@ -26,7 +26,6 @@ import org.jruby.runtime.builtin.IRubyObject;
 
 import com.droiuby.client.AppDownloader;
 import com.droiuby.client.CanvasActivity;
-import com.droiuby.client.R;
 import com.droiuby.client.core.builder.ButtonViewBuilder;
 import com.droiuby.client.core.builder.CheckBoxBuilder;
 import com.droiuby.client.core.builder.EditTextBuilder;
@@ -142,6 +141,7 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 	String controller;
 	String pageUrl;
 	String errorMsg;
+	int resId;
 
 	ExecutionBundle executionBundle;
 
@@ -152,7 +152,7 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 	int method;
 
 	public ActivityBootstrapper(ExecutionBundle executionBundle, ActiveApp app,
-			String pageUrl, int method, Activity targetActivity,
+			String pageUrl, int method, int resId, Activity targetActivity,
 			Document cachedActivityDocument,
 			DocumentReadyListener onReadyListener) {
 		this.app = app;
@@ -164,6 +164,7 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 		this.mainActivityDocument = cachedActivityDocument;
 		this.onReadyListener = onReadyListener;
 		this.method = method;
+		this.resId = resId;
 	}
 
 	@Override
@@ -235,7 +236,7 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 		}
 
 		ActivityBuilder builder = new ActivityBuilder(mainActivityDocument,
-				targetActivity, baseUrl);
+				targetActivity, baseUrl, resId);
 		executionBundle.getPayload().setActivityBuilder(builder);
 		executionBundle.getPayload().setExecutionBundle(executionBundle);
 		executionBundle.getPayload().setActiveApp(app);
@@ -309,6 +310,10 @@ public class ActivityBuilder {
 	View topView;
 	String baseUrl;
 
+	static Class idClass;
+	static Class drawableClass;
+	static Class styleClass;
+
 	public String getBaseUrl() {
 		return baseUrl;
 	}
@@ -319,10 +324,6 @@ public class ActivityBuilder {
 
 	public View getTopView() {
 		return topView;
-	}
-
-	public View getRootView() {
-		return context.findViewById(android.R.id.content);
 	}
 
 	ViewGroup target;
@@ -349,9 +350,10 @@ public class ActivityBuilder {
 		this.namedViewDictionary = namedViewDictionary;
 	}
 
-	public ActivityBuilder(Document document, Activity context, String baseUrl) {
+	public ActivityBuilder(Document document, Activity context, String baseUrl,
+			int resId) {
 		setup(document, context, baseUrl,
-				(ViewGroup) context.findViewById(R.id.mainLayout));
+				(ViewGroup) context.findViewById(resId));
 	}
 
 	public ActivityBuilder(Document document, Activity context, String baseUrl,
@@ -425,7 +427,7 @@ public class ActivityBuilder {
 	public static void loadLayout(ExecutionBundle executionBundle,
 			ActiveApp app, String pageUrl, boolean newActivity, int method,
 			Activity targetActivity, Document cachedDocument,
-			DocumentReadyListener onReadyListener) {
+			DocumentReadyListener onReadyListener, int resId) {
 		if (newActivity) {
 			Intent intent = new Intent(targetActivity,
 					targetActivity.getClass());
@@ -437,8 +439,8 @@ public class ActivityBuilder {
 		} else {
 			Log.d("LOADLAYOUT", "page URL = " + pageUrl);
 			ActivityBootstrapper bootstrapper = new ActivityBootstrapper(
-					executionBundle, app, pageUrl, method, targetActivity,
-					null, onReadyListener);
+					executionBundle, app, pageUrl, method, resId,
+					targetActivity, null, onReadyListener);
 			bootstrapper.execute();
 		}
 	}
@@ -783,11 +785,53 @@ public class ActivityBuilder {
 		return params;
 	}
 
-	public int getViewById(String viewId) {
+	Class getResourceClass() {
+		String packageName = context.getApplication().getPackageName();
+		try {
+			return Class.forName(packageName + ".R");
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	Class<?> getResourceComponenetClass(String name) {
+		String packageName = context.getApplication().getPackageName();
+		for (Class<?> subclass : getResourceClass().getDeclaredClasses()) {
+			if (subclass.getName().equals(packageName + ".R$" + name)) {
+				return subclass;
+			}
+		}
+		return null;
+	}
+	
+	Class<?> getStyleClass() {
+		if (ActivityBuilder.styleClass == null) {
+			ActivityBuilder.styleClass = getResourceComponenetClass("style");
+		}
+		return styleClass;
+	}
+
+	Class<?> getIdClass() {
+		if (ActivityBuilder.idClass == null) {
+			ActivityBuilder.idClass = getResourceComponenetClass("id");
+		}
+		return idClass;
+	}
+
+	Class<?> getDrawableClass() {
+		if (ActivityBuilder.drawableClass == null) {
+			ActivityBuilder.drawableClass = getResourceComponenetClass("drawable");
+		}
+		return ActivityBuilder.drawableClass;
+	}
+
+	public int getStyleById(String styleId) {
 		Field f;
 		try {
-			f = R.id.class.getField(viewId);
-			return f.getInt(new R.id());
+			f =  this.getStyleClass().getField(styleId);
+			return f.getInt(this.getStyleClass().newInstance());
 		} catch (NoSuchFieldException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -795,6 +839,30 @@ public class ActivityBuilder {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return 0;
+	}
+	
+	public int getViewById(String viewId) {
+		Field f;
+		try {
+			f =  this.getIdClass().getField(viewId);
+			return f.getInt(this.getIdClass().newInstance());
+		} catch (NoSuchFieldException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InstantiationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -803,8 +871,8 @@ public class ActivityBuilder {
 
 	public int getDrawableId(String drawable) {
 		try {
-			Field f = R.drawable.class.getField(drawable);
-			return f.getInt(new R.drawable());
+			Field f = this.getDrawableClass().getField(drawable);
+			return f.getInt(this.getDrawableClass().newInstance());
 		} catch (NoSuchFieldException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -812,6 +880,9 @@ public class ActivityBuilder {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InstantiationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -950,14 +1021,14 @@ public class ActivityBuilder {
 						context, this);
 				builder.setParamsFromProperty(view, viewExtras.getPropertyMap());
 			}
-//			
-//			if (view instanceof ViewGroup) {
-//				ViewGroup viewGroup = (ViewGroup) view;
-//				for (int i = 0; i < viewGroup.getChildCount(); i++) {
-//					View child = viewGroup.getChildAt(i);
-//					applyProperties(child);
-//				}
-//			}
+			//
+			// if (view instanceof ViewGroup) {
+			// ViewGroup viewGroup = (ViewGroup) view;
+			// for (int i = 0; i < viewGroup.getChildCount(); i++) {
+			// View child = viewGroup.getChildAt(i);
+			// applyProperties(child);
+			// }
+			// }
 		}
 	}
 

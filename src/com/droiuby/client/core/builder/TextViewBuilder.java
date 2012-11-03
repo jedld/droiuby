@@ -10,7 +10,6 @@ import android.util.TypedValue;
 import android.view.View;
 import android.widget.TextView;
 
-import com.droiuby.client.R;
 import com.droiuby.client.core.ActivityBuilder;
 
 public class TextViewBuilder extends ViewBuilder {
@@ -38,11 +37,11 @@ public class TextViewBuilder extends ViewBuilder {
 		} else if (attribute_name.equals("style")
 				|| attribute_name.equals("text-decoration")) {
 			if (attribute_value.equalsIgnoreCase("bold")) {
-				textView.setTextAppearance(context, R.style.boldText);
+				textView.setTextAppearance(context, builder.getStyleById("boldText"));
 			} else if (attribute_value.equalsIgnoreCase("italic")) {
-				textView.setTextAppearance(context, R.style.italicText);
+				textView.setTextAppearance(context, builder.getStyleById("italicText"));
 			} else if (attribute_value.equalsIgnoreCase("normal")) {
-				textView.setTextAppearance(context, R.style.normalText);
+				textView.setTextAppearance(context, builder.getStyleById("normalText"));
 			}
 		} else if (attribute_name.equals("cursor_visible")
 				|| attribute_name.equals("cursor")) {
