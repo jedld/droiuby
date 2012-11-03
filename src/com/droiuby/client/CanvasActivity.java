@@ -8,6 +8,7 @@ import org.jdom2.Document;
 import com.droiuby.client.R;
 import com.droiuby.client.core.ActiveApp;
 import com.droiuby.client.core.ActivityBuilder;
+import com.droiuby.client.core.AppDownloader;
 import com.droiuby.client.core.DroiubyActivity;
 import com.droiuby.client.core.ExecutionBundle;
 import com.droiuby.client.core.ExecutionBundleFactory;

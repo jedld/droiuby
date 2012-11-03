@@ -24,7 +24,6 @@ import org.jruby.embed.ParseFailedException;
 import org.jruby.embed.ScriptingContainer;
 import org.jruby.runtime.builtin.IRubyObject;
 
-import com.droiuby.client.AppDownloader;
 import com.droiuby.client.CanvasActivity;
 import com.droiuby.client.core.builder.ButtonViewBuilder;
 import com.droiuby.client.core.builder.CheckBoxBuilder;

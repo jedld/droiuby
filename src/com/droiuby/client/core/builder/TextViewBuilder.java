@@ -2,15 +2,11 @@ package com.droiuby.client.core.builder;
 
 import org.jdom2.Element;
 
-import android.content.Context;
 import android.graphics.Color;
 import android.text.method.PasswordTransformationMethod;
-import android.text.method.SingleLineTransformationMethod;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.TextView;
-
-import com.droiuby.client.core.ActivityBuilder;
 
 public class TextViewBuilder extends ViewBuilder {
 

@@ -1,4 +1,4 @@
-package com.droiuby.client;
+package com.droiuby.client.core.console;
 
 import java.io.File;
 import java.io.IOException;

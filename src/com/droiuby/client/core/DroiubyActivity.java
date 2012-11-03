@@ -17,7 +17,7 @@ import android.net.wifi.WifiManager;
 import android.util.Log;
 import android.view.ViewGroup;
 
-import com.droiuby.client.WebConsole;
+import com.droiuby.client.core.console.WebConsole;
 import com.droiuby.client.utils.ActiveAppDownloader;
 
 public abstract class DroiubyActivity extends Activity implements

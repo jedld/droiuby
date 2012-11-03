@@ -1,11 +1,10 @@
-package com.droiuby.client;
+package com.droiuby.client.core;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
-import com.droiuby.client.core.ActiveApp;
 import com.droiuby.client.core.callbacks.OnAppDownloadComplete;
 import com.droiuby.client.utils.ActiveAppDownloader;
 
