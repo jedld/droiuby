@@ -32,6 +32,19 @@ def launch(url)
   Java::com.droiuby.client.core.ActivityBuilder.loadApp(_current_activity, url) 
 end
 
+
+def log_warn(message = '')
+  _execution_bundle.addWarn(message)
+end
+
+def log_debug(message = '')
+  _execution_bundle.addDebug(message)
+end
+
+def log_error(message = '')
+  _execution_bundle.addError(message)
+end
+
 def render(url, params = {})
   http_method = Java::com.droiuby.client.utils.Utils::HTTP_GET
   if params[:method] && (params[:method] == :post)

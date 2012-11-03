@@ -10,8 +10,8 @@ import android.util.TypedValue;
 import android.view.View;
 import android.widget.TextView;
 
-import com.droiuby.client.R;
 import com.droiuby.client.core.ActivityBuilder;
+import com.droiuby.ide.R;
 
 public class TextViewBuilder extends ViewBuilder {
 

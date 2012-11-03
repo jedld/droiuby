@@ -19,10 +19,9 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.ViewGroup;
 
-import com.droiuby.client.R;
-import com.droiuby.client.WebConsole;
 import com.droiuby.client.core.interfaces.OnServerReadyListener;
 import com.droiuby.client.utils.ActiveAppDownloader;
+import com.droiuby.ide.WebConsole;
 
 public abstract class DroiubyActivity extends Activity implements
 		OnDownloadCompleteListener {
@@ -109,12 +108,7 @@ public abstract class DroiubyActivity extends Activity implements
 		downloader.execute();
 	}
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.parseroptions, menu);
-		return true;
-	}
+
 
 	@Override
 	protected void onDestroy() {

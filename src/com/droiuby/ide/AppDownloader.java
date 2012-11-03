@@ -1,4 +1,4 @@
-package com.droiuby.client;
+package com.droiuby.ide;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;

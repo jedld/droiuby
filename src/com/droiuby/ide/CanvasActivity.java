@@ -1,11 +1,12 @@
-package com.droiuby.client;
+package com.droiuby.ide;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.jdom2.Document;
 
-import com.droiuby.client.R;
 import com.droiuby.client.core.ActiveApp;
 import com.droiuby.client.core.ActivityBuilder;
 import com.droiuby.client.core.DroiubyActivity;
@@ -16,6 +17,8 @@ import com.droiuby.client.core.interfaces.OnServerReadyListener;
 import com.droiuby.client.core.listeners.DocumentReadyListener;
 import com.droiuby.client.utils.Utils;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.ActivityInfo;
@@ -23,6 +26,8 @@ import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -51,7 +56,7 @@ public class CanvasActivity extends DroiubyActivity implements
 		webConsole = (WebView) findViewById(R.id.console);
 		target = (ViewGroup) this.findViewById(R.id.mainLayout);
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-		
+
 		if (default_orientation == Configuration.ORIENTATION_LANDSCAPE) {
 			target.setMinimumHeight(480);
 			target.setMinimumWidth(800);
@@ -63,7 +68,7 @@ public class CanvasActivity extends DroiubyActivity implements
 		if (params != null) {
 			application = (ActiveApp) params.getSerializable("application");
 			if (application != null) {
-				
+
 				topview = (RelativeLayout) target;
 
 				String pageUrl = (String) params.getString("startUrl");
@@ -88,8 +93,10 @@ public class CanvasActivity extends DroiubyActivity implements
 					this.getClass(), this);
 			downloader.execute();
 		}
-
-
+		Timer timer = new Timer();
+		
+		UpdateLogTask task = new UpdateLogTask(this, R.id.errorLog);
+		timer.schedule(task, 2000);
 	}
 
 	@Override
@@ -100,6 +107,13 @@ public class CanvasActivity extends DroiubyActivity implements
 			console.setContainer(executionBundle.getContainer());
 			console.setActivity(this);
 		}
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.parseroptions, menu);
+		return true;
 	}
 
 	@Override
@@ -122,28 +136,6 @@ public class CanvasActivity extends DroiubyActivity implements
 			break;
 		case R.id.itemConsole:
 			this.showConsoleInfo();
-			break;
-		case R.id.itemLog:
-
-			if (findViewById(R.id.loglayout) == null) {
-				View logview = getLayoutInflater().inflate(R.layout.log, null);
-				RelativeLayout.LayoutParams logPos = new RelativeLayout.LayoutParams(
-						LayoutParams.MATCH_PARENT, 200);
-				logPos.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM,
-						R.id.mainLayout);
-				topview.addView(logview, logPos);
-			}
-
-			LinearLayout errorListLayout = (LinearLayout) findViewById(R.id.errorLogGroup);
-			ScrollView scroll = (ScrollView) findViewById(R.id.scrollViewLog);
-			errorListLayout.removeAllViews();
-			for (String error : executionBundle.getScriptErrors()) {
-				TextView errorText = new TextView(this);
-				errorText.setText(error);
-				errorListLayout.addView(errorText, LayoutParams.MATCH_PARENT,
-						LayoutParams.WRAP_CONTENT);
-			}
-
 			break;
 		case R.id.itemClearCache:
 			SharedPreferences prefs = getSharedPreferences("cookies",
@@ -186,7 +178,7 @@ public class CanvasActivity extends DroiubyActivity implements
 				webConsole.getSettings().setJavaScriptEnabled(true);
 				webConsole.setVerticalScrollBarEnabled(true);
 				webConsole.setHorizontalScrollBarEnabled(true);
-				
+
 				webConsole.setBackgroundColor(Color.parseColor("#FFFFFF"));
 				webConsole.setWebViewClient(new WebViewClient() {
 					@Override

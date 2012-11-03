@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.droiuby.client"
+    package="com.droiuby.ide"
     android:installLocation="auto"
     android:versionCode="101"
     android:versionName="beta0.1" >

@@ -1,10 +1,7 @@
 package com.droiuby.client.utils;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,23 +10,23 @@ import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.BasicResponseHandler;
-import org.apache.http.impl.client.DefaultHttpClient;
+
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
 import org.jruby.embed.EmbedEvalUnit;
-import org.jruby.embed.EvalFailedException;
 import org.jruby.embed.ScriptingContainer;
-import org.jruby.javasupport.JavaObject;
-import org.jruby.runtime.builtin.IRubyObject;
 
-import com.droiuby.client.R;
+import android.app.Activity;
+import android.content.Context;
+import android.content.pm.ActivityInfo;
+import android.os.AsyncTask;
+import android.os.Environment;
+import android.util.Log;
+import android.view.ViewGroup;
+import android.widget.Toast;
+
 import com.droiuby.client.core.ActiveApp;
 import com.droiuby.client.core.ActivityBuilder;
 import com.droiuby.client.core.AppCache;
@@ -42,18 +39,6 @@ import com.droiuby.client.core.interfaces.OnUrlChangedListener;
 import com.droiuby.client.core.listeners.DocumentReadyListener;
 import com.droiuby.client.core.postprocessor.CssPreloadParser;
 import com.droiuby.client.core.postprocessor.ScriptPreparser;
-
-import android.app.Activity;
-import android.content.Context;
-import android.content.pm.ActivityInfo;
-import android.content.res.AssetManager;
-import android.content.res.Configuration;
-import android.os.AsyncTask;
-import android.os.Environment;
-import android.util.Log;
-import android.view.ViewGroup;
-import android.widget.LinearLayout;
-import android.widget.Toast;
 
 public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 		implements DocumentReadyListener {

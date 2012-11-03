@@ -24,9 +24,6 @@ import org.jruby.embed.ParseFailedException;
 import org.jruby.embed.ScriptingContainer;
 import org.jruby.runtime.builtin.IRubyObject;
 
-import com.droiuby.client.AppDownloader;
-import com.droiuby.client.CanvasActivity;
-import com.droiuby.client.R;
 import com.droiuby.client.core.builder.ButtonViewBuilder;
 import com.droiuby.client.core.builder.CheckBoxBuilder;
 import com.droiuby.client.core.builder.EditTextBuilder;
@@ -46,6 +43,9 @@ import com.droiuby.client.core.listeners.DocumentReadyListener;
 import com.droiuby.client.core.postprocessor.AssetPreloadParser;
 import com.droiuby.client.core.postprocessor.CssPreloadParser;
 import com.droiuby.client.utils.Utils;
+import com.droiuby.ide.AppDownloader;
+import com.droiuby.ide.CanvasActivity;
+import com.droiuby.ide.R;
 import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
 
 import android.app.Activity;

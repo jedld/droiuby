@@ -1,6 +1,7 @@
 package com.droiuby.client.core;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 import org.jruby.embed.ScriptingContainer;
 
@@ -42,9 +43,9 @@ public class ExecutionBundle {
 		this.libraryInitialized = libraryInitialized;
 	}
 
-	ArrayList<String> scriptErrors = new ArrayList<String>();
+	ArrayList<ErrorLog> scriptErrors = new ArrayList<ErrorLog>();
 
-	public ArrayList<String> getScriptErrors() {
+	public ArrayList<ErrorLog> getScriptErrors() {
 		return scriptErrors;
 	}
 	
@@ -53,10 +54,26 @@ public class ExecutionBundle {
 	}
 
 	public void addError(String errorMessage) {
-		scriptErrors.add(errorMessage);
+		addLog(ErrorLog.ERROR, errorMessage);
 	}
 	
-	public void setScriptErrors(ArrayList<String> scriptErrors) {
+	public void addDebug(String errorMessage) {
+		addLog(ErrorLog.DEBUG, errorMessage);
+	}
+	
+	public void addWarn(String errorMessage) {
+		addLog(ErrorLog.WARN, errorMessage);
+	}
+	
+	public void addLog(int log_level, String errorMessage) {
+		ErrorLog log = new ErrorLog();
+		log.setLogLevel(log_level);
+		log.setTimestamp(new Date());
+		log.setMessage(errorMessage);
+		scriptErrors.add(log);
+	}
+	
+	public void setScriptErrors(ArrayList<ErrorLog> scriptErrors) {
 		this.scriptErrors = scriptErrors;
 	}
 

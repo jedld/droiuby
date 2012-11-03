@@ -1,10 +1,9 @@
-package com.droiuby.client;
+package com.droiuby.ide;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import com.droiuby.client.R;
 import com.droiuby.client.core.ActivityBuilder;
 import com.droiuby.client.utils.Utils;
 import com.droiuby.client.utils.intents.IntentIntegrator;
