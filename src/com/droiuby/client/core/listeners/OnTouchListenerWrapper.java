@@ -23,17 +23,15 @@ public class OnTouchListenerWrapper extends ListenerWrapper implements OnTouchLi
 	}
 	
 	protected boolean execute(Object view, MotionEvent motionEvent) {
+		
 		try {
 			IRubyObject wrapped_view = JavaUtil.convertJavaToRuby(container.getProvider().getRuntime(), view);
 			IRubyObject wrapped_motion_event  = JavaUtil.convertJavaToRuby(container.getProvider().getRuntime(), motionEvent);
 			IRubyObject args[] =new IRubyObject[] { wrapped_view, wrapped_motion_event };
 			IRubyObject return_value = block.call19(container.getProvider().getRuntime().getCurrentContext(), args , null);
 			return this.toBoolean(return_value);
-		} catch (org.jruby.embed.EvalFailedException e) {
+		} catch (org.jruby.exceptions.RaiseException e) {
 			Log.d(this.getClass().toString(), "eval failed: " + e.getMessage());
-			e.printStackTrace();
-			bundle.addError(e.getMessage());
-		} catch (org.jruby.embed.ParseFailedException e) {
 			e.printStackTrace();
 			bundle.addError(e.getMessage());
 		}

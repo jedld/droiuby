@@ -31,14 +31,11 @@ public class FocusChangeListenerWrapper extends ListenerWrapper implements
 			IRubyObject args[] = new IRubyObject[] { wrapped_view,
 					wrapped_has_focus };
 			block.call19(runtime.getCurrentContext(), args, null);
-		} catch (org.jruby.embed.EvalFailedException e) {
+		} catch (org.jruby.exceptions.RaiseException e) {
 			Log.d(this.getClass().toString(), "eval failed: " + e.getMessage());
 			e.printStackTrace();
 			bundle.addError(e.getMessage());
-		} catch (org.jruby.embed.ParseFailedException e) {
-			e.printStackTrace();
-			bundle.addError(e.getMessage());
-		}
+		} 
 	}
 
 }

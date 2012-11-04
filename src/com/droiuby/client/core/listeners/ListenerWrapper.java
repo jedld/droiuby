@@ -45,11 +45,8 @@ public abstract class ListenerWrapper {
 			IRubyObject return_value = block.call19(container.getProvider()
 					.getRuntime().getCurrentContext(), args, null);
 			return toBoolean(return_value);
-		} catch (org.jruby.embed.EvalFailedException e) {
+		} catch (org.jruby.exceptions.RaiseException e) {
 			Log.d(this.getClass().toString(), "eval failed: " + e.getMessage());
-			e.printStackTrace();
-			bundle.addError(e.getMessage());
-		} catch (org.jruby.embed.ParseFailedException e) {
 			e.printStackTrace();
 			bundle.addError(e.getMessage());
 		}
