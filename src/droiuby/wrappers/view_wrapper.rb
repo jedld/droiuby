@@ -17,12 +17,30 @@ class ViewWrapper
     else
       @view = Java::android.view.View.new(_current_activity)
     end
+    @builder = Java::com.droiuby.client.core.builder.ViewBuilder.new
+    @builder.setContext(_current_activity)
   end
 
   def native
     @view
   end
+  
+  def builder
+    @builder
+  end
 
+  def background=(background)
+    builder.setProperty(native,'background', background.to_s)
+  end
+  
+  def width=(width)
+    builder.setProperty(native,'width', width.to_s)
+  end
+  
+  def height=(height)
+    builder.setProperty(native,'height', height.to_s)
+  end
+  
   def background_color=(value)
     @view.setBackgroundColor(Java::android.graphics.Color.parseColor(value));
   end
@@ -35,6 +53,10 @@ class ViewWrapper
     hidden?
   end
 
+  def invalidate
+    @view.invalidate
+  end
+  
   def hidden?
     @view.getVisibility == Java::android.view.View::GONE
   end

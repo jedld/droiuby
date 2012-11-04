@@ -66,7 +66,6 @@ public class ViewBuilder {
 		for (Attribute attribute : elem.getAttributes()) {
 			propertyMap.put(attribute.getName(), attribute.getValue());
 		}
-		;
 		return propertyMap;
 	}
 
@@ -278,6 +277,12 @@ public class ViewBuilder {
 		return params;
 	}
 
+	public View setProperty(View child, String property, String value) {
+		HashMap<String, String> propertyMap = new HashMap<String, String>();
+		propertyMap.put(property, value);
+		return setParamsFromProperty(child, propertyMap);
+	}
+	
 	public View setParamsFromProperty(View child,
 			HashMap<String, String> propertyMap) {
 

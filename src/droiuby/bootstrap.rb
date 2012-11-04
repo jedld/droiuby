@@ -39,7 +39,8 @@ def render(url, params = {})
   end
   
   new_activity = params[:activity] ? true : false;
-  Java::com.droiuby.client.core.ActivityBuilder.loadLayout(_execution_bundle, _current_app, url, new_activity, http_method, _current_activity, nil, nil)
+  Java::com.droiuby.client.core.ActivityBuilder.loadLayout(_execution_bundle, _current_app, url,
+    new_activity, http_method, _current_activity, nil, nil, _activity_builder.getViewById('mainLayout'))
   #execute plugins
   after_view_setup
 end

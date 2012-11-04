@@ -75,7 +75,7 @@ public class CanvasActivity extends DroiubyActivity implements
 			}
 		} else {
 			AppDownloader downloader = new AppDownloader(this,
-					"asset:launcher/config.xml", this.getClass(), this);
+					"http://10.0.2.2:3000/droiuby", this.getClass(), this);
 			downloader.execute();
 		}
 	}
@@ -157,6 +157,7 @@ public class CanvasActivity extends DroiubyActivity implements
 	}
 	
 	public void onDownloadComplete(ActiveApp app) {
+		this.application = app;
 		setupApplication(app, (ViewGroup) this.findViewById(R.id.mainLayout), R.id.mainLayout);
 		onResume();
 	}

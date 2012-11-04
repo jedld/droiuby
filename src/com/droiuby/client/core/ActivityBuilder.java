@@ -324,6 +324,10 @@ public class ActivityBuilder {
 	public View getTopView() {
 		return topView;
 	}
+	
+	  public View getRootView() {
+		   return context.findViewById(this.getViewById("mainLayout"));
+		 }
 
 	ViewGroup target;
 	HashMap<String, Object> preloadedResource = new HashMap<String, Object>();
