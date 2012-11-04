@@ -23,7 +23,6 @@ public class OnTouchListenerWrapper extends ListenerWrapper implements OnTouchLi
 	}
 	
 	protected boolean execute(Object view, MotionEvent motionEvent) {
-		
 		try {
 			IRubyObject wrapped_view = JavaUtil.convertJavaToRuby(container.getProvider().getRuntime(), view);
 			IRubyObject wrapped_motion_event  = JavaUtil.convertJavaToRuby(container.getProvider().getRuntime(), motionEvent);
