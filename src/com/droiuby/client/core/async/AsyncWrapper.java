@@ -1,6 +1,8 @@
 package com.droiuby.client.core.async;
 
+import org.jruby.RubyProc;
 import org.jruby.embed.ScriptingContainer;
+import org.jruby.javasupport.JavaUtil;
 import org.jruby.runtime.builtin.IRubyObject;
 
 import com.droiuby.client.core.ExecutionBundle;
@@ -8,15 +10,15 @@ import com.droiuby.client.core.ExecutionBundle;
 import android.os.AsyncTask;
 import android.util.Log;
 
-public class AsyncWrapper extends AsyncTask<Object, Object, Object> {
+public class AsyncWrapper extends AsyncTask<Object, Object, IRubyObject> {
 
-	Object background_task, post_execute, pre_execute;
+	RubyProc background_task, post_execute, pre_execute;
 
 	public Object getBackground_task() {
 		return background_task;
 	}
 
-	public void setBackground_task(Object background_task) {
+	public void setBackground_task(RubyProc background_task) {
 		this.background_task = background_task;
 	}
 
@@ -24,15 +26,15 @@ public class AsyncWrapper extends AsyncTask<Object, Object, Object> {
 		return post_execute;
 	}
 
-	public void setPost_execute(Object post_execute) {
+	public void setPost_execute(RubyProc post_execute) {
 		this.post_execute = post_execute;
 	}
 
-	public Object getPre_execute() {
+	public RubyProc getPre_execute() {
 		return pre_execute;
 	}
 
-	public void Object(IRubyObject pre_execute) {
+	public void setPre_execute(RubyProc pre_execute) {
 		this.pre_execute = pre_execute;
 	}
 
@@ -53,34 +55,27 @@ public class AsyncWrapper extends AsyncTask<Object, Object, Object> {
 	}
 
 	@Override
-	protected void onPostExecute(Object result) {
+	protected void onPostExecute(IRubyObject result) {
 		// TODO Auto-generated method stub
 		super.onPostExecute(result);
 		if (post_execute != null) {
-
+			long start = System.currentTimeMillis();
+			Log.d(this.getClass().toString(), "Executing Post");
 			try {
-				String targetName = getTargetName();
-
-				Log.d(this.getClass().toString(), "post executing ..."
-						+ targetName);
-				container.put(targetName, post_execute);
-				container.put(targetName + "_result", result);
-				container.runScriptlet(targetName + ".call(" + targetName
-						+ "_result)");
-			} catch (org.jruby.embed.EvalFailedException e) {
-				Log.d(this.getClass().toString(),
-						"eval failed: " + e.getMessage());
+				IRubyObject args[] = new IRubyObject[] { result };
+				post_execute.call19(container.getProvider().getRuntime()
+						.getCurrentContext(), args, null);
+			} catch (org.jruby.exceptions.RaiseException e) {
 				e.printStackTrace();
 				bundle.addError(e.getMessage());
-			} catch (org.jruby.embed.ParseFailedException e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 				bundle.addError(e.getMessage());
+			} finally {
+				long duration = System.currentTimeMillis() - start;
+				Log.d(this.getClass().toString(), "done elapsed = " + duration);
 			}
 		}
-	}
-
-	private String getTargetName() {
-		return "_target_" + Thread.currentThread().getId();
 	}
 
 	@Override
@@ -88,31 +83,39 @@ public class AsyncWrapper extends AsyncTask<Object, Object, Object> {
 		// TODO Auto-generated method stub
 		super.onPreExecute();
 		if (pre_execute != null) {
-			String targetName = getTargetName();
-			container.put(targetName, pre_execute);
-			container.runScriptlet(targetName + ".call");
+			try {
+				IRubyObject args[] = new IRubyObject[] {};
+				pre_execute.call19(container.getProvider().getRuntime()
+						.getCurrentContext(), args, null);
+			} catch (org.jruby.exceptions.RaiseException e) {
+				e.printStackTrace();
+				bundle.addError(e.getMessage());
+			} catch (Exception e) {
+				e.printStackTrace();
+				bundle.addError(e.getMessage());
+			}
 		}
 	}
 
 	@Override
-	protected Object doInBackground(Object... params) {
+	protected IRubyObject doInBackground(Object... params) {
 		// TODO Auto-generated method stub
 		if (background_task != null) {
+			long start = System.currentTimeMillis();
+			Log.d(this.getClass().toString(), "Executing background");
 			try {
-				String targetName = getTargetName();
-				Log.d(this.getClass().toString(), "background executing ..."
-						+ targetName);
-				container.put(targetName, background_task);
-
-				return container.runScriptlet(targetName + ".call");
-			} catch (org.jruby.embed.EvalFailedException e) {
-				Log.d(this.getClass().toString(),
-						"eval failed: " + e.getMessage());
+				IRubyObject args[] = new IRubyObject[] {};
+				return background_task.call19(container.getProvider()
+						.getRuntime().getCurrentContext(), args, null);
+			} catch (org.jruby.exceptions.RaiseException e) {
 				e.printStackTrace();
 				bundle.addError(e.getMessage());
-			} catch (org.jruby.embed.ParseFailedException e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 				bundle.addError(e.getMessage());
+			} finally {
+				long duration = System.currentTimeMillis() - start;
+				Log.d(this.getClass().toString(), "done elapsed = " + duration);
 			}
 		}
 		return null;

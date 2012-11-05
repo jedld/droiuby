@@ -8,22 +8,23 @@ class AsyncWrapper
   end
   
   def before(&block)
-    @native.setPre_execute(&block)
+    @native.setPre_execute(block)
     self
   end
   
   def perform(&block)
-    @native.setBackground_task(&block)
+    @native.setBackground_task(block)
     self
   end
   
   def done(&block)
-    @native.setPost_execute(&block)
+    @native.setPost_execute(block)
     self
   end
   
   def execute
     @native.execute(nil, nil, nil)
+    self
   end
   
   def start

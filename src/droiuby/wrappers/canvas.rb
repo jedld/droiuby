@@ -16,7 +16,10 @@ class Paint
   end
     
   def color=(value)
-    @native.setColor(Java::android.graphics.Color.parseColor(value))
+    if (value.kind_of String)
+      value = value.to_color
+    end
+    @native.setColor(value)
   end
   
   def color
@@ -35,22 +38,44 @@ end
 class Canvas
   def initialize(native)
     @native = native
+    @paint = make_paint
   end
   
   def native
     @native
   end
   
-  def paint
+  def make_paint
     Paint.new
   end
   
-  def circle(x, y, size, paint)
+  def paint=(p)
+    @paint = p
+  end
+  
+  def draw_color(value)
+    if (value.kind_of String)
+      value = value.to_color
+    end
+    @native.drawColor(value)
+  end
+  
+  def circle(x, y, size, paint = nil)
+    paint = @paint if paint.nil?
     @native.drawCircle(x, y, size, paint.native);
   end
   
-  def line(x, y, x1, y1, paint)
+  def line(x, y, x1, y1, paint = nil)
+    paint = @paint if paint.nil?
     @native.drawLine(x, y, x1, y1, paint.native);
+  end
+  
+  def bitmap(bitmap, x, y, paint = nil, options = {})
+    paint = @paint if paint.nil?
+    if bitmap.kind_of? BitmapDrawableWrapper
+      bitmap = bitmap.to_bitmap
+    end
+    @native.drawBitmap(bitmap, x.to_f, y.to_f, paint.native)
   end
   
 end

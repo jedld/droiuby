@@ -30,7 +30,11 @@ class ViewWrapper
   end
 
   def background=(background)
-    builder.setProperty(native,'background', background.to_s)
+    if background.kind_of? DrawableWrapper
+      @view.setBackgroundDrawable(background.native)
+    else
+      builder.setProperty(native,'background', background.to_s)
+    end
   end
   
   def width=(width)

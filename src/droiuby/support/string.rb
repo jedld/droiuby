@@ -6,4 +6,9 @@ class String
       self.first + camelize(self)[1..-1]
     end
   end
+  
+  def to_color
+    Java::android.graphics.Color.parseColor(self)
+  end
+  
 end

@@ -30,10 +30,14 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.jruby.CompatVersion;
+import org.jruby.RubyObject;
 import org.jruby.embed.EmbedEvalUnit;
 import org.jruby.embed.LocalContextScope;
 import org.jruby.embed.LocalVariableBehavior;
 import org.jruby.embed.ScriptingContainer;
+import org.jruby.javasupport.JavaObject;
+import org.jruby.javasupport.JavaUtil;
+import org.jruby.runtime.builtin.IRubyObject;
 
 import android.app.Activity;
 import android.content.Context;
@@ -366,19 +370,37 @@ public class Utils {
 		return true;
 	}
 
+	public static IRubyObject loadAppAssetRuby(ExecutionBundle bundle, ActiveApp app, Context context,
+			String asset_name, int asset_type, int method) {
+		return JavaUtil.convertJavaToRuby(bundle.getContainer().getProvider().getRuntime(), loadAppAsset(app, context,
+				asset_name, asset_type, method));
+	}
+	
 	public static Object loadAppAsset(ActiveApp app, Context context,
 			String asset_name, int asset_type, int method) {
 		if (asset_name != null) {
 			if (asset_name.startsWith("asset:")) {
 				return Utils.loadAsset(context, asset_name);
+			} else if (asset_name.startsWith("http:")
+					|| asset_name.startsWith("https")) {
+				if ((asset_type == Utils.ASSET_TYPE_TEXT)
+						|| (asset_type == Utils.ASSET_TYPE_CSS)) {
+					return Utils.query(asset_name, context, app.getName(),
+							method);
+				} else if (asset_type == Utils.ASSET_TYPE_IMAGE) {
+					return UrlImageViewHelper.downloadFromUrlAsync(context,
+							asset_name,
+							UrlImageViewHelper.getFilenameForUrl(asset_name));
+				}
+				return null;
 			} else {
 				String baseUrl = app.getBaseUrl();
 				Log.d("Utils", "base url = " + baseUrl);
-				if (baseUrl.indexOf("asset:") != -1) {
+				if (baseUrl.startsWith("asset:")) {
 					return Utils.loadAsset(context, baseUrl + asset_name);
-				} else if (baseUrl.indexOf("file:") != -1) {
+				} else if (baseUrl.startsWith("file:")) {
 					return Utils.loadFile(asset_name);
-				} else if (baseUrl.indexOf("sdcard:") != -1) {
+				} else if (baseUrl.startsWith("sdcard:")) {
 					File directory = Environment.getExternalStorageDirectory();
 					try {
 						String asset_path = directory.getCanonicalPath()
@@ -408,7 +430,8 @@ public class Utils {
 
 						query_url = baseUrl + "/" + asset_name;
 					}
-					if ( (asset_type == Utils.ASSET_TYPE_TEXT) || (asset_type == Utils.ASSET_TYPE_CSS)) {
+					if ((asset_type == Utils.ASSET_TYPE_TEXT)
+							|| (asset_type == Utils.ASSET_TYPE_CSS)) {
 						return Utils.query(query_url, context, app.getName(),
 								method);
 					} else if (asset_type == Utils.ASSET_TYPE_IMAGE) {

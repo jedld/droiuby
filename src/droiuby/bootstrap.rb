@@ -45,6 +45,11 @@ def render(url, params = {})
   after_view_setup
 end
 
+def log_debug(message = '', tag = 'ruby')
+  Java::android.util.Log.d(tag.to_s, message.to_s)
+  nil
+end
+
 def toast(text = '', duration = :short)
   j_duration = Java::android.widget.Toast::LENGTH_SHORT
 

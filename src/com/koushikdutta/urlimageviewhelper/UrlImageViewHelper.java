@@ -285,6 +285,7 @@ public final class UrlImageViewHelper {
 			Log.e(LOGTAG, "Exception during Image download of " + url, ex);
 			return null;
 		} finally {
+			Log.d(LOGTAG, "done.");
 			client.close();
 		}
 
