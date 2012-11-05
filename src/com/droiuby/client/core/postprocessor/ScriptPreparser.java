@@ -14,11 +14,14 @@ public class ScriptPreparser implements AssetDownloadCompleteListener {
 	public Object onComplete(ExecutionBundle bundle, String name, Object result) {
 		ScriptingContainer container = bundle.getContainer();
 		EmbedEvalUnit parsed = null;
-		try {
-			parsed = container.parse(new StringReader((String)result), name, 0);
-		} catch (ParseFailedException e) {
-			e.printStackTrace();
-			bundle.addError(e.getMessage());
+		if (result!=null) {
+			try {
+				parsed = container.parse(new StringReader((String) result),
+						name, 0);
+			} catch (ParseFailedException e) {
+				e.printStackTrace();
+				bundle.addError(e.getMessage());
+			}
 		}
 		return parsed;
 	}
