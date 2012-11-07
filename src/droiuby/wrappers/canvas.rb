@@ -54,7 +54,7 @@ class Canvas
   end
   
   def draw_color(value)
-    if (value.kind_of String)
+    if (value.kind_of? String)
       value = value.to_color
     end
     @native.drawColor(value)

@@ -78,6 +78,8 @@ def wrap_native_view(view)
     ViewGroupWrapper.new(view)
   elsif (view.class < Java::android.widget.CompoundButton)
     CompoundButtonWrapper.new(view)
+  elsif (view.class < Java::com.droiuby.client.core.wrappers.SurfaceViewWrapper)
+    SurfaceViewWrapper.new(view)
   elsif (view.class < Java::android.view.View)
     ViewWrapper.new(view)
   else
@@ -89,6 +91,13 @@ def wrap_native(object)
   if (object.class == Java::android.content.Intent)
     return IntentWrapper.new(object)
   end
+end
+
+
+def surface(&block)
+  s = SurfaceViewWrapper.new
+  block.call(s)
+  s
 end
 
 def canvas(&block)
