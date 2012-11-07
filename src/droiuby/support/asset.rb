@@ -10,6 +10,14 @@ class BitmapDrawableWrapper
   def to_bitmap
     @native.getBitmap
   end
+  
+  def height
+    @native.getIntrinsicHeight
+  end
+  
+  def width
+    @native.getIntrinsicWidth
+  end
 end
 
 class AssetHandler

@@ -10,9 +10,14 @@ class SurfaceHolderWrapper
     @native
   end
   
-  def lock(&block)
-    canvas = Canvas.new(@native.lockCanvas)
+  def lock(rect = nil, &block)
+    if rect.nil?
+      canvas = Canvas.new(@native.lockCanvas)
+    else
+      canvas = Canvas.new(@native.lockCanvas(rect.native))
+    end
     block.call(canvas)
+    
     @native.unlockCanvasAndPost(canvas.native)
   end
   

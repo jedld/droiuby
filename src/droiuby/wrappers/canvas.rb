@@ -1,3 +1,35 @@
+
+class Rect
+  def initialize(rect = nil, left = 0, top = 0, right = 0, bottom = 0)
+    if (rect.nil?)
+      @native = Java::android.graphics.Rect.new(left, top, right, bottom)
+    else
+      @native = rect
+    end
+    
+  end
+  
+  def native
+    @native
+  end
+  
+  def height
+    @native.height
+  end
+  
+  def width
+    @native.width
+  end
+  
+  def set(left, top, right, bottom)
+    @native.set(left, top, right, bottom)
+  end
+end
+
+def _rect(left = 0, top = 0, right = 0, bottom = 0)
+  Rect.new(nil, left, top, right, bottom)
+end
+
 class Paint
   def initialize
     @native = Java::android.graphics.Paint.new

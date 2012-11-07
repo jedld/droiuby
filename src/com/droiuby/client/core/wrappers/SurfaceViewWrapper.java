@@ -11,20 +11,22 @@ import android.content.Context;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
-public class SurfaceViewWrapper extends SurfaceView implements SurfaceHolder.Callback {
+public class SurfaceViewWrapper extends SurfaceView implements
+		SurfaceHolder.Callback {
 
-	RubyProc surfaceCreatedBlock, surfaceChangedBlock, surfaceDestroyed;
+	RubyProc surfaceCreatedBlock, surfaceChangedBlock, surfaceDestroyedBlock;
 	ExecutionBundle bundle;
-	public RubyProc getSurfaceDestroyed() {
-		return surfaceDestroyed;
+
+	public RubyProc getSurfaceDestroyedBlock() {
+		return surfaceDestroyedBlock;
 	}
 
-	public void setSurfaceDestroyed(RubyProc surfaceDestroyed) {
-		this.surfaceDestroyed = surfaceDestroyed;
+	public void setSurfaceDestroyedBlock(RubyProc surfaceDestroyedBlock) {
+		this.surfaceDestroyedBlock = surfaceDestroyedBlock;
 	}
 
 	Ruby rubyRuntime;
-	
+
 	public RubyProc getSurfaceCreatedBlock() {
 		return surfaceCreatedBlock;
 	}
@@ -45,43 +47,59 @@ public class SurfaceViewWrapper extends SurfaceView implements SurfaceHolder.Cal
 		super(context);
 		getHolder().addCallback(this);
 		this.bundle = bundle;
-		this.rubyRuntime = bundle.getContainer().getProvider()
-				.getRuntime(); 
+		this.rubyRuntime = bundle.getContainer().getProvider().getRuntime();
 	}
 
-	public void surfaceChanged(SurfaceHolder surface, int format, int width, int height) {
-		try {
-			IRubyObject wrapped_canvas = JavaUtil.convertJavaToRuby(rubyRuntime, surface);
-			IRubyObject wrapped_format = JavaUtil.convertJavaToRuby(rubyRuntime, format);
-			IRubyObject wrapped_width = JavaUtil.convertJavaToRuby(rubyRuntime, width);
-			IRubyObject wrapped_height = JavaUtil.convertJavaToRuby(rubyRuntime, height);
-			IRubyObject args[] = new IRubyObject[] { wrapped_canvas, wrapped_format,  wrapped_width, wrapped_height};
-			surfaceCreatedBlock.call19(rubyRuntime.getCurrentContext(), args, null);
-		} catch (org.jruby.exceptions.RaiseException e) {
-			bundle.addError(e.getMessage());
-			e.printStackTrace();
-		}	
+	public void surfaceChanged(SurfaceHolder surface, int format, int width,
+			int height) {
+		if (surfaceCreatedBlock != null) {
+			try {
+				IRubyObject wrapped_canvas = JavaUtil.convertJavaToRuby(
+						rubyRuntime, surface);
+				IRubyObject wrapped_format = JavaUtil.convertJavaToRuby(
+						rubyRuntime, format);
+				IRubyObject wrapped_width = JavaUtil.convertJavaToRuby(
+						rubyRuntime, width);
+				IRubyObject wrapped_height = JavaUtil.convertJavaToRuby(
+						rubyRuntime, height);
+				IRubyObject args[] = new IRubyObject[] { wrapped_canvas,
+						wrapped_format, wrapped_width, wrapped_height };
+				surfaceCreatedBlock.call19(rubyRuntime.getCurrentContext(),
+						args, null);
+			} catch (org.jruby.exceptions.RaiseException e) {
+				bundle.addError(e.getMessage());
+				e.printStackTrace();
+			}
+		}
 	}
 
 	public void surfaceCreated(SurfaceHolder surface) {
-		try {
-			IRubyObject wrapped_canvas = JavaUtil.convertJavaToRuby(rubyRuntime, surface);
-			IRubyObject args[] = new IRubyObject[] { wrapped_canvas };
-			surfaceCreatedBlock.call19(rubyRuntime.getCurrentContext(), args, null);
-		} catch (org.jruby.exceptions.RaiseException e) {
-			bundle.addError(e.getMessage());
-			e.printStackTrace();
+		if (surfaceCreatedBlock != null) {
+			try {
+				IRubyObject wrapped_canvas = JavaUtil.convertJavaToRuby(
+						rubyRuntime, surface);
+				IRubyObject args[] = new IRubyObject[] { wrapped_canvas };
+				surfaceCreatedBlock.call19(rubyRuntime.getCurrentContext(),
+						args, null);
+			} catch (org.jruby.exceptions.RaiseException e) {
+				bundle.addError(e.getMessage());
+				e.printStackTrace();
+			}
 		}
 	}
 
 	public void surfaceDestroyed(SurfaceHolder surface) {
-		try {
-			IRubyObject wrapped_canvas = JavaUtil.convertJavaToRuby(rubyRuntime, surface);
-			IRubyObject args[] = new IRubyObject[] { wrapped_canvas };
-			surfaceDestroyed.call19(rubyRuntime.getCurrentContext(), args, null);
-		} catch (org.jruby.exceptions.RaiseException e) {
-			bundle.addError(e.getMessage());
-			e.printStackTrace();
+		if (surfaceDestroyedBlock != null) {
+			try {
+				IRubyObject wrapped_canvas = JavaUtil.convertJavaToRuby(
+						rubyRuntime, surface);
+				IRubyObject args[] = new IRubyObject[] { wrapped_canvas };
+				surfaceDestroyedBlock.call19(rubyRuntime.getCurrentContext(), args,
+						null);
+			} catch (org.jruby.exceptions.RaiseException e) {
+				bundle.addError(e.getMessage());
+				e.printStackTrace();
+			}
 		}
 	}
 

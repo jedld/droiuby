@@ -63,6 +63,26 @@ def toast(text = '', duration = :short)
   Java::android.widget.Toast.makeText(_current_activity, text, j_duration).show();
 end
 
+def _gc
+  Java::java.lang.System.gc
+end
+
+def _nano_time
+  Java::java.lang.System.nanoTime
+end
+
+def _time
+  Java::java.lang.System.currentTimeMillis
+end
+
+def _sleep(delay = 0)
+  Java::java.lang.Thread.sleep(delay)
+end
+
+def _thread(&block)
+  Java::com.droiuby.client.core.wrappers.ThreadWrapper.new(block, _execution_bundle)
+end
+
 def wrap_native_view(view)
   return nil unless view
 
