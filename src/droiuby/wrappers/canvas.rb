@@ -121,7 +121,7 @@ class Canvas
     if bitmap.kind_of? BitmapDrawableWrapper
       bitmap = bitmap.to_bitmap
     end
-    
+#    native.drawBitmap(bitmap, x.to_f, y.to_f, paint.native)
     java_drawBitmap(bitmap, x.to_f, y.to_f, paint.native)
   end
   

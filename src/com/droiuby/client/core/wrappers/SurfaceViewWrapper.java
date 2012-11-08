@@ -55,7 +55,7 @@ public class SurfaceViewWrapper extends SurfaceView implements
 		if (surfaceCreatedBlock != null) {
 			try {
 				IRubyObject wrapped_canvas = JavaUtil.convertJavaToRuby(
-						rubyRuntime, surface);
+						rubyRuntime, new SurfaceViewHolderWrapper(surface));
 				IRubyObject wrapped_format = JavaUtil.convertJavaToRuby(
 						rubyRuntime, format);
 				IRubyObject wrapped_width = JavaUtil.convertJavaToRuby(
@@ -77,7 +77,7 @@ public class SurfaceViewWrapper extends SurfaceView implements
 		if (surfaceCreatedBlock != null) {
 			try {
 				IRubyObject wrapped_canvas = JavaUtil.convertJavaToRuby(
-						rubyRuntime, surface);
+						rubyRuntime,new SurfaceViewHolderWrapper(surface));
 				IRubyObject args[] = new IRubyObject[] { wrapped_canvas };
 				surfaceCreatedBlock.call19(rubyRuntime.getCurrentContext(),
 						args, null);
@@ -92,7 +92,7 @@ public class SurfaceViewWrapper extends SurfaceView implements
 		if (surfaceDestroyedBlock != null) {
 			try {
 				IRubyObject wrapped_canvas = JavaUtil.convertJavaToRuby(
-						rubyRuntime, surface);
+						rubyRuntime, new SurfaceViewHolderWrapper(surface));
 				IRubyObject args[] = new IRubyObject[] { wrapped_canvas };
 				surfaceDestroyedBlock.call19(rubyRuntime.getCurrentContext(), args,
 						null);

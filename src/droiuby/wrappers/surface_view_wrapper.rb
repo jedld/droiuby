@@ -2,6 +2,12 @@ require 'droiuby/wrappers/canvas'
 
 class SurfaceHolderWrapper
   
+  include JavaMethodHelper
+  
+  java_native_method Java::com.droiuby.client.core.wrappers.SurfaceViewHolderWrapper, :lockCanvas, [], "java_lockCanvasVoid"
+  java_native_method Java::com.droiuby.client.core.wrappers.SurfaceViewHolderWrapper, :lockCanvas, [Java::android.graphics.Rect], "java_lockCanvas"
+  java_native_method Java::com.droiuby.client.core.wrappers.SurfaceViewHolderWrapper, :unlockCanvasAndPost, [Java::android.graphics.Canvas]
+    
   def initialize(surface)
     @native = surface
   end
@@ -12,13 +18,15 @@ class SurfaceHolderWrapper
   
   def lock(rect = nil, &block)
     if rect.nil?
-      canvas = Canvas.new(@native.lockCanvas)
+#      canvas = Canvas.new(native.lockCanvas)
+      canvas = Canvas.new(java_lockCanvasVoid)
     else
-      canvas = Canvas.new(@native.lockCanvas(rect.native))
+#      canvas = Canvas.new(native.lockCanvas(rect))
+      canvas = Canvas.new(java_lockCanvas(rect.native))
     end
     block.call(canvas)
-    
-    @native.unlockCanvasAndPost(canvas.native)
+#    native.unlockCanvasAndPost(canvas.native)
+    java_unlockCanvasAndPost(canvas.native)
   end
   
 end
