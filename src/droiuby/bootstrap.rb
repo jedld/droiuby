@@ -46,7 +46,7 @@ def render(url, params = {})
 end
 
 def log_debug(message = '', tag = 'ruby')
-  Java::android.util.Log.d(tag.to_s, message.to_s)
+  Droiuby::SystemWrapper.java_d(tag.to_s, message.to_s)
   nil
 end
 
@@ -64,19 +64,19 @@ def toast(text = '', duration = :short)
 end
 
 def _gc
-  Java::java.lang.System.gc
+  Droiuby::SystemWrapper.java_gc
 end
 
 def _nano_time
-  Java::java.lang.System.nanoTime
+  Droiuby::SystemWrapper.java_nanoTime
 end
 
 def _time
-  Java::java.lang.System.currentTimeMillis
+  Droiuby::SystemWrapper.java_currentTimeMillis
 end
 
 def _sleep(delay = 0)
-  Java::java.lang.Thread.sleep(delay)
+  Droiuby::SystemWrapper.java_sleep(delay)
 end
 
 def _thread(&block)

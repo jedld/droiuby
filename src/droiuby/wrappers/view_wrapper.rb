@@ -6,8 +6,9 @@ class ViewWrapper
   include JavaMethodHelper
   include Droiuby::ViewHelper
 
+  java_fast_accessor Java::android.view.View, [Java::float], :x, :y
   
-  java_attr_accessor :right, :left, :top, :bottom, :x, :y, :alpha, :rotation, :pivot_x, :pivot_y, :translation_x, 
+  java_attr_accessor :right, :left, :top, :bottom, :alpha, :rotation, :pivot_x, :pivot_y, :translation_x, 
     :translation_y, :scroll_x, :scroll_y, :scale_x, :scale_y, :rotation_x, :rotation_y, :camera_distance,
     :padding_left, :padding_top, :padding_right, :padding_bottom
     
