@@ -95,6 +95,10 @@ class Canvas
     Java::android.graphics.RectF.new(left, top, right, bottom)
   end
   
+  def paint
+    @paint
+  end
+  
   def paint=(p)
     @paint = p
   end
