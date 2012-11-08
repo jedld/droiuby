@@ -68,6 +68,13 @@ class Paint
 end
 
 class Canvas
+  
+  include JavaMethodHelper
+  
+  java_native_method Java::android.graphics.Canvas, :drawColor, [Java::int]
+  java_native_method Java::android.graphics.Canvas, :drawText, [Java::java.lang.String, Java::float, Java::float, Java::android.graphics.Paint]
+  java_native_method Java::android.graphics.Canvas, :drawBitmap, [Java::android.graphics.Bitmap, Java::float, Java::float, Java::android.graphics.Paint]
+  
   def initialize(native)
     @native = native
     @paint = make_paint
@@ -89,7 +96,14 @@ class Canvas
     if (value.kind_of? String)
       value = value.to_color
     end
-    @native.drawColor(value)
+    
+    java_drawColor(value)
+  end
+  
+  def text(msg, x, y, paint = nil)
+    paint = @paint if paint.nil?
+    
+    java_drawText(msg, x, y, paint.native);
   end
   
   def circle(x, y, size, paint = nil)
@@ -107,7 +121,8 @@ class Canvas
     if bitmap.kind_of? BitmapDrawableWrapper
       bitmap = bitmap.to_bitmap
     end
-    @native.drawBitmap(bitmap, x.to_f, y.to_f, paint.native)
+    
+    java_drawBitmap(bitmap, x.to_f, y.to_f, paint.native)
   end
   
 end

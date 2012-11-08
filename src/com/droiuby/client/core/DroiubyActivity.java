@@ -39,6 +39,16 @@ public abstract class DroiubyActivity extends Activity implements
 	String currentUrl;
 	protected WebConsole console;
 
+	protected void reloadApplication(ActiveApp application, ViewGroup target,
+			int mainlayout) {
+		ScriptingContainer container = executionBundle.getContainer();
+		
+		container.put("_controller",
+				executionBundle.getCurrentController());
+		executionBundle.getContainer().runScriptlet("_controller.on_activity_reload");		
+		this.setupApplication(application, target, mainlayout);
+	}
+	
 	public SharedPreferences getCurrentPreferences() {
 		try {
 			SharedPreferences prefs = null;

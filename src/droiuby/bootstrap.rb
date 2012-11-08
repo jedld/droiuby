@@ -208,5 +208,9 @@ class ActivityWrapper
   def on_activity_result(request_code, result_code, intent)
     
   end
+  
+  def on_activity_reload
+  end
+  
 end
 

@@ -3,7 +3,9 @@ require 'droiuby/wrappers/java_helpers/view_helper'
 
 class ViewWrapper
   
+  include JavaMethodHelper
   include Droiuby::ViewHelper
+
   
   java_attr_accessor :right, :left, :top, :bottom, :x, :y, :alpha, :rotation, :pivot_x, :pivot_y, :translation_x, 
     :translation_y, :scroll_x, :scroll_y, :scale_x, :scale_y, :rotation_x, :rotation_y, :camera_distance,
@@ -28,7 +30,7 @@ class ViewWrapper
   def builder
     @builder
   end
-
+  
   def background=(background)
     if background.kind_of? DrawableWrapper
       @view.setBackgroundDrawable(background.native)

@@ -2,6 +2,7 @@
 require 'droiuby/support/string'
 require 'droiuby/support/to_query'
 require 'droiuby/support/asset'
+require 'droiuby/wrappers/java_helpers/java_method_helper'
 require 'droiuby/wrappers/async'
 require 'droiuby/wrappers/view_group_wrapper'
 require 'droiuby/wrappers/linear_layout'

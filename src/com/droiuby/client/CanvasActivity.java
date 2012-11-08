@@ -95,7 +95,7 @@ public class CanvasActivity extends DroiubyActivity implements
 		// Handle item selection
 		switch (item.getItemId()) {
 		case R.id.itemRefresh:
-			setupApplication(application, target, R.id.mainLayout);
+			reloadApplication(application, target, R.id.mainLayout);
 			break;
 		case R.id.itemConsole:
 			this.showConsoleInfo();
@@ -143,6 +143,7 @@ public class CanvasActivity extends DroiubyActivity implements
 		}
 		return false;
 	}
+
 
 	public void onDocumentReady(Document mainActivity) {
 		// TODO Auto-generated method stub
