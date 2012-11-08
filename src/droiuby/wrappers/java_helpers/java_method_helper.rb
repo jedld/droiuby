@@ -7,9 +7,10 @@ module JavaMethodHelper
   
   module ClassMethods
     
-    def java_native_method(java_klass, method_sym, params = [])
+    def java_native_method(java_klass, method_sym, params = [], method_name = nil)
         unbound_method = java_klass.java_method(method_sym, params)
-        define_method "java_#{method_sym.to_s}".to_sym do |*args|
+        method_name = "java_#{method_sym.to_s}" if method_name.nil?
+        define_method method_name.to_sym do |*args|
           unbound_method.bind(self.native).call(*args)
         end
     end
