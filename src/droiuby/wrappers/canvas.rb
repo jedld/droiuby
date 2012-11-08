@@ -76,7 +76,7 @@ class Canvas
   java_native_method Java::android.graphics.Canvas, :drawBitmap, [Java::android.graphics.Bitmap, Java::float, Java::float, Java::android.graphics.Paint]
   java_native_method Java::android.graphics.Canvas, :drawCircle, [Java::float, Java::float, Java::float, Java::android.graphics.Paint]
   java_native_method Java::android.graphics.Canvas, :drawLine, [Java::float, Java::float, Java::float, Java::float, Java::android.graphics.Paint]
-  
+  java_native_method Java::android.graphics.Canvas, :drawRoundRect, [Java::android.graphics.RectF, Java::float, Java::float, Java::android.graphics.Paint]
   
   def initialize(native)
     @native = native
@@ -89,6 +89,10 @@ class Canvas
   
   def make_paint
     Paint.new
+  end
+  
+  def make_rect(left, top, right, bottom)
+    Java::android.graphics.RectF.new(left, top, right, bottom)
   end
   
   def paint=(p)
@@ -128,4 +132,8 @@ class Canvas
     java_drawBitmap(bitmap, x.to_f, y.to_f, paint.native)
   end
   
+  def round_rect(rect, x, y, paint = nil)
+    paint = @paint if paint.nil?
+    java_drawRoundRect(rect, x, y, paint.native) 
+  end  
 end
