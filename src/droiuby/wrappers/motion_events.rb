@@ -4,8 +4,14 @@ class MotionEventsWrapper
   ACTION_MOVE = Java::android.view.MotionEvent::ACTION_MOVE
   
   include Droiuby::ViewHelper
+  include JavaMethodHelper
   
-  java_fast_reader Java::android.view.MotionEvent, :x, :y
+  java_fast_reader Java::android.view.MotionEvent, :x, :y, :action, :pointer_count, :history_size
+  java_native_method Java::android.view.MotionEvent, :getHistoricalEventTime, [Java::int]
+  java_native_method Java::android.view.MotionEvent, :getPointerId, [Java::int]
+  java_native_method Java::android.view.MotionEvent, :getHistoricalX, [Java::int, Java::int]
+  java_native_method Java::android.view.MotionEvent, :getHistoricalY, [Java::int, Java::int]
+  
   
   def initialize(event)
     @native = event
@@ -15,17 +21,12 @@ class MotionEventsWrapper
     @native
   end
   
-  def action
-    @native.getAction
-  end
-
-   
   def each(&block)
-    pointerCount = @native.getPointerCount();
-    (0...@native.getHistorySize()).each do |h|
-      current_time = @native.getHistoricalEventTime(h)
+    pointerCount = pointer_count
+    (0...history_size).each do |h|
+      current_time = java_getHistoricalEventTime(h)
       (0...pointerCount).each do |p|
-        block.call(@native.getPointerId(p), @native.getHistoricalX(p, h), @native.getHistoricalY(p, h))
+        block.call(java_getPointerId(p), java_getHistoricalX(p, h), java_getHistoricalY(p, h))
       end
     end
   end
