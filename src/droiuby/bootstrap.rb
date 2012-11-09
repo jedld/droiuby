@@ -1,15 +1,28 @@
 puts 'initializing bootstrap'
 
+include JavaMethodHelper::ClassMethods
+
+class PayloadWrapper
+  java_native_singleton_on($container_payload, Java::com.droiuby.client.core.RubyContainerPayload, :getContainer, [])
+  java_native_singleton_on($container_payload, Java::com.droiuby.client.core.RubyContainerPayload, :getActiveApp, [])
+  java_native_singleton_on($container_payload, Java::com.droiuby.client.core.RubyContainerPayload, :getExecutionBundle, [])
+  java_native_singleton_on($container_payload, Java::com.droiuby.client.core.RubyContainerPayload, :getActivityBuilder, [])
+end
+
+def _container_payload
+  $container_payload
+end
+
 def _scripting_container
-  $container_payload.getContainer
+  PayloadWrapper.java_getContainer
 end
 
 def _current_app
-  $container_payload.getActiveApp
+  PayloadWrapper.java_getActiveApp
 end
 
 def _execution_bundle
-  $container_payload.getExecutionBundle
+  PayloadWrapper.java_getExecutionBundle
 end
 
 def _current_activity
@@ -17,7 +30,7 @@ def _current_activity
 end
 
 def _activity_builder
-  $container_payload.getActivityBuilder
+  PayloadWrapper.java_getActivityBuilder
 end
 
 def _current_page_url
