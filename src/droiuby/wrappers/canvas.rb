@@ -70,6 +70,10 @@ end
 class Canvas
   
   include JavaMethodHelper
+  include Droiuby::ViewHelper
+  
+  java_fast_reader Java::android.graphics.Canvas, :width
+  java_fast_reader Java::android.graphics.Canvas, :height
   
   java_native_method Java::android.graphics.Canvas, :drawColor, [Java::int]
   java_native_method Java::android.graphics.Canvas, :drawText, [Java::java.lang.String, Java::float, Java::float, Java::android.graphics.Paint]
@@ -129,7 +133,7 @@ class Canvas
   
   def bitmap(bitmap, x, y, paint = nil, options = {})
     paint = @paint if paint.nil?
-    if bitmap.kind_of? BitmapDrawableWrapper
+    if bitmap.class == BitmapDrawableWrapper
       bitmap = bitmap.to_bitmap
     end
 #    native.drawBitmap(bitmap, x.to_f, y.to_f, paint.native)
