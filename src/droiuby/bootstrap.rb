@@ -3,10 +3,11 @@ puts 'initializing bootstrap'
 include JavaMethodHelper::ClassMethods
 
 class PayloadWrapper
-  java_native_singleton_on($container_payload, Java::com.droiuby.client.core.RubyContainerPayload, :getContainer, [])
-  java_native_singleton_on($container_payload, Java::com.droiuby.client.core.RubyContainerPayload, :getActiveApp, [])
-  java_native_singleton_on($container_payload, Java::com.droiuby.client.core.RubyContainerPayload, :getExecutionBundle, [])
-  java_native_singleton_on($container_payload, Java::com.droiuby.client.core.RubyContainerPayload, :getActivityBuilder, [])
+  [:getContainer, :getActiveApp, :getExecutionBundle, :getActivityBuilder].each do |method|
+    java_native_singleton_on($container_payload, Java::com.droiuby.client.core.RubyContainerPayload, method, [])
+  end
+  
+  java_native_singleton_on($container_payload.getExecutionBundle, Java::com.droiuby.client.core.ExecutionBundle, :getCurrentActivity, [])
 end
 
 def _container_payload
@@ -26,7 +27,7 @@ def _execution_bundle
 end
 
 def _current_activity
-  _execution_bundle.getCurrentActivity
+  PayloadWrapper.java_getCurrentActivity
 end
 
 def _activity_builder
@@ -94,6 +95,12 @@ end
 
 def _thread(&block)
   Java::com.droiuby.client.core.wrappers.ThreadWrapper.new(block, _execution_bundle)
+end
+
+def _pool(&block)
+  thread_pool = ThreadPoolWrapper.new
+  block.call(thread_pool)
+  thread_pool.start
 end
 
 def wrap_native_view(view)
