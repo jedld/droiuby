@@ -1,6 +1,11 @@
 package com.droiuby.client.core.wrappers;
 
 import org.jruby.RubyProc;
+import org.jruby.embed.ScriptingContainer;
+import org.jruby.javasupport.JavaObject;
+import org.jruby.javasupport.JavaUtil;
+import org.jruby.runtime.ThreadContext;
+import org.jruby.runtime.builtin.IRubyObject;
 
 import com.droiuby.client.core.ExecutionBundle;
 
@@ -11,15 +16,22 @@ import android.widget.ListAdapter;
 
 public class ListViewAdapterWrapper implements ListAdapter {
 
-	RubyProc getCountBody, getItemBody, getItemIdBody, getItemViewTypeBody, 
-		getViewBody, getViewTypeCountBody, hasStableIdBody, isEmptyBody, registerDataSetObserverBody,
-		unregisterDataSetObserverBody, areAllItemsEnabledBody, isEnabledBody;
-	
+	RubyProc getCountBody, getItemBody, getItemIdBody, getItemViewTypeBody,
+			getViewBody, getViewTypeCountBody, hasStableIdBody, isEmptyBody,
+			registerDataSetObserverBody, unregisterDataSetObserverBody,
+			areAllItemsEnabledBody, isEnabledBody;
+
 	ExecutionBundle bundle;
-	
+	ScriptingContainer container;
+
+	private ThreadContext ruby_context;
+
 	public ListViewAdapterWrapper(ExecutionBundle bundle) {
 		this.bundle = bundle;
+		this.container = bundle.getContainer();
+		this.ruby_context = container.getProvider().getRuntime().getCurrentContext();
 	}
+
 	public RubyProc getGetCountBody() {
 		return getCountBody;
 	}
@@ -88,7 +100,8 @@ public class ListViewAdapterWrapper implements ListAdapter {
 		return registerDataSetObserverBody;
 	}
 
-	public void setRegisterDataSetObserverBody(RubyProc registerDataSetObserverBody) {
+	public void setRegisterDataSetObserverBody(
+			RubyProc registerDataSetObserverBody) {
 		this.registerDataSetObserverBody = registerDataSetObserverBody;
 	}
 
@@ -118,62 +131,192 @@ public class ListViewAdapterWrapper implements ListAdapter {
 	}
 
 	public int getCount() {
-		// TODO Auto-generated method stub
+		try {
+			IRubyObject args[] = new IRubyObject[] {};
+			if (this.getCountBody != null) {
+				IRubyObject result = this.getCountBody.call19(container
+						.getProvider().getRuntime().getCurrentContext(), args,
+						null);
+				return (int) result.convertToInteger().getLongValue();
+			}
+		} catch (org.jruby.exceptions.RaiseException e) {
+			bundle.addError(e.getMessage());
+			e.printStackTrace();
+		}
 		return 0;
 	}
 
-	public Object getItem(int arg0) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public long getItemId(int arg0) {
-		// TODO Auto-generated method stub
+	public Object getItem(int element) {
+		try {
+			IRubyObject args[] = new IRubyObject[] { JavaUtil.convertJavaToRuby(container.getProvider().getRuntime(), element)};
+			if (this.getItemBody != null) {
+				IRubyObject result = this.getItemBody.call19(container
+						.getProvider().getRuntime().getCurrentContext(), args,
+						null);
+				return result;
+			}
+		} catch (org.jruby.exceptions.RaiseException e) {
+			bundle.addError(e.getMessage());
+			e.printStackTrace();
+		}
 		return 0;
 	}
 
-	public int getItemViewType(int arg0) {
-		// TODO Auto-generated method stub
+	public long getItemId(int element) {
+		try {
+			IRubyObject args[] = new IRubyObject[] {JavaUtil.convertJavaToRuby(container.getProvider().getRuntime(), element)};
+			if (this.getItemIdBody != null) {
+				IRubyObject result = this.getItemIdBody.call19(container
+						.getProvider().getRuntime().getCurrentContext(), args,
+						null);
+				return result.convertToInteger().getLongValue();
+			}
+		} catch (org.jruby.exceptions.RaiseException e) {
+			bundle.addError(e.getMessage());
+			e.printStackTrace();
+		}
+		return 0;
+	}
+
+	public int getItemViewType(int element) {
+		try {
+			IRubyObject args[] = new IRubyObject[] {JavaUtil.convertJavaToRuby(container.getProvider().getRuntime(), element)};
+			if (this.getItemViewTypeBody != null) {
+				IRubyObject result = this.getItemViewTypeBody.call19(container
+						.getProvider().getRuntime().getCurrentContext(), args,
+						null);
+				return (int)result.convertToInteger().getLongValue();
+			}
+		} catch (org.jruby.exceptions.RaiseException e) {
+			bundle.addError(e.getMessage());
+			e.printStackTrace();
+		}
 		return 0;
 	}
 
 	public View getView(int position, View convertView, ViewGroup parent) {
-		// TODO Auto-generated method stub
+		try {
+			IRubyObject args[] = new IRubyObject[] {JavaUtil.convertJavaToRuby(container.getProvider().getRuntime(), position),
+					JavaUtil.convertJavaToRuby(container.getProvider().getRuntime(), convertView), JavaUtil.convertJavaToRuby(container.getProvider().getRuntime(), parent)};
+			if (this.getViewBody != null) {
+				JavaObject result = (JavaObject)this.getViewBody.call19(container
+						.getProvider().getRuntime().getCurrentContext(), args,
+						null);
+				return (View)result.toJava(View.class);
+			}
+		} catch (org.jruby.exceptions.RaiseException e) {
+			bundle.addError(e.getMessage());
+			e.printStackTrace();
+		}
 		return null;
 	}
 
 	public int getViewTypeCount() {
-		// TODO Auto-generated method stub
+		try {
+			IRubyObject args[] = new IRubyObject[] {};
+			if (this.getViewTypeCountBody != null) {
+				IRubyObject result = this.getViewTypeCountBody.call19(container
+						.getProvider().getRuntime().getCurrentContext(), args,
+						null);
+				return (int)result.convertToInteger().getLongValue();
+			}
+		} catch (org.jruby.exceptions.RaiseException e) {
+			bundle.addError(e.getMessage());
+			e.printStackTrace();
+		}
 		return 0;
 	}
 
 	public boolean hasStableIds() {
-		// TODO Auto-generated method stub
+		try {
+			IRubyObject args[] = new IRubyObject[] {};
+			if (this.hasStableIdBody != null) {
+				IRubyObject result = this.hasStableIdBody.call19(container
+						.getProvider().getRuntime().getCurrentContext(), args,
+						null);
+				return JavaUtil.convertRubyToJavaBoolean(result);
+			}
+		} catch (org.jruby.exceptions.RaiseException e) {
+			bundle.addError(e.getMessage());
+			e.printStackTrace();
+		}
 		return false;
 	}
 
 	public boolean isEmpty() {
-		// TODO Auto-generated method stub
+		try {
+			IRubyObject args[] = new IRubyObject[] {};
+			if (this.isEmptyBody != null) {
+				IRubyObject result = this.isEmptyBody.call19(container
+						.getProvider().getRuntime().getCurrentContext(), args,
+						null);
+				return JavaUtil.convertRubyToJavaBoolean(result);
+			}
+		} catch (org.jruby.exceptions.RaiseException e) {
+			bundle.addError(e.getMessage());
+			e.printStackTrace();
+		}
 		return false;
 	}
 
 	public void registerDataSetObserver(DataSetObserver observer) {
-		// TODO Auto-generated method stub
-		
+		try {
+			IRubyObject args[] = new IRubyObject[] {JavaUtil.convertJavaToRuby(container.getProvider().getRuntime(), observer)};
+			if (this.registerDataSetObserverBody != null) {
+				this.registerDataSetObserverBody.call19(container
+						.getProvider().getRuntime().getCurrentContext(), args,
+						null);
+			}
+		} catch (org.jruby.exceptions.RaiseException e) {
+			bundle.addError(e.getMessage());
+			e.printStackTrace();
+		}
 	}
 
 	public void unregisterDataSetObserver(DataSetObserver observer) {
-		// TODO Auto-generated method stub
-		
+		try {
+			IRubyObject args[] = new IRubyObject[] {JavaUtil.convertJavaToRuby(container.getProvider().getRuntime(), observer)};
+			if (this.unregisterDataSetObserverBody!= null) {
+				this.unregisterDataSetObserverBody.call19(container
+						.getProvider().getRuntime().getCurrentContext(), args,
+						null);
+			}
+		} catch (org.jruby.exceptions.RaiseException e) {
+			bundle.addError(e.getMessage());
+			e.printStackTrace();
+		}
+
 	}
 
 	public boolean areAllItemsEnabled() {
-		// TODO Auto-generated method stub
+		try {
+			IRubyObject args[] = new IRubyObject[] {};
+			if (this.areAllItemsEnabledBody != null) {
+				IRubyObject result = this.areAllItemsEnabledBody.call19(container
+						.getProvider().getRuntime().getCurrentContext(), args,
+						null);
+				return JavaUtil.convertRubyToJavaBoolean(result);
+			}
+		} catch (org.jruby.exceptions.RaiseException e) {
+			bundle.addError(e.getMessage());
+			e.printStackTrace();
+		}
 		return false;
 	}
 
 	public boolean isEnabled(int position) {
-		// TODO Auto-generated method stub
+		try {
+			IRubyObject args[] = new IRubyObject[] {JavaUtil.convertJavaToRuby(container.getProvider().getRuntime(), position)};
+			if (this.isEnabledBody != null) {
+				IRubyObject result = this.isEnabledBody.call19(container
+						.getProvider().getRuntime().getCurrentContext(), args,
+						null);
+				return JavaUtil.convertRubyToJavaBoolean(result);
+			}
+		} catch (org.jruby.exceptions.RaiseException e) {
+			bundle.addError(e.getMessage());
+			e.printStackTrace();
+		}
 		return false;
 	}
 
