@@ -5,17 +5,20 @@ import java.util.ArrayList;
 import org.jruby.embed.ScriptingContainer;
 
 import android.app.Activity;
+import android.content.Context;
+import android.hardware.Sensor;
+import android.hardware.SensorManager;
 
 import com.droiuby.client.core.interfaces.OnUrlChangedListener;
 
 public class ExecutionBundle {
-	
+
 	ScriptingContainer container;
 	OnUrlChangedListener urlChangedListener;
 	Activity currentActivity;
 	String currentUrl;
 	Object currentController;
-	
+
 	public Object getCurrentController() {
 		return currentController;
 	}
@@ -24,8 +27,8 @@ public class ExecutionBundle {
 		this.currentController = currentController;
 	}
 
-	boolean libraryInitialized = false;	
-	
+	boolean libraryInitialized = false;
+
 	public Activity getCurrentActivity() {
 		return currentActivity;
 	}
@@ -33,7 +36,7 @@ public class ExecutionBundle {
 	public void setCurrentActivity(Activity currentActivity) {
 		this.currentActivity = currentActivity;
 	}
-	
+
 	public boolean isLibraryInitialized() {
 		return libraryInitialized;
 	}
@@ -47,7 +50,7 @@ public class ExecutionBundle {
 	public ArrayList<String> getScriptErrors() {
 		return scriptErrors;
 	}
-	
+
 	public void clearErrors() {
 		scriptErrors.clear();
 	}
@@ -55,7 +58,7 @@ public class ExecutionBundle {
 	public void addError(String errorMessage) {
 		scriptErrors.add(errorMessage);
 	}
-	
+
 	public void setScriptErrors(ArrayList<String> scriptErrors) {
 		this.scriptErrors = scriptErrors;
 	}
@@ -90,6 +93,12 @@ public class ExecutionBundle {
 
 	public void setPayload(RubyContainerPayload payload) {
 		this.payload = payload;
+	}
+
+	public SensorManager getSensor(int type) {
+		SensorManager mSensorManager = (SensorManager) currentActivity
+				.getSystemService(Context.SENSOR_SERVICE);
+		return mSensorManager;
 	}
 
 	RubyContainerPayload payload;
