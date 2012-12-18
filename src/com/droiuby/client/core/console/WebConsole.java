@@ -115,7 +115,7 @@ public class WebConsole extends NanoHTTPD {
 	}
 
 	String mapToJSON(Map<String, String> resultMap) {
-		StringBuffer jsonString = new StringBuffer();
+		StringBuilder jsonString = new StringBuilder();
 		jsonString.append("{");
 		boolean first = true;
 		for (String key : resultMap.keySet()) {
@@ -143,7 +143,7 @@ public class WebConsole extends NanoHTTPD {
 		if (uri.startsWith("/console")) {
 			final String statement = params.getProperty("cmd", "");
 			final Map<String, String> resultMap = new HashMap<String, String>();
-			StringBuffer resultStr = new StringBuffer();
+			StringBuilder resultStr = new StringBuilder();
 			final ScriptingContainer container = containerRef.get();
 			if (container == null) {
 				resultMap.put("err", "true");

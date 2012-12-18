@@ -187,7 +187,7 @@ public class Utils {
 		BufferedReader reader;
 		try {
 			reader = new BufferedReader(new FileReader(asset));
-			StringBuffer contents = new StringBuffer();
+			StringBuilder contents = new StringBuilder();
 			while (reader.ready()) {
 				contents.append(reader.readLine());
 			}
@@ -232,7 +232,7 @@ public class Utils {
 			reader = new BufferedReader(new InputStreamReader(c.getAssets()
 					.open(asset_path)));
 
-			StringBuffer content = new StringBuffer();
+			StringBuilder content = new StringBuilder();
 
 			while (reader.ready()) {
 				content.append(reader.readLine() + "\n");

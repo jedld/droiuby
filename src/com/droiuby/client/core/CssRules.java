@@ -60,7 +60,7 @@ class Selector {
 		int pos = 0;
 		int state = STATE_TYPE_INITIAL;
 		int sub_state = 0;
-		StringBuffer identifierNameBuffer = new StringBuffer();
+		StringBuilder identifierNameBuffer = new StringBuilder();
 		do {
 			char c = selectorChars[pos];
 			if (state == STATE_TYPE_INITIAL) {
@@ -85,7 +85,7 @@ class Selector {
 							
 							subSelector.identifier = identifierNameBuffer.toString();
 							
-							identifierNameBuffer = new StringBuffer();
+							identifierNameBuffer = new StringBuilder();
 							
 							if (sub_state!=SUB_STATE_TYPE_COMPOUND_SELECTOR) {
 								subSelector.setSelectorType(current.getSelectorType());
