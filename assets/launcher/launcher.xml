@@ -6,5 +6,6 @@
         	<image_button src="@drawable:qrcode" id="qrcode" width="wrap" height="match">QR Code</image_button>
         </layout>
         <button id="run" width="match" height="wrap" >Run</button>
+        
     </layout>
 </activity>

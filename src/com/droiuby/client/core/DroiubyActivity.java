@@ -154,7 +154,7 @@ public abstract class DroiubyActivity extends Activity implements
 			if (executionBundle != null) {
 				container = executionBundle.getContainer();
 			}
-			console.setContainer(container);
+			console.setBundle(executionBundle);
 			console.setActivity(this);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

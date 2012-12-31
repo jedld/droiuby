@@ -15,27 +15,38 @@ import org.jruby.embed.ScriptingContainer;
 import org.jruby.runtime.builtin.IRubyObject;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.res.AssetManager;
 import android.util.Log;
+import android.view.ViewGroup;
 
+import com.droiuby.client.CanvasActivity;
+import com.droiuby.client.R;
+import com.droiuby.client.core.ActiveApp;
+import com.droiuby.client.core.ActivityBuilder;
+import com.droiuby.client.core.AppDownloader;
+import com.droiuby.client.core.ExecutionBundle;
+import com.droiuby.client.core.OnDownloadCompleteListener;
+import com.droiuby.client.core.callbacks.OnAppDownloadComplete;
+import com.droiuby.client.utils.ActiveAppDownloader;
 import com.droiuby.client.utils.NanoHTTPD;
 import com.droiuby.client.utils.NanoHTTPD.Response;
 import com.fasterxml.jackson.core.JsonGenerationException;
 
-public class WebConsole extends NanoHTTPD {
+public class WebConsole extends NanoHTTPD  {
 
-	WeakReference<ScriptingContainer> containerRef;
+	WeakReference<ExecutionBundle> bundleRef;
 	public static WebConsole instance;
 	WeakReference<Activity> activity;
 	AssetManager manager;
 	int referenceCount = 0;
 
-	public ScriptingContainer getContainer() {
-		return containerRef.get();
+	public ExecutionBundle getBundle() {
+		return bundleRef.get();
 	}
 
-	public void setContainer(ScriptingContainer container) {
-		this.containerRef = new WeakReference<ScriptingContainer>(container);
+	public void setBundle(ExecutionBundle bundle) {
+		this.bundleRef = new WeakReference<ExecutionBundle>(bundle);
 	}
 
 	public static WebConsole getInstance() {
@@ -57,14 +68,14 @@ public class WebConsole extends NanoHTTPD {
 
 	public static boolean uiPosted = false;
 
-	protected WebConsole(int port, File wwwroot)
-			throws IOException {
+	protected WebConsole(int port, File wwwroot) throws IOException {
 		super(port, wwwroot);
 		Log.d(this.getClass().toString(), "Starting HTTPD server on port "
 				+ port);
 	}
 
-	public static WebConsole getInstance(int port, File wwwroot) throws IOException {
+	public static WebConsole getInstance(int port, File wwwroot)
+			throws IOException {
 		if (instance == null) {
 			instance = new WebConsole(port, wwwroot);
 		}
@@ -87,7 +98,7 @@ public class WebConsole extends NanoHTTPD {
 	public static void execute(ScriptingContainer container,
 			EmbedEvalUnit evalUnit, Map<String, String> resultMap) {
 		try {
-			
+
 			container.put("inspect_target", evalUnit.run());
 			container.runScriptlet("puts \"=> #{inspect_target.inspect}\"");
 		} catch (org.jruby.embed.EvalFailedException e) {
@@ -110,8 +121,10 @@ public class WebConsole extends NanoHTTPD {
 	}
 
 	String escapeJSON(String str) {
-		return "\"" + str.replace("\\", "\\\\").replace("\"", "\\\"").
-				replace("\n", "\\n").replace("\r", "\\r").replace("\t", "\\t") + "\"";
+		return "\""
+				+ str.replace("\\", "\\\\").replace("\"", "\\\"")
+						.replace("\n", "\\n").replace("\r", "\\r")
+						.replace("\t", "\\t") + "\"";
 	}
 
 	String mapToJSON(Map<String, String> resultMap) {
@@ -134,37 +147,71 @@ public class WebConsole extends NanoHTTPD {
 		jsonString.append("}");
 		return jsonString.toString();
 	}
-	
+
 	@Override
 	public Response serve(String uri, String method, Properties header,
 			Properties params, Properties files) {
 		Log.d(this.getClass().toString(), "HTTP request received. uri = " + uri);
+
 		Response response;
-		if (uri.startsWith("/console")) {
+		if (uri.startsWith("/control")) {
+			final Map<String, String> resultMap = new HashMap<String, String>();
+			String cmd = params.getProperty("cmd", "");
+			if (cmd.equals("launch")) {
+				final String url = params.getProperty("url", "");
+				final Activity currentActivity = activity.get();
+				if (currentActivity != null) {
+					currentActivity.runOnUiThread(new Runnable() {
+						public void run() {
+							ActivityBuilder.loadApp(currentActivity, url); 
+						}
+					});
+
+					resultMap.put("result", "success");
+				} else {
+					resultMap.put("err", "true");
+					resultMap
+							.put("result",
+									"No JRuby instance attached. Make sure an activity is visible before issuing console commands");
+				}
+			} else {
+				resultMap.put("err", "true");
+				resultMap.put("result", "unknown command");
+			}
+			response = new Response(NanoHTTPD.HTTP_OK, "application/json",
+					mapToJSON(resultMap));
+
+		} else if (uri.startsWith("/console")) {
 			final String statement = params.getProperty("cmd", "");
 			final Map<String, String> resultMap = new HashMap<String, String>();
 			StringBuilder resultStr = new StringBuilder();
-			final ScriptingContainer container = containerRef.get();
-			if (container == null) {
+			final ExecutionBundle bundle = bundleRef.get();
+			if (bundle == null) {
 				resultMap.put("err", "true");
-				resultMap.put("result","No JRuby instance attached. Make sure an activity is visible before issuing console commands");
+				resultMap
+						.put("result",
+								"No JRuby instance attached. Make sure an activity is visible before issuing console commands");
 			} else {
-				
+
 				StringWriter writer = new StringWriter();
-				container.setWriter(writer);
+				final ScriptingContainer scripting_container = bundle.getContainer();
+				scripting_container.setWriter(writer);
 
 				resultMap.put("cmd", statement);
 				try {
-					final EmbedEvalUnit evalUnit = container
+					final EmbedEvalUnit evalUnit = scripting_container
 							.parse(statement, 0);
-					Activity currentActivity = activity.get(); 
+					Activity currentActivity = activity.get();
 					WebConsole.uiPosted = false;
-					if (currentActivity!= null) {
-						Log.d(this.getClass().toString(),"Current Activity " + currentActivity.toString());
+					if (currentActivity != null) {
+						Log.d(this.getClass().toString(), "Current Activity "
+								+ currentActivity.toString());
 						currentActivity.runOnUiThread(new Runnable() {
 							public void run() {
-								Log.d(this.getClass().toString(),"Running command on " + container.toString());
-								execute(container, evalUnit, resultMap);
+								Log.d(this.getClass().toString(),
+										"Running command on "
+												+ bundle.toString());
+								execute(scripting_container, evalUnit, resultMap);
 								WebConsole.uiPosted = true;
 							}
 						});
@@ -172,8 +219,8 @@ public class WebConsole extends NanoHTTPD {
 							Thread.sleep(100);
 						}
 					} else {
-						container.put("inspect_target", evalUnit.run());
-						container
+						scripting_container.put("inspect_target", evalUnit.run());
+						scripting_container
 								.runScriptlet("puts \"=> #{inspect_target.inspect}\"");
 					}
 
@@ -196,7 +243,7 @@ public class WebConsole extends NanoHTTPD {
 
 				resultStr.append(mapToJSON(resultMap));
 			}
-			
+
 			response = new Response(NanoHTTPD.HTTP_OK, "application/json",
 					resultStr.toString());
 		} else {
@@ -219,6 +266,11 @@ public class WebConsole extends NanoHTTPD {
 			}
 		}
 		return response;
+	}
+
+	public void setActiveApp(ActiveApp application) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

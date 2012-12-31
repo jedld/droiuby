@@ -85,7 +85,7 @@ public class CanvasActivity extends DroiubyActivity implements
 		// TODO Auto-generated method stub
 		super.onStart();
 		if (console != null) {
-			console.setContainer(executionBundle.getContainer());
+			console.setBundle(executionBundle);
 			console.setActivity(this);
 		}
 	}
