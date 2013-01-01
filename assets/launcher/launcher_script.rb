@@ -10,6 +10,13 @@ def on_create
       integrator = Java::com.droiuby.client.utils.intents.IntentIntegrator.new(me)
       integrator.initiateScan
     end
+    
+  async.perform {
+    Java::com.droiuby.client.utils.Utils.getLocalIpAddress(_current_activity)
+  }.done { |result|
+    V('#ip_address').text = "#{result}:4000"
+  }.start
+    
 end
 
 
@@ -20,3 +27,4 @@ def on_activity_result(request_code, result_code, intent)
     app_url.text= scanResult.getContents()
   end
 end
+

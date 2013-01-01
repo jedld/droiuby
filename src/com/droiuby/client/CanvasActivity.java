@@ -89,13 +89,19 @@ public class CanvasActivity extends DroiubyActivity implements
 			console.setActivity(this);
 		}
 	}
-
+	
+	public void refreshCurrentApplication() {
+		ViewGroup view = (ViewGroup)findViewById(R.id.mainLayout);
+		view.removeAllViews();
+		reloadApplication(application, target, R.id.mainLayout);	
+	}
+	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		// Handle item selection
 		switch (item.getItemId()) {
 		case R.id.itemRefresh:
-			reloadApplication(application, target, R.id.mainLayout);
+			refreshCurrentApplication();
 			break;
 		case R.id.itemConsole:
 			this.showConsoleInfo();

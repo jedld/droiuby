@@ -33,7 +33,7 @@ import com.droiuby.client.utils.NanoHTTPD;
 import com.droiuby.client.utils.NanoHTTPD.Response;
 import com.fasterxml.jackson.core.JsonGenerationException;
 
-public class WebConsole extends NanoHTTPD  {
+public class WebConsole extends NanoHTTPD {
 
 	WeakReference<ExecutionBundle> bundleRef;
 	public static WebConsole instance;
@@ -163,7 +163,7 @@ public class WebConsole extends NanoHTTPD  {
 				if (currentActivity != null) {
 					currentActivity.runOnUiThread(new Runnable() {
 						public void run() {
-							ActivityBuilder.loadApp(currentActivity, url); 
+							ActivityBuilder.loadApp(currentActivity, url);
 						}
 					});
 
@@ -173,6 +173,23 @@ public class WebConsole extends NanoHTTPD  {
 					resultMap
 							.put("result",
 									"No JRuby instance attached. Make sure an activity is visible before issuing console commands");
+				}
+			} else
+			if (cmd.equals("reload")) {
+				final Activity currentActivity = activity.get();
+				if (currentActivity instanceof CanvasActivity) {
+					currentActivity.runOnUiThread(new Runnable() {
+						public void run() {
+							((CanvasActivity) currentActivity)
+							.refreshCurrentApplication();
+						}
+					});
+					resultMap.put("result", "success");
+				} else {
+					resultMap.put("err", "true");
+					resultMap
+							.put("result",
+									"Activity must be an instance of CanvasActivity to support this operation.");
 				}
 			} else {
 				resultMap.put("err", "true");
@@ -194,13 +211,14 @@ public class WebConsole extends NanoHTTPD  {
 			} else {
 
 				StringWriter writer = new StringWriter();
-				final ScriptingContainer scripting_container = bundle.getContainer();
+				final ScriptingContainer scripting_container = bundle
+						.getContainer();
 				scripting_container.setWriter(writer);
 
 				resultMap.put("cmd", statement);
 				try {
-					final EmbedEvalUnit evalUnit = scripting_container
-							.parse(statement, 0);
+					final EmbedEvalUnit evalUnit = scripting_container.parse(
+							statement, 0);
 					Activity currentActivity = activity.get();
 					WebConsole.uiPosted = false;
 					if (currentActivity != null) {
@@ -211,7 +229,8 @@ public class WebConsole extends NanoHTTPD  {
 								Log.d(this.getClass().toString(),
 										"Running command on "
 												+ bundle.toString());
-								execute(scripting_container, evalUnit, resultMap);
+								execute(scripting_container, evalUnit,
+										resultMap);
 								WebConsole.uiPosted = true;
 							}
 						});
@@ -219,7 +238,8 @@ public class WebConsole extends NanoHTTPD  {
 							Thread.sleep(100);
 						}
 					} else {
-						scripting_container.put("inspect_target", evalUnit.run());
+						scripting_container.put("inspect_target",
+								evalUnit.run());
 						scripting_container
 								.runScriptlet("puts \"=> #{inspect_target.inspect}\"");
 					}
@@ -270,7 +290,7 @@ public class WebConsole extends NanoHTTPD  {
 
 	public void setActiveApp(ActiveApp application) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -47,6 +48,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.res.AssetManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
@@ -191,6 +193,20 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 				String baseUrl = rootElem.getChildText("base_url");
 				String mainActivity = rootElem.getChildText("main");
 
+				if (baseUrl == null || baseUrl.equals("")) {
+					URL aURL = new URL(url);
+					String adjusted_path = aURL.getPath();
+					int pos = 0;
+					
+					while ( (adjusted_path.indexOf("/", pos))!=-1) {
+						pos = adjusted_path.indexOf("/", pos) + 1;
+					}
+					
+					adjusted_path = adjusted_path.substring(0, pos);
+					
+					baseUrl = aURL.getProtocol() + "://" + aURL.getHost() + ":" + aURL.getPort() + adjusted_path; 
+				}
+				
 				ActiveApp app = new ActiveApp();
 				app.setDescription(appDescription);
 				app.setName(appName);

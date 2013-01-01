@@ -10,8 +10,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Serializable;
+import java.net.InetAddress;
 import java.net.MalformedURLException;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.net.URL;
+import java.net.UnknownHostException;
+import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -30,12 +35,10 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.jruby.CompatVersion;
-import org.jruby.RubyObject;
 import org.jruby.embed.EmbedEvalUnit;
 import org.jruby.embed.LocalContextScope;
 import org.jruby.embed.LocalVariableBehavior;
 import org.jruby.embed.ScriptingContainer;
-import org.jruby.javasupport.JavaObject;
 import org.jruby.javasupport.JavaUtil;
 import org.jruby.runtime.builtin.IRubyObject;
 
@@ -43,7 +46,10 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Environment;
+import android.text.format.Formatter;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
@@ -106,6 +112,7 @@ class DroiubyHttpResponseHandler extends BasicResponseHandler {
 		this.context = context;
 	}
 
+	@Override
 	public String handleResponse(HttpResponse response)
 			throws ClientProtocolException, IOException {
 		Utils.logHeaders(response.getAllHeaders(), this.getClass());
@@ -134,7 +141,7 @@ class DroiubyHttpResponseHandler extends BasicResponseHandler {
 
 			Header headers[] = response.getHeaders("Set-Cookie");
 			SharedPreferences prefs = context.getSharedPreferences("cookies",
-					context.MODE_PRIVATE);
+					Context.MODE_PRIVATE);
 			Editor edit = prefs.edit();
 			for (Header header : headers) {
 				String name = requestURL.getProtocol() + "_"
@@ -270,7 +277,7 @@ public class Utils {
 			e1.printStackTrace();
 		}
 		SharedPreferences prefs = c.getSharedPreferences("cookies",
-				c.MODE_PRIVATE);
+				Context.MODE_PRIVATE);
 
 		String cookie_pref_name = parsedURL.getProtocol() + "_"
 				+ parsedURL.getHost() + "_" + namespace;
@@ -331,6 +338,14 @@ public class Utils {
 		return null;
 	}
 
+	public static String getLocalIpAddress(Context c) {
+		WifiManager wifiManager = (WifiManager) c
+				.getSystemService(c.WIFI_SERVICE);
+		WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+		int i = wifiInfo.getIpAddress();
+		return Formatter.formatIpAddress(i);
+	}
+
 	public static boolean unpackZip(InputStream is, String outputdir) {
 		ZipInputStream zis;
 		try {
@@ -370,12 +385,14 @@ public class Utils {
 		return true;
 	}
 
-	public static IRubyObject loadAppAssetRuby(ExecutionBundle bundle, ActiveApp app, Context context,
-			String asset_name, int asset_type, int method) {
-		return JavaUtil.convertJavaToRuby(bundle.getContainer().getProvider().getRuntime(), loadAppAsset(app, context,
-				asset_name, asset_type, method));
+	public static IRubyObject loadAppAssetRuby(ExecutionBundle bundle,
+			ActiveApp app, Context context, String asset_name, int asset_type,
+			int method) {
+		return JavaUtil.convertJavaToRuby(bundle.getContainer().getProvider()
+				.getRuntime(),
+				loadAppAsset(app, context, asset_name, asset_type, method));
 	}
-	
+
 	public static Object loadAppAsset(ActiveApp app, Context context,
 			String asset_name, int asset_type, int method) {
 		if (asset_name != null) {
