@@ -16,6 +16,8 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -361,7 +363,6 @@ public class Utils {
 				Log.d(Utils.class.toString(), "processing " + filename);
 				if (ze.isDirectory()) {
 					File dir = new File(outputdir + filename);
-
 					dir.mkdirs();
 				} else {
 					FileOutputStream fout = new FileOutputStream(outputdir
@@ -463,5 +464,29 @@ public class Utils {
 		} else {
 			return null;
 		}
+	}
+
+	public static final String md5(final String s) {
+		try {
+			// Create MD5 Hash
+			MessageDigest digest = java.security.MessageDigest
+					.getInstance("MD5");
+			digest.update(s.getBytes());
+			byte messageDigest[] = digest.digest();
+
+			// Create Hex String
+			StringBuffer hexString = new StringBuffer();
+			for (int i = 0; i < messageDigest.length; i++) {
+				String h = Integer.toHexString(0xFF & messageDigest[i]);
+				while (h.length() < 2)
+					h = "0" + h;
+				hexString.append(h);
+			}
+			return hexString.toString();
+
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		}
+		return "";
 	}
 }

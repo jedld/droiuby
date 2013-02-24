@@ -25,6 +25,8 @@ import java.util.TimeZone;
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 
+import android.util.Log;
+
 /**
  * A simple, tiny, nicely embeddable HTTP 1.0 (partially 1.1) server in Java
  * 
@@ -305,11 +307,22 @@ public class NanoHTTPD {
 				// Read the first 8192 bytes.
 				// The full header should fit in here.
 				// Apache's default header limit is 8KB.
-				int bufsize = 8192;
+				// Do NOT assume that a single read will get the entire header
+				// at once!
+				final int bufsize = 8192;
 				byte[] buf = new byte[bufsize];
-				int rlen = is.read(buf, 0, bufsize);
-				if (rlen <= 0)
-					return;
+				int splitbyte = 0;
+				int rlen = 0;
+				{
+					int read = is.read(buf, 0, bufsize);
+					while (read > 0) {
+						rlen += read;
+						splitbyte = findHeaderEnd(buf, rlen);
+						if (splitbyte > 0)
+							break;
+						read = is.read(buf, rlen, bufsize - rlen);
+					}
+				}
 
 				// Create a BufferedReader for parsing the header.
 				ByteArrayInputStream hbis = new ByteArrayInputStream(buf, 0,
@@ -335,22 +348,6 @@ public class NanoHTTPD {
 					}
 				}
 
-				// We are looking for the byte separating header from body.
-				// It must be the last byte of the first two sequential new
-				// lines.
-				int splitbyte = 0;
-				boolean sbfound = false;
-				while (splitbyte < rlen) {
-					if (buf[splitbyte] == '\r' && buf[++splitbyte] == '\n'
-							&& buf[++splitbyte] == '\r'
-							&& buf[++splitbyte] == '\n') {
-						sbfound = true;
-						break;
-					}
-					splitbyte++;
-				}
-				splitbyte++;
-
 				// Write the part of body already read to ByteArrayOutputStream
 				// f
 				ByteArrayOutputStream f = new ByteArrayOutputStream();
@@ -358,14 +355,14 @@ public class NanoHTTPD {
 					f.write(buf, splitbyte, rlen - splitbyte);
 
 				// While Firefox sends on the first read all the data fitting
-				// our buffer, Chrome and Opera sends only the headers even if
-				// there is data for the body. So we do some magic here to find
+				// our buffer, Chrome and Opera send only the headers even if
+				// there is data for the body. We do some magic here to find
 				// out whether we have already consumed part of body, if we
 				// have reached the end of the data to be sent or we should
 				// expect the first byte of the body at the next read.
 				if (splitbyte < rlen)
 					size -= rlen - splitbyte + 1;
-				else if (!sbfound || size == 0x7FFFFFFFFFFFFFFFl)
+				else if (splitbyte == 0 || size == 0x7FFFFFFFFFFFFFFFl)
 					size = 0;
 
 				// Now read all the body and write it to f
@@ -388,16 +385,13 @@ public class NanoHTTPD {
 				// If the method is POST, there may be parameters
 				// in data section, too, read it:
 				if (method.equalsIgnoreCase("POST")) {
-					String contentType = "application/x-www-form-urlencoded";
+					String contentType = "";
 					String contentTypeHeader = header
 							.getProperty("content-type");
-
-					StringTokenizer st = null;
-					if (contentTypeHeader != null) {
-						st = new StringTokenizer(contentTypeHeader, "; ");
-						if (st.hasMoreTokens()) {
-							contentType = st.nextToken();
-						}
+					StringTokenizer st = new StringTokenizer(contentTypeHeader,
+							"; ");
+					if (st.hasMoreTokens()) {
+						contentType = st.nextToken();
 					}
 
 					if (contentType.equalsIgnoreCase("multipart/form-data")) {
@@ -527,7 +521,9 @@ public class NanoHTTPD {
 						boundary.getBytes());
 				int boundarycount = 1;
 				String mpline = in.readLine();
+				
 				while (mpline != null) {
+					Log.d(this.getClass().toString(),mpline);
 					if (mpline.indexOf(boundary) == -1)
 						sendError(
 								HTTP_BADREQUEST,
@@ -536,20 +532,23 @@ public class NanoHTTPD {
 					Properties item = new Properties();
 					mpline = in.readLine();
 					while (mpline != null && mpline.trim().length() > 0) {
+						Log.d(this.getClass().toString(),mpline);
 						int p = mpline.indexOf(':');
-						if (p != -1)
-							item.put(mpline.substring(0, p).trim()
-									.toLowerCase(), mpline.substring(p + 1)
-									.trim());
+						if (p != -1) {
+							String key = mpline.substring(0, p).trim()
+									.toLowerCase();
+							String value = mpline.substring(p + 1)
+									.trim();
+							Log.d(this.getClass().toString(),"Setting " + key + " = " + value);
+							item.put(key, value);
+						}
 						mpline = in.readLine();
+						Log.d(this.getClass().toString(),mpline);
 					}
 					if (mpline != null) {
-						String contentDisposition = item
-								.getProperty("content-disposition");
+						String contentDisposition = item.getProperty("content-disposition");
 						if (contentDisposition == null) {
-							sendError(
-									HTTP_BADREQUEST,
-									"BAD REQUEST: Content type is multipart/form-data but no content-disposition info found. Usage: GET /example/file.html");
+							break;
 						}
 						StringTokenizer st = new StringTokenizer(
 								contentDisposition, "; ");
@@ -606,6 +605,22 @@ public class NanoHTTPD {
 		}
 
 		/**
+		 * Find byte index separating header from body. It must be the last byte
+		 * of the first two sequential new lines.
+		 **/
+		private int findHeaderEnd(final byte[] buf, int rlen) {
+			int splitbyte = 0;
+			while (splitbyte + 3 < rlen) {
+				if (buf[splitbyte] == '\r' && buf[splitbyte + 1] == '\n'
+						&& buf[splitbyte + 2] == '\r'
+						&& buf[splitbyte + 3] == '\n')
+					return splitbyte + 4;
+				splitbyte++;
+			}
+			return 0;
+		}
+
+		/**
 		 * Find the byte positions where multipart boundaries start.
 		 **/
 		public int[] getBoundaryPositions(byte[] b, byte[] boundary) {
@@ -618,7 +633,7 @@ public class NanoHTTPD {
 						matchbyte = i;
 					matchcount++;
 					if (matchcount == boundary.length) {
-						matchbytes.addElement(Integer.valueOf(matchbyte));
+						matchbytes.addElement(new Integer(matchbyte));
 						matchcount = 0;
 						matchbyte = -1;
 					}

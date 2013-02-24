@@ -1,21 +1,75 @@
+require 'net/http'
+require 'net/http/post/multipart'
+
 class Project < Thor
-  
+
   include Thor::Actions
-  
+
   source_root 'templates'
-  
-  desc "droiuby NAME [OUTPUT_DIR]","create a new droiuby project with NAME"
-  def droiuby(name, output_dir = 'projects')
+
+  desc "create NAME [WORKSPACE_DIR]","create a new droiuby project with NAME"
+  def create(name, output_dir = 'projects')
     @name = name
     @description = name
     @launcher_icon = ''
     @base_url = ''
     @main_xml = 'index.xml'
-    
-    dest_folder = File.join("#{output_dir}","#{name}") 
-    template 'config.xml.erb', File.join("#{dest_folder}","config.xml")
-    template 'index.xml.erb', File.join("#{dest_folder}","index.xml")
-    template 'application.css.erb', File.join("#{dest_folder}","application.css")
-    template 'index.rb.erb', File.join("#{dest_folder}","index.rb")
+
+    dest_folder = File.join(output_dir,"#{name}")
+    template 'config.xml.erb', File.join(dest_folder,"config.xml")
+    template 'index.xml.erb', File.join(dest_folder,"index.xml")
+    template 'application.css.erb', File.join(dest_folder,"application.css")
+    template 'index.rb.erb', File.join(dest_folder,"index.rb")
+  end
+
+  desc "package NAME [WORKSPACE_DIR]","package a project"
+
+  def package(name, source_dir = 'projects')
+    src_folder = File.join(source_dir,"#{name}")
+    compress(src_folder)
+  end
+
+  desc "upload NAME DEVICE_IP [WORKSPACE_DIR]","uploads a droiuby application to target device running droiuby client"
+  def upload(name, device_ip, source_dir = 'projects')
+    src_package = File.join(source_dir,name,"#{name}.zip")
+
+    url_str = "http://#{device_ip}:4000/upload"
+    uri = URI.parse(url_str)
+    say "uploading to #{url_str} -> #{uri.host}:#{uri.port}"
+    File.open(src_package) do |zip|
+      req = Net::HTTP::Post::Multipart.new uri.path,
+      "name" => name,
+      "file" => UploadIO.new(zip, "application/zip", src_package,"content-disposition" => "form-data; name=\"file\"; filename=\"#{File.basename(src_package)}\"\r\n")
+      res = Net::HTTP.start(uri.host, uri.port) do |http|
+        http.request(req)
+      end
+      if res.code == 200
+        say_status 'upload', src_package
+      else
+        p res.body
+        say 'upload failed.'
+      end
+      
+    end
+  end
+
+  private
+
+  def compress(path)
+    require 'zip/zip'
+
+    path.sub!(%r[/$],'')
+    archive = File.join(path,File.basename(path))+'.zip'
+    if file_collision(archive)
+
+      FileUtils.rm archive, :force=>true
+
+      Zip::ZipFile.open(archive, 'w') do |zipfile|
+        Dir["#{path}/**/**"].reject{|f|f==archive}.each do |file|
+          zipfile.add(file.sub(path+'/',''),file)
+        end
+      end
+      say_status 'create', archive
+    end
   end
 end

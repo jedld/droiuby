@@ -18,9 +18,10 @@
 	<classpathentry exported="true" kind="lib" path="lib/joni.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jruby-core.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/parser.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/svg-android-1.1.jar"/>
+	<classpathentry kind="lib" path="lib/svg-android-1.1.jar"/>
 	<classpathentry kind="lib" path="lib/xml-apis.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/yydebug.jar"/>
 	<classpathentry kind="src" path="gen"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-io-2.4.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
