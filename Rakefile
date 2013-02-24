@@ -27,3 +27,9 @@ task :reload, [:device_ip] do |t, args|
     # Will print response.body
     Net::HTTP.get_print(uri)
 end
+
+desc "create a new droiuby app"
+
+task :new, [:name] do |t, args|
+  puts `thor project:droiuby #{args.name}`  
+end
