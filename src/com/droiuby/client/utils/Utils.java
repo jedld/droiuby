@@ -9,6 +9,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
@@ -192,13 +193,16 @@ public class Utils {
 	}
 
 	public static String loadFile(String asset_path) {
+		if (asset_path.startsWith("file://")) {
+			asset_path = asset_path.substring(7);
+		}
 		File asset = new File(asset_path);
-		BufferedReader reader;
+		BufferedReader reader = null;
 		try {
 			reader = new BufferedReader(new FileReader(asset));
 			StringBuilder contents = new StringBuilder();
 			while (reader.ready()) {
-				contents.append(reader.readLine());
+				contents.append(reader.readLine() + "\n");
 			}
 			return contents.toString();
 		} catch (FileNotFoundException e) {
@@ -207,6 +211,15 @@ public class Utils {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} finally {
+			if (reader != null) {
+				try {
+					reader.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 		}
 		return null;
 	}
@@ -234,12 +247,30 @@ public class Utils {
 	}
 
 	public static String loadAsset(Context c, String url) {
-		String asset_path = url.substring(6);
+		String asset_path = null;
+		Reader resource = null;
+		if (url.startsWith("asset:")) {
+			asset_path = url.substring(6);
+			try {
+				resource = new InputStreamReader(c.getAssets().open(asset_path));
+			} catch (IOException e) {
+				e.printStackTrace();
+				return null;
+			}
+		} else if (url.startsWith("file://")) {
+			asset_path = url.substring(7);
+			try {
+				resource = new FileReader(new File(asset_path));
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+				return null;
+			}
+		}
+
 		Log.d(Utils.class.toString(), "Loading from asset " + asset_path);
-		BufferedReader reader;
+		BufferedReader reader = null;
 		try {
-			reader = new BufferedReader(new InputStreamReader(c.getAssets()
-					.open(asset_path)));
+			reader = new BufferedReader(resource);
 
 			StringBuilder content = new StringBuilder();
 
@@ -250,6 +281,15 @@ public class Utils {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} finally {
+			if (reader != null) {
+				try {
+					reader.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 		}
 		return null;
 	}
@@ -358,6 +398,10 @@ public class Utils {
 			byte[] buffer = new byte[1024];
 			int count;
 
+			if (!outputdir.endsWith(File.separator)) {
+				outputdir = outputdir + File.separator;
+			}
+
 			while ((ze = zis.getNextEntry()) != null) {
 				filename = ze.getName();
 				Log.d(Utils.class.toString(), "processing " + filename);
@@ -416,8 +460,8 @@ public class Utils {
 				Log.d("Utils", "base url = " + baseUrl);
 				if (baseUrl.startsWith("asset:")) {
 					return Utils.loadAsset(context, baseUrl + asset_name);
-				} else if (baseUrl.startsWith("file:")) {
-					return Utils.loadFile(asset_name);
+				} else if (baseUrl.startsWith("file://")) {
+					return Utils.loadFile(baseUrl + asset_name);
 				} else if (baseUrl.startsWith("sdcard:")) {
 					File directory = Environment.getExternalStorageDirectory();
 					try {

@@ -175,7 +175,7 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 	public static ActiveApp loadApp(Context c, String url) {
 		String responseBody = null;
 		Log.d(ActiveAppDownloader.class.toString(), "loading " + url);
-		if (url.indexOf("asset:") != -1) {
+		if (url.startsWith("file://") || url.indexOf("asset:") != -1) {
 			responseBody = Utils.loadAsset(c, url);
 		} else {
 			responseBody = Utils.query(url, c, null);
@@ -194,19 +194,18 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 				String mainActivity = rootElem.getChildText("main");
 
 				if (baseUrl == null || baseUrl.equals("")) {
-					URL aURL = new URL(url);
-					String adjusted_path = aURL.getPath();
-					int pos = 0;
-					
-					while ( (adjusted_path.indexOf("/", pos))!=-1) {
-						pos = adjusted_path.indexOf("/", pos) + 1;
+					if (url.startsWith("file://")) {
+						baseUrl = extractBasePath(url);
+					} else {
+						URL aURL = new URL(url);
+						String adjusted_path = aURL.getPath();
+						adjusted_path = extractBasePath(adjusted_path);
+
+						baseUrl = aURL.getProtocol() + "://" + aURL.getHost()
+								+ ":" + aURL.getPort() + adjusted_path;
 					}
-					
-					adjusted_path = adjusted_path.substring(0, pos);
-					
-					baseUrl = aURL.getProtocol() + "://" + aURL.getHost() + ":" + aURL.getPort() + adjusted_path; 
 				}
-				
+
 				ActiveApp app = new ActiveApp();
 				app.setDescription(appDescription);
 				app.setName(appName);
@@ -262,6 +261,16 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 		return null;
 	}
 
+	private static String extractBasePath(String adjusted_path) {
+		int pos = 0;
+
+		while ((adjusted_path.indexOf("/", pos)) != -1) {
+			pos = adjusted_path.indexOf("/", pos) + 1;
+		}
+		adjusted_path = adjusted_path.substring(0, pos);
+		return adjusted_path;
+	}
+
 	public Boolean download() {
 		if (!executionBundle.isLibraryInitialized()) {
 			Log.d(this.getClass().toString(), "initializing Droiuby library");
@@ -292,7 +301,7 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 				thread_pool.shutdown();
 				try {
 					thread_pool.awaitTermination(240, TimeUnit.SECONDS);
-					
+
 					for (Object elem : resultBundle) {
 						Log.d(this.getClass().toString(), "executing asset");
 						if (elem instanceof EmbedEvalUnit) {
@@ -323,10 +332,9 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 			targetUrl = executionBundle.getCurrentUrl();
 		}
 		Log.d(this.getClass().toString(), "target url = " + targetUrl);
-		ActivityBuilder
-				.loadLayout(executionBundle, app, targetUrl, false,
-						Utils.HTTP_GET, targetActivity,
-						this.mainActivityDocument, this, resId);
+		ActivityBuilder.loadLayout(executionBundle, app, targetUrl, false,
+				Utils.HTTP_GET, targetActivity, this.mainActivityDocument,
+				this, resId);
 	}
 
 	public void onDocumentReady(Document mainActivity) {

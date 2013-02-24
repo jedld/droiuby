@@ -22,13 +22,14 @@ class Project < Thor
     template 'index.rb.erb', File.join(dest_folder,"index.rb")
   end
 
-  desc "package NAME [WORKSPACE_DIR]","package a project"
+  desc "package NAME [WORKSPACE_DIR] [true|false]","package a project"
 
-  def package(name, source_dir = 'projects')
+  def package(name, source_dir = 'projects', force = "false")
     src_folder = File.join(source_dir,"#{name}")
-    compress(src_folder)
+    compress(src_folder, force)
   end
 
+  
   desc "upload NAME DEVICE_IP [WORKSPACE_DIR]","uploads a droiuby application to target device running droiuby client"
   def upload(name, device_ip, source_dir = 'projects')
     src_package = File.join(source_dir,name,"#{name}.zip")
@@ -39,28 +40,34 @@ class Project < Thor
     File.open(src_package) do |zip|
       req = Net::HTTP::Post::Multipart.new uri.path,
       "name" => name,
+      "run" => "true",
       "file" => UploadIO.new(zip, "application/zip", src_package,"content-disposition" => "form-data; name=\"file\"; filename=\"#{File.basename(src_package)}\"\r\n")
       res = Net::HTTP.start(uri.host, uri.port) do |http|
         http.request(req)
       end
-      if res.code == 200
+      if res.code == "200"
         say_status 'upload', src_package
       else
-        p res.body
         say 'upload failed.'
+        say res.body
       end
       
     end
   end
+  
+  desc "execute NAME NAME DEVICE_IP [WORKSPACE_DIR]","package and execute a droiuby application to target device running droiuby client"
+  def execute(name, device_ip, source_dir = 'projects')
+    package name, source_dir, "true"
+    upload name, device_ip, source_dir
+  end 
 
   private
 
-  def compress(path)
+  def compress(path, force = "false")
     require 'zip/zip'
-
     path.sub!(%r[/$],'')
     archive = File.join(path,File.basename(path))+'.zip'
-    if file_collision(archive)
+    if force=='true' || file_collision(archive)
 
       FileUtils.rm archive, :force=>true
 

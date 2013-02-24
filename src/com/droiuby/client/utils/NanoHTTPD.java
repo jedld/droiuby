@@ -523,7 +523,6 @@ public class NanoHTTPD {
 				String mpline = in.readLine();
 				
 				while (mpline != null) {
-					Log.d(this.getClass().toString(),mpline);
 					if (mpline.indexOf(boundary) == -1)
 						sendError(
 								HTTP_BADREQUEST,
@@ -532,7 +531,6 @@ public class NanoHTTPD {
 					Properties item = new Properties();
 					mpline = in.readLine();
 					while (mpline != null && mpline.trim().length() > 0) {
-						Log.d(this.getClass().toString(),mpline);
 						int p = mpline.indexOf(':');
 						if (p != -1) {
 							String key = mpline.substring(0, p).trim()
@@ -543,7 +541,6 @@ public class NanoHTTPD {
 							item.put(key, value);
 						}
 						mpline = in.readLine();
-						Log.d(this.getClass().toString(),mpline);
 					}
 					if (mpline != null) {
 						String contentDisposition = item.getProperty("content-disposition");

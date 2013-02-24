@@ -154,6 +154,7 @@ public class WebConsole extends NanoHTTPD {
 				if (activity.get() != null) {
 					String data_dir = activity.get().getApplicationInfo().dataDir;
 					String filename = files.getProperty("file");
+					boolean launch = params.getProperty("run", "false").equals("true") ? true : false;
 					File file = new File(filename);
 					try {
 						String extraction_target = data_dir + File.separator
@@ -169,6 +170,13 @@ public class WebConsole extends NanoHTTPD {
 						dir.mkdirs();
 						Utils.unpackZip(new FileInputStream(file),
 								extraction_target);
+						if (launch) {
+							Log.d(this.getClass().toString(),"running application...");
+							final Map<String, String> resultMap = new HashMap<String, String>();
+							launchAppFromUrl(resultMap, "file://" + extraction_target + File.separator + "config.xml");
+							return new Response(NanoHTTPD.HTTP_OK, "application/json",
+									"success");
+						}
 					} catch (FileNotFoundException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -198,21 +206,7 @@ public class WebConsole extends NanoHTTPD {
 				String cmd = params.getProperty("cmd", "");
 				if (cmd.equals("launch")) {
 					final String url = params.getProperty("url", "");
-					final Activity currentActivity = activity.get();
-					if (currentActivity != null) {
-						currentActivity.runOnUiThread(new Runnable() {
-							public void run() {
-								ActivityBuilder.loadApp(currentActivity, url);
-							}
-						});
-
-						resultMap.put("result", "success");
-					} else {
-						resultMap.put("err", "true");
-						resultMap
-								.put("result",
-										"No JRuby instance attached. Make sure an activity is visible before issuing console commands");
-					}
+					launchAppFromUrl(resultMap, url);
 				} else if (cmd.equals("reload")) {
 					final Activity currentActivity = activity.get();
 					if (currentActivity instanceof CanvasActivity) {
@@ -329,6 +323,25 @@ public class WebConsole extends NanoHTTPD {
 
 		}
 		return response;
+	}
+
+	private void launchAppFromUrl(final Map<String, String> resultMap,
+			final String url) {
+		final Activity currentActivity = activity.get();
+		if (currentActivity != null) {
+			currentActivity.runOnUiThread(new Runnable() {
+				public void run() {
+					ActivityBuilder.loadApp(currentActivity, url);
+				}
+			});
+
+			resultMap.put("result", "success");
+		} else {
+			resultMap.put("err", "true");
+			resultMap
+					.put("result",
+							"No JRuby instance attached. Make sure an activity is visible before issuing console commands");
+		}
 	}
 
 	public void setActiveApp(ActiveApp application) {

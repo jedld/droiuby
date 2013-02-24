@@ -33,3 +33,8 @@ desc "create a new droiuby app"
 task :new, [:name] do |t, args|
   puts `thor project:droiuby #{args.name}`  
 end
+
+desc "package and execute target app"
+task :execute, [:name, :device_ip] do |t, args|
+  puts `thor project:execute #{args.name} #{args.device_ip}`
+end
