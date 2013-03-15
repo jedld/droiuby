@@ -9,13 +9,15 @@ import com.droiuby.client.R;
 import com.droiuby.client.core.ActiveApp;
 import com.droiuby.client.core.ActivityBuilder;
 import com.droiuby.client.core.AppDownloader;
-import com.droiuby.client.core.DroiubyActivity;
+import com.droiuby.client.core.DroiubyHelper;
 import com.droiuby.client.core.ExecutionBundle;
 import com.droiuby.client.core.ExecutionBundleFactory;
 import com.droiuby.client.core.callbacks.OnAppDownloadComplete;
 import com.droiuby.client.core.listeners.DocumentReadyListener;
 import com.droiuby.client.utils.Utils;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.ActivityInfo;
@@ -32,17 +34,19 @@ import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-public class CanvasActivity extends DroiubyActivity implements
-		DocumentReadyListener, OnAppDownloadComplete {
+public class CanvasActivity extends Activity implements DocumentReadyListener,
+		OnAppDownloadComplete {
 
 	ViewGroup target;
 	ActiveApp application;
 	RelativeLayout topview;
+	DroiubyHelper droiuby;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.canvas);
+		droiuby = new DroiubyHelper(this);
 		int default_orientation = getResources().getConfiguration().orientation;
 		if (default_orientation == Configuration.ORIENTATION_LANDSCAPE) {
 			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
@@ -61,16 +65,17 @@ public class CanvasActivity extends DroiubyActivity implements
 					ExecutionBundleFactory factory = ExecutionBundleFactory
 							.getInstance();
 					if (factory.bundleAvailableFor(application.getBaseUrl())) {
-						executionBundle = factory.getNewScriptingContainer(
+						ExecutionBundle bundle = factory.getNewScriptingContainer(
 								this, application.getBaseUrl());
-						ActivityBuilder.loadLayout(executionBundle,
+						droiuby.setExecutionBundle(bundle);
+						ActivityBuilder.loadLayout(bundle,
 								application, pageUrl, false, Utils.HTTP_GET,
-								this, null, this , R.id.mainLayout);
+								this, null, this, R.id.mainLayout);
 					} else {
-						setupApplication(application, target, R.id.mainLayout);
+						droiuby.setupApplication(application, target, R.id.mainLayout);
 					}
 				} else {
-					setupApplication(application, target, R.id.mainLayout);
+					droiuby.setupApplication(application, target, R.id.mainLayout);
 				}
 			}
 		} else {
@@ -84,18 +89,15 @@ public class CanvasActivity extends DroiubyActivity implements
 	protected void onStart() {
 		// TODO Auto-generated method stub
 		super.onStart();
-		if (console != null) {
-			console.setBundle(executionBundle);
-			console.setActivity(this);
-		}
+		droiuby.onStart();
 	}
-	
+
 	public void refreshCurrentApplication() {
-		ViewGroup view = (ViewGroup)findViewById(R.id.mainLayout);
+		ViewGroup view = (ViewGroup) findViewById(R.id.mainLayout);
 		view.removeAllViews();
-		reloadApplication(application, target, R.id.mainLayout);	
+		droiuby.reloadApplication(application, target, R.id.mainLayout);
 	}
-	
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		// Handle item selection
@@ -104,7 +106,7 @@ public class CanvasActivity extends DroiubyActivity implements
 			refreshCurrentApplication();
 			break;
 		case R.id.itemConsole:
-			this.showConsoleInfo();
+			droiuby.showConsoleInfo();
 			break;
 		case R.id.itemLog:
 
@@ -120,7 +122,7 @@ public class CanvasActivity extends DroiubyActivity implements
 			LinearLayout errorListLayout = (LinearLayout) findViewById(R.id.errorLogGroup);
 			ScrollView scroll = (ScrollView) findViewById(R.id.scrollViewLog);
 			errorListLayout.removeAllViews();
-			for (String error : executionBundle.getScriptErrors()) {
+			for (String error : droiuby.getExecutionBundle().getScriptErrors()) {
 				TextView errorText = new TextView(this);
 				errorText.setText(error);
 				errorListLayout.addView(errorText, LayoutParams.MATCH_PARENT,
@@ -139,8 +141,8 @@ public class CanvasActivity extends DroiubyActivity implements
 				editor.putString(url.getProtocol() + "_" + url.getHost() + "_"
 						+ application.getName(), "");
 				editor.commit();
-				getExecutionBundle().setCurrentUrl(null);
-				getExecutionBundle().setLibraryInitialized(false);
+				droiuby.getExecutionBundle().setCurrentUrl(null);
+				droiuby.getExecutionBundle().setLibraryInitialized(false);
 			} catch (MalformedURLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -150,10 +152,7 @@ public class CanvasActivity extends DroiubyActivity implements
 		return false;
 	}
 
-
 	public void onDocumentReady(Document mainActivity) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
@@ -162,11 +161,40 @@ public class CanvasActivity extends DroiubyActivity implements
 		inflater.inflate(R.menu.parseroptions, menu);
 		return true;
 	}
-	
+
 	public void onDownloadComplete(ActiveApp app) {
 		this.application = app;
-		setupApplication(app, (ViewGroup) this.findViewById(R.id.mainLayout), R.id.mainLayout);
+		droiuby.setupApplication(app, (ViewGroup) this.findViewById(R.id.mainLayout),
+				R.id.mainLayout);
 		onResume();
 	}
 
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		droiuby.onDestroy();
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		droiuby.onActivityResult(requestCode, resultCode, data);
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		droiuby.onResume();
+	}
+
+	/* (non-Javadoc)
+	 * @see android.app.Activity#onRetainNonConfigurationInstance()
+	 */
+	@Override
+	@Deprecated
+	public Object onRetainNonConfigurationInstance() {
+		return droiuby.onRetainNonConfigurationInstance();
+	}
+	
+	
 }

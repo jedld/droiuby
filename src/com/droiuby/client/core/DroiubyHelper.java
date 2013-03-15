@@ -9,6 +9,7 @@ import org.jruby.embed.ScriptingContainer;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -20,11 +21,17 @@ import android.view.ViewGroup;
 import com.droiuby.client.core.console.WebConsole;
 import com.droiuby.client.utils.ActiveAppDownloader;
 
-public abstract class DroiubyActivity extends Activity implements
+public class DroiubyHelper implements
 		OnDownloadCompleteListener {
 	/** Called when the activity is first created. */
 	ActiveApp application;
+	Activity activity;
 	AppCache cache;
+	
+	public DroiubyHelper(Activity activity) {
+		this.activity = activity;
+	}
+	
 	protected ExecutionBundle executionBundle;
 
 	public ExecutionBundle getExecutionBundle() {
@@ -39,7 +46,7 @@ public abstract class DroiubyActivity extends Activity implements
 	String currentUrl;
 	protected WebConsole console;
 
-	protected void reloadApplication(ActiveApp application, ViewGroup target,
+	public void reloadApplication(ActiveApp application, ViewGroup target,
 			int mainlayout) {
 		ScriptingContainer container = executionBundle.getContainer();
 		
@@ -55,11 +62,11 @@ public abstract class DroiubyActivity extends Activity implements
 			if (application.getBaseUrl().startsWith("asset:")) {
 				String asset_name = "data_" + application.getBaseUrl();
 				asset_name = asset_name.replace('/', '_').replace('\\', '_');
-				prefs = getSharedPreferences(asset_name, MODE_PRIVATE);
+				prefs = activity.getSharedPreferences(asset_name, Context.MODE_PRIVATE);
 			} else {
 				URL parsedURL = new URL(application.getBaseUrl());
-				prefs = getSharedPreferences("data_" + parsedURL.getProtocol()
-						+ "_" + parsedURL.getHost(), MODE_PRIVATE);
+				prefs = activity.getSharedPreferences("data_" + parsedURL.getProtocol()
+						+ "_" + parsedURL.getHost(), Context.MODE_PRIVATE);
 			}
 			return prefs;
 		} catch (MalformedURLException e) {
@@ -70,7 +77,7 @@ public abstract class DroiubyActivity extends Activity implements
 	}
 
 	public String getIpAddr() {
-		WifiManager wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
+		WifiManager wifiManager = (WifiManager) activity.getSystemService(Context.WIFI_SERVICE);
 		WifiInfo wifiInfo = wifiManager.getConnectionInfo();
 		int ip = wifiInfo.getIpAddress();
 
@@ -80,8 +87,8 @@ public abstract class DroiubyActivity extends Activity implements
 		return ipString.toString();
 	}
 
-	protected void showConsoleInfo() {
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+	public void showConsoleInfo() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 		builder.setMessage("Console running at " + getIpAddr() + ":4000")
 				.setCancelable(false)
 				.setPositiveButton("OK", new DialogInterface.OnClickListener() {
@@ -93,10 +100,10 @@ public abstract class DroiubyActivity extends Activity implements
 		alert.show();
 	}
 
-	protected void setupApplication(ActiveApp application, ViewGroup target, int resId) {
+	public void setupApplication(ActiveApp application, ViewGroup target, int resId) {
 		Log.d(this.getClass().toString(), "Loading application at "
 				+ application.getName());
-		final AppCache cache = (AppCache) getLastNonConfigurationInstance();
+		final AppCache cache = (AppCache) activity.getLastNonConfigurationInstance();
 		this.application = application;
 
 		if (cache != null) {
@@ -104,37 +111,37 @@ public abstract class DroiubyActivity extends Activity implements
 		} else {
 			ExecutionBundleFactory factory = ExecutionBundleFactory
 					.getInstance();
-			executionBundle = factory.getNewScriptingContainer(this,
+			executionBundle = factory.getNewScriptingContainer(activity,
 					application.getBaseUrl());
-			executionBundle.setCurrentActivity(this);
+			executionBundle.setCurrentActivity(activity);
 		}
 
-		downloader = new ActiveAppDownloader(application, this, target, cache,
+		downloader = new ActiveAppDownloader(application, activity, target, cache,
 				executionBundle, this, resId);
 
 		downloader.execute();
 	}
 
 
-	@Override
-	protected void onDestroy() {
+	public void onStart() {
 		// TODO Auto-generated method stub
-		super.onDestroy();
+		if (console != null) {
+			console.setBundle(executionBundle);
+			console.setActivity(activity);
+		}
+	}
+	
+	public void onDestroy() {
 		console.shutdownConsole();
 	}
 
-	@Override
-	protected void onResume() {
-		// TODO Auto-generated method stub
-		super.onResume();
-		Log.d(this.getClass().toString(), "onResume() called");
+	public void onResume() {
 		setupConsole();
 		if (executionBundle != null) {
-			executionBundle.setCurrentActivity(this);
+			executionBundle.setCurrentActivity(activity);
 		}
 	}
 
-	@Override
 	public Object onRetainNonConfigurationInstance() {
 		return downloader.getCache();
 	}
@@ -146,7 +153,7 @@ public abstract class DroiubyActivity extends Activity implements
 	private void setupConsole() {
 		String web_public_loc;
 		try {
-			web_public_loc = this.getCacheDir().getCanonicalPath() + "/www";
+			web_public_loc = activity.getCacheDir().getCanonicalPath() + "/www";
 			File webroot = new File(web_public_loc);
 			webroot.mkdirs();
 			console = WebConsole.getInstance(4000, webroot);
@@ -155,7 +162,7 @@ public abstract class DroiubyActivity extends Activity implements
 				container = executionBundle.getContainer();
 			}
 			console.setBundle(executionBundle);
-			console.setActivity(this);
+			console.setActivity(activity);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
