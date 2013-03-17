@@ -293,19 +293,16 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 					} else if (asset_type == ActiveApp.ASSET_TYPE_CSS) {
 						listener = new CssPreloadParser();
 					} else if (asset_type == ActiveApp.ASSET_TYPE_LIB) {
-						List<String> loadPaths = scriptingContainer
-								.getLoadPaths();
-						
+						List<String> loadPaths = new ArrayList<String>();
 						String path = Utils.stripProtocol(app.getBaseUrl())
 								+ asset_name;
 						Log.d(this.getClass().toString(), "examine lib at " + path);
 						File fpath = new File(path);
-						
 						if (fpath.isDirectory()) {
 							Log.d(this.getClass().toString(), "Adding " + path
 									+ " to load paths.");
 							loadPaths.add(path);
-							scriptingContainer.setLoadPaths(loadPaths);
+							scriptingContainer.getProvider().getRuntime().getLoadService().addPaths(loadPaths);
 						}
 						continue;
 					}
