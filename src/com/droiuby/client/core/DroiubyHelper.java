@@ -157,10 +157,6 @@ public class DroiubyHelper implements
 			File webroot = new File(web_public_loc);
 			webroot.mkdirs();
 			console = WebConsole.getInstance(4000, webroot);
-			ScriptingContainer container = null;
-			if (executionBundle != null) {
-				container = executionBundle.getContainer();
-			}
 			console.setBundle(executionBundle);
 			console.setActivity(activity);
 		} catch (IOException e) {

@@ -192,32 +192,41 @@ public class Utils {
 		return parsed;
 	}
 
-	public static String loadFile(String asset_path) {
+	public static String stripProtocol(String asset_path) {
 		if (asset_path.startsWith("file://")) {
-			asset_path = asset_path.substring(7);
+			return asset_path.substring(7);
 		}
+		return null;
+	}
+	
+	public static String loadFile(String asset_path) {
+		asset_path = stripProtocol(asset_path);
 		File asset = new File(asset_path);
-		BufferedReader reader = null;
-		try {
-			reader = new BufferedReader(new FileReader(asset));
-			StringBuilder contents = new StringBuilder();
-			while (reader.ready()) {
-				contents.append(reader.readLine() + "\n");
-			}
-			return contents.toString();
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} finally {
-			if (reader != null) {
-				try {
-					reader.close();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+		if (asset.isDirectory()) {
+
+		} else {
+			BufferedReader reader = null;
+			try {
+				reader = new BufferedReader(new FileReader(asset));
+				StringBuilder contents = new StringBuilder();
+				while (reader.ready()) {
+					contents.append(reader.readLine() + "\n");
+				}
+				return contents.toString();
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} finally {
+				if (reader != null) {
+					try {
+						reader.close();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
 			}
 		}

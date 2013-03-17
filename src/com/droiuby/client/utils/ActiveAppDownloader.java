@@ -243,6 +243,8 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 							type_int = ActiveApp.ASSET_TYPE_SCRIPT;
 						} else if (asset_type.equals("css")) {
 							type_int = ActiveApp.ASSET_TYPE_CSS;
+						} else if (asset_type.equals("lib")) {
+							type_int = ActiveApp.ASSET_TYPE_LIB;
 						}
 
 						app.addAsset(asset_name, type_int);
@@ -271,11 +273,12 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 		return adjusted_path;
 	}
 
-	public Boolean download() {
+	public Boolean downloadAssets() {
 		if (!executionBundle.isLibraryInitialized()) {
 			Log.d(this.getClass().toString(), "initializing Droiuby library");
 			scriptingContainer.runScriptlet("require 'droiuby/loader'");
 			executionBundle.setLibraryInitialized(true);
+
 			ArrayList<Object> resultBundle = new ArrayList<Object>();
 			HashMap<String, Integer> asset_map = app.getAssets();
 			if (app.getAssets().size() > 0) {
@@ -289,6 +292,21 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 						listener = new ScriptPreparser();
 					} else if (asset_type == ActiveApp.ASSET_TYPE_CSS) {
 						listener = new CssPreloadParser();
+					} else if (asset_type == ActiveApp.ASSET_TYPE_LIB) {
+						List<String> loadPaths = scriptingContainer
+								.getLoadPaths();
+						String path = Utils.stripProtocol(app.getBaseUrl())
+								+ asset_name;
+						Log.d(this.getClass().toString(), "examine lib at " + path);
+						File fpath = new File(path);
+						
+						if (fpath.isDirectory()) {
+							Log.d(this.getClass().toString(), "Adding " + path
+									+ " to load paths.");
+							loadPaths.add(path);
+							scriptingContainer.setLoadPaths(loadPaths);
+						}
+						continue;
 					}
 					Log.d(this.getClass().toString(), "downloading "
 							+ asset_name + " ...");
@@ -319,7 +337,7 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 
 	@Override
 	protected Boolean doInBackground(Void... arg0) {
-		return download();
+		return downloadAssets();
 	}
 
 	@Override

@@ -22,6 +22,8 @@ import org.jruby.embed.EmbedEvalUnit;
 import org.jruby.embed.EvalFailedException;
 import org.jruby.embed.ParseFailedException;
 import org.jruby.embed.ScriptingContainer;
+import org.jruby.ext.jruby.JRubyUtilLibrary.StringUtils;
+import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 
 import com.droiuby.client.CanvasActivity;
@@ -137,7 +139,8 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 	Document mainActivityDocument;
 	ScriptingContainer scriptingContainer;
 	String baseUrl;
-	String controller;
+	String controllerClass;
+	String controller_attribute;
 	String pageUrl;
 	String errorMsg;
 	int resId;
@@ -210,28 +213,43 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 			e.printStackTrace();
 		}
 
-		controller = mainActivityDocument.getRootElement().getAttributeValue(
-				"controller");
+		controller_attribute = mainActivityDocument.getRootElement()
+				.getAttributeValue("controller");
 		String baseUrl = app.getBaseUrl();
 
-		if (controller != null) {
-			Log.d("Activity loader", "loading controller file " + baseUrl
-					+ controller);
-			String controller_content = "class MainActivity < ActivityWrapper\n"
-					+ Utils.loadAppAsset(app, targetActivity, controller,
-							Utils.ASSET_TYPE_TEXT, Utils.HTTP_GET)
-					+ "\n end\nMainActivity.new\n";
-			long start = System.currentTimeMillis();
-			try {
-				preParsedScript = Utils.preParseRuby(scriptingContainer,
-						controller_content, targetActivity);
-			} catch (ParseFailedException e) {
-				e.printStackTrace();
-				executionBundle.addError(e.getMessage());
+		if (controller_attribute != null) {
+			String csplit[] = org.apache.commons.lang3.StringUtils.split(
+					controller_attribute, "#");
+			if (csplit.length == 2) {
+
+				if (!csplit[1].trim().equals("")) {
+					controllerClass = csplit[1];
+				}
+
+				if (!csplit[0].trim().equals("")) {
+					Log.d("Activity loader", "loading controller file "
+							+ baseUrl + csplit[0]);
+					String controller_content = (String) Utils.loadAppAsset(
+							app, targetActivity, csplit[0],
+							Utils.ASSET_TYPE_TEXT, Utils.HTTP_GET);
+
+					long start = System.currentTimeMillis();
+					try {
+						preParsedScript = Utils.preParseRuby(
+								scriptingContainer, controller_content,
+								targetActivity);
+					} catch (ParseFailedException e) {
+						e.printStackTrace();
+						executionBundle.addError(e.getMessage());
+					}
+					long elapsed = System.currentTimeMillis() - start;
+					Log.d(this.getClass().toString(),
+							"controller preparse: elapsed time = " + elapsed
+									+ "ms");
+				}
+			} else {
+				controllerClass = csplit[0];
 			}
-			long elapsed = System.currentTimeMillis() - start;
-			Log.d(this.getClass().toString(),
-					"controller preparse: elapsed time = " + elapsed + "ms");
 		}
 
 		ActivityBuilder builder = new ActivityBuilder(mainActivityDocument,
@@ -273,17 +291,27 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 				if (preParsedScript != null) {
 					start = System.currentTimeMillis();
 					mainActivityController = preParsedScript.run();
-					executionBundle
-							.setCurrentController(mainActivityController);
 				}
 
 				scriptingContainer
 						.runScriptlet("require 'droiuby/preload'\nstart_droiuby_plugins\n");
 
 				if (preParsedScript != null) {
-					mainActivityController.callMethod(executionBundle.container
-							.getProvider().getRuntime().getCurrentContext(),
-							"on_create");
+					ThreadContext context = executionBundle.container
+							.getProvider().getRuntime().getCurrentContext();
+					Log.d(this.getClass().toString(), "class = "
+							+ controllerClass);
+					IRubyObject instance;
+					if (controllerClass != null) {
+						instance = (IRubyObject) scriptingContainer
+								.runScriptlet("'" + controllerClass
+										+ "'.camelize.constantize.new");
+					} else {
+						instance = mainActivityController.callMethod(context,
+								"new");
+					}
+					executionBundle.setCurrentController(instance);
+					instance.callMethod(context, "on_create");
 					elapsed = System.currentTimeMillis() - start;
 					Log.d(this.getClass().toString(),
 							"controller on_create(): elapsed time = " + elapsed
@@ -324,10 +352,10 @@ public class ActivityBuilder {
 	public View getTopView() {
 		return topView;
 	}
-	
-	  public View getRootView() {
-		   return context.findViewById(this.getViewById("mainLayout"));
-		 }
+
+	public View getRootView() {
+		return context.findViewById(this.getViewById("mainLayout"));
+	}
 
 	ViewGroup target;
 	HashMap<String, Object> preloadedResource = new HashMap<String, Object>();
@@ -798,7 +826,7 @@ public class ActivityBuilder {
 		}
 		return null;
 	}
-	
+
 	Class<?> getResourceComponenetClass(String name) {
 		String packageName = context.getApplication().getPackageName();
 		for (Class<?> subclass : getResourceClass().getDeclaredClasses()) {
@@ -808,7 +836,7 @@ public class ActivityBuilder {
 		}
 		return null;
 	}
-	
+
 	Class<?> getStyleClass() {
 		if (ActivityBuilder.styleClass == null) {
 			ActivityBuilder.styleClass = getResourceComponenetClass("style");
@@ -833,7 +861,7 @@ public class ActivityBuilder {
 	public int getStyleById(String styleId) {
 		Field f;
 		try {
-			f =  this.getStyleClass().getField(styleId);
+			f = this.getStyleClass().getField(styleId);
 			return f.getInt(this.getStyleClass().newInstance());
 		} catch (NoSuchFieldException e) {
 			// TODO Auto-generated catch block
@@ -850,11 +878,11 @@ public class ActivityBuilder {
 		}
 		return 0;
 	}
-	
+
 	public int getViewById(String viewId) {
 		Field f;
 		try {
-			f =  this.getIdClass().getField(viewId);
+			f = this.getIdClass().getField(viewId);
 			return f.getInt(this.getIdClass().newInstance());
 		} catch (NoSuchFieldException e) {
 			// TODO Auto-generated catch block

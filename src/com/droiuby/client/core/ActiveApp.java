@@ -6,11 +6,11 @@ import java.util.HashMap;
 public class ActiveApp implements Serializable {
 
 	public static final int ASSET_TYPE_SCRIPT = 0;
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 4120098422645102827L;
+	public static final int ASSET_TYPE_LIB = 4;
 	public static final int ASSET_TYPE_CSS = 3;
+	
+	private static final long serialVersionUID = 4120098422645102827L;
+	
 
 	String name, description, baseUrl, mainUrl;
 	HashMap <String, Integer> assets = new HashMap <String, Integer>();

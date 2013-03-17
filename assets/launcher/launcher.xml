@@ -1,4 +1,4 @@
-<activity controller="launcher_script.rb">
+<activity controller="launcher_script.rb#main">
     <preload id="main_css" src="launcher.css" type="css"/>
     <layout type="linear" width="match" height="match" orientation="vertical">
         <layout type="linear" width="match" height="60dip" orientation="horizontal">

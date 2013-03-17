@@ -98,7 +98,7 @@ def http_get(url)
   Java::com.droiuby.client.utils.Utils.load(_current_activity, url);
 end
 
-class ActivityWrapper
+class Activity
   def initialize
   end
 

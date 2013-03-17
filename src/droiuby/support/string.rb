@@ -1,4 +1,5 @@
 class String
+  
   def camelize(first_letter_in_uppercase = true)
     if first_letter_in_uppercase
       self.to_s.gsub(/\/(.?)/) { "::" + $1.upcase }.gsub(/(^|_)(.)/) { $2.upcase }
@@ -9,6 +10,17 @@ class String
   
   def to_color
     Java::android.graphics.Color.parseColor(self)
+  end
+  
+  def constantize
+    names = self.split('::')
+    names.shift if names.empty? || names.first.empty?
+  
+    constant = Object
+    names.each do |name|
+      constant = constant.const_defined?(name) ? constant.const_get(name) : constant.const_missing(name)
+    end
+    constant
   end
   
 end

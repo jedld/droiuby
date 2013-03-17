@@ -31,7 +31,7 @@ end
 desc "create a new droiuby app"
 
 task :new, [:name] do |t, args|
-  puts `thor project:droiuby #{args.name}`  
+  puts `thor project:create #{args.name}`  
 end
 
 desc "package and execute target app"

@@ -20,6 +20,7 @@ class Project < Thor
     template 'index.xml.erb', File.join(dest_folder,"index.xml")
     template 'application.css.erb', File.join(dest_folder,"application.css")
     template 'index.rb.erb', File.join(dest_folder,"index.rb")
+    empty_directory File.join(dest_folder,"lib")
   end
 
   desc "package NAME [WORKSPACE_DIR] [true|false]","package a project"

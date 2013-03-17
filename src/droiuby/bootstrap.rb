@@ -208,7 +208,7 @@ def http_get(url, params = {}, options = {})
   Java::com.droiuby.client.utils.Utils.load(_current_activity, url_string, _execution_bundle);
 end
 
-class ActivityWrapper
+class Activity
   def initialize
   end
 

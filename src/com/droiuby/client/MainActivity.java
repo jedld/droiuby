@@ -97,17 +97,15 @@ public class MainActivity extends Activity implements OnClickListener {
 	}
 
 	public void onClick(View v) {
-		switch (v.getId()) {
-		case R.id.buttonRun:
+		int id = v.getId();
+		if (id == R.id.buttonRun) {
 			ActivityBuilder.loadApp(this, applicationURL.getText().toString());
-			break;
-		case R.id.buttonQRCode:
+		} else if (id == R.id.buttonQRCode) {
 			IntentIntegrator integrator = new IntentIntegrator(this);
 			integrator.initiateScan();
-			break;
 		}
-
 	}
+	
 	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
 		  IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
 		  if (scanResult != null) {

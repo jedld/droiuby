@@ -100,16 +100,12 @@ public class CanvasActivity extends Activity implements DocumentReadyListener,
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		// Handle item selection
-		switch (item.getItemId()) {
-		case R.id.itemRefresh:
+		int itemId = item.getItemId();
+		if (itemId == R.id.itemRefresh) {
 			refreshCurrentApplication();
-			break;
-		case R.id.itemConsole:
+		} else if (itemId == R.id.itemConsole) {
 			droiuby.showConsoleInfo();
-			break;
-		case R.id.itemLog:
-
+		} else if (itemId == R.id.itemLog) {
 			if (findViewById(R.id.loglayout) == null) {
 				View logview = getLayoutInflater().inflate(R.layout.log, null);
 				RelativeLayout.LayoutParams logPos = new RelativeLayout.LayoutParams(
@@ -118,7 +114,6 @@ public class CanvasActivity extends Activity implements DocumentReadyListener,
 						R.id.mainLayout);
 				topview.addView(logview, logPos);
 			}
-
 			LinearLayout errorListLayout = (LinearLayout) findViewById(R.id.errorLogGroup);
 			ScrollView scroll = (ScrollView) findViewById(R.id.scrollViewLog);
 			errorListLayout.removeAllViews();
@@ -128,12 +123,9 @@ public class CanvasActivity extends Activity implements DocumentReadyListener,
 				errorListLayout.addView(errorText, LayoutParams.MATCH_PARENT,
 						LayoutParams.WRAP_CONTENT);
 			}
-
-			break;
-		case R.id.itemClearCache:
+		} else if (itemId == R.id.itemClearCache) {
 			SharedPreferences prefs = getSharedPreferences("cookies",
 					MODE_PRIVATE);
-
 			try {
 				Editor editor = prefs.edit();
 				URL url;
@@ -147,7 +139,6 @@ public class CanvasActivity extends Activity implements DocumentReadyListener,
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-
 		}
 		return false;
 	}
