@@ -58,6 +58,7 @@ class Project < Thor
   
   desc "execute NAME NAME DEVICE_IP [WORKSPACE_DIR]","package and execute a droiuby application to target device running droiuby client"
   def execute(name, device_ip, source_dir = 'projects')
+    `adb shell am start -W -S --activity-clear-top --activity-brought-to-front -n com.droiuby.client/.CanvasActivity`
     package name, source_dir, "true"
     upload name, device_ip, source_dir
   end 

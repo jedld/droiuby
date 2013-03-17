@@ -295,6 +295,7 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 					} else if (asset_type == ActiveApp.ASSET_TYPE_LIB) {
 						List<String> loadPaths = scriptingContainer
 								.getLoadPaths();
+						
 						String path = Utils.stripProtocol(app.getBaseUrl())
 								+ asset_name;
 						Log.d(this.getClass().toString(), "examine lib at " + path);
