@@ -1,5 +1,5 @@
-gen/**/*
+gen
 bin
 src_ruby_classes
 projects
-
+local.properties
