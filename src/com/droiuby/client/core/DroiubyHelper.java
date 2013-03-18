@@ -18,20 +18,22 @@ import android.net.wifi.WifiManager;
 import android.util.Log;
 import android.view.ViewGroup;
 
+import com.droiuby.client.R;
+import com.droiuby.client.core.callbacks.OnAppDownloadComplete;
 import com.droiuby.client.core.console.WebConsole;
 import com.droiuby.client.utils.ActiveAppDownloader;
 
-public class DroiubyHelper implements
+public class DroiubyHelper implements OnAppDownloadComplete,
 		OnDownloadCompleteListener {
 	/** Called when the activity is first created. */
 	ActiveApp application;
 	Activity activity;
 	AppCache cache;
-	
+
 	public DroiubyHelper(Activity activity) {
 		this.activity = activity;
 	}
-	
+
 	protected ExecutionBundle executionBundle;
 
 	public ExecutionBundle getExecutionBundle() {
@@ -49,24 +51,26 @@ public class DroiubyHelper implements
 	public void reloadApplication(ActiveApp application, ViewGroup target,
 			int mainlayout) {
 		ScriptingContainer container = executionBundle.getContainer();
-		
-		container.put("_controller",
-				executionBundle.getCurrentController());
-		executionBundle.getContainer().runScriptlet("_controller.on_activity_reload");		
+
+		container.put("_controller", executionBundle.getCurrentController());
+		executionBundle.getContainer().runScriptlet(
+				"_controller.on_activity_reload");
 		this.setupApplication(application, target, mainlayout);
 	}
-	
+
 	public SharedPreferences getCurrentPreferences() {
 		try {
 			SharedPreferences prefs = null;
 			if (application.getBaseUrl().startsWith("asset:")) {
 				String asset_name = "data_" + application.getBaseUrl();
 				asset_name = asset_name.replace('/', '_').replace('\\', '_');
-				prefs = activity.getSharedPreferences(asset_name, Context.MODE_PRIVATE);
+				prefs = activity.getSharedPreferences(asset_name,
+						Context.MODE_PRIVATE);
 			} else {
 				URL parsedURL = new URL(application.getBaseUrl());
-				prefs = activity.getSharedPreferences("data_" + parsedURL.getProtocol()
-						+ "_" + parsedURL.getHost(), Context.MODE_PRIVATE);
+				prefs = activity.getSharedPreferences(
+						"data_" + parsedURL.getProtocol() + "_"
+								+ parsedURL.getHost(), Context.MODE_PRIVATE);
 			}
 			return prefs;
 		} catch (MalformedURLException e) {
@@ -77,7 +81,8 @@ public class DroiubyHelper implements
 	}
 
 	public String getIpAddr() {
-		WifiManager wifiManager = (WifiManager) activity.getSystemService(Context.WIFI_SERVICE);
+		WifiManager wifiManager = (WifiManager) activity
+				.getSystemService(Context.WIFI_SERVICE);
 		WifiInfo wifiInfo = wifiManager.getConnectionInfo();
 		int ip = wifiInfo.getIpAddress();
 
@@ -100,10 +105,12 @@ public class DroiubyHelper implements
 		alert.show();
 	}
 
-	public void setupApplication(ActiveApp application, ViewGroup target, int resId) {
+	public void setupApplication(ActiveApp application, ViewGroup target,
+			int resId) {
 		Log.d(this.getClass().toString(), "Loading application at "
 				+ application.getName());
-		final AppCache cache = (AppCache) activity.getLastNonConfigurationInstance();
+		final AppCache cache = (AppCache) activity
+				.getLastNonConfigurationInstance();
 		this.application = application;
 
 		if (cache != null) {
@@ -116,12 +123,11 @@ public class DroiubyHelper implements
 			executionBundle.setCurrentActivity(activity);
 		}
 
-		downloader = new ActiveAppDownloader(application, activity, target, cache,
-				executionBundle, this, resId);
+		downloader = new ActiveAppDownloader(application, activity, target,
+				cache, executionBundle, this, resId);
 
 		downloader.execute();
 	}
-
 
 	public void onStart() {
 		// TODO Auto-generated method stub
@@ -130,7 +136,7 @@ public class DroiubyHelper implements
 			console.setActivity(activity);
 		}
 	}
-	
+
 	public void onDestroy() {
 		console.shutdownConsole();
 	}
@@ -190,5 +196,21 @@ public class DroiubyHelper implements
 				}
 			}
 		}
+	}
+
+	public void start(String url) {
+		AppDownloader downloader = new AppDownloader(activity,
+				url, activity.getClass(), this);
+		downloader.execute();
+	}
+	
+	public void onDownloadComplete(ActiveApp app) {
+		setupApplication(app,
+				(ViewGroup) activity.findViewById(R.id.mainLayout),
+				R.id.mainLayout);
+		if (activity instanceof OnAppDownloadComplete) {
+			((OnAppDownloadComplete) activity).onDownloadComplete(app);
+		}
+		onResume();
 	}
 }

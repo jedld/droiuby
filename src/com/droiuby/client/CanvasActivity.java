@@ -34,8 +34,8 @@ import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-public class CanvasActivity extends Activity implements DocumentReadyListener,
-		OnAppDownloadComplete {
+public class CanvasActivity extends Activity implements OnAppDownloadComplete,
+		DocumentReadyListener {
 
 	ViewGroup target;
 	ActiveApp application;
@@ -65,23 +65,24 @@ public class CanvasActivity extends Activity implements DocumentReadyListener,
 					ExecutionBundleFactory factory = ExecutionBundleFactory
 							.getInstance();
 					if (factory.bundleAvailableFor(application.getBaseUrl())) {
-						ExecutionBundle bundle = factory.getNewScriptingContainer(
-								this, application.getBaseUrl());
+						ExecutionBundle bundle = factory
+								.getNewScriptingContainer(this,
+										application.getBaseUrl());
 						droiuby.setExecutionBundle(bundle);
-						ActivityBuilder.loadLayout(bundle,
-								application, pageUrl, false, Utils.HTTP_GET,
-								this, null, this, R.id.mainLayout);
+						ActivityBuilder.loadLayout(bundle, application,
+								pageUrl, false, Utils.HTTP_GET, this, null,
+								this, R.id.mainLayout);
 					} else {
-						droiuby.setupApplication(application, target, R.id.mainLayout);
+						droiuby.setupApplication(application, target,
+								R.id.mainLayout);
 					}
 				} else {
-					droiuby.setupApplication(application, target, R.id.mainLayout);
+					droiuby.setupApplication(application, target,
+							R.id.mainLayout);
 				}
 			}
 		} else {
-			AppDownloader downloader = new AppDownloader(this,
-					"asset:launcher/config.xml", this.getClass(), this);
-			downloader.execute();
+			droiuby.start("asset:launcher/config.xml");
 		}
 	}
 
@@ -153,13 +154,6 @@ public class CanvasActivity extends Activity implements DocumentReadyListener,
 		return true;
 	}
 
-	public void onDownloadComplete(ActiveApp app) {
-		this.application = app;
-		droiuby.setupApplication(app, (ViewGroup) this.findViewById(R.id.mainLayout),
-				R.id.mainLayout);
-		onResume();
-	}
-
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
@@ -178,7 +172,9 @@ public class CanvasActivity extends Activity implements DocumentReadyListener,
 		droiuby.onResume();
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see android.app.Activity#onRetainNonConfigurationInstance()
 	 */
 	@Override
@@ -186,6 +182,9 @@ public class CanvasActivity extends Activity implements DocumentReadyListener,
 	public Object onRetainNonConfigurationInstance() {
 		return droiuby.onRetainNonConfigurationInstance();
 	}
-	
-	
+
+	public void onDownloadComplete(ActiveApp app) {
+		this.application = app;
+	}
+
 }
