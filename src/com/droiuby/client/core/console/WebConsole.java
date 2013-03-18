@@ -147,58 +147,57 @@ public class WebConsole extends NanoHTTPD {
 		Log.d(this.getClass().toString(), "HTTP request received. uri = " + uri);
 
 		Response response;
-		if (method.equalsIgnoreCase("POST")) {
-			if (uri.startsWith("/upload")) {
-				String name = params.getProperty("name", null);
+		if (method.equalsIgnoreCase("POST") && uri.startsWith("/upload")) {
+			String name = params.getProperty("name", null);
 
-				if (activity.get() != null) {
-					String data_dir = activity.get().getApplicationInfo().dataDir;
-					String filename = files.getProperty("file");
-					boolean launch = params.getProperty("run", "false").equals("true") ? true : false;
-					File file = new File(filename);
-					try {
-						String extraction_target = data_dir + File.separator
-								+ "applications" + File.separator + Utils.md5(name);
-						Log.d(this.getClass().toString(), "Saving file "
-								+ filename + " to " + extraction_target);
-						File dir = new File(extraction_target);
-						if (dir.exists()) {
-							Log.d(this.getClass().toString(),
-									"removing existing directory.");
-							FileUtils.deleteDirectory(dir);
-						}
-						dir.mkdirs();
-						Utils.unpackZip(new FileInputStream(file),
-								extraction_target);
-						if (launch) {
-							Log.d(this.getClass().toString(),"running application...");
-							final Map<String, String> resultMap = new HashMap<String, String>();
-							launchAppFromUrl(resultMap, "file://" + extraction_target + File.separator + "config.xml");
-							return new Response(NanoHTTPD.HTTP_OK, "application/json",
-									"success");
-						}
-					} catch (FileNotFoundException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (IOException e) {
-						e.printStackTrace();
-						return new Response(NanoHTTPD.HTTP_INTERNALERROR,
-								"text/html", e.getMessage());
+			if (activity.get() != null) {
+				String data_dir = activity.get().getApplicationInfo().dataDir;
+				String filename = files.getProperty("file");
+				boolean launch = params.getProperty("run", "false").equals(
+						"true") ? true : false;
+				File file = new File(filename);
+				try {
+					String extraction_target = data_dir + File.separator
+							+ "applications" + File.separator + Utils.md5(name);
+					Log.d(this.getClass().toString(), "Saving file " + filename
+							+ " to " + extraction_target);
+					File dir = new File(extraction_target);
+					if (dir.exists()) {
+						Log.d(this.getClass().toString(),
+								"removing existing directory.");
+						FileUtils.deleteDirectory(dir);
 					}
-					if (name != null) {
+					dir.mkdirs();
+					Utils.unpackZip(new FileInputStream(file),
+							extraction_target);
+					if (launch) {
+						Log.d(this.getClass().toString(),
+								"running application...");
+						final Map<String, String> resultMap = new HashMap<String, String>();
+						launchAppFromUrl(resultMap, "file://"
+								+ extraction_target + File.separator
+								+ "config.xml");
 						return new Response(NanoHTTPD.HTTP_OK,
-								"application/json", "{\"status\": \"OK\"}");
-					} else {
-						return new Response(NanoHTTPD.HTTP_BADREQUEST,
-								"text/html", "Name is required.");
+								"application/json", "success");
 					}
-				} else {
+				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
 					return new Response(NanoHTTPD.HTTP_INTERNALERROR,
-							"text/html", "no Activity attached.");
+							"text/html", e.getMessage());
+				}
+				if (name != null) {
+					return new Response(NanoHTTPD.HTTP_OK, "application/json",
+							"{\"status\": \"OK\"}");
+				} else {
+					return new Response(NanoHTTPD.HTTP_BADREQUEST, "text/html",
+							"Name is required.");
 				}
 			} else {
-				response = new Response(NanoHTTPD.HTTP_NOTFOUND,
-						"application/json", "Unknown command");
+				return new Response(NanoHTTPD.HTTP_INTERNALERROR, "text/html",
+						"no Activity attached.");
 			}
 		} else {
 			if (uri.startsWith("/control")) {
