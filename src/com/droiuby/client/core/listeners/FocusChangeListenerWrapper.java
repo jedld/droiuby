@@ -23,7 +23,7 @@ public class FocusChangeListenerWrapper extends ListenerWrapper implements
 
 	public void onFocusChange(View view, boolean hasFocus) {
 		try {
-			Ruby runtime = container.getProvider().getRuntime();
+			ScriptRuntime runtime = container.getRuntime();
 			IRubyObject wrapped_view = JavaUtil
 					.convertJavaToRuby(runtime, view);
 			IRubyObject wrapped_has_focus = RubyBoolean.newBoolean(runtime,

@@ -21,6 +21,7 @@ import android.view.ViewGroup;
 import com.droiuby.client.R;
 import com.droiuby.client.core.callbacks.OnAppDownloadComplete;
 import com.droiuby.client.core.console.WebConsole;
+import com.droiuby.client.core.scripting.ScriptingEngine;
 import com.droiuby.client.utils.ActiveAppDownloader;
 
 public class DroiubyHelper implements OnAppDownloadComplete,
@@ -50,8 +51,7 @@ public class DroiubyHelper implements OnAppDownloadComplete,
 
 	public void reloadApplication(ActiveApp application, ViewGroup target,
 			int mainlayout) {
-		ScriptingContainer container = executionBundle.getContainer();
-
+		ScriptingEngine container = executionBundle.getContainer();
 		container.put("_controller", executionBundle.getCurrentController());
 		executionBundle.getContainer().runScriptlet(
 				"_controller.on_activity_reload");
@@ -176,7 +176,7 @@ public class DroiubyHelper implements OnAppDownloadComplete,
 		if (executionBundle != null) {
 			if (executionBundle.getCurrentController() != null) {
 				try {
-					ScriptingContainer container = executionBundle
+					ScriptingEngine container = executionBundle
 							.getContainer();
 					container.put("_requestCode", requestCode);
 					container.put("_resultCode", resultCode);

@@ -12,8 +12,6 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
-import org.jruby.embed.EmbedEvalUnit;
-import org.jruby.embed.ScriptingContainer;
 
 import android.app.Activity;
 import android.content.res.AssetManager;
@@ -23,6 +21,8 @@ import com.droiuby.client.CanvasActivity;
 import com.droiuby.client.core.ActiveApp;
 import com.droiuby.client.core.ActivityBuilder;
 import com.droiuby.client.core.ExecutionBundle;
+import com.droiuby.client.core.scripting.EmbedEvalUnit;
+import com.droiuby.client.core.scripting.ScriptingEngine;
 import com.droiuby.client.utils.NanoHTTPD;
 import com.droiuby.client.utils.Utils;
 
@@ -88,7 +88,7 @@ public class WebConsole extends NanoHTTPD {
 		}
 	}
 
-	public static void execute(ScriptingContainer container,
+	public static void execute(ScriptingEngine container,
 			EmbedEvalUnit evalUnit, Map<String, String> resultMap) {
 		try {
 
@@ -242,7 +242,7 @@ public class WebConsole extends NanoHTTPD {
 				} else {
 
 					StringWriter writer = new StringWriter();
-					final ScriptingContainer scripting_container = bundle
+					final ScriptingEngine scripting_container = bundle
 							.getContainer();
 					scripting_container.setWriter(writer);
 

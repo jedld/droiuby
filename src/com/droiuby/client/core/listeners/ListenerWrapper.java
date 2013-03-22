@@ -9,6 +9,7 @@ import org.jruby.javasupport.JavaUtil;
 import org.jruby.runtime.builtin.IRubyObject;
 
 import com.droiuby.client.core.ExecutionBundle;
+import com.droiuby.client.core.scripting.ScriptingEngine;
 
 import android.util.Log;
 import android.view.View;
@@ -17,7 +18,7 @@ public abstract class ListenerWrapper {
 
 	RubyProc block;
 	ExecutionBundle bundle;
-	ScriptingContainer container;
+	ScriptingEngine container;
 
 	public ListenerWrapper(ExecutionBundle bundle, RubyProc block) {
 		this.block = block;

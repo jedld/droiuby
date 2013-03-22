@@ -2,18 +2,16 @@ package com.droiuby.client.core;
 
 import java.util.ArrayList;
 
-import org.jruby.embed.ScriptingContainer;
-
 import android.app.Activity;
 import android.content.Context;
-import android.hardware.Sensor;
 import android.hardware.SensorManager;
 
 import com.droiuby.client.core.interfaces.OnUrlChangedListener;
+import com.droiuby.client.core.scripting.ScriptingEngine;
 
 public class ExecutionBundle {
 
-	ScriptingContainer container;
+	ScriptingEngine container;
 	OnUrlChangedListener urlChangedListener;
 	Activity currentActivity;
 	String currentUrl;
@@ -79,11 +77,11 @@ public class ExecutionBundle {
 		this.urlChangedListener = urlChangedListener;
 	}
 
-	public ScriptingContainer getContainer() {
+	public ScriptingEngine getContainer() {
 		return container;
 	}
 
-	public void setContainer(ScriptingContainer container) {
+	public void setContainer(ScriptingEngine container) {
 		this.container = container;
 	}
 

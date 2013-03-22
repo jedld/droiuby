@@ -18,12 +18,10 @@ import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.jdom2.input.JDOMParseException;
 import org.jdom2.input.SAXBuilder;
-import org.jruby.embed.EmbedEvalUnit;
 import org.jruby.embed.EvalFailedException;
 import org.jruby.embed.ParseFailedException;
 import org.jruby.embed.ScriptingContainer;
 import org.jruby.ext.jruby.JRubyUtilLibrary.StringUtils;
-import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 
 import com.droiuby.client.CanvasActivity;
@@ -45,6 +43,7 @@ import com.droiuby.client.core.builder.WebViewBuilder;
 import com.droiuby.client.core.listeners.DocumentReadyListener;
 import com.droiuby.client.core.postprocessor.AssetPreloadParser;
 import com.droiuby.client.core.postprocessor.CssPreloadParser;
+import com.droiuby.client.core.scripting.*;
 import com.droiuby.client.utils.Utils;
 import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
 
@@ -137,7 +136,7 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 	ActiveApp app;
 	Activity targetActivity;
 	Document mainActivityDocument;
-	ScriptingContainer scriptingContainer;
+	ScriptingEngine scriptingContainer;
 	String baseUrl;
 	String controllerClass;
 	String controller_attribute;
@@ -287,7 +286,7 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 					+ elapsed + "ms");
 
 			try {
-				IRubyObject mainActivityController = null;
+				ScriptObject mainActivityController = null;
 				if (preParsedScript != null) {
 					start = System.currentTimeMillis();
 					mainActivityController = preParsedScript.run();
@@ -297,13 +296,13 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 						.runScriptlet("require 'droiuby/preload'\nstart_droiuby_plugins\n");
 
 				if (preParsedScript != null) {
-					ThreadContext context = executionBundle.container
-							.getProvider().getRuntime().getCurrentContext();
+					ThreadContext context = executionBundle.container.getCurrentContext();
+							
 					Log.d(this.getClass().toString(), "class = "
 							+ controllerClass);
-					IRubyObject instance;
+					ScriptObject instance;
 					if (controllerClass != null) {
-						instance = (IRubyObject) scriptingContainer
+						instance = (ScriptObject) scriptingContainer
 								.runScriptlet("'" + controllerClass
 										+ "'.camelize.constantize.new");
 					} else {

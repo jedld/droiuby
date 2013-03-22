@@ -38,7 +38,6 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.jruby.CompatVersion;
-import org.jruby.embed.EmbedEvalUnit;
 import org.jruby.embed.LocalContextScope;
 import org.jruby.embed.LocalVariableBehavior;
 import org.jruby.embed.ScriptingContainer;
@@ -60,6 +59,8 @@ import android.view.WindowManager;
 
 import com.droiuby.client.core.ActiveApp;
 import com.droiuby.client.core.ExecutionBundle;
+import com.droiuby.client.core.scripting.EmbedEvalUnit;
+import com.droiuby.client.core.scripting.ScriptingEngine;
 import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
 
 class DroiubyCookie implements Serializable {
@@ -186,7 +187,7 @@ public class Utils {
 		return container;
 	}
 
-	public static EmbedEvalUnit preParseRuby(ScriptingContainer container,
+	public static com.droiuby.client.core.scripting.EmbedEvalUnit preParseRuby(ScriptingEngine container,
 			String statement, Activity activity) {
 		EmbedEvalUnit parsed = container.parse(statement, 0);
 		return parsed;
@@ -442,9 +443,7 @@ public class Utils {
 	public static IRubyObject loadAppAssetRuby(ExecutionBundle bundle,
 			ActiveApp app, Context context, String asset_name, int asset_type,
 			int method) {
-		return JavaUtil.convertJavaToRuby(bundle.getContainer().getProvider()
-				.getRuntime(),
-				loadAppAsset(app, context, asset_name, asset_type, method));
+		return bundle.getContainer().convertJavaToScriptObject(loadAppAsset(app, context, asset_name, asset_type, method));
 	}
 
 	public static Object loadAppAsset(ActiveApp app, Context context,
