@@ -30,8 +30,9 @@ import org.jruby.embed.ScriptingContainer;
 import org.jruby.javasupport.JavaObject;
 import org.jruby.runtime.builtin.IRubyObject;
 
+import com.droiuby.application.ActiveApp;
+import com.droiuby.callbacks.DocumentReadyListener;
 import com.droiuby.client.R;
-import com.droiuby.client.core.ActiveApp;
 import com.droiuby.client.core.ActivityBuilder;
 import com.droiuby.client.core.AppCache;
 import com.droiuby.client.core.AssetDownloadCompleteListener;
@@ -40,7 +41,6 @@ import com.droiuby.client.core.ExecutionBundle;
 import com.droiuby.client.core.OnDownloadCompleteListener;
 import com.droiuby.client.core.RubyContainerPayload;
 import com.droiuby.client.core.interfaces.OnUrlChangedListener;
-import com.droiuby.client.core.listeners.DocumentReadyListener;
 import com.droiuby.client.core.postprocessor.CssPreloadParser;
 import com.droiuby.client.core.postprocessor.ScriptPreparser;
 

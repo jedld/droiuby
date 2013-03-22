@@ -11,6 +11,7 @@ import android.content.Context;
 import android.os.Environment;
 import android.util.Log;
 
+import com.droiuby.application.ActiveApp;
 import com.droiuby.client.utils.Utils;
 
 public class AssetDownloadWorker implements Runnable {

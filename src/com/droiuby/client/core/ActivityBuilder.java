@@ -1,13 +1,11 @@
 package com.droiuby.client.core;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -22,10 +20,29 @@ import org.jruby.embed.EmbedEvalUnit;
 import org.jruby.embed.EvalFailedException;
 import org.jruby.embed.ParseFailedException;
 import org.jruby.embed.ScriptingContainer;
-import org.jruby.ext.jruby.JRubyUtilLibrary.StringUtils;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.content.res.Resources;
+import android.graphics.Color;
+import android.os.AsyncTask;
+import android.util.Log;
+import android.util.SparseArray;
+import android.util.TypedValue;
+import android.view.Gravity;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageButton;
+import android.widget.LinearLayout.LayoutParams;
+import android.widget.RelativeLayout;
+import android.widget.TableRow;
+import android.widget.TextView;
+
+import com.droiuby.application.ActiveApp;
+import com.droiuby.callbacks.DocumentReadyListener;
 import com.droiuby.client.CanvasActivity;
 import com.droiuby.client.core.builder.ButtonViewBuilder;
 import com.droiuby.client.core.builder.CheckBoxBuilder;
@@ -42,32 +59,10 @@ import com.droiuby.client.core.builder.TableRowBuilder;
 import com.droiuby.client.core.builder.TextViewBuilder;
 import com.droiuby.client.core.builder.ViewBuilder;
 import com.droiuby.client.core.builder.WebViewBuilder;
-import com.droiuby.client.core.listeners.DocumentReadyListener;
 import com.droiuby.client.core.postprocessor.AssetPreloadParser;
 import com.droiuby.client.core.postprocessor.CssPreloadParser;
 import com.droiuby.client.utils.Utils;
 import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
-
-import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
-import android.content.res.Resources;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
-import android.os.Environment;
-import android.util.Log;
-import android.util.SparseArray;
-import android.util.TypedValue;
-import android.view.Gravity;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageButton;
-import android.widget.LinearLayout.LayoutParams;
-import android.widget.RelativeLayout;
-import android.widget.TableLayout;
-import android.widget.TableRow;
-import android.widget.TextView;
 
 class ReverseIdResolver {
 	static ReverseIdResolver instance;
@@ -354,7 +349,7 @@ public class ActivityBuilder {
 	}
 
 	public View getRootView() {
-		return context.findViewById(this.getViewById("mainLayout"));
+		return context.findViewById(this.getViewById(context, "mainLayout"));
 	}
 
 	ViewGroup target;
@@ -542,7 +537,7 @@ public class ActivityBuilder {
 			return object_list;
 		} else if (selector.startsWith("^")) {
 			String name = selector.substring(1);
-			int id = getViewById(name);
+			int id = getViewById(context, name);
 			if (id != 0) {
 				return context.findViewById(id);
 			} else {
@@ -816,7 +811,7 @@ public class ActivityBuilder {
 		return params;
 	}
 
-	Class getResourceClass() {
+	static Class getResourceClass(Activity context) {
 		String packageName = context.getApplication().getPackageName();
 		try {
 			return Class.forName(packageName + ".R");
@@ -827,9 +822,9 @@ public class ActivityBuilder {
 		return null;
 	}
 
-	Class<?> getResourceComponenetClass(String name) {
+	static Class<?> getResourceComponenetClass(Activity context, String name) {
 		String packageName = context.getApplication().getPackageName();
-		for (Class<?> subclass : getResourceClass().getDeclaredClasses()) {
+		for (Class<?> subclass : getResourceClass(context).getDeclaredClasses()) {
 			if (subclass.getName().equals(packageName + ".R$" + name)) {
 				return subclass;
 			}
@@ -837,23 +832,23 @@ public class ActivityBuilder {
 		return null;
 	}
 
-	Class<?> getStyleClass() {
+	static Class<?> getStyleClass(Activity context) {
 		if (ActivityBuilder.styleClass == null) {
-			ActivityBuilder.styleClass = getResourceComponenetClass("style");
+			ActivityBuilder.styleClass = getResourceComponenetClass(context, "style");
 		}
 		return styleClass;
 	}
 
-	Class<?> getIdClass() {
+	public static Class<?> getIdClass(Activity context) {
 		if (ActivityBuilder.idClass == null) {
-			ActivityBuilder.idClass = getResourceComponenetClass("id");
+			ActivityBuilder.idClass = getResourceComponenetClass(context, "id");
 		}
 		return idClass;
 	}
 
-	Class<?> getDrawableClass() {
+	Class<?> getDrawableClass(Activity context) {
 		if (ActivityBuilder.drawableClass == null) {
-			ActivityBuilder.drawableClass = getResourceComponenetClass("drawable");
+			ActivityBuilder.drawableClass = getResourceComponenetClass(context, "drawable");
 		}
 		return ActivityBuilder.drawableClass;
 	}
@@ -861,8 +856,8 @@ public class ActivityBuilder {
 	public int getStyleById(String styleId) {
 		Field f;
 		try {
-			f = this.getStyleClass().getField(styleId);
-			return f.getInt(this.getStyleClass().newInstance());
+			f = this.getStyleClass(context).getField(styleId);
+			return f.getInt(this.getStyleClass(context).newInstance());
 		} catch (NoSuchFieldException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -879,11 +874,11 @@ public class ActivityBuilder {
 		return 0;
 	}
 
-	public int getViewById(String viewId) {
+	public static int getViewById(Activity context, String viewId) {
 		Field f;
 		try {
-			f = this.getIdClass().getField(viewId);
-			return f.getInt(this.getIdClass().newInstance());
+			f = getIdClass(context).getField(viewId);
+			return f.getInt(getIdClass(context).newInstance());
 		} catch (NoSuchFieldException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -902,8 +897,8 @@ public class ActivityBuilder {
 
 	public int getDrawableId(String drawable) {
 		try {
-			Field f = this.getDrawableClass().getField(drawable);
-			return f.getInt(this.getDrawableClass().newInstance());
+			Field f = this.getDrawableClass(context).getField(drawable);
+			return f.getInt(this.getDrawableClass(context).newInstance());
 		} catch (NoSuchFieldException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

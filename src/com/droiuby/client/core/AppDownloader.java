@@ -5,7 +5,9 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
-import com.droiuby.client.core.callbacks.OnAppDownloadComplete;
+
+import com.droiuby.application.ActiveApp;
+import com.droiuby.callbacks.OnAppDownloadComplete;
 import com.droiuby.client.utils.ActiveAppDownloader;
 
 public class AppDownloader extends AsyncTask<Void, Void, ActiveApp> {

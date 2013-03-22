@@ -19,8 +19,8 @@ import android.app.Activity;
 import android.content.res.AssetManager;
 import android.util.Log;
 
+import com.droiuby.application.ActiveApp;
 import com.droiuby.client.CanvasActivity;
-import com.droiuby.client.core.ActiveApp;
 import com.droiuby.client.core.ActivityBuilder;
 import com.droiuby.client.core.ExecutionBundle;
 import com.droiuby.client.utils.NanoHTTPD;

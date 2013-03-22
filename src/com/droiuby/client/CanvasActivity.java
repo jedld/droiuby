@@ -5,17 +5,6 @@ import java.net.URL;
 
 import org.jdom2.Document;
 
-import com.droiuby.client.R;
-import com.droiuby.client.core.ActiveApp;
-import com.droiuby.client.core.ActivityBuilder;
-import com.droiuby.client.core.AppDownloader;
-import com.droiuby.client.core.DroiubyHelper;
-import com.droiuby.client.core.ExecutionBundle;
-import com.droiuby.client.core.ExecutionBundleFactory;
-import com.droiuby.client.core.callbacks.OnAppDownloadComplete;
-import com.droiuby.client.core.listeners.DocumentReadyListener;
-import com.droiuby.client.utils.Utils;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -34,13 +23,18 @@ import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import com.droiuby.application.ActiveApp;
+import com.droiuby.callbacks.DocumentReadyListener;
+import com.droiuby.callbacks.OnAppDownloadComplete;
+import com.droiuby.client.core.DroiubyHelper;
+import com.droiuby.interfaces.DroiubyHelperInterface;
+
 public class CanvasActivity extends Activity implements OnAppDownloadComplete,
 		DocumentReadyListener {
 
-	ViewGroup target;
 	ActiveApp application;
 	RelativeLayout topview;
-	DroiubyHelper droiuby;
+	DroiubyHelperInterface droiuby;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -55,32 +49,7 @@ public class CanvasActivity extends Activity implements OnAppDownloadComplete,
 		}
 		Bundle params = this.getIntent().getExtras();
 		if (params != null) {
-			application = (ActiveApp) params.getSerializable("application");
-			if (application != null) {
-				target = (ViewGroup) this.findViewById(R.id.mainLayout);
-				topview = (RelativeLayout) target;
-
-				String pageUrl = (String) params.getString("startUrl");
-				if (application != null && pageUrl != null) {
-					ExecutionBundleFactory factory = ExecutionBundleFactory
-							.getInstance();
-					if (factory.bundleAvailableFor(application.getBaseUrl())) {
-						ExecutionBundle bundle = factory
-								.getNewScriptingContainer(this,
-										application.getBaseUrl());
-						droiuby.setExecutionBundle(bundle);
-						ActivityBuilder.loadLayout(bundle, application,
-								pageUrl, false, Utils.HTTP_GET, this, null,
-								this, R.id.mainLayout);
-					} else {
-						droiuby.setupApplication(application, target,
-								R.id.mainLayout);
-					}
-				} else {
-					droiuby.setupApplication(application, target,
-							R.id.mainLayout);
-				}
-			}
+			droiuby.onIntent(params);
 		} else {
 			droiuby.start("asset:launcher/config.xml");
 		}
@@ -96,7 +65,7 @@ public class CanvasActivity extends Activity implements OnAppDownloadComplete,
 	public void refreshCurrentApplication() {
 		ViewGroup view = (ViewGroup) findViewById(R.id.mainLayout);
 		view.removeAllViews();
-		droiuby.reloadApplication(application, target, R.id.mainLayout);
+		droiuby.reloadApplication(application, R.id.mainLayout);
 	}
 
 	@Override
