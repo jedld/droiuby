@@ -16,7 +16,7 @@
 	<classpathentry exported="true" kind="lib" path="libs/jnr-posix.jar"/>
 	<classpathentry exported="true" kind="lib" path="libs/joda-time-2.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="libs/joni.jar"/>
-	<classpathentry exported="true" kind="lib" path="libs/jruby-core.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs_large/jruby-core.jar"/>
 	<classpathentry exported="true" kind="lib" path="libs/parser.jar"/>
 	<classpathentry exported="true" kind="lib" path="libs/yydebug.jar"/>
 	<classpathentry kind="src" path="gen"/>
