@@ -1,5 +1,6 @@
 gen
 bin
+assets/*.jar
 src_ruby_classes
 projects
 local.properties

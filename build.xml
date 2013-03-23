@@ -225,7 +225,7 @@
     <property name="jar.libs.dir" value="libs" />
     <property name="jar.libs_large.dir" value="libs_large"/>
     <property name="jar.libs.absolute.dir" location="${jar.libs.dir}" />
-     <property name="jar.libs_large.absolute.dir" location="${jar.libs_large.dir}" />
+    <property name="jar.libs_large.absolute.dir" location="${jar.libs_large.dir}" />
     <property name="native.libs.absolute.dir" location="libs" />
 
     <property name="manifest.file" value="AndroidManifest.xml" />
@@ -259,7 +259,12 @@
         <pathelement location="${android.platform.tools.dir}/renderscript/include" />
         <pathelement location="${android.platform.tools.dir}/renderscript/clang-include" />
     </path>
-
+    
+    <!--  large libraries include Path -->
+	<path id="large_libraries.include.path">
+        <pathelement location="libs_large" />
+    </path>
+    
     <!-- Intermediate files -->
     <property name="dex.file.name" value="classes.dex" />
     <property name="intermediate.dex.file" location="${out.absolute.dir}/${dex.file.name}" />
@@ -805,12 +810,11 @@
             <!-- merge the project's own classpath and the tested project's classpath -->
             <path id="project.javac.classpath">
                 <path refid="project.all.jars.path" />
-                <path refid="project.largelibs" />
                 <path refid="tested.project.classpath" />
             </path>
             <javac encoding="${java.encoding}"
                     source="${java.source}" target="${java.target}"
-                    debug="true" extdirs="" includeantruntime="false"
+                    debug="true" extdirs="libs_large" includeantruntime="false"
                     destdir="${out.classes.absolute.dir}"
                     bootclasspathref="project.target.class.path"
                     verbose="${verbose}"
@@ -971,28 +975,89 @@
         </if>
     </target>
 
+      <!-- This is a modified version of the "dex-helper" macro.  It added the "input-dir" and
+         "output-dex-file" required attributes.
+         Configurable macro, which allows to pass as parameters input directory,
+         output directory, output dex filename and external libraries to dex (optional) -->
+    <macrodef name="dex-helper-mod">
+        <attribute name="input-dir" />
+        <attribute name="output-dex-file" />
+        <element name="external-libs" optional="yes" />
+        <element name="extra-parameters" optional="yes" />
+        <attribute name="nolocals" default="false" />
+        <sequential>
+            <!-- set the secondary dx input: the project (and library) jar files
+                 If a pre-dex task sets it to something else this has no effect -->
+            <if>
+                <condition>
+                    <isreference refid="out.dex.jar.input.ref" />
+                </condition>
+                <else>
+                    <path id="out.dex.jar.input.ref">
+                        <path refid="project.all.jars.path" />
+                    </path>
+                </else>
+            </if>
+
+            <echo>Converting compiled files and external libraries into @{output-dex-file}...</echo>
+            <dex executable="${dx}"
+                    output="@{output-dex-file}"
+                    nolocals="@{nolocals}"
+                    verbose="${verbose}">
+                <path path="@{input-dir}"/>
+                <path refid="out.dex.jar.input.ref" />
+                <external-libs />
+            </dex>
+        </sequential>
+    </macrodef>
+    
     <!-- Converts this project's .class files into .dex files -->
-    <target name="-dex" depends="-compile, -post-compile, -obfuscate">
-        <do-only-if-manifest-hasCode elseText="hasCode = false. Skipping...">
-            <!-- only convert to dalvik bytecode is *not* a library -->
-            <do-only-if-not-library elseText="Library project: do not convert bytecode..." >
-                <!-- special case for instrumented builds: need to use no-locals and need
-                     to pass in the emma jar. -->
-                <if condition="${build.is.instrumented}">
-                    <then>
-                        <dex-helper nolocals="true">
-                            <external-libs>
-                                <fileset file="${emma.dir}/emma_device.jar" />
-                            </external-libs>
-                        </dex-helper>
-                    </then>
-                    <else>
-                        <dex-helper />
-                    </else>
-                </if>
-            </do-only-if-not-library>
-        </do-only-if-manifest-hasCode>
+    <target name="-dex" depends="-compile, -post-compile, -obfuscate"
+            unless="do.not.compile">
+        <if condition="${manifest.hasCode}">
+            <then>
+                <!-- Create staging directories to store .class files to be converted to the -->
+                <!-- default dex and the secondary dex. -->
+                <mkdir dir="${out.classes.absolute.dir}.1"/>
+                <mkdir dir="${out.classes.absolute.dir}.2"/>
+                <mkdir dir="${out.classes.absolute.dir}.jruby"/>
+
+                <!-- Primary dex to include everything but the concrete library implementation. -->
+                <copy todir="${out.classes.absolute.dir}.1" >
+                    <fileset dir="${out.classes.absolute.dir}" >
+                        <exclude name="com/droiuby/client/core/**" />
+                    </fileset>
+                </copy>
+                
+                <!-- Secondary dex to include the concrete library implementation. -->
+                <copy todir="${out.classes.absolute.dir}.2" >
+                    <fileset dir="${out.classes.absolute.dir}" >
+                        <include name="com/droiuby/client/core/**" />
+                    </fileset>
+                </copy>
+
+                <!-- Compile .class files from the two stage directories to the apppropriate dex files. -->
+                <dex-helper-mod input-dir="${out.classes.absolute.dir}.1"
+                    output-dex-file="${out.absolute.dir}/${dex.file.name}" />
+                <mkdir dir="${out.absolute.dir}/secondary_dex_dir" />
+                <dex-helper-mod input-dir="${out.classes.absolute.dir}.2"
+                    output-dex-file="${out.absolute.dir}/secondary_dex_dir/classes.dex" />
+                <mkdir dir="${out.absolute.dir}/jruby_dir" />
+                <dex-helper-mod input-dir="libs_large"
+                    output-dex-file="${out.absolute.dir}/jruby_dir/large_dex.dex" />                
+                <!-- Jar the secondary dex file so it can be consumed by the DexClassLoader. -->
+                <!-- Package the output in the assets directory of the apk. -->
+                <jar destfile="${asset.absolute.dir}/secondary_dex.jar"
+                     basedir="${out.absolute.dir}/secondary_dex_dir" includes="classes.dex" />
+                <jar destfile="${asset.absolute.dir}/large_dex.jar"
+                     basedir="${out.absolute.dir}/jruby_dir" includes="large_dex.dex" />
+            </then>
+            <else>
+                <echo>hasCode = false. Skipping...</echo>
+            </else>
+        </if>
     </target>
+
 
 <!-- Updates the pre-processed PNG cache -->
     <target name="-crunch">

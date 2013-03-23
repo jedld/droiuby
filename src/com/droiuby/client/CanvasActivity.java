@@ -24,13 +24,14 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.droiuby.application.ActiveApp;
+import com.droiuby.application.DroiubyBootstrap;
+import com.droiuby.application.OnEnvironmentReady;
 import com.droiuby.callbacks.DocumentReadyListener;
 import com.droiuby.callbacks.OnAppDownloadComplete;
-import com.droiuby.client.core.DroiubyHelper;
 import com.droiuby.interfaces.DroiubyHelperInterface;
 
 public class CanvasActivity extends Activity implements OnAppDownloadComplete,
-		DocumentReadyListener {
+		DocumentReadyListener, OnEnvironmentReady {
 
 	ActiveApp application;
 	RelativeLayout topview;
@@ -40,19 +41,7 @@ public class CanvasActivity extends Activity implements OnAppDownloadComplete,
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.canvas);
-		droiuby = new DroiubyHelper(this);
-		int default_orientation = getResources().getConfiguration().orientation;
-		if (default_orientation == Configuration.ORIENTATION_LANDSCAPE) {
-			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-		} else {
-			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-		}
-		Bundle params = this.getIntent().getExtras();
-		if (params != null) {
-			droiuby.onIntent(params);
-		} else {
-			droiuby.start("asset:launcher/config.xml");
-		}
+		DroiubyBootstrap.bootstrapEnvironment(this, this);
 	}
 
 	@Override
@@ -154,6 +143,21 @@ public class CanvasActivity extends Activity implements OnAppDownloadComplete,
 
 	public void onDownloadComplete(ActiveApp app) {
 		this.application = app;
+	}
+
+	public void onReady(DroiubyHelperInterface result) {
+		int default_orientation = getResources().getConfiguration().orientation;
+		if (default_orientation == Configuration.ORIENTATION_LANDSCAPE) {
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+		} else {
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+		}
+		Bundle params = this.getIntent().getExtras();
+		if (params != null) {
+			droiuby.onIntent(params);
+		} else {
+			droiuby.start("asset:launcher/config.xml");
+		}
 	}
 
 }
