@@ -13,7 +13,7 @@ class Main < Activity
       end
       
     async.perform {
-      Java::com.droiuby.client.utils.Utils.getLocalIpAddress(_current_activity)
+      Java::com.droiuby.client.core.utils.Utils.getLocalIpAddress(_current_activity)
     }.done { |result|
       V('#ip_address').text = "#{result}:4000"
     }.start

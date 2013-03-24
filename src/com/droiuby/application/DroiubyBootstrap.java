@@ -58,6 +58,7 @@ class LibraryBootstrapTask extends
 			DroiubyHelperInterface helper = (DroiubyHelperInterface) libProviderClazz.newInstance();
 			Log.d(this.getClass().toString(),"new instance loaded");
 			helper.setActivity(context);
+			helper.setLoader(cl);
 			Log.d(this.getClass().toString(),"done.");
 			listener.onReady(helper);
 		} catch (ClassNotFoundException e) {

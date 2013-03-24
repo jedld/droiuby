@@ -47,9 +47,9 @@ def launch(url)
 end
 
 def render(url, params = {})
-  http_method = Java::com.droiuby.client.utils.Utils::HTTP_GET
+  http_method = Java::com.droiuby.client.core.utils.Utils::HTTP_GET
   if params[:method] && (params[:method] == :post)
-    http_method = Java::com.droiuby.client.utils.Utils::HTTP_POST
+    http_method = Java::com.droiuby.client.core.utils.Utils::HTTP_POST
   end
   
   new_activity = params[:activity] ? true : false;
@@ -205,7 +205,7 @@ def http_get(url, params = {}, options = {})
     url_string = "#{url}?#{encoded_params.join('&')}"
   end
   
-  Java::com.droiuby.client.utils.Utils.load(_current_activity, url_string, _execution_bundle);
+  Java::com.droiuby.client.core.utils.Utils.load(_current_activity, url_string, _execution_bundle);
 end
 
 class Activity

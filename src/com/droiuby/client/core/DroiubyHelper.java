@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 
 import org.jdom2.Document;
 import org.jruby.embed.ScriptingContainer;
@@ -73,6 +74,7 @@ public class DroiubyHelper implements OnAppDownloadComplete,
 	ActiveAppDownloader downloader;
 	String currentUrl;
 	protected WebConsole console;
+	private ClassLoader loader;
 
 	protected int getMainLayoutId() {
 		return ActivityBuilder.getViewById(activity, "mainLayout");
@@ -89,7 +91,7 @@ public class DroiubyHelper implements OnAppDownloadComplete,
 			String pageUrl = (String) params.getString("startUrl");
 			if (application != null && pageUrl != null) {
 				ExecutionBundleFactory factory = ExecutionBundleFactory
-						.getInstance();
+						.getInstance(loader);
 				if (factory.bundleAvailableFor(application.getBaseUrl())) {
 					ExecutionBundle bundle = factory
 							.getNewScriptingContainer(activity,
@@ -193,7 +195,7 @@ public class DroiubyHelper implements OnAppDownloadComplete,
 			executionBundle = cache.getExecutionBundle();
 		} else {
 			ExecutionBundleFactory factory = ExecutionBundleFactory
-					.getInstance();
+					.getInstance(loader);
 			executionBundle = factory.getNewScriptingContainer(activity,
 					application.getBaseUrl());
 			executionBundle.setCurrentActivity(activity);
@@ -203,6 +205,20 @@ public class DroiubyHelper implements OnAppDownloadComplete,
 				cache, executionBundle, this, resId);
 
 		downloader.execute();
+	}
+
+	/**
+	 * @return the loader
+	 */
+	public ClassLoader getLoader() {
+		return loader;
+	}
+
+	/**
+	 * @param loader the loader to set
+	 */
+	public void setLoader(ClassLoader loader) {
+		this.loader = loader;
 	}
 
 	/* (non-Javadoc)
@@ -320,5 +336,18 @@ public class DroiubyHelper implements OnAppDownloadComplete,
 	public void onDocumentReady(Document mainActivity) {
 		// TODO Auto-generated method stub
 		
+	}
+	
+	public ArrayList<String> getScriptErrors() {
+			return getExecutionBundle().getScriptErrors();
+	}
+
+	public void setCurrentUrl(String currentUrl) {
+		getExecutionBundle().setCurrentUrl(currentUrl);
+		
+	}
+
+	public void setLibraryInitialized(boolean b) {
+		getExecutionBundle().setLibraryInitialized(b);
 	}
 }

@@ -77,7 +77,7 @@ public class CanvasActivity extends Activity implements OnAppDownloadComplete, O
 			LinearLayout errorListLayout = (LinearLayout) findViewById(R.id.errorLogGroup);
 			ScrollView scroll = (ScrollView) findViewById(R.id.scrollViewLog);
 			errorListLayout.removeAllViews();
-			for (String error : droiuby.getExecutionBundle().getScriptErrors()) {
+			for (String error : droiuby.getScriptErrors()) {
 				TextView errorText = new TextView(this);
 				errorText.setText(error);
 				errorListLayout.addView(errorText, LayoutParams.MATCH_PARENT,
@@ -93,8 +93,8 @@ public class CanvasActivity extends Activity implements OnAppDownloadComplete, O
 				editor.putString(url.getProtocol() + "_" + url.getHost() + "_"
 						+ application.getName(), "");
 				editor.commit();
-				droiuby.getExecutionBundle().setCurrentUrl(null);
-				droiuby.getExecutionBundle().setLibraryInitialized(false);
+				droiuby.setCurrentUrl(null);
+				droiuby.setLibraryInitialized(false);
 			} catch (MalformedURLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

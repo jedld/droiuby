@@ -21,12 +21,15 @@ public class ExecutionBundleFactory {
 
 	HashMap<String, WeakReference<ExecutionBundle>> bundles = new HashMap<String, WeakReference<ExecutionBundle>>();
 
-	protected ExecutionBundleFactory() {
+	private ClassLoader loader;
+
+	protected ExecutionBundleFactory(ClassLoader loader) {
+		this.loader = loader;
 	}
 
-	public static ExecutionBundleFactory getInstance() {
+	public static ExecutionBundleFactory getInstance(ClassLoader loader) {
 		if (instance == null) {
-			instance = new ExecutionBundleFactory();
+			instance = new ExecutionBundleFactory(loader);
 		}
 		return instance;
 	}
@@ -40,6 +43,7 @@ public class ExecutionBundleFactory {
 		payload.setCurrentActivity(context);
 		payload.setContainer(container);
 		container.setObjectSpaceEnabled(false);
+		container.setClassLoader(loader);
 		container.setCompatVersion(CompatVersion.RUBY1_9);
 		String data_dir = context.getApplicationInfo().dataDir;
 		Log.d(this.getClass().toString(), "data directory in " + data_dir);

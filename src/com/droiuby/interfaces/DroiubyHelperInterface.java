@@ -1,5 +1,7 @@
 package com.droiuby.interfaces;
 
+import java.util.ArrayList;
+
 import org.jdom2.Document;
 
 import android.app.Activity;
@@ -9,46 +11,48 @@ import android.os.Bundle;
 import android.view.ViewGroup;
 
 import com.droiuby.application.ActiveApp;
-import com.droiuby.client.core.ExecutionBundle;
 
 public interface DroiubyHelperInterface {
 
 	public void setActivity(Activity activity);
+
+	public void onIntent(Bundle params);
+
+	public void reloadApplication(ActiveApp application, int mainlayout);
+
+	public SharedPreferences getCurrentPreferences();
+
+	public String getIpAddr();
+
+	public void showConsoleInfo();
+
+	public void setupApplication(ActiveApp application, ViewGroup target,
+			int resId);
+
+	public void onStart();
+
+	public void onDestroy();
+
+	public void onResume();
+
+	public Object onRetainNonConfigurationInstance();
+
+	public void setActiveApp(ActiveApp application);
+
+	public void onActivityResult(int requestCode, int resultCode, Intent intent);
+
+	public void start(String url);
+
+	public void onDownloadComplete(ActiveApp app);
+
+	public void onDocumentReady(Document mainActivity);
+
+	public ArrayList<String> getScriptErrors();
+
+	public void setCurrentUrl(String currentUrl);
+
+	public void setLibraryInitialized(boolean b);
 	
-	public abstract ExecutionBundle getExecutionBundle();
-
-	public abstract void setExecutionBundle(ExecutionBundle executionBundle);
-
-	public abstract void onIntent(Bundle params);
-
-	public abstract void reloadApplication(ActiveApp application, int mainlayout);
-
-	public abstract SharedPreferences getCurrentPreferences();
-
-	public abstract String getIpAddr();
-
-	public abstract void showConsoleInfo();
-
-	public abstract void setupApplication(ActiveApp application,
-			ViewGroup target, int resId);
-
-	public abstract void onStart();
-
-	public abstract void onDestroy();
-
-	public abstract void onResume();
-
-	public abstract Object onRetainNonConfigurationInstance();
-
-	public abstract void setActiveApp(ActiveApp application);
-
-	public abstract void onActivityResult(int requestCode, int resultCode,
-			Intent intent);
-
-	public abstract void start(String url);
-
-	public abstract void onDownloadComplete(ActiveApp app);
-
-	public abstract void onDocumentReady(Document mainActivity);
+	public void setLoader(ClassLoader loader);
 
 }

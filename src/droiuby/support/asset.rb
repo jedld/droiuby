@@ -32,8 +32,8 @@ class AssetHandler
   
   def start
     async.perform {
-      result = BitmapDrawableWrapper.new(Java::com.droiuby.client.utils.Utils.loadAppAssetRuby(_execution_bundle, _current_app, _current_activity,
-      @url, Java::com.droiuby.client.utils.Utils::ASSET_TYPE_IMAGE, Java::com.droiuby.client.utils.Utils::HTTP_GET))
+      result = BitmapDrawableWrapper.new(Java::com.droiuby.client.core.utils.Utils.loadAppAssetRuby(_execution_bundle, _current_app, _current_activity,
+      @url, Java::com.droiuby.client.core.utils.Utils::ASSET_TYPE_IMAGE, Java::com.droiuby.client.utils.Utils::HTTP_GET))
       result
     }.done { |result|
       @block.call(result)

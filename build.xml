@@ -1026,6 +1026,8 @@
                 <copy todir="${out.classes.absolute.dir}.1" >
                     <fileset dir="${out.classes.absolute.dir}" >
                         <exclude name="com/droiuby/client/core/**" />
+                        <exclude name="com/osbcp/**" />
+                        <exclude name="com/koushikdutta/**" />
                     </fileset>
                 </copy>
                 
@@ -1033,6 +1035,8 @@
                 <copy todir="${out.classes.absolute.dir}.2" >
                     <fileset dir="${out.classes.absolute.dir}" >
                         <include name="com/droiuby/client/core/**" />
+                        <include name="com/osbcp/**" />
+                        <include name="com/koushikdutta/**" />
                     </fileset>
                 </copy>
 
