@@ -16,8 +16,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
-class LibraryBootstrapTask extends
-		AsyncTask<Void, Void, ClassLoader> {
+class LibraryBootstrapTask extends AsyncTask<Void, Void, ClassLoader> {
 
 	Activity context;
 	String libraries[];
@@ -55,11 +54,12 @@ class LibraryBootstrapTask extends
 			Log.d(this.getClass().toString(), "loading helper");
 			libProviderClazz = cl
 					.loadClass("com.droiuby.client.core.DroiubyHelper");
-			DroiubyHelperInterface helper = (DroiubyHelperInterface) libProviderClazz.newInstance();
-			Log.d(this.getClass().toString(),"new instance loaded");
+			DroiubyHelperInterface helper = (DroiubyHelperInterface) libProviderClazz
+					.newInstance();
+			Log.d(this.getClass().toString(), "new instance loaded");
 			helper.setActivity(context);
 			helper.setLoader(cl);
-			Log.d(this.getClass().toString(),"done.");
+			Log.d(this.getClass().toString(), "done.");
 			listener.onReady(helper);
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -75,8 +75,7 @@ class LibraryBootstrapTask extends
 		// caller can directly invoke methods in the interface.
 		// Alternatively, the caller can invoke methods through reflection,
 		// which is more verbose.
-		
-		
+
 	}
 
 }
@@ -102,21 +101,22 @@ public class DroiubyBootstrap {
 				Context.MODE_PRIVATE), name);
 		BufferedInputStream bis = null;
 		OutputStream dexWriter = null;
-
-		try {
-			bis = new BufferedInputStream(context.getAssets().open(name));
-			dexWriter = new BufferedOutputStream(new FileOutputStream(
-					dexInternalStoragePath));
-			byte[] buf = new byte[BUF_SIZE];
-			int len;
-			while ((len = bis.read(buf, 0, BUF_SIZE)) > 0) {
-				dexWriter.write(buf, 0, len);
+		if (!dexInternalStoragePath.exists()) {
+			try {
+				bis = new BufferedInputStream(context.getAssets().open(name));
+				dexWriter = new BufferedOutputStream(new FileOutputStream(
+						dexInternalStoragePath));
+				byte[] buf = new byte[BUF_SIZE];
+				int len;
+				while ((len = bis.read(buf, 0, BUF_SIZE)) > 0) {
+					dexWriter.write(buf, 0, len);
+				}
+				dexWriter.close();
+				bis.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-			dexWriter.close();
-			bis.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 		return dexInternalStoragePath;
 	}
