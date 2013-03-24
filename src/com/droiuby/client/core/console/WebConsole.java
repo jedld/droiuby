@@ -23,8 +23,8 @@ import com.droiuby.application.ActiveApp;
 import com.droiuby.client.CanvasActivity;
 import com.droiuby.client.core.ActivityBuilder;
 import com.droiuby.client.core.ExecutionBundle;
-import com.droiuby.client.utils.NanoHTTPD;
-import com.droiuby.client.utils.Utils;
+import com.droiuby.client.core.utils.NanoHTTPD;
+import com.droiuby.client.core.utils.Utils;
 
 public class WebConsole extends NanoHTTPD {
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.droiuby.client.utils.intents;
+package com.droiuby.client.core.utils.intents;
 
 import java.util.Arrays;
 import java.util.Collection;

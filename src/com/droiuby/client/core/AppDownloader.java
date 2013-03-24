@@ -8,7 +8,7 @@ import android.os.AsyncTask;
 
 import com.droiuby.application.ActiveApp;
 import com.droiuby.callbacks.OnAppDownloadComplete;
-import com.droiuby.client.utils.ActiveAppDownloader;
+import com.droiuby.client.core.utils.ActiveAppDownloader;
 
 public class AppDownloader extends AsyncTask<Void, Void, ActiveApp> {
 	String url;

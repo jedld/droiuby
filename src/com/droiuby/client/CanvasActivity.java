@@ -3,7 +3,6 @@ package com.droiuby.client;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import org.jdom2.Document;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -26,12 +25,10 @@ import android.widget.TextView;
 import com.droiuby.application.ActiveApp;
 import com.droiuby.application.DroiubyBootstrap;
 import com.droiuby.application.OnEnvironmentReady;
-import com.droiuby.callbacks.DocumentReadyListener;
 import com.droiuby.callbacks.OnAppDownloadComplete;
 import com.droiuby.interfaces.DroiubyHelperInterface;
 
-public class CanvasActivity extends Activity implements OnAppDownloadComplete,
-		DocumentReadyListener, OnEnvironmentReady {
+public class CanvasActivity extends Activity implements OnAppDownloadComplete, OnEnvironmentReady {
 
 	ActiveApp application;
 	RelativeLayout topview;
@@ -48,13 +45,17 @@ public class CanvasActivity extends Activity implements OnAppDownloadComplete,
 	protected void onStart() {
 		// TODO Auto-generated method stub
 		super.onStart();
-		droiuby.onStart();
+		if (droiuby!=null) {
+			droiuby.onStart();
+		}
 	}
 
 	public void refreshCurrentApplication() {
 		ViewGroup view = (ViewGroup) findViewById(R.id.mainLayout);
 		view.removeAllViews();
-		droiuby.reloadApplication(application, R.id.mainLayout);
+		if (droiuby!=null) {
+			droiuby.reloadApplication(application, R.id.mainLayout);
+		}
 	}
 
 	@Override
@@ -102,8 +103,6 @@ public class CanvasActivity extends Activity implements OnAppDownloadComplete,
 		return false;
 	}
 
-	public void onDocumentReady(Document mainActivity) {
-	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -115,19 +114,25 @@ public class CanvasActivity extends Activity implements OnAppDownloadComplete,
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		droiuby.onDestroy();
+		if (droiuby!=null) {
+			droiuby.onDestroy();
+		}
 	}
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-		droiuby.onActivityResult(requestCode, resultCode, data);
+		if (droiuby!=null) {
+			droiuby.onActivityResult(requestCode, resultCode, data);
+		}
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
-		droiuby.onResume();
+		if (droiuby!=null) {
+			droiuby.onResume();
+		}
 	}
 
 	/*
@@ -153,6 +158,7 @@ public class CanvasActivity extends Activity implements OnAppDownloadComplete,
 			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 		}
 		Bundle params = this.getIntent().getExtras();
+		droiuby = result;
 		if (params != null) {
 			droiuby.onIntent(params);
 		} else {

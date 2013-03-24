@@ -24,8 +24,8 @@ import com.droiuby.application.ActiveApp;
 import com.droiuby.callbacks.DocumentReadyListener;
 import com.droiuby.callbacks.OnAppDownloadComplete;
 import com.droiuby.client.core.console.WebConsole;
-import com.droiuby.client.utils.ActiveAppDownloader;
-import com.droiuby.client.utils.Utils;
+import com.droiuby.client.core.utils.ActiveAppDownloader;
+import com.droiuby.client.core.utils.Utils;
 import com.droiuby.interfaces.DroiubyHelperInterface;
 
 public class DroiubyHelper implements OnAppDownloadComplete,
@@ -33,11 +33,26 @@ public class DroiubyHelper implements OnAppDownloadComplete,
 	/** Called when the activity is first created. */
 	ActiveApp application;
 	Activity activity;
-	AppCache cache;
+	
+	public DroiubyHelper() {
+		Log.d(this.getClass().toString(), "new instance...");
+	}
+	
+	/**
+	 * @return the activity
+	 */
+	public Activity getActivity() {
+		return activity;
+	}
 
-	public DroiubyHelper(Activity activity) {
+	/**
+	 * @param activity the activity to set
+	 */
+	public void setActivity(Activity activity) {
 		this.activity = activity;
 	}
+
+	AppCache cache;
 
 	protected ExecutionBundle executionBundle;
 

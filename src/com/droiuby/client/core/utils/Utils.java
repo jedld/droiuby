@@ -1,4 +1,4 @@
-package com.droiuby.client.utils;
+package com.droiuby.client.core.utils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;

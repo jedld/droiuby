@@ -2,6 +2,7 @@ package com.droiuby.interfaces;
 
 import org.jdom2.Document;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -12,6 +13,8 @@ import com.droiuby.client.core.ExecutionBundle;
 
 public interface DroiubyHelperInterface {
 
+	public void setActivity(Activity activity);
+	
 	public abstract ExecutionBundle getExecutionBundle();
 
 	public abstract void setExecutionBundle(ExecutionBundle executionBundle);

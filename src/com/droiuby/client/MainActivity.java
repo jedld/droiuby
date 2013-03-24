@@ -6,9 +6,9 @@ import java.util.List;
 
 import com.droiuby.client.R;
 import com.droiuby.client.core.ActivityBuilder;
-import com.droiuby.client.utils.Utils;
-import com.droiuby.client.utils.intents.IntentIntegrator;
-import com.droiuby.client.utils.intents.IntentResult;
+import com.droiuby.client.core.utils.Utils;
+import com.droiuby.client.core.utils.intents.IntentIntegrator;
+import com.droiuby.client.core.utils.intents.IntentResult;
 
 import android.app.Activity;
 import android.app.ProgressDialog;

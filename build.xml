@@ -1044,13 +1044,13 @@
                     output-dex-file="${out.absolute.dir}/secondary_dex_dir/classes.dex" />
                 <mkdir dir="${out.absolute.dir}/jruby_dir" />
                 <dex-helper-mod input-dir="libs_large"
-                    output-dex-file="${out.absolute.dir}/jruby_dir/large_dex.dex" />                
+                    output-dex-file="${out.absolute.dir}/jruby_dir/classes.dex" />                
                 <!-- Jar the secondary dex file so it can be consumed by the DexClassLoader. -->
                 <!-- Package the output in the assets directory of the apk. -->
                 <jar destfile="${asset.absolute.dir}/secondary_dex.jar"
                      basedir="${out.absolute.dir}/secondary_dex_dir" includes="classes.dex" />
                 <jar destfile="${asset.absolute.dir}/large_dex.jar"
-                     basedir="${out.absolute.dir}/jruby_dir" includes="large_dex.dex" />
+                     basedir="${out.absolute.dir}/jruby_dir" includes="classes.dex" />
             </then>
             <else>
                 <echo>hasCode = false. Skipping...</echo>

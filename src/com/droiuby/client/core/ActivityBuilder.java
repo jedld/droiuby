@@ -61,7 +61,7 @@ import com.droiuby.client.core.builder.ViewBuilder;
 import com.droiuby.client.core.builder.WebViewBuilder;
 import com.droiuby.client.core.postprocessor.AssetPreloadParser;
 import com.droiuby.client.core.postprocessor.CssPreloadParser;
-import com.droiuby.client.utils.Utils;
+import com.droiuby.client.core.utils.Utils;
 import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
 
 class ReverseIdResolver {

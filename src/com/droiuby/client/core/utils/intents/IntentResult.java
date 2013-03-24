@@ -1,4 +1,4 @@
-package com.droiuby.client.utils.intents;
+package com.droiuby.client.core.utils.intents;
 
 
 /*

@@ -43,4 +43,5 @@ public class AppCache {
 	public void setMainActivityDocument(Document mainActivityDocument) {
 		this.mainActivityDocument = mainActivityDocument;
 	}
+	
 }

@@ -11,18 +11,19 @@ import com.droiuby.interfaces.DroiubyHelperInterface;
 
 import dalvik.system.DexClassLoader;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
 class LibraryBootstrapTask extends
-		AsyncTask<Void, Void, DroiubyHelperInterface> {
+		AsyncTask<Void, Void, ClassLoader> {
 
-	Context context;
+	Activity context;
 	String libraries[];
 	OnEnvironmentReady listener;
 
-	public LibraryBootstrapTask(Context context, String libraries[],
+	public LibraryBootstrapTask(Activity context, String libraries[],
 			OnEnvironmentReady listener) {
 		this.context = context;
 		this.libraries = libraries;
@@ -30,7 +31,7 @@ class LibraryBootstrapTask extends
 	}
 
 	@Override
-	protected DroiubyHelperInterface doInBackground(Void... arg0) {
+	protected ClassLoader doInBackground(Void... arg0) {
 		// Internal storage where the DexClassLoader writes the optimized dex
 		// file to
 		final File optimizedDexOutputPath = context.getDir("outdex",
@@ -41,14 +42,24 @@ class LibraryBootstrapTask extends
 			File storagePath = DroiubyBootstrap.loadSecondaryDex(context, name);
 			cl = new DexClassLoader(storagePath.getAbsolutePath(),
 					optimizedDexOutputPath.getAbsolutePath(), null, cl);
+			Log.d(this.getClass().toString(), "done.");
 		}
+		return cl;
+	}
 
+	@Override
+	protected void onPostExecute(ClassLoader cl) {
 		Class libProviderClazz = null;
 		// Load the library.
 		try {
+			Log.d(this.getClass().toString(), "loading helper");
 			libProviderClazz = cl
 					.loadClass("com.droiuby.client.core.DroiubyHelper");
-			return (DroiubyHelperInterface) libProviderClazz.newInstance();
+			DroiubyHelperInterface helper = (DroiubyHelperInterface) libProviderClazz.newInstance();
+			Log.d(this.getClass().toString(),"new instance loaded");
+			helper.setActivity(context);
+			Log.d(this.getClass().toString(),"done.");
+			listener.onReady(helper);
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -63,14 +74,8 @@ class LibraryBootstrapTask extends
 		// caller can directly invoke methods in the interface.
 		// Alternatively, the caller can invoke methods through reflection,
 		// which is more verbose.
-		return null;
-	}
-
-	@Override
-	protected void onPostExecute(DroiubyHelperInterface result) {
-		// TODO Auto-generated method stub
-		super.onPostExecute(result);
-		listener.onReady(result);
+		
+		
 	}
 
 }
@@ -81,9 +86,9 @@ public class DroiubyBootstrap {
 	public static final String JRUBY_DEX_NAME = "large_dex.jar";
 	public static final int BUF_SIZE = 8 * 1024;
 
-	public static void bootstrapEnvironment(Context context,
+	public static void bootstrapEnvironment(Activity context,
 			OnEnvironmentReady listener) {
-		String dexnames[] = { SECONDARY_DEX_NAME, JRUBY_DEX_NAME };
+		String dexnames[] = { JRUBY_DEX_NAME, SECONDARY_DEX_NAME };
 		LibraryBootstrapTask library = new LibraryBootstrapTask(context,
 				dexnames, listener);
 		library.execute();
