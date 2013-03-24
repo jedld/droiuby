@@ -30,15 +30,16 @@ import com.droiuby.client.core.utils.Utils;
 import com.droiuby.interfaces.DroiubyHelperInterface;
 
 public class DroiubyHelper implements OnAppDownloadComplete,
-		OnDownloadCompleteListener, DocumentReadyListener, DroiubyHelperInterface {
+		OnDownloadCompleteListener, DocumentReadyListener,
+		DroiubyHelperInterface {
 	/** Called when the activity is first created. */
 	ActiveApp application;
 	Activity activity;
-	
+
 	public DroiubyHelper() {
 		Log.d(this.getClass().toString(), "new instance...");
 	}
-	
+
 	/**
 	 * @return the activity
 	 */
@@ -47,7 +48,8 @@ public class DroiubyHelper implements OnAppDownloadComplete,
 	}
 
 	/**
-	 * @param activity the activity to set
+	 * @param activity
+	 *            the activity to set
 	 */
 	public void setActivity(Activity activity) {
 		this.activity = activity;
@@ -57,15 +59,21 @@ public class DroiubyHelper implements OnAppDownloadComplete,
 
 	protected ExecutionBundle executionBundle;
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see com.droiuby.client.core.DroiubyHelperInterface#getExecutionBundle()
 	 */
 	public ExecutionBundle getExecutionBundle() {
 		return executionBundle;
 	}
 
-	/* (non-Javadoc)
-	 * @see com.droiuby.client.core.DroiubyHelperInterface#setExecutionBundle(com.droiuby.client.core.ExecutionBundle)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.droiuby.client.core.DroiubyHelperInterface#setExecutionBundle(com
+	 * .droiuby.client.core.ExecutionBundle)
 	 */
 	public void setExecutionBundle(ExecutionBundle executionBundle) {
 		this.executionBundle = executionBundle;
@@ -79,53 +87,61 @@ public class DroiubyHelper implements OnAppDownloadComplete,
 	protected int getMainLayoutId() {
 		return ActivityBuilder.getViewById(activity, "mainLayout");
 	}
-	
-	/* (non-Javadoc)
-	 * @see com.droiuby.client.core.DroiubyHelperInterface#onIntent(android.os.Bundle)
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.droiuby.client.core.DroiubyHelperInterface#onIntent(android.os.Bundle
+	 * )
 	 */
 	public void onIntent(Bundle params) {
 		application = (ActiveApp) params.getSerializable("application");
 		if (application != null) {
-			ViewGroup target = (ViewGroup) activity.findViewById(getMainLayoutId());
+			ViewGroup target = (ViewGroup) activity
+					.findViewById(getMainLayoutId());
 
 			String pageUrl = (String) params.getString("startUrl");
 			if (application != null && pageUrl != null) {
 				ExecutionBundleFactory factory = ExecutionBundleFactory
 						.getInstance(loader);
 				if (factory.bundleAvailableFor(application.getBaseUrl())) {
-					ExecutionBundle bundle = factory
-							.getNewScriptingContainer(activity,
-									application.getBaseUrl());
+					ExecutionBundle bundle = factory.getNewScriptingContainer(
+							activity, application.getBaseUrl());
 					setExecutionBundle(bundle);
-					ActivityBuilder.loadLayout(bundle, application,
-							pageUrl, false, Utils.HTTP_GET, activity, null,
-							this, getMainLayoutId());
-				} else {
-					setupApplication(application, target,
+					ActivityBuilder.loadLayout(bundle, application, pageUrl,
+							false, Utils.HTTP_GET, activity, null, this,
 							getMainLayoutId());
+				} else {
+					setupApplication(application, target, getMainLayoutId());
 				}
 			} else {
-				setupApplication(application, target,
-						getMainLayoutId());
+				setupApplication(application, target, getMainLayoutId());
 			}
 		}
 	}
-	
-	/* (non-Javadoc)
-	 * @see com.droiuby.client.core.DroiubyHelperInterface#reloadApplication(com.droiuby.application.ActiveApp, int)
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.droiuby.client.core.DroiubyHelperInterface#reloadApplication(com.
+	 * droiuby.application.ActiveApp, int)
 	 */
-	public void reloadApplication(ActiveApp application, 
-			int mainlayout) {
+	public void reloadApplication(ActiveApp application, int mainlayout) {
 		ScriptingContainer container = executionBundle.getContainer();
-		ViewGroup target = (ViewGroup)activity.findViewById(mainlayout);
+		ViewGroup target = (ViewGroup) activity.findViewById(mainlayout);
 		container.put("_controller", executionBundle.getCurrentController());
 		executionBundle.getContainer().runScriptlet(
 				"_controller.on_activity_reload");
 		this.setupApplication(application, target, mainlayout);
 	}
 
-	/* (non-Javadoc)
-	 * @see com.droiuby.client.core.DroiubyHelperInterface#getCurrentPreferences()
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.droiuby.client.core.DroiubyHelperInterface#getCurrentPreferences()
 	 */
 	public SharedPreferences getCurrentPreferences() {
 		try {
@@ -149,7 +165,9 @@ public class DroiubyHelper implements OnAppDownloadComplete,
 		return null;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see com.droiuby.client.core.DroiubyHelperInterface#getIpAddr()
 	 */
 	public String getIpAddr() {
@@ -164,7 +182,9 @@ public class DroiubyHelper implements OnAppDownloadComplete,
 		return ipString.toString();
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see com.droiuby.client.core.DroiubyHelperInterface#showConsoleInfo()
 	 */
 	public void showConsoleInfo() {
@@ -180,8 +200,12 @@ public class DroiubyHelper implements OnAppDownloadComplete,
 		alert.show();
 	}
 
-	/* (non-Javadoc)
-	 * @see com.droiuby.client.core.DroiubyHelperInterface#setupApplication(com.droiuby.application.ActiveApp, android.view.ViewGroup, int)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.droiuby.client.core.DroiubyHelperInterface#setupApplication(com.droiuby
+	 * .application.ActiveApp, android.view.ViewGroup, int)
 	 */
 	public void setupApplication(ActiveApp application, ViewGroup target,
 			int resId) {
@@ -215,13 +239,16 @@ public class DroiubyHelper implements OnAppDownloadComplete,
 	}
 
 	/**
-	 * @param loader the loader to set
+	 * @param loader
+	 *            the loader to set
 	 */
 	public void setLoader(ClassLoader loader) {
 		this.loader = loader;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see com.droiuby.client.core.DroiubyHelperInterface#onStart()
 	 */
 	public void onStart() {
@@ -232,14 +259,21 @@ public class DroiubyHelper implements OnAppDownloadComplete,
 		}
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see com.droiuby.client.core.DroiubyHelperInterface#onDestroy()
 	 */
 	public void onDestroy() {
-		console.shutdownConsole();
+		// TODO Auto-generated method stub
+		if (console != null) {
+			console.shutdownConsole();
+		}
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see com.droiuby.client.core.DroiubyHelperInterface#onResume()
 	 */
 	public void onResume() {
@@ -249,15 +283,22 @@ public class DroiubyHelper implements OnAppDownloadComplete,
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see com.droiuby.client.core.DroiubyHelperInterface#onRetainNonConfigurationInstance()
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.droiuby.client.core.DroiubyHelperInterface#
+	 * onRetainNonConfigurationInstance()
 	 */
 	public Object onRetainNonConfigurationInstance() {
 		return downloader.getCache();
 	}
 
-	/* (non-Javadoc)
-	 * @see com.droiuby.client.core.DroiubyHelperInterface#setActiveApp(com.droiuby.application.ActiveApp)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.droiuby.client.core.DroiubyHelperInterface#setActiveApp(com.droiuby
+	 * .application.ActiveApp)
 	 */
 	public void setActiveApp(ActiveApp application) {
 		this.application = application;
@@ -279,8 +320,11 @@ public class DroiubyHelper implements OnAppDownloadComplete,
 
 	}
 
-	/* (non-Javadoc)
-	 * @see com.droiuby.client.core.DroiubyHelperInterface#onActivityResult(int, int, android.content.Intent)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.droiuby.client.core.DroiubyHelperInterface#onActivityResult(int,
+	 * int, android.content.Intent)
 	 */
 	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
 		if (executionBundle != null) {
@@ -308,17 +352,24 @@ public class DroiubyHelper implements OnAppDownloadComplete,
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see com.droiuby.client.core.DroiubyHelperInterface#start(java.lang.String)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.droiuby.client.core.DroiubyHelperInterface#start(java.lang.String)
 	 */
 	public void start(String url) {
-		AppDownloader downloader = new AppDownloader(activity,
-				url, activity.getClass(), this);
+		AppDownloader downloader = new AppDownloader(activity, url,
+				activity.getClass(), this);
 		downloader.execute();
 	}
-	
-	/* (non-Javadoc)
-	 * @see com.droiuby.client.core.DroiubyHelperInterface#onDownloadComplete(com.droiuby.application.ActiveApp)
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.droiuby.client.core.DroiubyHelperInterface#onDownloadComplete(com
+	 * .droiuby.application.ActiveApp)
 	 */
 	public void onDownloadComplete(ActiveApp app) {
 		setupApplication(app,
@@ -330,21 +381,25 @@ public class DroiubyHelper implements OnAppDownloadComplete,
 		onResume();
 	}
 
-	/* (non-Javadoc)
-	 * @see com.droiuby.client.core.DroiubyHelperInterface#onDocumentReady(org.jdom2.Document)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.droiuby.client.core.DroiubyHelperInterface#onDocumentReady(org.jdom2
+	 * .Document)
 	 */
 	public void onDocumentReady(Document mainActivity) {
 		// TODO Auto-generated method stub
-		
+
 	}
-	
+
 	public ArrayList<String> getScriptErrors() {
-			return getExecutionBundle().getScriptErrors();
+		return getExecutionBundle().getScriptErrors();
 	}
 
 	public void setCurrentUrl(String currentUrl) {
 		getExecutionBundle().setCurrentUrl(currentUrl);
-		
+
 	}
 
 	public void setLibraryInitialized(boolean b) {
