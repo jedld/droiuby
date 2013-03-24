@@ -208,39 +208,6 @@
     <taskdef resource="emma_ant.properties" classpathref="emma.lib" />
     <!-- End of emma configuration -->
 
-
-    <!-- ******************************************************* -->
-    <!-- ******************* Other Properties ****************** -->
-    <!-- ******************************************************* -->
-    <!-- overriding these properties may break the build
-         unless the whole file is updated -->
-
-    <!-- Input directories -->
-    <property name="source.dir" value="src" />
-    <property name="source.absolute.dir" location="${source.dir}" />
-    <property name="gen.absolute.dir" location="gen" />
-    <property name="resource.absolute.dir" location="res" />
-    <property name="asset.dir" value="assets" />
-    <property name="asset.absolute.dir" location="${asset.dir}" />
-    <property name="jar.libs.dir" value="libs" />
-    <property name="jar.libs_large.dir" value="libs_large"/>
-    <property name="jar.libs.absolute.dir" location="${jar.libs.dir}" />
-    <property name="jar.libs_large.absolute.dir" location="${jar.libs_large.dir}" />
-    <property name="native.libs.absolute.dir" location="libs" />
-
-    <property name="manifest.file" value="AndroidManifest.xml" />
-    <property name="manifest.abs.file" location="${manifest.file}" />
-
-    <!-- Output directories -->
-    <property name="out.dir" value="bin" />
-    <property name="out.absolute.dir" location="${out.dir}" />
-    <property name="out.classes.absolute.dir" location="${out.dir}/classes" />
-    <property name="out.res.absolute.dir" location="${out.dir}/res" />
-    <property name="out.aidl.absolute.dir" location="${out.dir}/aidl" />
-    <property name="out.dexed.absolute.dir" location="${out.dir}/dexedLibs" />
-    <property name="out.dexed.absolute.large.dir" location="${out.dir}/dexedLibsLarge" />
-    <property name="out.manifest.abs.file" location="${out.dir}/AndroidManifest.xml" />
-
     <!--  large libraries include Path -->
 	<path id="large_libraries.include.path">
         <pathelement location="libs_large" />
@@ -351,6 +318,9 @@
             <echo>Converting compiled files and external libraries into @{output-dex-file}...</echo>
             <dex executable="${dx}"
                     output="@{output-dex-file}"
+                    dexedlibs="${out.dexed.absolute.dir}"
+                    forceJumbo="${dex.force.jumbo}"
+                    disableDexMerger="${dex.disable.merger}"
                     nolocals="@{nolocals}"
                     verbose="${verbose}">
                 <path path="@{input-dir}"/>

@@ -1,4 +1,3 @@
-*.jar
 gen
 bin
 assets/*.jar
