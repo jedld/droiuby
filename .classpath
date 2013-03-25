@@ -13,7 +13,6 @@
 	<classpathentry kind="lib" path="libs/jackson-databind-2.0.5.jar"/>
 	<classpathentry kind="lib" path="libs/jaxen-1.1.3.jar"/>
 	<classpathentry kind="lib" path="libs/jdom-2.0.2.jar"/>
-	<classpathentry kind="lib" path="libs/precomplie.jar"/>
 	<classpathentry kind="lib" path="libs/svg-android.jar"/>
 	<classpathentry kind="lib" path="libs_large/jruby-core.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>

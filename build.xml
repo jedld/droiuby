@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="CanvasActivity" default="help">
+<project name="droiuby" default="help">
 
     <!-- The local.properties file is created and updated by the 'android' tool.
          It contains the path to the SDK. It should *NOT* be checked into
@@ -324,7 +324,6 @@
                     nolocals="@{nolocals}"
                     verbose="${verbose}">
                 <path path="@{input-dir}"/>
-                <path refid="out.dex.jar.input.ref" />
                 <external-libs />
             </dex>
         </sequential>
@@ -361,13 +360,25 @@
 
                 <!-- Compile .class files from the two stage directories to the apppropriate dex files. -->
                 <dex-helper-mod input-dir="${out.classes.absolute.dir}.1"
-                    output-dex-file="${out.absolute.dir}/${dex.file.name}" />
+                    output-dex-file="${out.absolute.dir}/${dex.file.name}">
+                     <external-libs>
+	                        <path refid="out.dex.jar.input.ref" />
+	                 </external-libs>
+	            </dex-helper-mod>
                 <mkdir dir="${out.absolute.dir}/secondary_dex_dir" />
                 <dex-helper-mod input-dir="${out.classes.absolute.dir}.2"
-                    output-dex-file="${out.absolute.dir}/secondary_dex_dir/classes.dex" />
+                    output-dex-file="${out.absolute.dir}/secondary_dex_dir/classes.dex">
+	                    <external-libs>
+	                        <path refid="out.dex.jar.input.ref" />
+	                    </external-libs>
+                    </dex-helper-mod>
                 <mkdir dir="${out.absolute.dir}/jruby_dir" />
-                <dex-helper-mod input-dir="libs_large"
-                    output-dex-file="${out.absolute.dir}/jruby_dir/classes.dex" />                
+                <dex-helper-mod input-dir="libs_large" 
+                    output-dex-file="${out.absolute.dir}/jruby_dir/classes.dex" >
+                    <external-libs>
+                        
+                    </external-libs>
+                </dex-helper-mod>                
                 <!-- Jar the secondary dex file so it can be consumed by the DexClassLoader. -->
                 <!-- Package the output in the assets directory of the apk. -->
                 <jar destfile="${asset.absolute.dir}/secondary_dex.jar"
