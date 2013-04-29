@@ -47,6 +47,7 @@ import org.jruby.runtime.builtin.IRubyObject;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.net.wifi.WifiInfo;
@@ -307,6 +308,28 @@ public class Utils {
 		return query(url, c, namespace, Utils.HTTP_GET);
 	}
 
+	public static SharedPreferences getCurrentPreferences(ActiveApp application, ContextWrapper activity) {
+		try {
+			SharedPreferences prefs = null;
+			if (application.getBaseUrl().startsWith("asset:")) {
+				String asset_name = "data_" + application.getBaseUrl();
+				asset_name = asset_name.replace('/', '_').replace('\\', '_');
+				prefs = activity.getSharedPreferences(asset_name,
+						Context.MODE_PRIVATE);
+			} else {
+				URL parsedURL = new URL(application.getBaseUrl());
+				prefs = activity.getSharedPreferences(
+						"data_" + parsedURL.getProtocol() + "_"
+								+ parsedURL.getHost(), Context.MODE_PRIVATE);
+			}
+			return prefs;
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
 	public static String query(String url, Context c, String namespace,
 			int method) {
 
