@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.droiuby.application.ActiveApp;
 import com.droiuby.callbacks.OnAppDownloadComplete;
@@ -23,6 +24,7 @@ public class AppDownloader extends AsyncTask<Void, Void, ActiveApp> {
 		this.url = url;
 		this.activityClass = activityClass;
 		this.onDownloadComplete = listener;
+		Log.d(this.getClass().toString(), "app downloader with listener");
 	}
 
 	public AppDownloader(Context c, String url, Class activityClass) {

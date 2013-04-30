@@ -15,6 +15,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
@@ -306,6 +307,7 @@ public class DroiubyHelper implements OnAppDownloadComplete,
 
 	private void setupConsole() {
 		String web_public_loc;
+		Log.d(this.getClass().toString(),"Loading WebConsole...");
 		try {
 			web_public_loc = activity.getCacheDir().getCanonicalPath() + "/www";
 			File webroot = new File(web_public_loc);
@@ -372,9 +374,11 @@ public class DroiubyHelper implements OnAppDownloadComplete,
 	 * .droiuby.application.ActiveApp)
 	 */
 	public void onDownloadComplete(ActiveApp app) {
+		Log.d(this.getClass().toString(),"onDownloadComplete()");
 		setupApplication(app,
 				(ViewGroup) activity.findViewById(getMainLayoutId()),
 				getMainLayoutId());
+		application = app;
 		if (activity instanceof OnAppDownloadComplete) {
 			((OnAppDownloadComplete) activity).onDownloadComplete(app);
 		}
@@ -404,5 +408,27 @@ public class DroiubyHelper implements OnAppDownloadComplete,
 
 	public void setLibraryInitialized(boolean b) {
 		getExecutionBundle().setLibraryInitialized(b);
+	}
+
+	public void reloadApplication(int mainlayout) {
+		reloadApplication(application, mainlayout);
+	}
+	
+	public void clearCache() {
+		SharedPreferences prefs = activity.getSharedPreferences("cookies",
+				Context.MODE_PRIVATE);
+		try {
+			Editor editor = prefs.edit();
+			URL url;
+			url = new URL(application.getBaseUrl());
+			editor.putString(url.getProtocol() + "_" + url.getHost() + "_"
+					+ application.getName(), "");
+			editor.commit();
+			setCurrentUrl(null);
+			setLibraryInitialized(false);
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

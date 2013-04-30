@@ -20,6 +20,7 @@ import android.content.res.AssetManager;
 import android.util.Log;
 
 import com.droiuby.application.ActiveApp;
+import com.droiuby.callbacks.OnAppDownloadComplete;
 import com.droiuby.client.CanvasActivity;
 import com.droiuby.client.core.ActivityBuilder;
 import com.droiuby.client.core.ExecutionBundle;

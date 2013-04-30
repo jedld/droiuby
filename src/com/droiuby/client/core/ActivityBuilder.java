@@ -43,6 +43,7 @@ import android.widget.TextView;
 
 import com.droiuby.application.ActiveApp;
 import com.droiuby.callbacks.DocumentReadyListener;
+import com.droiuby.callbacks.OnAppDownloadComplete;
 import com.droiuby.client.CanvasActivity;
 import com.droiuby.client.core.builder.ButtonViewBuilder;
 import com.droiuby.client.core.builder.CheckBoxBuilder;
@@ -444,6 +445,12 @@ public class ActivityBuilder {
 		this.preloadedResource = preloadedResource;
 	}
 
+//	public static void loadApp(Context c, String applicationUrl, OnAppDownloadComplete onDownloadComplete) {
+//		AppDownloader downloader = new AppDownloader(c, applicationUrl,
+//				CanvasActivity.class, onDownloadComplete);
+//		downloader.execute();
+//	}
+	
 	public static void loadApp(Context c, String applicationUrl) {
 		AppDownloader downloader = new AppDownloader(c, applicationUrl,
 				CanvasActivity.class);

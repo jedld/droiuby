@@ -18,6 +18,10 @@ public interface DroiubyHelperInterface {
 
 	public void onIntent(Bundle params);
 
+	public void reloadApplication(int mainlayout);
+	
+	public void clearCache();
+	
 	public void reloadApplication(ActiveApp application, int mainlayout);
 
 	public SharedPreferences getCurrentPreferences();

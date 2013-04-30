@@ -11,6 +11,7 @@ import android.content.SharedPreferences.Editor;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -28,9 +29,8 @@ import com.droiuby.application.OnEnvironmentReady;
 import com.droiuby.callbacks.OnAppDownloadComplete;
 import com.droiuby.interfaces.DroiubyHelperInterface;
 
-public class CanvasActivity extends Activity implements OnAppDownloadComplete, OnEnvironmentReady {
+public class CanvasActivity extends Activity implements OnEnvironmentReady {
 
-	ActiveApp application;
 	RelativeLayout topview;
 	DroiubyHelperInterface droiuby;
 
@@ -54,7 +54,7 @@ public class CanvasActivity extends Activity implements OnAppDownloadComplete, O
 		ViewGroup view = (ViewGroup) findViewById(R.id.mainLayout);
 		view.removeAllViews();
 		if (droiuby!=null) {
-			droiuby.reloadApplication(application, R.id.mainLayout);
+			droiuby.reloadApplication(R.id.mainLayout);
 		}
 	}
 
@@ -84,21 +84,7 @@ public class CanvasActivity extends Activity implements OnAppDownloadComplete, O
 						LayoutParams.WRAP_CONTENT);
 			}
 		} else if (itemId == R.id.itemClearCache) {
-			SharedPreferences prefs = getSharedPreferences("cookies",
-					MODE_PRIVATE);
-			try {
-				Editor editor = prefs.edit();
-				URL url;
-				url = new URL(application.getBaseUrl());
-				editor.putString(url.getProtocol() + "_" + url.getHost() + "_"
-						+ application.getName(), "");
-				editor.commit();
-				droiuby.setCurrentUrl(null);
-				droiuby.setLibraryInitialized(false);
-			} catch (MalformedURLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			droiuby.clearCache();
 		}
 		return false;
 	}
@@ -147,7 +133,7 @@ public class CanvasActivity extends Activity implements OnAppDownloadComplete, O
 	}
 
 	public void onDownloadComplete(ActiveApp app) {
-		this.application = app;
+		Log.d(this.getClass().toString(), "app " + app.getName() + " download complete");
 	}
 
 	public void onReady(DroiubyHelperInterface result) {

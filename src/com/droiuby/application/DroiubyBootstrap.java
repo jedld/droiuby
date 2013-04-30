@@ -20,6 +20,7 @@ class LibraryBootstrapTask extends AsyncTask<Void, Void, ClassLoader> {
 
 	Activity context;
 	String libraries[];
+	private static ClassLoader envelopedLoader;
 	OnEnvironmentReady listener;
 
 	public LibraryBootstrapTask(Activity context, String libraries[],
@@ -35,15 +36,19 @@ class LibraryBootstrapTask extends AsyncTask<Void, Void, ClassLoader> {
 		// file to
 		final File optimizedDexOutputPath = context.getDir("outdex",
 				Context.MODE_PRIVATE);
-		ClassLoader cl = context.getClassLoader();
-		for (String name : libraries) {
-			Log.d(this.getClass().toString(), "loading = " + name);
-			File storagePath = DroiubyBootstrap.loadSecondaryDex(context, name);
-			cl = new DexClassLoader(storagePath.getAbsolutePath(),
-					optimizedDexOutputPath.getAbsolutePath(), null, cl);
-			Log.d(this.getClass().toString(), "done.");
+		if (envelopedLoader == null) {
+			envelopedLoader = context.getClassLoader();
+			for (String name : libraries) {
+				Log.d(this.getClass().toString(), "loading = " + name);
+				File storagePath = DroiubyBootstrap.loadSecondaryDex(context,
+						name);
+				envelopedLoader = new DexClassLoader(
+						storagePath.getAbsolutePath(),
+						optimizedDexOutputPath.getAbsolutePath(), null, envelopedLoader);
+				Log.d(this.getClass().toString(), "done.");
+			}
 		}
-		return cl;
+		return envelopedLoader;
 	}
 
 	@Override
