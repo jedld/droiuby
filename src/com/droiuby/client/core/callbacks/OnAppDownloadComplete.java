@@ -1,6 +1,6 @@
 package com.droiuby.client.core.callbacks;
 
-import com.droiuby.client.core.ActiveApp;
+import com.droiuby.application.ActiveApp;
 
 public interface OnAppDownloadComplete {
 

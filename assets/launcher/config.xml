@@ -4,4 +4,5 @@
     <launcher_icon>http://www.android.com/images/brand/droid.gif</launcher_icon>
     <base_url>asset:launcher/</base_url>
     <main>launcher.xml</main>
+    <framework>droiuby</framework>        
 </app_descriptor>

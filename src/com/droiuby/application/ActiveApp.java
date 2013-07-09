@@ -11,8 +11,8 @@ public class ActiveApp implements Serializable {
 	
 	private static final long serialVersionUID = 4120098422645102827L;
 	
+	String name, description, baseUrl, mainUrl, framework;
 
-	String name, description, baseUrl, mainUrl;
 	HashMap <String, Integer> assets = new HashMap <String, Integer>();
 	
 	public int getInitiallOrientation() {
@@ -67,6 +67,14 @@ public class ActiveApp implements Serializable {
 
 	public void setAssets(HashMap<String, Integer> assets) {
 		this.assets = assets;
+	}
+
+	public String getFramework() {
+		return framework;
+	}
+
+	public void setFramework(String framework) {
+		this.framework = framework;
 	}
 	
 

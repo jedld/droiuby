@@ -192,7 +192,7 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 						.getText();
 				String baseUrl = rootElem.getChildText("base_url");
 				String mainActivity = rootElem.getChildText("main");
-
+				String framework = rootElem.getChildText("framework");
 				if (baseUrl == null || baseUrl.equals("")) {
 					if (url.startsWith("file://")) {
 						baseUrl = extractBasePath(url);
@@ -211,6 +211,7 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 				app.setName(appName);
 				app.setBaseUrl(baseUrl);
 				app.setMainUrl(mainActivity);
+				app.setFramework(framework);
 				app.setInitiallOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
 
 				String orientation = rootElem.getChildText("orientation");
@@ -232,7 +233,6 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 				if (rootElem.getChild("assets") != null) {
 					List<Element> assets = rootElem.getChild("assets")
 							.getChildren("resource");
-					Log.d("APP DOWNLOADER", "downloading assets ... ");
 					for (Element asset : assets) {
 						String asset_name = asset.getAttributeValue("name");
 						String asset_type = asset.getAttributeValue("type");
@@ -275,8 +275,8 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 
 	public Boolean downloadAssets() {
 		if (!executionBundle.isLibraryInitialized()) {
-			Log.d(this.getClass().toString(), "initializing Droiuby library");
-			scriptingContainer.runScriptlet("require 'droiuby/loader'");
+			Log.d(this.getClass().toString(), "initializing framework");
+			scriptingContainer.runScriptlet("require '"  + app.getFramework() + "/" + app.getFramework() + "'");
 			executionBundle.setLibraryInitialized(true);
 
 			ArrayList<Object> resultBundle = new ArrayList<Object>();

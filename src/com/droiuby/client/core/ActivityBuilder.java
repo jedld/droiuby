@@ -254,10 +254,11 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 		executionBundle.getPayload().setExecutionBundle(executionBundle);
 		executionBundle.getPayload().setActiveApp(app);
 		executionBundle.setCurrentUrl(pageUrl);
-
+		
 		scriptingContainer.put("$container_payload",
 				executionBundle.getPayload());
-		scriptingContainer.runScriptlet("require 'droiuby/bootstrap'");
+		
+		scriptingContainer.runScriptlet("$framework.before_activity_setup");
 
 		resultBundle = builder.preload(executionBundle);
 		System.gc();
@@ -283,31 +284,21 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 					+ elapsed + "ms");
 
 			try {
-				IRubyObject mainActivityController = null;
 				if (preParsedScript != null) {
 					start = System.currentTimeMillis();
-					mainActivityController = preParsedScript.run();
+					preParsedScript.run();
 				}
 
 				scriptingContainer
-						.runScriptlet("require 'droiuby/preload'\nstart_droiuby_plugins\n");
+						.runScriptlet("$framework.preload");
 
 				if (preParsedScript != null) {
-					ThreadContext context = executionBundle.container
-							.getProvider().getRuntime().getCurrentContext();
 					Log.d(this.getClass().toString(), "class = "
 							+ controllerClass);
 					IRubyObject instance;
-					if (controllerClass != null) {
 						instance = (IRubyObject) scriptingContainer
-								.runScriptlet("'" + controllerClass
-										+ "'.camelize.constantize.new");
-					} else {
-						instance = mainActivityController.callMethod(context,
-								"new");
-					}
+								.runScriptlet("$framework.script('"+ controllerClass+ "')");
 					executionBundle.setCurrentController(instance);
-					instance.callMethod(context, "on_create");
 					elapsed = System.currentTimeMillis() - start;
 					Log.d(this.getClass().toString(),
 							"controller on_create(): elapsed time = " + elapsed
