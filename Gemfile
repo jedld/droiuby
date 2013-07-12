@@ -5,4 +5,6 @@ gem 'rspec'
 gem 'thor'
 gem 'rubyzip'
 gem 'multipart-post'
+gem 'properties-ruby'
+gem 'activesupport'
 

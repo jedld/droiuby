@@ -38,6 +38,8 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.jruby.CompatVersion;
+import org.jruby.RubyBoolean;
+import org.jruby.RubyInteger;
 import org.jruby.embed.EmbedEvalUnit;
 import org.jruby.embed.LocalContextScope;
 import org.jruby.embed.LocalVariableBehavior;
@@ -235,6 +237,27 @@ public class Utils {
 		return null;
 	}
 
+	public static boolean toBoolean(IRubyObject object) {
+		if (object.isNil())
+			return false;
+		if (object.isTrue())
+			return true;
+		if (object instanceof RubyBoolean) {
+			if (((RubyBoolean) object).isFalse())
+				return false;
+		}
+		return true;
+	}
+	
+	public static int toInteger(IRubyObject object) {
+		if (object.isNil())
+			return 0;
+		if (object instanceof RubyInteger) {
+			return (int)((RubyInteger)object).getLongValue();
+		}
+		return 0;
+	}
+	
 	public static void logHeaders(Header[] headers, Class context) {
 		for (Header header : headers) {
 			Log.d(context.getName(), "Location Header " + header.getName()

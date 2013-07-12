@@ -15,5 +15,6 @@
 	<classpathentry kind="lib" path="libs/jdom-2.0.2.jar"/>
 	<classpathentry kind="lib" path="libs/svg-android.jar"/>
 	<classpathentry kind="lib" path="libs_large/jruby-core.jar"/>
+	<classpathentry kind="lib" path="libs/codemodel-2.6.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

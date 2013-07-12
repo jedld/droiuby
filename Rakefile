@@ -1,6 +1,12 @@
+require 'bundler'
+Bundler.require
 require "net/http"
 require "uri"
 require 'cgi'
+
+require 'active_support/core_ext/object'
+require 'active_support/core_ext/string'
+
 
 task :default => [:launch]
 
@@ -67,4 +73,61 @@ end
 desc "package and execute target app"
 task :execute, [:name, :device_ip] do |t, args|
   puts `thor project:execute #{args.name} #{args.device_ip}`
+end
+
+require 'java'
+
+desc "generate object ruby-java wrapper"
+task :wrap, [:class_or_interface, :wrap_method] do |t, args|
+  
+  #read local.properties and project.properties
+  local_prop = Utils::Properties.load_from_file('local.properties')
+  project_prop = Utils::Properties.load_from_file('project.properties')
+  sdk_directory = local_prop.get(:'sdk.dir')
+  target = project_prop.get(:'target')
+  
+  #get android.jar location
+  
+  android_class_path = File.join(sdk_directory,'platforms',target,'android.jar')
+  jruby_class_path = File.join(File.dirname(__FILE__),'libs_large')
+  puts "adding #{android_class_path} to class path"
+  $CLASSPATH << android_class_path
+  
+  Dir.foreach(jruby_class_path) do |x|
+      path = File.join(jruby_class_path, x)
+      if x == "." or x == ".."
+          next
+      elsif !File.directory?(path)
+        puts "adding #{path}"
+        $CLASSPATH << path
+      end
+  end
+ 
+  
+  #normalize
+  klass_str = args.class_or_interface
+  portions = klass_str.split('.')
+  klassname = portions.pop
+  full_name_space = ['Java']
+  if portions.size > 0
+    full_name_space << portions.join('.')
+  end
+  full_name_space << klassname
+  class_name = full_name_space.join('::')
+  
+  puts "Generating for class #{class_name}"
+  klass_or_interface = eval(class_name)
+  puts klass_or_interface.class.to_s
+  
+  class_name = args.class_or_interface.split('.').last;
+  
+  
+  java_gen_src = File.join(File.dirname(__FILE__),'gen_src')
+  unless Dir.exists?(java_gen_src)
+    Dir.mkdir(java_gen_src)
+  end
+  
+  full_class_name = ['com','droiuby','wrappers',"#{klassname}RubyWrapper"].join('.')
+  Java::com.dayosoft.sourcebuilder::SourceBuilder.build(full_class_name,args.class_or_interface, java_gen_src)
+  
 end
