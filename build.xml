@@ -195,6 +195,10 @@
     <path id="project.largelibs">
         <pathelement path="libs_large" />
     </path>
+    
+    <path id="project.gensrc">
+    	<pathelement path="gen_src" />
+    </path>
 
     <!-- Custom tasks -->
     <taskdef resource="anttasks.properties" classpathref="android.antlibs" />
@@ -231,6 +235,7 @@
                     fork="${need.javac.fork}">
                 <src path="${source.absolute.dir}" />
                 <src path="${gen.absolute.dir}" />
+                <src refid="project.gensrc" />
                 <compilerarg line="${java.compilerargs}" />
             </javac>
 

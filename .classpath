@@ -15,6 +15,7 @@
 	<classpathentry kind="lib" path="libs/jdom-2.0.2.jar"/>
 	<classpathentry kind="lib" path="libs/svg-android.jar"/>
 	<classpathentry kind="lib" path="libs_large/jruby-core.jar"/>
-	<classpathentry kind="lib" path="libs/codemodel-2.6.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs_large/codemodel-2.6.jar"/>
+	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.DEPENDENCIES"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

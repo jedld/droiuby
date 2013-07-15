@@ -92,7 +92,7 @@ task :wrap, [:class_or_interface, :wrap_method] do |t, args|
   jruby_class_path = File.join(File.dirname(__FILE__),'libs_large')
   puts "adding #{android_class_path} to class path"
   $CLASSPATH << android_class_path
-  
+  $CLASSPATH << File.join(File.dirname(__FILE__),"bin","classes")
   Dir.foreach(jruby_class_path) do |x|
       path = File.join(jruby_class_path, x)
       if x == "." or x == ".."
@@ -128,6 +128,7 @@ task :wrap, [:class_or_interface, :wrap_method] do |t, args|
   end
   
   full_class_name = ['com','droiuby','wrappers',"#{klassname}RubyWrapper"].join('.')
-  Java::com.dayosoft.sourcebuilder::SourceBuilder.build(full_class_name,args.class_or_interface, java_gen_src)
+    
+  Java::com.droiuby.client.core::SourceBuilder.build(full_class_name, klass_or_interface.java_class, java_gen_src)
   
 end
