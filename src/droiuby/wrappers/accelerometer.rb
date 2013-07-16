@@ -1,17 +1,17 @@
 class Accelerometer
-
+  
+  attr_accessor :sensor, :rate
+  include Droiuby::Wrappers::Listeners
+  
   def initialize
     @native = _execution_bundle.getSensor(Java::Sensor.TYPE_ACCELEROMETER)
-    @listener = Java::com.droiuby.client.core.wrappers.SensorEventListenerWrapper.new(_execution_bundle)
   end
   
   def on(event, &block)
-    
-    case event
-      when :sensor_changed
-        @listener.setSensorblock(block) 
-        @native.registerListener(@listener, sensor, rate)
-    else
+    unless @listener
+      @listener = Droiuby::Wrappers::Listeners::AutoWrapMultiple.new(_execution_bundle)
+      @native.registerListener(@listener.to_native('SensorEventListener'), @sensor, @rate)
     end
+    @listener.impl(event, &block) 
   end
 end

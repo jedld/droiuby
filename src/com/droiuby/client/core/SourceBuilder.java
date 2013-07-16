@@ -96,7 +96,7 @@ public class SourceBuilder {
 										.staticInvoke("newBoolean");
 							} else if (param_class.getName().equals("int")) {
 								convertStmt = cm.ref(RubyInteger.class)
-										.staticInvoke("newInteger");
+										.staticInvoke("int2fix");
 							}
 							convertStmt.arg(runtime).arg(p);
 						} else {

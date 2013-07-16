@@ -5,6 +5,7 @@ class ViewWrapper
   
   include JavaMethodHelper
   include Droiuby::ViewHelper
+  include Droiuby::Wrappers::Listeners
 
   java_fast_accessor Java::android.view.View, [Java::float], :x, :y
   
@@ -181,26 +182,7 @@ class ViewWrapper
     end
   end
 
-  def on(event,&block)
-    case(event.to_sym)
-    when :click
-      self.native.setOnClickListener(_listener(&block, 'OnClickListener'))
-    when :long_click
-      self.native.setOnLongClickListener(_listener(&block, 'OnLongClickListener'))
-    when :focus_changed
-      self.native.setOnFocusChangeListener(_listener(&block, 'OnFocusChangeListener'))
-    when :touch
-      auto_wrap_block = Proc.new { |v, motion_event| block.call(wrap_native_view(v), wrap_motion_event(motion_event))}
-      self.native.setOnTouchListener(Java::com.droiuby.client.core.listeners.OnTouchListenerWrapper.new(_execution_bundle, auto_wrap_block))
-    end
-  end
-  
   protected
-  
-  def _listener(&block, java_class)
-    auto_wrap_block = Proc.new { |v| block.call(wrap_native_view(v))}
-    Droiuby::Wrappers::Listeners::AutoWrap.new(_execution_bundle, auto_wrap_block).to_native(java_class)  
-  end
   
   def _extras
     unless native.getTag.nil?

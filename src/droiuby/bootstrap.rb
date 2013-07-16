@@ -106,27 +106,33 @@ end
 def wrap_native_view(view)
   return nil unless view
 
-  if (view.class == Java::android.widget.TextView)
-    TextViewWrapper.new(view)
-  elsif (view.class == Java::android.widget.EditText)
-    EditTextWrapper.new(view)
-  elsif (view.class == Java::android.widget.LinearLayout)
-    LinearLayoutWrapper.new(view)
-  elsif (view.class == Java::android.webkit.WebView)
-    WebViewWrapper.new(view)
-  elsif (view.class == Java::android.widget.ListView)
-    ListViewWrapper.new(view)
-  elsif (view.class < Java::android.view.ViewGroup)
-    ViewGroupWrapper.new(view)
-  elsif (view.class < Java::android.widget.CompoundButton)
-    CompoundButtonWrapper.new(view)
-  elsif (view.class < Java::com.droiuby.client.core.wrappers.SurfaceViewWrapper)
-    SurfaceViewWrapper.new(view)
-  elsif (view.class < Java::android.view.View)
-    ViewWrapper.new(view)
-  else
-    view
+  wrapped = if (view.class < Java::android.view.View)
+    if (view.class == Java::android.widget.TextView)
+        TextViewWrapper.new(view)
+      elsif (view.class == Java::android.widget.EditText)
+        EditTextWrapper.new(view)
+      elsif (view.class == Java::android.widget.LinearLayout)
+        LinearLayoutWrapper.new(view)
+      elsif (view.class == Java::android.webkit.WebView)
+        WebViewWrapper.new(view)
+      elsif (view.class == Java::android.widget.ListView)
+        ListViewWrapper.new(view)
+      elsif (view.class < Java::android.view.ViewGroup)
+        ViewGroupWrapper.new(view)
+      elsif (view.class < Java::android.widget.CompoundButton)
+        CompoundButtonWrapper.new(view)
+      elsif (view.class < Java::com.droiuby.client.core.wrappers.SurfaceViewWrapper)
+        SurfaceViewWrapper.new(view)
+      elsif (view.class < Java::android.view.View)
+        ViewWrapper.new(view)
+      else
+        view
+     end
+  elsif (view.class == Java::android.view.MotionEvent)
+    MotionEventsWrapper.new(event)
   end
+  
+  wrapped
 end
 
 def wrap_native(object)
@@ -149,11 +155,6 @@ end
 
 def Android
   Droiuby::Android
-end
-
-def wrap_motion_event(event)
-  return nil unless event
-  MotionEventsWrapper.new(event)  
 end
 
 def V(selectors = nil)
