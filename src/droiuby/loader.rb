@@ -1,4 +1,5 @@
 
+require 'java'
 require 'droiuby/support/string'
 require 'droiuby/support/to_query'
 require 'droiuby/support/asset'
@@ -22,3 +23,4 @@ require 'droiuby/wrappers/accelerometer'
 require 'droiuby/plugins/plugins'
 require 'droiuby/application'
 require 'droiuby/android'
+require 'droiuby/wrappers/listeners/on_click_listener'

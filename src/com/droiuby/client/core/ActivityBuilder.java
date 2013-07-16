@@ -254,10 +254,10 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 		executionBundle.getPayload().setExecutionBundle(executionBundle);
 		executionBundle.getPayload().setActiveApp(app);
 		executionBundle.setCurrentUrl(pageUrl);
-		
+
 		scriptingContainer.put("$container_payload",
 				executionBundle.getPayload());
-		
+
 		scriptingContainer.runScriptlet("$framework.before_activity_setup");
 
 		resultBundle = builder.preload(executionBundle);
@@ -289,15 +289,15 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 					preParsedScript.run();
 				}
 
-				scriptingContainer
-						.runScriptlet("$framework.preload");
+				scriptingContainer.runScriptlet("$framework.preload");
 
 				if (preParsedScript != null) {
 					Log.d(this.getClass().toString(), "class = "
 							+ controllerClass);
 					IRubyObject instance;
-						instance = (IRubyObject) scriptingContainer
-								.runScriptlet("$framework.script('"+ controllerClass+ "')");
+					instance = (IRubyObject) scriptingContainer
+							.runScriptlet("$framework.script('"
+									+ controllerClass + "')");
 					executionBundle.setCurrentController(instance);
 					elapsed = System.currentTimeMillis() - start;
 					Log.d(this.getClass().toString(),
@@ -305,6 +305,15 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 									+ "ms");
 				}
 			} catch (EvalFailedException e) {
+				e.printStackTrace();
+				executionBundle.addError(e.getMessage());
+				Log.e(this.getClass().toString(), e.getMessage());
+			} catch (RuntimeException e) {
+				e.printStackTrace();
+				executionBundle.addError(e.getMessage());
+				Log.e(this.getClass().toString(), e.getMessage());
+			} catch (Exception e) {
+				e.printStackTrace();
 				executionBundle.addError(e.getMessage());
 				Log.e(this.getClass().toString(), e.getMessage());
 			}
@@ -436,12 +445,13 @@ public class ActivityBuilder {
 		this.preloadedResource = preloadedResource;
 	}
 
-//	public static void loadApp(Context c, String applicationUrl, OnAppDownloadComplete onDownloadComplete) {
-//		AppDownloader downloader = new AppDownloader(c, applicationUrl,
-//				CanvasActivity.class, onDownloadComplete);
-//		downloader.execute();
-//	}
-	
+	// public static void loadApp(Context c, String applicationUrl,
+	// OnAppDownloadComplete onDownloadComplete) {
+	// AppDownloader downloader = new AppDownloader(c, applicationUrl,
+	// CanvasActivity.class, onDownloadComplete);
+	// downloader.execute();
+	// }
+
 	public static void loadApp(Context c, String applicationUrl) {
 		AppDownloader downloader = new AppDownloader(c, applicationUrl,
 				CanvasActivity.class);
@@ -832,7 +842,8 @@ public class ActivityBuilder {
 
 	static Class<?> getStyleClass(Activity context) {
 		if (ActivityBuilder.styleClass == null) {
-			ActivityBuilder.styleClass = getResourceComponenetClass(context, "style");
+			ActivityBuilder.styleClass = getResourceComponenetClass(context,
+					"style");
 		}
 		return styleClass;
 	}
@@ -846,7 +857,8 @@ public class ActivityBuilder {
 
 	Class<?> getDrawableClass(Activity context) {
 		if (ActivityBuilder.drawableClass == null) {
-			ActivityBuilder.drawableClass = getResourceComponenetClass(context, "drawable");
+			ActivityBuilder.drawableClass = getResourceComponenetClass(context,
+					"drawable");
 		}
 		return ActivityBuilder.drawableClass;
 	}

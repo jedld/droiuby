@@ -184,14 +184,11 @@ class ViewWrapper
   def on(event,&block)
     case(event.to_sym)
     when :click
-      auto_wrap_block = Proc.new { |v| block.call(wrap_native_view(v))}
-      self.native.setOnClickListener(Java::com.droiuby.client.core.listeners.ViewOnClickListener.new(_execution_bundle, auto_wrap_block))
+      self.native.setOnClickListener(_listener(&block, 'OnClickListener'))
     when :long_click
-      auto_wrap_block = Proc.new { |v| block.call(wrap_native_view(v))}
-      self.native.setOnLongClickListener(Java::com.droiuby.client.core.listeners.ViewOnLongClickListener.new(_execution_bundle, auto_wrap_block))
+      self.native.setOnLongClickListener(_listener(&block, 'OnLongClickListener'))
     when :focus_changed
-      auto_wrap_block = Proc.new { |v| block.call(wrap_native_view(v))}
-      self.native.setOnFocusChangeListener(Java::com.droiuby.client.core.listeners.FocusChangeListenerWrapper.new(_execution_bundle, auto_wrap_block))
+      self.native.setOnFocusChangeListener(_listener(&block, 'OnFocusChangeListener'))
     when :touch
       auto_wrap_block = Proc.new { |v, motion_event| block.call(wrap_native_view(v), wrap_motion_event(motion_event))}
       self.native.setOnTouchListener(Java::com.droiuby.client.core.listeners.OnTouchListenerWrapper.new(_execution_bundle, auto_wrap_block))
@@ -199,6 +196,11 @@ class ViewWrapper
   end
   
   protected
+  
+  def _listener(&block, java_class)
+    auto_wrap_block = Proc.new { |v| block.call(wrap_native_view(v))}
+    Droiuby::Wrappers::Listeners::AutoWrap.new(_execution_bundle, auto_wrap_block).to_native(java_class)  
+  end
   
   def _extras
     unless native.getTag.nil?
