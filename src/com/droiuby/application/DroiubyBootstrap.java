@@ -5,12 +5,14 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import com.droiuby.interfaces.DroiubyHelperInterface;
 
 import dalvik.system.DexClassLoader;
-
 import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
@@ -32,6 +34,30 @@ class LibraryBootstrapTask extends AsyncTask<Void, Void, ClassLoader> {
 
 	@Override
 	protected ClassLoader doInBackground(Void... arg0) {
+		try {
+			Log.d(this.getClass().toString(), "unpacking vendor libraries");
+
+			File stdlib = new File(context.getDir("vendor",
+					Context.MODE_PRIVATE), "stdlib");
+			if (stdlib.mkdirs()) {
+				Log.d(this.getClass().toString(), "unpacking to vendor");
+				BufferedInputStream bis = new BufferedInputStream(context
+						.getAssets().open("ruby_stdlib.jar"));
+				unpackZip(bis, stdlib.getCanonicalPath());
+			}
+			
+			File frameworkDir = new File(context.getDir("vendor",
+					Context.MODE_PRIVATE), "framework");
+			if (!frameworkDir.exists()) {
+				frameworkDir.mkdir();
+				BufferedInputStream bis = new BufferedInputStream(context
+						.getAssets().open("framework.jar"));
+				unpackZip(bis, frameworkDir.getCanonicalPath());
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		// Internal storage where the DexClassLoader writes the optimized dex
 		// file to
 		final File optimizedDexOutputPath = context.getDir("outdex",
@@ -44,11 +70,55 @@ class LibraryBootstrapTask extends AsyncTask<Void, Void, ClassLoader> {
 						name);
 				envelopedLoader = new DexClassLoader(
 						storagePath.getAbsolutePath(),
-						optimizedDexOutputPath.getAbsolutePath(), null, envelopedLoader);
+						optimizedDexOutputPath.getAbsolutePath(), null,
+						envelopedLoader);
 				Log.d(this.getClass().toString(), "done.");
 			}
 		}
 		return envelopedLoader;
+	}
+
+	public static boolean unpackZip(InputStream is, String outputdir) {
+		ZipInputStream zis;
+		try {
+			String filename;
+
+			zis = new ZipInputStream(new BufferedInputStream(is));
+			ZipEntry ze;
+			byte[] buffer = new byte[1024];
+			int count;
+
+			if (!outputdir.endsWith(File.separator)) {
+				outputdir = outputdir + File.separator;
+			}
+
+			while ((ze = zis.getNextEntry()) != null) {
+				filename = ze.getName();
+				Log.d(DroiubyBootstrap.class.toString(), "processing "
+						+ filename);
+				if (ze.isDirectory()) {
+					File dir = new File(outputdir + filename);
+					dir.mkdirs();
+				} else {
+					FileOutputStream fout = new FileOutputStream(outputdir
+							+ filename);
+
+					while ((count = zis.read(buffer)) != -1) {
+						fout.write(buffer, 0, count);
+					}
+					fout.close();
+				}
+
+				zis.closeEntry();
+			}
+
+			zis.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		}
+
+		return true;
 	}
 
 	@Override

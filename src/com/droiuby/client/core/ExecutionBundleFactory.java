@@ -1,5 +1,6 @@
 package com.droiuby.client.core;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -51,6 +52,17 @@ public class ExecutionBundleFactory {
 		List<String> loadPaths = new ArrayList<String>();
 		loadPaths.add(data_dir + "/jruby/vendor");
 		loadPaths.add(data_dir + "/jruby/vendor/lib");
+		File stdlib = new File(context.getDir("vendor",
+				Context.MODE_PRIVATE), "stdlib");
+		File frameworkDir = new File(context.getDir("vendor",
+				Context.MODE_PRIVATE), "framework");
+		try {
+			loadPaths.add(frameworkDir.getCanonicalPath());
+			loadPaths.add(stdlib.getCanonicalPath());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		container.setLoadPaths(loadPaths);
 		bundle.setLibraryInitialized(false);
 		bundle.setContainer(container);
