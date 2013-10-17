@@ -177,7 +177,7 @@ public class WebConsole extends NanoHTTPD {
 						final Map<String, String> resultMap = new HashMap<String, String>();
 						launchAppFromUrl(resultMap, "file://"
 								+ extraction_target + File.separator
-								+ "config.xml");
+								+ "config.droiuby");
 						return new Response(NanoHTTPD.HTTP_OK,
 								"application/json", "success");
 					}

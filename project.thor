@@ -16,7 +16,7 @@ class Project < Thor
     @main_xml = 'index.xml'
 
     dest_folder = File.join(output_dir,"#{name}")
-    template File.join('ruby','config.xml.erb'), File.join(dest_folder,"config.xml")
+    template File.join('ruby','config.droiuby.erb'), File.join(dest_folder,"config.droiuby")
     template File.join('ruby','index.xml.erb'), File.join(dest_folder,"index.xml")
     template File.join('ruby','application.css.erb'), File.join(dest_folder,"application.css")
     template File.join('ruby','index.rb.erb'), File.join(dest_folder,"index.rb")

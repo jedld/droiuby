@@ -59,7 +59,7 @@ task :live, [:name, :device_ip, :host_name, :source_dir] do |t, args|
     while !ready
     end
     `adb shell am start -W -S --activity-clear-top --activity-brought-to-front -n com.droiuby.client/.CanvasActivity`
-    launch_app(args.device_ip, "http://#{host_name_args}:#{port}/config.xml")
+    launch_app(args.device_ip, "http://#{host_name_args}:#{port}/config.droiuby")
   end
 
   puts "Starting server: http://#{host_name_args}:#{port}"
