@@ -63,7 +63,7 @@ task :live, [:name, :device_ip, :host_name, :source_dir] do |t, args|
   end
 
   puts "Starting server: http://#{host_name_args}:#{port}"
-  server = HTTPServer.new(:Port=>2000,:DocumentRoot=> src_dir,:StartCallback => Proc.new {
+  server = HTTPServer.new(:Port=>port,:DocumentRoot=> src_dir,:StartCallback => Proc.new {
     ready = true
   })
   trap("INT"){ server.shutdown }
