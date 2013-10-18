@@ -3,6 +3,7 @@ require 'rubygems'
 require 'net/http'
 require 'net/http/post/multipart'
 require 'zip'
+require 'thor'
 
 class Project < Thor
 
