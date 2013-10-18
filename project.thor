@@ -1,5 +1,9 @@
+require 'rubygems'
+
+
 require 'net/http'
 require 'net/http/post/multipart'
+require 'zip'
 
 class Project < Thor
 
@@ -17,6 +21,7 @@ class Project < Thor
 
     dest_folder = File.join(output_dir,"#{name}")
     template File.join('ruby','config.droiuby.erb'), File.join(dest_folder,"config.droiuby")
+    template File.join('ruby','.gitignore.erb'), File.join(dest_folder,".gitignore")
     template File.join('ruby','index.xml.erb'), File.join(dest_folder,"index.xml")
     template File.join('ruby','application.css.erb'), File.join(dest_folder,"application.css")
     template File.join('ruby','index.rb.erb'), File.join(dest_folder,"index.rb")
@@ -27,13 +32,14 @@ class Project < Thor
 
   def package(name, source_dir = 'projects', force = "false")
     src_folder = File.join(source_dir,"#{name}")
+    say "compress #{src_folder}"
     compress(src_folder, force)
   end
 
   
   desc "upload NAME DEVICE_IP [WORKSPACE_DIR]","uploads a droiuby application to target device running droiuby client"
   def upload(name, device_ip, source_dir = 'projects')
-    src_package = File.join(source_dir,name,"#{name}.zip")
+    src_package = File.join(source_dir,name,'build',"#{name}.zip")
 
     url_str = "http://#{device_ip}:4000/upload"
     uri = URI.parse(url_str)
@@ -43,9 +49,22 @@ class Project < Thor
       "name" => name,
       "run" => "true",
       "file" => UploadIO.new(zip, "application/zip", src_package,"content-disposition" => "form-data; name=\"file\"; filename=\"#{File.basename(src_package)}\"\r\n")
-      res = Net::HTTP.start(uri.host, uri.port) do |http|
-        http.request(req)
+      
+      retries = 0
+      while (retries < 3)
+        sleep 1 + retries
+        begin
+          res = Net::HTTP.start(uri.host, uri.port) do |http|
+            http.request(req)
+          end
+          break
+        rescue Errno::EHOSTUNREACH
+          retries += 1
+          next
+        end
       end
+      
+      
       if res.code == "200"
         say_status 'upload', src_package
       else
@@ -66,15 +85,18 @@ class Project < Thor
   private
 
   def compress(path, force = "false")
-    require 'zip/zip'
     path.sub!(%r[/$],'')
-    archive = File.join(path,File.basename(path))+'.zip'
+    unless Dir.exists?(File.join(path,'build'))
+      Dir.mkdir(File.join(path,'build'))
+    end
+    archive = File.join(path,'build',"#{File.basename(path)}.zip")
     if force=='true' || file_collision(archive)
 
       FileUtils.rm archive, :force=>true
 
-      Zip::ZipFile.open(archive, 'w') do |zipfile|
-        Dir["#{path}/**/**"].reject{|f|f==archive}.each do |file|
+      Zip::File.open(archive, Zip::File::CREATE) do |zipfile|
+        Dir["#{path}/**/**"].reject{ |f| f==archive || f.match(/\/build/) }.each do |file|
+          say_status 'adding', file
           zipfile.add(file.sub(path+'/',''),file)
         end
       end
