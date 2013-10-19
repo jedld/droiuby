@@ -1,5 +1,6 @@
 gen
 bin
+.idea
 assets/*.jar
 src_ruby_classes
 projects

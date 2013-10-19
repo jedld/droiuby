@@ -4,12 +4,29 @@ require 'net/http'
 require 'net/http/post/multipart'
 require 'zip'
 require 'thor'
+require "uri"
+require 'cgi'
+
+require 'active_support/core_ext/object'
+require 'active_support/core_ext/string'
 
 class Project < Thor
 
   include Thor::Actions
 
   source_root 'templates'
+
+  desc "launch device IP [URL]","Tell droiuby to connect to app hosted at URL"
+  def launch(device_ip, url)
+    url_str = "http://#{device_ip}:4000/control?cmd=launch&url=#{CGI::escape(url)}"
+    puts "loading application at url #{url}"
+    puts url_str
+    uri = URI.parse(url_str)
+    # Shortcut
+    response = Net::HTTP.get_response(uri)
+    # Will print response.body
+    Net::HTTP.get_print(uri)
+  end
 
   desc "create NAME [WORKSPACE_DIR]","create a new droiuby project with NAME"
   def create(name, output_dir = 'projects')
@@ -36,7 +53,33 @@ class Project < Thor
     compress(src_folder, force)
   end
 
-  
+  desc "live NAME DEVICE_IP [HOST NAME] [SOURCE]", "Allow live editing of apps by starting a web server and pointing droiuby to the local instance"
+  def live(name, device_ip, host_name, source_dir)
+    require 'webrick'
+    include WEBrick
+    source_dir_args = source_dir ? source_dir : 'projects'
+    host_name_args = host_name ? host_name : Socket.gethostname
+    src_dir = File.join(source_dir_args, name)
+    port = 2000
+
+    ready = false
+
+    Thread.new do
+      while !ready
+      end
+      `adb shell am start -W -S --activity-clear-top --activity-brought-to-front -n com.droiuby.client/.CanvasActivity`
+      launch(device_ip, "http://#{host_name_args}:#{port}/config.droiuby")
+    end
+
+    puts "Starting server: http://#{host_name_args}:#{port}"
+    server = HTTPServer.new(:Port=>port,:DocumentRoot=> src_dir,:StartCallback => Proc.new {
+      ready = true
+    })
+    trap("INT"){ server.shutdown }
+    server.start
+  end
+
+
   desc "upload NAME DEVICE_IP [WORKSPACE_DIR]","uploads a droiuby application to target device running droiuby client"
   def upload(name, device_ip, source_dir = 'projects')
     src_package = File.join(source_dir,name,'build',"#{name}.zip")
@@ -46,10 +89,10 @@ class Project < Thor
     say "uploading to #{url_str} -> #{uri.host}:#{uri.port}"
     File.open(src_package) do |zip|
       req = Net::HTTP::Post::Multipart.new uri.path,
-      "name" => name,
-      "run" => "true",
-      "file" => UploadIO.new(zip, "application/zip", src_package,"content-disposition" => "form-data; name=\"file\"; filename=\"#{File.basename(src_package)}\"\r\n")
-      
+                                           "name" => name,
+                                           "run" => "true",
+                                           "file" => UploadIO.new(zip, "application/zip", src_package,"content-disposition" => "form-data; name=\"file\"; filename=\"#{File.basename(src_package)}\"\r\n")
+
       retries = 0
       while (retries < 3)
         sleep 1 + retries
@@ -63,25 +106,25 @@ class Project < Thor
           next
         end
       end
-      
-      
+
+
       if res.code == "200"
         say_status 'upload', src_package
       else
         say 'upload failed.'
         say res.body
       end
-      
+
     end
   end
-  
+
   desc "execute NAME DEVICE_IP [WORKSPACE_DIR]","package and execute a droiuby application to target device running droiuby client"
   def execute(name, device_ip, source_dir = 'projects')
     `adb shell am start -W -S --activity-clear-top --activity-brought-to-front -n com.droiuby.client/.CanvasActivity`
     package name, source_dir, "true"
     upload name, device_ip, source_dir
   end
-  
+
   private
 
   def compress(path, force = "false")
