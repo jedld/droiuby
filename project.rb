@@ -35,7 +35,11 @@ class Project < Thor
     @launcher_icon = ''
     @base_url = ''
     @main_xml = 'index.xml'
-
+    
+    if output_dir.blank?
+      output_dir = Dir.pwd
+    end
+    
     dest_folder = File.join(output_dir,"#{name}")
     template File.join('ruby','config.droiuby.erb'), File.join(dest_folder,"config.droiuby")
     template File.join('ruby','gitignore.erb'), File.join(dest_folder,".gitignore")
