@@ -60,7 +60,7 @@ class Project < Thor
   desc "live NAME DEVICE_IP [HOST NAME] [SOURCE]", "Allow live editing of apps by starting a web server and pointing droiuby to the local instance"
   def live(name, device_ip, host_name, source_dir)
     require 'webrick'
-    include WEBrick
+
     source_dir_args = source_dir ? source_dir : 'projects'
     host_name_args = host_name ? host_name : Socket.gethostname
     
