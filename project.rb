@@ -57,9 +57,12 @@ class Project < Thor
     compress(src_folder, force)
   end
 
+  require 'webrick'
+  include WEBrick
+  
   desc "live NAME DEVICE_IP [HOST NAME] [SOURCE]", "Allow live editing of apps by starting a web server and pointing droiuby to the local instance"
-  def live(name, device_ip, host_name, source_dir)
-    require 'webrick'
+  def live(name, device_ip, host_name = nil, source_dir = 'projects')
+
 
     source_dir_args = source_dir ? source_dir : 'projects'
     host_name_args = host_name ? host_name : Socket.gethostname
@@ -82,6 +85,7 @@ class Project < Thor
     end
 
     puts "Starting server: http://#{host_name_args}:#{port}"
+    puts "Document root #{src_dir}"
     server = HTTPServer.new(:Port=>port,:DocumentRoot=> src_dir,:StartCallback => Proc.new {
       ready = true
     })
