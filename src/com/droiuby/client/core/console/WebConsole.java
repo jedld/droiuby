@@ -150,7 +150,7 @@ public class WebConsole extends NanoHTTPD {
 		Response response;
 		if (method.equalsIgnoreCase("POST") && uri.startsWith("/upload")) {
 			String name = params.getProperty("name", null);
-
+			Log.d(this.getClass().toString(),"Receiving file upload " + name);
 			if (activity.get() != null) {
 				String data_dir = activity.get().getApplicationInfo().dataDir;
 				String filename = files.getProperty("file");

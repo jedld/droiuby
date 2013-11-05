@@ -1,0 +1,8 @@
+<app_descriptor>
+    <name>Home</name>
+    <description>Droiuby Home</description>
+    <launcher_icon>http://www.android.com/images/brand/droid.gif</launcher_icon>
+    <base_url>asset:home/</base_url>
+    <main>home.xml</main>
+    <framework>droiuby</framework>        
+</app_descriptor>

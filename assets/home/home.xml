@@ -1,0 +1,10 @@
+<activity controller="home.rb#main">
+    <layout type="linear" width="match" height="match" orientation="vertical">
+        <p>Droiuby Development Environment running ....</p>
+        <p>You may access the developer console at</p>
+        <layout type="linear" orientation="horizontal">
+            <t>IP ADDRESS:</t>
+            <t size="20" id="ip_address"></t>
+        </layout>
+    </layout>
+</activity>

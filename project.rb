@@ -14,7 +14,7 @@ class Project < Thor
 
   include Thor::Actions
 
-  source_root 'templates'
+  source_root File.join(File.dirname(__FILE__), 'templates')
 
   desc "launch device IP [URL]","Tell droiuby to connect to app hosted at URL"
   def launch(device_ip, url)
@@ -86,7 +86,7 @@ class Project < Thor
 
     url_str = "http://#{device_ip}:4000/upload"
     uri = URI.parse(url_str)
-    say "uploading to #{url_str} -> #{uri.host}:#{uri.port}"
+    say "uploading #{src_package} to #{url_str} -> #{uri.host}:#{uri.port}"
     File.open(src_package) do |zip|
       req = Net::HTTP::Post::Multipart.new uri.path,
                                            "name" => name,
@@ -94,6 +94,8 @@ class Project < Thor
                                            "file" => UploadIO.new(zip, "application/zip", src_package,"content-disposition" => "form-data; name=\"file\"; filename=\"#{File.basename(src_package)}\"\r\n")
 
       retries = 0
+      res = nil
+      
       while (retries < 3)
         sleep 1 + retries
         begin
@@ -106,13 +108,17 @@ class Project < Thor
           next
         end
       end
+      
+      if res && res.code == "200"
 
-
-      if res.code == "200"
         say_status 'upload', src_package
       else
-        say 'upload failed.'
-        say res.body
+        if res
+          say_status 'upload','res.body', :red
+        else
+          say_status 'upload',"upload failed. cannot connect to #{url_str}", :red 
+        end
+        
       end
 
     end
