@@ -148,7 +148,7 @@ public class CanvasActivity extends Activity implements OnEnvironmentReady {
 		if (params != null) {
 			droiuby.onIntent(params);
 		} else {
-			droiuby.start("asset:home/config.droiuby");
+			droiuby.start("asset:launcher/config.droiuby");
 		}
 	}
 
