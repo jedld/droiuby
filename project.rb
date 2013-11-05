@@ -59,7 +59,13 @@ class Project < Thor
     include WEBrick
     source_dir_args = source_dir ? source_dir : 'projects'
     host_name_args = host_name ? host_name : Socket.gethostname
-    src_dir = File.join(source_dir_args, name)
+    
+    src_dir = if name.blank?
+      Dir.pwd
+    else
+      File.join(source_dir_args, name)
+    end
+    
     port = 2000
 
     ready = false
