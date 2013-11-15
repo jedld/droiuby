@@ -52,7 +52,11 @@ class Project < Thor
   desc "package NAME [WORKSPACE_DIR] [true|false]","package a project"
 
   def package(name, source_dir = 'projects', force = "false")
-    src_folder = File.join(source_dir,"#{name}")
+    src_folder = if name.blank?
+          Dir.pwd
+        else
+          File.join(source_dir, name)
+        end
     say "compress #{src_folder}"
     compress(src_folder, force)
   end
@@ -96,7 +100,19 @@ class Project < Thor
 
   desc "upload NAME DEVICE_IP [WORKSPACE_DIR]","uploads a droiuby application to target device running droiuby client"
   def upload(name, device_ip, source_dir = 'projects')
-    src_package = File.join(source_dir,name,'build',"#{name}.zip")
+    
+    source_dir = if name.blank?
+      Dir.pwd
+    else
+      File.join(source_dir, name)
+    end   
+    
+    src_package = unless name.blank?
+      File.join(source_dir,name,'build',"#{name}.zip")
+    else
+      File.join(source_dir,'build',"#{name}.zip")
+    end
+     
 
     url_str = "http://#{device_ip}:4000/upload"
     uri = URI.parse(url_str)

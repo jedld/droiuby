@@ -1,4 +1,4 @@
-package com.droiuby.client;
+package com.droiuby.application;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -23,10 +23,11 @@ import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-import com.droiuby.application.ActiveApp;
-import com.droiuby.application.DroiubyBootstrap;
-import com.droiuby.application.OnEnvironmentReady;
 import com.droiuby.callbacks.OnAppDownloadComplete;
+import com.droiuby.client.R;
+import com.droiuby.client.R.id;
+import com.droiuby.client.R.layout;
+import com.droiuby.client.R.menu;
 import com.droiuby.interfaces.DroiubyHelperInterface;
 
 public class CanvasActivity extends Activity implements OnEnvironmentReady {

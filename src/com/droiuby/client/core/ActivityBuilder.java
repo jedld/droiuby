@@ -42,9 +42,9 @@ import android.widget.TableRow;
 import android.widget.TextView;
 
 import com.droiuby.application.ActiveApp;
+import com.droiuby.application.CanvasActivity;
 import com.droiuby.callbacks.DocumentReadyListener;
 import com.droiuby.callbacks.OnAppDownloadComplete;
-import com.droiuby.client.CanvasActivity;
 import com.droiuby.client.core.builder.ButtonViewBuilder;
 import com.droiuby.client.core.builder.CheckBoxBuilder;
 import com.droiuby.client.core.builder.EditTextBuilder;
