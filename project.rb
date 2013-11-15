@@ -110,6 +110,7 @@ class Project < Thor
     src_package = unless name.blank?
       File.join(source_dir,name,'build',"#{name}.zip")
     else
+      name = File.basename(source_dir)
       File.join(source_dir,'build',"#{name}.zip")
     end
      
