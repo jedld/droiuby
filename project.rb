@@ -16,6 +16,16 @@ class Project < Thor
 
   desc "launch device IP [URL]","Tell droiuby to connect to app hosted at URL"
   def launch(device_ip, url)
+    
+    if device_ip.nil?
+      device_ip = '127.0.0.1'
+      begin
+      `adb forward tcp:4000 tcp:4000`
+      rescue Exception=>e
+        puts e.inspect
+      end
+    end
+    
     url_str = "http://#{device_ip}:4000/control?cmd=launch&url=#{CGI::escape(url)}"
     puts "loading application at url #{url}"
     puts url_str
@@ -65,7 +75,7 @@ class Project < Thor
 
   desc "live NAME DEVICE_IP [HOST NAME] [SOURCE]", "Allow live editing of apps by starting a web server and pointing droiuby to the local instance"
 
-  def live(name, device_ip, host_name = nil, source_dir = 'projects')
+  def live(name, device_ip = nil, host_name = nil, source_dir = 'projects')
 
     source_dir_args = source_dir ? source_dir : 'projects'
     host_name_args = host_name ? host_name : Socket.gethostname
@@ -75,7 +85,16 @@ class Project < Thor
     else
       File.join(source_dir_args, name)
     end
-
+    
+    if device_ip.nil?
+      device_ip = '127.0.0.1'
+      begin
+      `adb forward tcp:4000 tcp:4000`
+      rescue Exception=>e
+        puts e.inspect
+      end
+    end
+    
     port = 2000
 
     ready = false
@@ -106,6 +125,15 @@ class Project < Thor
       File.join(source_dir, name)
     end
 
+    if device_ip.nil?
+      device_ip = '127.0.0.1'
+      begin
+      `adb forward tcp:4000 tcp:4000`
+      rescue Exception=>e
+        puts e.inspect
+      end
+    end
+    
     src_package = if framework
       File.join(source_dir,'framework_src','build',"#{name}.zip") 
     elsif !name.blank?
@@ -162,7 +190,7 @@ class Project < Thor
 
   desc "framework DEVICE_IP","updates the droiuby framework using code from framework_src"
 
-  def framework(device_ip, source_dir = 'framework_src')
+  def framework(device_ip = nil, source_dir = 'framework_src')
     compress(source_dir, "true", "framework")
     upload 'framework', device_ip, File.join(Dir.pwd,"framework_src"), true
   end
