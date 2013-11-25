@@ -162,14 +162,14 @@ public class WebConsole extends NanoHTTPD {
 				File file = new File(filename);
 				try {
 					String extraction_target = null;
-					if (update_framework.equalsIgnoreCase("true")) {
+					if (!update_framework.equalsIgnoreCase("true")) {
 						extraction_target = data_dir + File.separator
 								+ "applications" + File.separator
 								+ Utils.md5(name);
 					} else {
-						extraction_target = activity.get().getDir("vendor",
+						extraction_target = new File(activity.get().getDir("vendor",
 								Context.MODE_PRIVATE)
-								+ File.separator + "framework";
+								+ File.separator + "framework").getCanonicalPath();
 					}
 					Log.d(this.getClass().toString(), "Saving file " + filename
 							+ " to " + extraction_target);
