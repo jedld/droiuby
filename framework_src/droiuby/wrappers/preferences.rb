@@ -4,8 +4,12 @@ class Preferences
     @preferences = preferences
   end
   
-  def contains?(key)
+  def has_key?(key)
     @preferences.contains(key.to_s)
+  end
+  
+  def contains?(key)
+    has_key? key
   end
   
   def get(key, default = nil)

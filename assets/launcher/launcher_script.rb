@@ -1,6 +1,7 @@
 class Main < Activity
   def on_create
-      if _P.contains_key :app_url
+    
+      if _P.has_key?(:app_url)
         launch _P.get(:app_url)
       else
       
@@ -26,6 +27,7 @@ class Main < Activity
           V('#ip_address').text = "#{result}:4000"
         }.start
     end
+    
   end
   
   def on_activity_result(request_code, result_code, intent)

@@ -2,6 +2,7 @@ gen
 bin
 .idea
 assets/*.jar
+framework_src/build
 src_ruby_classes
 projects
 local.properties

@@ -16,6 +16,7 @@ import org.jruby.embed.EmbedEvalUnit;
 import org.jruby.embed.ScriptingContainer;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.res.AssetManager;
 import android.util.Log;
 
@@ -150,7 +151,9 @@ public class WebConsole extends NanoHTTPD {
 		Response response;
 		if (method.equalsIgnoreCase("POST") && uri.startsWith("/upload")) {
 			String name = params.getProperty("name", null);
-			Log.d(this.getClass().toString(),"Receiving file upload " + name);
+			String update_framework = params.getProperty("framework", "false");
+
+			Log.d(this.getClass().toString(), "Receiving file upload " + name);
 			if (activity.get() != null) {
 				String data_dir = activity.get().getApplicationInfo().dataDir;
 				String filename = files.getProperty("file");
@@ -158,8 +161,16 @@ public class WebConsole extends NanoHTTPD {
 						"true") ? true : false;
 				File file = new File(filename);
 				try {
-					String extraction_target = data_dir + File.separator
-							+ "applications" + File.separator + Utils.md5(name);
+					String extraction_target = null;
+					if (update_framework.equalsIgnoreCase("true")) {
+						extraction_target = data_dir + File.separator
+								+ "applications" + File.separator
+								+ Utils.md5(name);
+					} else {
+						extraction_target = activity.get().getDir("vendor",
+								Context.MODE_PRIVATE)
+								+ File.separator + "framework";
+					}
 					Log.d(this.getClass().toString(), "Saving file " + filename
 							+ " to " + extraction_target);
 					File dir = new File(extraction_target);

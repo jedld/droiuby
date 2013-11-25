@@ -1,12 +1,10 @@
 require 'rubygems'
-
 require 'net/http'
 require 'net/http/post/multipart'
 require 'zip'
 require 'thor'
 require "uri"
 require 'cgi'
-
 require 'active_support/core_ext/object'
 require 'active_support/core_ext/string'
 
@@ -29,17 +27,18 @@ class Project < Thor
   end
 
   desc "create NAME [WORKSPACE_DIR]","create a new droiuby project with NAME"
+
   def create(name, output_dir = 'projects')
     @name = name
     @description = name
     @launcher_icon = ''
     @base_url = ''
     @main_xml = 'index.xml'
-    
+
     if output_dir.blank?
       output_dir = Dir.pwd
     end
-    
+
     dest_folder = File.join(output_dir,"#{name}")
     template File.join('ruby','config.droiuby.erb'), File.join(dest_folder,"config.droiuby")
     template File.join('ruby','gitignore.erb'), File.join(dest_folder,".gitignore")
@@ -53,30 +52,30 @@ class Project < Thor
 
   def package(name, source_dir = 'projects', force = "false")
     src_folder = if name.blank?
-          Dir.pwd
-        else
-          File.join(source_dir, name)
-        end
+      Dir.pwd
+    else
+      File.join(source_dir, name)
+    end
     say "compress #{src_folder}"
     compress(src_folder, force)
   end
 
   require 'webrick'
   include WEBrick
-  
-  desc "live NAME DEVICE_IP [HOST NAME] [SOURCE]", "Allow live editing of apps by starting a web server and pointing droiuby to the local instance"
-  def live(name, device_ip, host_name = nil, source_dir = 'projects')
 
+  desc "live NAME DEVICE_IP [HOST NAME] [SOURCE]", "Allow live editing of apps by starting a web server and pointing droiuby to the local instance"
+
+  def live(name, device_ip, host_name = nil, source_dir = 'projects')
 
     source_dir_args = source_dir ? source_dir : 'projects'
     host_name_args = host_name ? host_name : Socket.gethostname
-    
+
     src_dir = if name.blank?
       Dir.pwd
     else
       File.join(source_dir_args, name)
     end
-    
+
     port = 2000
 
     ready = false
@@ -97,36 +96,42 @@ class Project < Thor
     server.start
   end
 
-
   desc "upload NAME DEVICE_IP [WORKSPACE_DIR]","uploads a droiuby application to target device running droiuby client"
-  def upload(name, device_ip, source_dir = 'projects')
-    
-    source_dir = if name.blank?
+
+  def upload(name, device_ip, source_dir = 'projects', framework = false)
+
+    source_dir = if name.blank? || framework
       Dir.pwd
     else
       File.join(source_dir, name)
-    end   
-    
-    src_package = unless name.blank?
+    end
+
+    src_package = if framework
+      File.join(source_dir,'framework_src','build',"#{name}.zip") 
+    elsif !name.blank?
       File.join(source_dir,name,'build',"#{name}.zip")
     else
       name = File.basename(source_dir)
       File.join(source_dir,'build',"#{name}.zip")
     end
-     
 
     url_str = "http://#{device_ip}:4000/upload"
     uri = URI.parse(url_str)
     say "uploading #{src_package} to #{url_str} -> #{uri.host}:#{uri.port}"
     File.open(src_package) do |zip|
-      req = Net::HTTP::Post::Multipart.new uri.path,
-                                           "name" => name,
-                                           "run" => "true",
-                                           "file" => UploadIO.new(zip, "application/zip", src_package,"content-disposition" => "form-data; name=\"file\"; filename=\"#{File.basename(src_package)}\"\r\n")
+      
+      params = {                                          
+        "name" => name,
+        "run" => "true",
+        "file" => UploadIO.new(zip, "application/zip", src_package,"content-disposition" => "form-data; name=\"file\"; filename=\"#{File.basename(src_package)}\"\r\n")}
+      
+        
+      params.merge!(framework: 'true') if framework   
+      req = Net::HTTP::Post::Multipart.new uri.path, params
 
       retries = 0
       res = nil
-      
+
       while (retries < 3)
         sleep 1 + retries
         begin
@@ -139,7 +144,7 @@ class Project < Thor
           next
         end
       end
-      
+
       if res && res.code == "200"
 
         say_status 'upload', src_package
@@ -147,15 +152,23 @@ class Project < Thor
         if res
           say_status 'upload','res.body', :red
         else
-          say_status 'upload',"upload failed. cannot connect to #{url_str}", :red 
+          say_status 'upload',"upload failed. cannot connect to #{url_str}", :red
         end
-        
+
       end
 
     end
   end
 
+  desc "framework DEVICE_IP","updates the droiuby framework using code from framework_src"
+
+  def framework(device_ip, source_dir = 'framework_src')
+    compress(source_dir, "true", "framework")
+    upload 'framework', device_ip, File.join(Dir.pwd,"framework_src"), true
+  end
+
   desc "execute NAME DEVICE_IP [WORKSPACE_DIR]","package and execute a droiuby application to target device running droiuby client"
+
   def execute(name, device_ip, source_dir = 'projects')
     `adb shell am start -W -S --activity-clear-top --activity-brought-to-front -n com.droiuby.application/.CanvasActivity`
     package name, source_dir, "true"
@@ -164,12 +177,17 @@ class Project < Thor
 
   private
 
-  def compress(path, force = "false")
+  def compress(path, force = "false", archive_name = nil)
     path.sub!(%r[/$],'')
     unless Dir.exists?(File.join(path,'build'))
       Dir.mkdir(File.join(path,'build'))
     end
-    archive = File.join(path,'build',"#{File.basename(path)}.zip")
+    
+    archive_name = File.basename(path) if archive_name.nil?
+    
+    
+    archive = File.join(path,'build',"#{archive_name}.zip")
+    
     if force=='true' || file_collision(archive)
 
       FileUtils.rm archive, :force=>true
