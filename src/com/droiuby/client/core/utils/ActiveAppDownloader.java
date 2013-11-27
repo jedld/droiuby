@@ -32,7 +32,6 @@ import org.jruby.runtime.builtin.IRubyObject;
 
 import com.droiuby.application.ActiveApp;
 import com.droiuby.callbacks.DocumentReadyListener;
-import com.droiuby.client.R;
 import com.droiuby.client.core.ActivityBuilder;
 import com.droiuby.client.core.AppCache;
 import com.droiuby.client.core.AssetDownloadCompleteListener;
