@@ -4,15 +4,10 @@ class Main < Activity
       if _P.has_key?(:app_url)
         launch _P.get(:app_url)
       else
-      
           V('#run').on(:click) do |view|
-              puts view.class.to_sl
-              puts view.data('url')
               app_url = V('#app_url')
-              
               #store in prefs to be auto launched next time
               _P.update_attributes!(app_url: app_url.text)
-              
               launch app_url.text
           end
           
