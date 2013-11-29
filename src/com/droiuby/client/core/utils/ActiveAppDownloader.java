@@ -244,6 +244,8 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 							type_int = ActiveApp.ASSET_TYPE_CSS;
 						} else if (asset_type.equals("lib")) {
 							type_int = ActiveApp.ASSET_TYPE_LIB;
+						} else if (asset_type.equals("binary")) {
+							type_int = ActiveApp.ASSET_TYPE_BINARY;
 						}
 
 						app.addAsset(asset_name, type_int);

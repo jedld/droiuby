@@ -2,7 +2,11 @@ package com.droiuby.client.core.builder;
 
 import org.jdom2.Element;
 
+import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
+
 import android.graphics.Color;
+import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.text.method.PasswordTransformationMethod;
 import android.util.TypedValue;
 import android.view.View;
@@ -28,6 +32,9 @@ public class TextViewBuilder extends ViewBuilder {
 				|| attribute_name.equals("text-align")) {
 			int gravity = this.builder.parseGravity(attribute_value);
 			textView.setGravity(gravity);
+		} else if (attribute_name.equals("font")) { 
+			Typeface myTypeface = Typeface.createFromFile(attribute_value);
+		    textView.setTypeface(myTypeface);
 		} else if (attribute_name.equals("color")) {
 			textView.setTextColor(Color.parseColor(attribute_value));
 		} else if (attribute_name.equals("style")
