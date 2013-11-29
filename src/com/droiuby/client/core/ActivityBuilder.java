@@ -62,6 +62,7 @@ import com.droiuby.client.core.builder.ViewBuilder;
 import com.droiuby.client.core.builder.WebViewBuilder;
 import com.droiuby.client.core.postprocessor.AssetPreloadParser;
 import com.droiuby.client.core.postprocessor.CssPreloadParser;
+import com.droiuby.client.core.postprocessor.GenericPostProcessor;
 import com.droiuby.client.core.utils.Utils;
 import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
 
@@ -417,6 +418,9 @@ public class ActivityBuilder {
 			} else if (type.equals("css")) {
 				asset_type = Utils.ASSET_TYPE_CSS;
 				parser = new CssPreloadParser();
+			} else {
+				asset_type = Utils.ASSET_TYPE_BINARY;
+				parser = new GenericPostProcessor();
 			}
 
 			AssetDownloadWorker worker = new AssetDownloadWorker(context,
