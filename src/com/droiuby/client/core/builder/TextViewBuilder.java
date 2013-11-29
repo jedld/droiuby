@@ -33,7 +33,7 @@ public class TextViewBuilder extends ViewBuilder {
 			int gravity = this.builder.parseGravity(attribute_value);
 			textView.setGravity(gravity);
 		} else if (attribute_name.equals("font")) { 
-			Typeface myTypeface = Typeface.createFromFile(attribute_value);
+			Typeface myTypeface = Typeface.createFromFile((String)builder.findViewByName(attribute_value));
 		    textView.setTypeface(myTypeface);
 		} else if (attribute_name.equals("color")) {
 			textView.setTextColor(Color.parseColor(attribute_value));

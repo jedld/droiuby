@@ -7,7 +7,7 @@ public class GenericPostProcessor implements AssetDownloadCompleteListener {
 
 	public Object onComplete(ExecutionBundle bundle, String name, Object result) {
 		// TODO Auto-generated method stub
-		return null;
+		return result;
 	}
 
 }

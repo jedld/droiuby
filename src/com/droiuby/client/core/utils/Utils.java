@@ -175,6 +175,7 @@ public class Utils {
 	public static final int ASSET_TYPE_TEXT = 0;
 	public static final int ASSET_TYPE_IMAGE = 1;
 	public static final int ASSET_TYPE_CSS = 2;
+	public static final int ASSET_TYPE_BINARY = 3;
 
 	public static ScriptingContainer evalRuby(String statement,
 			Activity activity) {
@@ -557,6 +558,19 @@ public class Utils {
 								.downloadFromUrlAsync(context, query_url,
 										UrlImageViewHelper
 												.getFilenameForUrl(query_url));
+					} else if (asset_type == Utils.ASSET_TYPE_BINARY) {
+						String file_path = context.getCacheDir() + File.pathSeparator + Utils.md5(asset_name);
+						File tempFile = new File(file_path);
+						try {
+							tempFile.createNewFile();
+							URL url = new URL(query_url);
+							org.apache.commons.io.FileUtils.copyURLToFile(url, tempFile);
+							return file_path;
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+
 					}
 					return null;
 				}

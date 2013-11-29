@@ -41,6 +41,7 @@ import com.droiuby.client.core.OnDownloadCompleteListener;
 import com.droiuby.client.core.RubyContainerPayload;
 import com.droiuby.client.core.interfaces.OnUrlChangedListener;
 import com.droiuby.client.core.postprocessor.CssPreloadParser;
+import com.droiuby.client.core.postprocessor.GenericPostProcessor;
 import com.droiuby.client.core.postprocessor.ScriptPreparser;
 
 import android.app.Activity;
@@ -244,7 +245,7 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 							type_int = ActiveApp.ASSET_TYPE_CSS;
 						} else if (asset_type.equals("lib")) {
 							type_int = ActiveApp.ASSET_TYPE_LIB;
-						} else if (asset_type.equals("binary")) {
+						} else if (asset_type.equals("binary") || asset_type.equals("file")) {
 							type_int = ActiveApp.ASSET_TYPE_BINARY;
 						}
 
@@ -288,6 +289,8 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 								.availableProcessors() + 1);
 				for (String asset_name : app.getAssets().keySet()) {
 					int asset_type = asset_map.get(asset_name);
+					int download_type = Utils.ASSET_TYPE_TEXT;
+					
 					AssetDownloadCompleteListener listener = null;
 					if (asset_type == ActiveApp.ASSET_TYPE_SCRIPT) {
 						listener = new ScriptPreparser();
@@ -306,12 +309,16 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 							scriptingContainer.getProvider().getRuntime().getLoadService().addPaths(loadPaths);
 						}
 						continue;
+					} else if (asset_type == ActiveApp.ASSET_TYPE_BINARY) {
+						download_type = Utils.ASSET_TYPE_BINARY;
+						listener = new GenericPostProcessor();
 					}
+					
 					Log.d(this.getClass().toString(), "downloading "
 							+ asset_name + " ...");
 					AssetDownloadWorker worker = new AssetDownloadWorker(
 							targetActivity, app, executionBundle, asset_name,
-							Utils.ASSET_TYPE_TEXT, resultBundle, listener,
+							download_type, resultBundle, listener,
 							Utils.HTTP_GET);
 					thread_pool.execute(worker);
 				}
