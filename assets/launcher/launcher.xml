@@ -8,7 +8,7 @@
         <button id="run" width="match" height="wrap" >Run</button>
         <layout type="linear" orientation="horizontal">
             <t>IP ADDRESS:</t>
-            <t id="ip_address"></t>
+            <t size="20" id="ip_address"></t>
         </layout>
         
     </layout>

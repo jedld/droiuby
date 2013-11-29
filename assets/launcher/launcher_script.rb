@@ -1,27 +1,38 @@
+#ruby script that handles the behavior of the launcher
 class Main < Activity
   def on_create
     
       if _P.has_key?(:app_url)
-        launch _P.get(:app_url)
-      else
-          V('#run').on(:click) do |view|
-              app_url = V('#app_url')
-              #store in prefs to be auto launched next time
-              _P.update_attributes!(app_url: app_url.text)
-              launch app_url.text
+        V('#app_url').text= _P.get(:app_url)
+      end
+      
+      V('#run').on(:click) do |view|
+          app_url = V('#app_url')
+          
+          url_str = app_url.text
+          
+          unless url_str.match(/^http:\/\//) || url_str.match(/^file:\/\//) || url_str.match(/^https:\/\//)
+            url_str = "http://#{url_str}"
           end
           
-          V('#qrcode').on(:click) do |view|
-            integrator = Java::com.droiuby.client.utils.intents.IntentIntegrator.new(me)
-            integrator.initiateScan
-          end
+          #store in prefs to be auto launched next time
+          _P.update_attributes!(app_url: url_str)
           
-        async.perform {
-          Java::com.droiuby.client.core.utils.Utils.getLocalIpAddress(_current_activity)
-        }.done { |result|
-          V('#ip_address').text = "#{result}:4000"
-        }.start
-    end
+          
+          launch url_str
+      end
+      
+      V('#qrcode').on(:click) do |view|
+        integrator = Java::com.droiuby.client.utils.intents.IntentIntegrator.new(me)
+        integrator.initiateScan
+      end
+      
+    async.perform {
+      Java::com.droiuby.client.core.utils.Utils.getLocalIpAddress(me)
+    }.done { |result|
+      V('#ip_address').text = "#{result}:4000"
+    }.start
+
     
   end
   
