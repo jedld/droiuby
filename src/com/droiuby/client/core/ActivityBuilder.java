@@ -359,7 +359,13 @@ public class ActivityBuilder {
 	HashMap<String, Integer> namedViewDictionary = new HashMap<String, Integer>();
 	HashMap<String, ArrayList<Integer>> classViewDictionary = new HashMap<String, ArrayList<Integer>>();
 	HashMap<String, ArrayList<Integer>> tagViewDictionary = new HashMap<String, ArrayList<Integer>>();
+	ArrayList<String> viewErrors = new ArrayList<String>();
 
+	public void addViewError(String error_msg) {
+		viewErrors.add(error_msg);
+		Log.e(this.getClass().toString(), error_msg);
+	}
+	
 	public HashMap<String, ArrayList<Integer>> getClassViewDictionary() {
 		return classViewDictionary;
 	}
@@ -420,7 +426,7 @@ public class ActivityBuilder {
 				parser = new CssPreloadParser();
 			} else {
 				asset_type = Utils.ASSET_TYPE_BINARY;
-				parser = new GenericPostProcessor();
+				parser = new GenericPostProcessor(name, type, this);
 			}
 
 			AssetDownloadWorker worker = new AssetDownloadWorker(context,

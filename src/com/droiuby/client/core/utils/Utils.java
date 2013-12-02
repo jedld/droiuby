@@ -549,6 +549,7 @@ public class Utils {
 
 						query_url = baseUrl + "/" + asset_name;
 					}
+					
 					if ((asset_type == Utils.ASSET_TYPE_TEXT)
 							|| (asset_type == Utils.ASSET_TYPE_CSS)) {
 						return Utils.query(query_url, context, app.getName(),

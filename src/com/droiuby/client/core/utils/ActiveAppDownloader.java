@@ -218,7 +218,7 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 				if (orientation != null) {
 					if (orientation.equals("landscape")) {
 						app.setInitiallOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-					} else if (orientation.equals("portrait")) {
+					} else if (orientation.equals("portrait") || orientation.equals("vertical")) {
 						app.setInitiallOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 					} else if (orientation.equals("sensor_landscape")) {
 						app.setInitiallOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
@@ -311,7 +311,6 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 						continue;
 					} else if (asset_type == ActiveApp.ASSET_TYPE_BINARY) {
 						download_type = Utils.ASSET_TYPE_BINARY;
-						listener = new GenericPostProcessor();
 					}
 					
 					Log.d(this.getClass().toString(), "downloading "

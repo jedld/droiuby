@@ -8,12 +8,16 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.text.method.PasswordTransformationMethod;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.TextView;
 
 public class TextViewBuilder extends ViewBuilder {
 
+	
+	float line_spacing_extra = 0f;
+	float line_spacing_multiplier = 1f;
 	@Override
 	public View getView() {
 		return new TextView(context);
@@ -32,8 +36,16 @@ public class TextViewBuilder extends ViewBuilder {
 				|| attribute_name.equals("text-align")) {
 			int gravity = this.builder.parseGravity(attribute_value);
 			textView.setGravity(gravity);
+		} else if (attribute_name.equals("line_spacing_extra")) {
+			line_spacing_extra = Float.parseFloat(attribute_value);
+			textView.setLineSpacing(line_spacing_extra, line_spacing_multiplier);
+		} else if (attribute_name.equals("line_spacing_multiplier")) {
+			line_spacing_multiplier = Float.parseFloat(attribute_value);
+			textView.setLineSpacing(line_spacing_extra, line_spacing_multiplier);
 		} else if (attribute_name.equals("font")) { 
-			Typeface myTypeface = Typeface.createFromFile((String)builder.findViewByName(attribute_value));
+			String font_name = (String)builder.findViewByName("@preload:" + attribute_value);
+			Log.d(this.getClass().toString(),"font name = " + font_name);
+			Typeface myTypeface = Typeface.createFromFile(font_name);
 		    textView.setTypeface(myTypeface);
 		} else if (attribute_name.equals("color")) {
 			textView.setTextColor(Color.parseColor(attribute_value));

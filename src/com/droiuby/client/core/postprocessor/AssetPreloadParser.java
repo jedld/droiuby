@@ -23,7 +23,7 @@ public class AssetPreloadParser implements AssetDownloadCompleteListener {
 	public Object onComplete(ExecutionBundle bundle, String name, Object result) {
 		if (type.equals("image")) {
 			this.builder.getPreloadedResource().put(id, (Drawable)result);
-		}
+		} 
 		return null;
 	}
 

@@ -144,6 +144,11 @@ public class CssRules {
 		for (PropertyValue property : rule.getProperties()) {
 			propertyMap.put(property.getProperty(), property.getValue());
 		}
-		viewBuilder.setParamsFromProperty((View) result, propertyMap);
+		try {
+			viewBuilder.setParamsFromProperty((View) result, propertyMap);
+		} catch (Exception e) {
+			String message =  e.getClass().toString() + " " + e.getMessage();
+			activityBuilder.addViewError(message);
+		}
 	}
 }
