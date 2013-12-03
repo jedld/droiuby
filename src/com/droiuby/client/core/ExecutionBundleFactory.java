@@ -52,8 +52,8 @@ public class ExecutionBundleFactory {
 		List<String> loadPaths = new ArrayList<String>();
 		loadPaths.add(data_dir + "/jruby/vendor");
 		loadPaths.add(data_dir + "/jruby/vendor/lib");
-		File stdlib = new File(context.getDir("vendor",
-				Context.MODE_PRIVATE), "stdlib");
+		File stdlib = new File(context.getDir("vendor", Context.MODE_PRIVATE),
+				"stdlib");
 		File frameworkDir = new File(context.getDir("vendor",
 				Context.MODE_PRIVATE), "framework");
 		try {
@@ -69,6 +69,33 @@ public class ExecutionBundleFactory {
 		bundle.setPayload(payload);
 		return bundle;
 
+	}
+
+	public static String[] listActiveBundles() {
+		ArrayList<String> result = new ArrayList<String>();
+		if (instance != null) {
+			HashMap<String, WeakReference<ExecutionBundle>> bundleList = instance.bundles;
+			for (String name : bundleList.keySet()) {
+				if (bundleList.get(name).get() != null) {
+					result.add(name);
+				}
+			}
+		}
+		String[] arr = new String[result.size()];
+		return result.toArray(arr);
+	}
+
+	public ExecutionBundle getBundle(String namespace) {
+		if (instance != null) {
+			HashMap<String, WeakReference<ExecutionBundle>> bundleList = instance.bundles;
+			if (bundleList.containsKey(namespace)) {
+				ExecutionBundle bundle = bundleList.get(namespace).get();
+				if (bundle != null) {
+					return bundle;
+				}
+			}
+		}
+		return null;
 	}
 
 	public boolean bundleAvailableFor(String namespace) {

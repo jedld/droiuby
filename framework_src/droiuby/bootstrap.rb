@@ -7,7 +7,9 @@ class PayloadWrapper
     java_native_singleton_on($container_payload, Java::com.droiuby.client.core.RubyContainerPayload, method, [])
   end
   
-  java_native_singleton_on($container_payload.getExecutionBundle, Java::com.droiuby.client.core.ExecutionBundle, :getCurrentActivity, [])
+  java_native_singleton_on($container_payload.getExecutionBundle, Java::com.droiuby.client.core.ExecutionBundle, 
+    :getCurrentActivity, [])
+      
 end
 
 def _container_payload
@@ -40,6 +42,14 @@ end
 
 def reverse_resolve(view_id)
   _activity_builder.reverseLookupId(view_id)
+end
+
+def active_bundles
+  Java::com.droiuby.client.core.ExecutionBundleFactory.listActiveBundles.collect { |i| i.to_s }
+end
+
+def switch(bundle)
+  bundle = Java::com.droiuby.client.core.ExecutionBundleFactory.getBundle(bundle)
 end
 
 def launch(url)

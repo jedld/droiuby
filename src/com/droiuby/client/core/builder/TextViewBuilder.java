@@ -43,7 +43,10 @@ public class TextViewBuilder extends ViewBuilder {
 			line_spacing_multiplier = Float.parseFloat(attribute_value);
 			textView.setLineSpacing(line_spacing_extra, line_spacing_multiplier);
 		} else if (attribute_name.equals("font")) { 
-			String font_name = (String)builder.findViewByName("@preload:" + attribute_value);
+			if (!attribute_value.startsWith("@preload:")) {
+				attribute_value = "@preload:" + attribute_value;
+			}
+			String font_name = (String)builder.findViewByName(attribute_value);
 			Log.d(this.getClass().toString(),"font name = " + font_name);
 			Typeface myTypeface = Typeface.createFromFile(font_name);
 		    textView.setTypeface(myTypeface);

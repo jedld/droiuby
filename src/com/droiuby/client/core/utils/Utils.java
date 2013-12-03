@@ -203,7 +203,7 @@ public class Utils {
 		}
 		return null;
 	}
-	
+
 	public static String loadFile(String asset_path) {
 		asset_path = stripProtocol(asset_path);
 		File asset = new File(asset_path);
@@ -249,16 +249,16 @@ public class Utils {
 		}
 		return true;
 	}
-	
+
 	public static int toInteger(IRubyObject object) {
 		if (object.isNil())
 			return 0;
 		if (object instanceof RubyInteger) {
-			return (int)((RubyInteger)object).getLongValue();
+			return (int) ((RubyInteger) object).getLongValue();
 		}
 		return 0;
 	}
-	
+
 	public static void logHeaders(Header[] headers, Class context) {
 		for (Header header : headers) {
 			Log.d(context.getName(), "Location Header " + header.getName()
@@ -333,7 +333,8 @@ public class Utils {
 		return query(url, c, namespace, Utils.HTTP_GET);
 	}
 
-	public static SharedPreferences getCurrentPreferences(ActiveApp application, ContextWrapper activity) {
+	public static SharedPreferences getCurrentPreferences(
+			ActiveApp application, ContextWrapper activity) {
 		try {
 			SharedPreferences prefs = null;
 			if (application.getBaseUrl().startsWith("asset:")) {
@@ -354,7 +355,7 @@ public class Utils {
 		}
 		return null;
 	}
-	
+
 	public static String query(String url, Context c, String namespace,
 			int method) {
 
@@ -518,7 +519,11 @@ public class Utils {
 				if (baseUrl.startsWith("asset:")) {
 					return Utils.loadAsset(context, baseUrl + asset_name);
 				} else if (baseUrl.startsWith("file://")) {
-					return Utils.loadFile(baseUrl + asset_name);
+					if (asset_type == Utils.ASSET_TYPE_BINARY) {
+						return stripProtocol(baseUrl + asset_name);
+					} else {
+						return Utils.loadFile(baseUrl + asset_name);
+					}
 				} else if (baseUrl.startsWith("sdcard:")) {
 					File directory = Environment.getExternalStorageDirectory();
 					try {
@@ -549,7 +554,7 @@ public class Utils {
 
 						query_url = baseUrl + "/" + asset_name;
 					}
-					
+
 					if ((asset_type == Utils.ASSET_TYPE_TEXT)
 							|| (asset_type == Utils.ASSET_TYPE_CSS)) {
 						return Utils.query(query_url, context, app.getName(),
@@ -560,18 +565,22 @@ public class Utils {
 										UrlImageViewHelper
 												.getFilenameForUrl(query_url));
 					} else if (asset_type == Utils.ASSET_TYPE_BINARY) {
-						String file_path = context.getCacheDir() + File.pathSeparator + Utils.md5(asset_name);
+						String file_path = context.getCacheDir()
+								+ File.pathSeparator + Utils.md5(asset_name);
 						File tempFile = new File(file_path);
-						try {
-							tempFile.createNewFile();
-							URL url = new URL(query_url);
-							org.apache.commons.io.FileUtils.copyURLToFile(url, tempFile);
-							return file_path;
-						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
+						if (!tempFile.exists()) {
+							try {
+								tempFile.createNewFile();
+								URL url = new URL(query_url);
+								org.apache.commons.io.FileUtils.copyURLToFile(
+										url, tempFile);
 
+							} catch (IOException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}
+						return file_path;
 					}
 					return null;
 				}
