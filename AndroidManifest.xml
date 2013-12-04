@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.droiuby.application"
     android:installLocation="auto"
-    android:versionCode="109"
-    android:versionName="beta0.9" >
+    android:versionCode="110"
+    android:versionName="beta0.10" >
 
     <uses-sdk android:minSdkVersion="15" />
 
@@ -15,6 +15,7 @@
         android:label="@string/app_name" >
         <activity
             android:name="com.droiuby.application.CanvasActivity"
+            android:theme="@android:style/Theme.DeviceDefault.Light.NoActionBar"
             android:label="@string/app_name"
             >
             <intent-filter>

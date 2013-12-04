@@ -7,6 +7,7 @@ import org.jdom2.Document;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.hardware.SensorEvent;
 import android.os.Bundle;
 import android.view.ViewGroup;
 
@@ -58,5 +59,7 @@ public interface DroiubyHelperInterface {
 	public void setLibraryInitialized(boolean b);
 	
 	public void setLoader(ClassLoader loader);
+
+	public void onSensorChanged(SensorEvent arg0);
 
 }

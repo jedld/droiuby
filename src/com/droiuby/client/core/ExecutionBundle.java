@@ -18,6 +18,15 @@ public class ExecutionBundle {
 	Activity currentActivity;
 	String currentUrl;
 	Object currentController;
+	String name;
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
 
 	public Object getCurrentController() {
 		return currentController;

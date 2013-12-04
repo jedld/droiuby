@@ -13,6 +13,15 @@ public class ActiveApp implements Serializable {
 	private static final long serialVersionUID = 4120098422645102827L;
 	
 	String name, description, baseUrl, mainUrl, framework;
+	boolean isFullScreen;
+
+	public boolean isFullScreen() {
+		return isFullScreen;
+	}
+
+	public void setFullScreen(boolean isFullScreen) {
+		this.isFullScreen = isFullScreen;
+	}
 
 	HashMap <String, Integer> assets = new HashMap <String, Integer>();
 	

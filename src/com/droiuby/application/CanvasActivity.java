@@ -3,13 +3,16 @@ package com.droiuby.application;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -26,23 +29,32 @@ import android.widget.TextView;
 import com.droiuby.callbacks.OnAppDownloadComplete;
 import com.droiuby.interfaces.DroiubyHelperInterface;
 
-public class CanvasActivity extends Activity implements OnEnvironmentReady {
+public class CanvasActivity extends Activity implements OnEnvironmentReady,
+		SensorEventListener {
 
 	RelativeLayout topview;
 	DroiubyHelperInterface droiuby;
+	private SensorManager mSensorManager;
+	private Sensor mSensor;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		LibraryBootstrapTask library = DroiubyBootstrap.bootstrapEnvironment(
+				this, this);
 		setContentView(R.layout.canvas);
-		DroiubyBootstrap.bootstrapEnvironment(this, this);
+		library.execute();
+
+		mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+
+		mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
 	}
 
 	@Override
 	protected void onStart() {
 		// TODO Auto-generated method stub
 		super.onStart();
-		if (droiuby!=null) {
+		if (droiuby != null) {
 			droiuby.onStart();
 		}
 	}
@@ -50,7 +62,7 @@ public class CanvasActivity extends Activity implements OnEnvironmentReady {
 	public void refreshCurrentApplication() {
 		ViewGroup view = (ViewGroup) findViewById(R.id.mainLayout);
 		view.removeAllViews();
-		if (droiuby!=null) {
+		if (droiuby != null) {
 			droiuby.reloadApplication(R.id.mainLayout);
 		}
 	}
@@ -86,7 +98,6 @@ public class CanvasActivity extends Activity implements OnEnvironmentReady {
 		return false;
 	}
 
-
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
@@ -97,7 +108,7 @@ public class CanvasActivity extends Activity implements OnEnvironmentReady {
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		if (droiuby!=null) {
+		if (droiuby != null) {
 			droiuby.onDestroy();
 		}
 	}
@@ -105,7 +116,7 @@ public class CanvasActivity extends Activity implements OnEnvironmentReady {
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-		if (droiuby!=null) {
+		if (droiuby != null) {
 			droiuby.onActivityResult(requestCode, resultCode, data);
 		}
 	}
@@ -113,9 +124,19 @@ public class CanvasActivity extends Activity implements OnEnvironmentReady {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		if (droiuby!=null) {
+
+		mSensorManager.registerListener(this, mSensor,
+				SensorManager.SENSOR_DELAY_NORMAL);
+		if (droiuby != null) {
 			droiuby.onResume();
 		}
+	}
+
+	@Override
+	protected void onPause() {
+		// TODO Auto-generated method stub
+		super.onPause();
+		mSensorManager.unregisterListener(this);
 	}
 
 	/*
@@ -130,22 +151,33 @@ public class CanvasActivity extends Activity implements OnEnvironmentReady {
 	}
 
 	public void onDownloadComplete(ActiveApp app) {
-		Log.d(this.getClass().toString(), "app " + app.getName() + " download complete");
+		Log.d(this.getClass().toString(), "app " + app.getName()
+				+ " download complete");
 	}
 
 	public void onReady(DroiubyHelperInterface result) {
-		int default_orientation = getResources().getConfiguration().orientation;
-		if (default_orientation == Configuration.ORIENTATION_LANDSCAPE) {
-			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-		} else {
-			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-		}
 		Bundle params = this.getIntent().getExtras();
 		droiuby = result;
 		if (params != null) {
 			droiuby.onIntent(params);
 		} else {
 			droiuby.start("asset:launcher/config.droiuby");
+		}
+	}
+
+	public void onAccuracyChanged(Sensor arg0, int arg1) {
+		// TODO Auto-generated method stub
+
+	}
+
+	public void onSensorChanged(SensorEvent event) {
+		// TODO Auto-generated method stub
+		if (droiuby != null) {
+			droiuby.onSensorChanged(event);
+		}
+
+		if (event.values[0] == 0) {
+			refreshCurrentApplication();
 		}
 	}
 

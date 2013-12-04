@@ -271,27 +271,12 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 		// TODO Auto-generated method stub
 		super.onPostExecute(result);
 		if (result != null) {
-			long start = System.currentTimeMillis();
-			View view = result.build();
-
-			if (onReadyListener != null) {
-				onReadyListener.onDocumentReady(mainActivityDocument);
-			}
-
-			result.applyStyle(view, resultBundle);
-
-			long elapsed = System.currentTimeMillis() - start;
-			Log.d(this.getClass().toString(), "build activity: elapsed time = "
-					+ elapsed + "ms");
-
+			buildView(result);
 			try {
 				if (preParsedScript != null) {
-					start = System.currentTimeMillis();
 					preParsedScript.run();
 				}
-
 				scriptingContainer.runScriptlet("$framework.preload");
-
 				if (preParsedScript != null) {
 					Log.d(this.getClass().toString(), "class = "
 							+ controllerClass);
@@ -300,10 +285,6 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 							.runScriptlet("$framework.script('"
 									+ controllerClass + "')");
 					executionBundle.setCurrentController(instance);
-					elapsed = System.currentTimeMillis() - start;
-					Log.d(this.getClass().toString(),
-							"controller on_create(): elapsed time = " + elapsed
-									+ "ms");
 				}
 			} catch (EvalFailedException e) {
 				e.printStackTrace();
@@ -320,6 +301,22 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 			}
 
 		}
+	}
+
+	private long buildView(ActivityBuilder result) {
+		long start = System.currentTimeMillis();
+		View view = result.build();
+
+		if (onReadyListener != null) {
+			onReadyListener.onDocumentReady(mainActivityDocument);
+		}
+		//apply CSS
+		result.applyStyle(view, resultBundle);
+
+		long elapsed = System.currentTimeMillis() - start;
+		Log.d(this.getClass().toString(), "build activity: elapsed time = "
+				+ elapsed + "ms");
+		return start;
 	}
 }
 

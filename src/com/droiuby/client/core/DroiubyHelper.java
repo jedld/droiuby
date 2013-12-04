@@ -16,6 +16,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.hardware.SensorEvent;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
@@ -132,9 +133,12 @@ public class DroiubyHelper implements OnAppDownloadComplete,
 	public void reloadApplication(ActiveApp application, int mainlayout) {
 		ScriptingContainer container = executionBundle.getContainer();
 		ViewGroup target = (ViewGroup) activity.findViewById(mainlayout);
-		container.put("_controller", executionBundle.getCurrentController());
-		executionBundle.getContainer().runScriptlet(
-				"_controller.on_activity_reload");
+		if (executionBundle.getCurrentController() != null) {
+			container.put("_controller", executionBundle.getCurrentController());
+			
+			executionBundle.getContainer().runScriptlet(
+					"_controller.on_activity_reload");
+		}
 		this.setupApplication(application, target, mainlayout);
 	}
 
@@ -430,5 +434,10 @@ public class DroiubyHelper implements OnAppDownloadComplete,
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	public void onSensorChanged(SensorEvent arg0) {
+		// TODO Auto-generated method stub
+		
 	}
 }

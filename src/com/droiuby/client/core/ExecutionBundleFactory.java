@@ -64,6 +64,7 @@ public class ExecutionBundleFactory {
 			e.printStackTrace();
 		}
 		container.setLoadPaths(loadPaths);
+		bundle.setName(namespace);
 		bundle.setLibraryInitialized(false);
 		bundle.setContainer(container);
 		bundle.setPayload(payload);
@@ -85,7 +86,7 @@ public class ExecutionBundleFactory {
 		return result.toArray(arr);
 	}
 
-	public ExecutionBundle getBundle(String namespace) {
+	public static ExecutionBundle getBundle(String namespace) {
 		if (instance != null) {
 			HashMap<String, WeakReference<ExecutionBundle>> bundleList = instance.bundles;
 			if (bundleList.containsKey(namespace)) {

@@ -44,12 +44,17 @@ def reverse_resolve(view_id)
   _activity_builder.reverseLookupId(view_id)
 end
 
-def active_bundles
+def _active_bundles
   Java::com.droiuby.client.core.ExecutionBundleFactory.listActiveBundles.collect { |i| i.to_s }
 end
 
-def switch(bundle)
+def _switch(bundle)
   bundle = Java::com.droiuby.client.core.ExecutionBundleFactory.getBundle(bundle)
+  $container_payload = bundle.getPayload
+end
+
+def _namespace
+  _execution_bundle.getName
 end
 
 def launch(url)
@@ -243,6 +248,11 @@ class Activity
   end
   
   def on_activity_reload
+  end
+  
+  def no_action_bar
+    _current_activity.requestWindowFeature(Java::android.view.Window::FEATURE_NO_TITLE);
+    nil
   end
   
 end

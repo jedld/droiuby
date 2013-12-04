@@ -63,6 +63,7 @@ public class AppDownloader extends AsyncTask<Void, Void, ActiveApp> {
 			if (result != null) {
 				Intent intent = new Intent(c, activityClass);
 				intent.putExtra("application", result);
+				intent.putExtra("fullscreen", result.isFullScreen());
 				c.startActivity(intent);
 			} else {
 				AlertDialog.Builder builder = new AlertDialog.Builder(c);

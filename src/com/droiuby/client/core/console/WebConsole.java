@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jruby.embed.EmbedEvalUnit;
 import org.jruby.embed.ScriptingContainer;
 
@@ -25,6 +26,7 @@ import com.droiuby.application.CanvasActivity;
 import com.droiuby.callbacks.OnAppDownloadComplete;
 import com.droiuby.client.core.ActivityBuilder;
 import com.droiuby.client.core.ExecutionBundle;
+import com.droiuby.client.core.ExecutionBundleFactory;
 import com.droiuby.client.core.utils.NanoHTTPD;
 import com.droiuby.client.core.utils.Utils;
 
@@ -218,6 +220,20 @@ public class WebConsole extends NanoHTTPD {
 				if (cmd.equals("launch")) {
 					final String url = params.getProperty("url", "");
 					launchAppFromUrl(resultMap, url);
+				} else if (cmd.equals("list")) { 
+					String[] bundles = ExecutionBundleFactory.listActiveBundles();
+					resultMap.put("result", "success");
+					resultMap.put("list", StringUtils.join(bundles, ','));
+				} else if (cmd.equals("switch")) { 
+					String namespace = params.getProperty("name");
+					ExecutionBundle bundle = ExecutionBundleFactory.getBundle(namespace);
+					if (bundle!=null) {
+						this.setBundle(bundle);
+						resultMap.put("result", "success");
+					} else {
+						resultMap.put("err", "true");
+						resultMap.put("result", "unknown namespace");
+					}
 				} else if (cmd.equals("reload")) {
 					final Activity currentActivity = activity.get();
 					if (currentActivity instanceof CanvasActivity) {

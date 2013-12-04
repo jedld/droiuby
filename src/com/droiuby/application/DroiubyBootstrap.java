@@ -15,8 +15,12 @@ import com.droiuby.interfaces.DroiubyHelperInterface;
 import dalvik.system.DexClassLoader;
 import android.app.Activity;
 import android.content.Context;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.util.Log;
+import android.view.Window;
 
 class LibraryBootstrapTask extends AsyncTask<Void, Void, ClassLoader> {
 
@@ -30,6 +34,18 @@ class LibraryBootstrapTask extends AsyncTask<Void, Void, ClassLoader> {
 		this.context = context;
 		this.libraries = libraries;
 		this.listener = listener;
+	}
+
+	@Override
+	protected void onPreExecute() {
+		// TODO Auto-generated method stub
+		super.onPreExecute();
+		int default_orientation = context.getResources().getConfiguration().orientation;
+		if (default_orientation == Configuration.ORIENTATION_LANDSCAPE) {
+			context.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+		} else {
+			context.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+		}
 	}
 
 	@Override
@@ -161,12 +177,12 @@ public class DroiubyBootstrap {
 	public static final String JRUBY_DEX_NAME = "large_dex.jar";
 	public static final int BUF_SIZE = 8 * 1024;
 
-	public static void bootstrapEnvironment(Activity context,
+	public static LibraryBootstrapTask bootstrapEnvironment(Activity context,
 			OnEnvironmentReady listener) {
 		String dexnames[] = { JRUBY_DEX_NAME, SECONDARY_DEX_NAME };
 		LibraryBootstrapTask library = new LibraryBootstrapTask(context,
 				dexnames, listener);
-		library.execute();
+		return library;
 	}
 
 	public static File loadSecondaryDex(Context context, String name) {
