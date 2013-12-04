@@ -2,7 +2,9 @@ droiuby = {
 	history : [],
 	pointer : null,
 	passCommand: function(command) {
-		if (command == 'clear!') {
+		var cmd_array = command.split(' ');
+         
+        if (command == 'clear!') {
 			$('#output').empty();
 			$('#command').val('');
 			droiuby.history = [];
@@ -10,7 +12,35 @@ droiuby = {
 		} else if (command=='clear') { 
 			$('#output').empty();
 			$('#command').val('');
-		} else {
+		} else if (cmd_array[0]=='$list') {
+            $.get('/control?cmd=list', function(data) {
+                 var list = data['list'].split(',');
+                 $.each(list, function(index, elem) {
+                 $('#output')
+					.append("<div class='result'>"
+							+ htmlEscape('- '+elem)
+							+ "</div>");
+                 });
+				$('#command').val(''); 
+            });
+        }  else if (cmd_array[0]=='$switch') {
+           $.get('/control?cmd=switch&name='+cmd_array[1], function(data) {
+                 var result = data['result'];
+                 if (data['err']) {
+								$('#output')
+										.append(
+												"<div class='error'>"
+														+ htmlEscape(result)
+														+ "</div>");
+							} else {
+								$('#output')
+										.append(
+												"<div class='result'>switched.</div>");
+							}
+							$('#command')
+									.val('');
+            });
+        }  else {
 			droiuby.history.push(command);
 			if (droiuby.history.length > 10) {
 				droiuby.history.shift();

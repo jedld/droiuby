@@ -50,7 +50,7 @@ class ViewWrapper
   end
   
   def background_color=(value)
-    @view.setBackgroundColor(Java::android.graphics.Color.parseColor(value));
+    @view.setBackgroundColor(parse_color(value));
   end
 
   def gone=(flag)
@@ -183,6 +183,14 @@ class ViewWrapper
   end
 
   protected
+  
+  def parse_color(color_value)
+    if color_value.kind_of? String
+      Java::android.graphics.Color.parseColor(color_value);
+    else
+      color_value 
+    end
+  end
   
   def _extras
     unless native.getTag.nil?
