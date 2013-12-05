@@ -1,7 +1,12 @@
 package com.droiuby.application;
 
 import java.io.Serializable;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashMap;
+
+import android.content.Context;
+import android.content.SharedPreferences;
 
 public class ActiveApp implements Serializable {
 
@@ -12,8 +17,16 @@ public class ActiveApp implements Serializable {
 	
 	private static final long serialVersionUID = 4120098422645102827L;
 	
-	String name, description, baseUrl, mainUrl, framework;
+	String name, description, baseUrl, mainUrl, launchUrl, framework;
 	boolean isFullScreen;
+
+	public String getLaunchUrl() {
+		return launchUrl;
+	}
+
+	public void setLaunchUrl(String launchUrl) {
+		this.launchUrl = launchUrl;
+	}
 
 	public boolean isFullScreen() {
 		return isFullScreen;
@@ -87,5 +100,26 @@ public class ActiveApp implements Serializable {
 		this.framework = framework;
 	}
 	
+	public SharedPreferences getCurrentPreferences(Context c) {
+		try {
+			SharedPreferences prefs = null;
+			if (getBaseUrl().startsWith("asset:")) {
+				String asset_name = "data_" + getBaseUrl();
+				asset_name = asset_name.replace('/', '_').replace('\\', '_');
+				prefs = c.getSharedPreferences(asset_name,
+						Context.MODE_PRIVATE);
+			} else {
+				URL parsedURL = new URL(getBaseUrl());
+				prefs = c.getSharedPreferences(
+						"data_" + parsedURL.getProtocol() + "_"
+								+ parsedURL.getHost(), Context.MODE_PRIVATE);
+			}
+			return prefs;
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
 
 }

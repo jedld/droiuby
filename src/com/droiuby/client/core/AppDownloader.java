@@ -1,24 +1,26 @@
 package com.droiuby.client.core;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.TextView;
 
 import com.droiuby.application.ActiveApp;
+import com.droiuby.application.R;
 import com.droiuby.callbacks.OnAppDownloadComplete;
 import com.droiuby.client.core.utils.ActiveAppDownloader;
 
-public class AppDownloader extends AsyncTask<Void, Void, ActiveApp> {
+public class AppDownloader extends AsyncTask<Void, String, ActiveApp> {
 	String url;
-	Context c;
-	private ProgressDialog progress_dialog;
+	Activity c;
 	Class activityClass;
 	OnAppDownloadComplete onDownloadComplete;
 
-	public AppDownloader(Context c, String url, Class activityClass,
+	public AppDownloader(Activity c, String url, Class activityClass,
 			OnAppDownloadComplete listener) {
 		this.c = c;
 		this.url = url;
@@ -27,22 +29,30 @@ public class AppDownloader extends AsyncTask<Void, Void, ActiveApp> {
 		Log.d(this.getClass().toString(), "app downloader with listener");
 	}
 
-	public AppDownloader(Context c, String url, Class activityClass) {
+	public AppDownloader(Activity c, String url, Class activityClass) {
 		this.c = c;
 		this.url = url;
 		this.activityClass = activityClass;
 	}
 
+	
+	protected void onProgressUpdate(String... values) {
+		// TODO Auto-generated method stub
+		super.onProgressUpdate(values);
+		TextView view = (TextView)c.findViewById(R.id.loadingStatusText);
+		if (view!=null) {
+			view.setText(values[0]);
+		}
+	}
 	@Override
 	protected void onPreExecute() {
 		// TODO Auto-generated method stub
 		super.onPreExecute();
-		progress_dialog = ProgressDialog.show(c, "",
-				"Querying application configuration...", true);
 	}
 
 	@Override
 	protected ActiveApp doInBackground(Void... params) {
+		publishProgress("loading app");
 		try {
 			return ActiveAppDownloader.loadApp(c, url);
 		} catch (Exception e) {
@@ -53,9 +63,6 @@ public class AppDownloader extends AsyncTask<Void, Void, ActiveApp> {
 	@Override
 	protected void onPostExecute(ActiveApp result) {
 		super.onPostExecute(result);
-		if (progress_dialog != null) {
-			progress_dialog.dismiss();
-		}
 		if (this.onDownloadComplete != null) {
 			onDownloadComplete.onDownloadComplete(result);
 		} else {

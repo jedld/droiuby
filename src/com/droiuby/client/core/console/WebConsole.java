@@ -18,6 +18,8 @@ import org.jruby.embed.ScriptingContainer;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.content.res.AssetManager;
 import android.util.Log;
 
@@ -169,9 +171,10 @@ public class WebConsole extends NanoHTTPD {
 								+ "applications" + File.separator
 								+ Utils.md5(name);
 					} else {
-						extraction_target = new File(activity.get().getDir("vendor",
-								Context.MODE_PRIVATE)
-								+ File.separator + "framework").getCanonicalPath();
+						extraction_target = new File(activity.get().getDir(
+								"vendor", Context.MODE_PRIVATE)
+								+ File.separator + "framework")
+								.getCanonicalPath();
 					}
 					Log.d(this.getClass().toString(), "Saving file " + filename
 							+ " to " + extraction_target);
@@ -181,9 +184,23 @@ public class WebConsole extends NanoHTTPD {
 								"removing existing directory.");
 						FileUtils.deleteDirectory(dir);
 					}
+
 					dir.mkdirs();
 					Utils.unpackZip(new FileInputStream(file),
 							extraction_target);
+
+					if (update_framework.equalsIgnoreCase("true")) {
+						ExecutionBundle bundle = getBundle();
+						if (bundle != null) {
+							Log.d(this.getClass().toString(),
+									"reloading framework");
+							ActiveApp app = bundle.getPayload().getActiveApp();
+							bundle.getContainer().runScriptlet(
+									"require '" + app.getFramework() + "/"
+											+ app.getFramework() + "'");
+						}
+					}
+
 					if (launch) {
 						Log.d(this.getClass().toString(),
 								"running application...");
@@ -220,20 +237,76 @@ public class WebConsole extends NanoHTTPD {
 				if (cmd.equals("launch")) {
 					final String url = params.getProperty("url", "");
 					launchAppFromUrl(resultMap, url);
-				} else if (cmd.equals("list")) { 
-					String[] bundles = ExecutionBundleFactory.listActiveBundles();
+				} else if (cmd.equals("list")) {
+					String[] bundles = ExecutionBundleFactory
+							.listActiveBundles();
 					resultMap.put("result", "success");
 					resultMap.put("list", StringUtils.join(bundles, ','));
-				} else if (cmd.equals("switch")) { 
+				} else if (cmd.equals("autostart")) {
+					ExecutionBundle bundle = getBundle();
+
+					String name = params.getProperty("name", null);
+					if (name != null) {
+						bundle = ExecutionBundleFactory.getBundle(name);
+					}
+
+					if (bundle != null) {
+						SharedPreferences prefs = bundle.getCurrentActivity()
+								.getSharedPreferences("bootstrap",
+										Context.MODE_PRIVATE);
+
+						String url = bundle.getPayload().getActiveApp()
+								.getLaunchUrl();
+						prefs.edit().putString("autostart", url).commit();
+						resultMap.put("result", "success");
+						resultMap.put("autostart", url);
+					} else {
+						resultMap.put("err", "true");
+						resultMap.put("result", "no activity attached");
+					}
+				} else if (cmd.equals("clearautostart")) {
+					ExecutionBundle bundle = getBundle();
+					if (bundle != null) {
+						SharedPreferences prefs = bundle.getCurrentActivity()
+								.getSharedPreferences("boostrap",
+										Context.MODE_PRIVATE);
+						prefs.edit().remove("autostart").commit();
+					} else {
+						resultMap.put("err", "true");
+						resultMap.put("result", "no activity attached");
+					}
+				} else if (cmd.equals("switch")) {
 					String namespace = params.getProperty("name");
-					ExecutionBundle bundle = ExecutionBundleFactory.getBundle(namespace);
-					if (bundle!=null) {
+					ExecutionBundle bundle = ExecutionBundleFactory
+							.getBundle(namespace);
+					if (bundle != null) {
 						this.setBundle(bundle);
 						resultMap.put("result", "success");
 					} else {
 						resultMap.put("err", "true");
 						resultMap.put("result", "unknown namespace");
 					}
+				} else if (cmd.equals("proximity")) {
+					String flag = params.getProperty("switch");
+
+					ExecutionBundle bundle = getBundle();
+					if (bundle != null) {
+						SharedPreferences prefs = bundle.getCurrentActivity()
+								.getSharedPreferences("bootstrap",
+										Context.MODE_PRIVATE);
+						if (flag.equals("true")) {
+							prefs.edit().putBoolean("proximity_refresh", true)
+									.commit();
+						} else {
+							prefs.edit().putBoolean("proximity_refresh", false)
+									.commit();
+						}
+						resultMap.put("result", "success");
+					} else {
+						resultMap.put("err", "true");
+						resultMap.put("result", "no app loaded.");
+					}
+
 				} else if (cmd.equals("reload")) {
 					final Activity currentActivity = activity.get();
 					if (currentActivity instanceof CanvasActivity) {

@@ -47,6 +47,8 @@ public interface DroiubyHelperInterface {
 	public void onActivityResult(int requestCode, int resultCode, Intent intent);
 
 	public void start(String url);
+	
+	public void startDefault();
 
 	public void onDownloadComplete(ActiveApp app);
 

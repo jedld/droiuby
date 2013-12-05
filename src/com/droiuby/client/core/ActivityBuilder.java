@@ -459,7 +459,7 @@ public class ActivityBuilder {
 	// downloader.execute();
 	// }
 
-	public static void loadApp(Context c, String applicationUrl) {
+	public static void loadApp(Activity c, String applicationUrl) {
 		AppDownloader downloader = new AppDownloader(c, applicationUrl,
 				CanvasActivity.class);
 		downloader.execute();

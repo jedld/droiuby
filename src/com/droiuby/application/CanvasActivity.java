@@ -4,6 +4,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -27,15 +28,17 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.droiuby.callbacks.OnAppDownloadComplete;
+import com.droiuby.callbacks.OnRefreshRequested;
 import com.droiuby.interfaces.DroiubyHelperInterface;
 
-public class CanvasActivity extends Activity implements OnEnvironmentReady,
+public class CanvasActivity extends Activity implements OnEnvironmentReady, OnRefreshRequested,
 		SensorEventListener {
 
 	RelativeLayout topview;
 	DroiubyHelperInterface droiuby;
 	private SensorManager mSensorManager;
 	private Sensor mSensor;
+	private SharedPreferences prefs;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -48,6 +51,9 @@ public class CanvasActivity extends Activity implements OnEnvironmentReady,
 		mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
 		mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
+		
+		prefs = getSharedPreferences("bootstrap",
+				Context.MODE_PRIVATE);
 	}
 
 	@Override
@@ -60,9 +66,9 @@ public class CanvasActivity extends Activity implements OnEnvironmentReady,
 	}
 
 	public void refreshCurrentApplication() {
-		ViewGroup view = (ViewGroup) findViewById(R.id.mainLayout);
-		view.removeAllViews();
 		if (droiuby != null) {
+			ViewGroup view = (ViewGroup) findViewById(R.id.mainLayout);
+			view.removeAllViews();
 			droiuby.reloadApplication(R.id.mainLayout);
 		}
 	}
@@ -161,7 +167,12 @@ public class CanvasActivity extends Activity implements OnEnvironmentReady,
 		if (params != null) {
 			droiuby.onIntent(params);
 		} else {
-			droiuby.start("asset:launcher/config.droiuby");
+			String autostart = prefs.getString("autostart", null);
+			if (autostart == null) {
+			   droiuby.startDefault();
+			} else {
+			   droiuby.start(autostart);
+			}
 		}
 	}
 
@@ -174,10 +185,6 @@ public class CanvasActivity extends Activity implements OnEnvironmentReady,
 		// TODO Auto-generated method stub
 		if (droiuby != null) {
 			droiuby.onSensorChanged(event);
-		}
-
-		if (event.values[0] == 0) {
-			refreshCurrentApplication();
 		}
 	}
 

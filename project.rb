@@ -14,17 +14,24 @@ class Project < Thor
 
   source_root File.join(File.dirname(__FILE__), 'templates')
 
+  no_commands {
+    def map_device_ip(device_ip)
+      if device_ip.nil?
+        device_ip = '127.0.0.1'
+        begin
+        `adb forward tcp:4000 tcp:4000`
+        rescue Exception=>e
+          puts e.inspect
+        end
+      end
+      device_ip
+    end
+  }
+  
   desc "launch device IP [URL]","Tell droiuby to connect to app hosted at URL"
   def launch(device_ip, url)
     
-    if device_ip.nil?
-      device_ip = '127.0.0.1'
-      begin
-      `adb forward tcp:4000 tcp:4000`
-      rescue Exception=>e
-        puts e.inspect
-      end
-    end
+    device_ip = map_device_ip(device_ip)
     
     url_str = "http://#{device_ip}:4000/control?cmd=launch&url=#{CGI::escape(url)}"
     puts "loading application at url #{url}"
@@ -36,6 +43,50 @@ class Project < Thor
     Net::HTTP.get_print(uri)
   end
 
+  desc "list [DEVICE IP]","List running app instances"
+  def list(device_ip = nil)
+    device_ip = map_device_ip(device_ip)
+        url_str = "http://#{device_ip}:4000/control?cmd=list"
+        puts url_str
+        uri = URI.parse(url_str)
+        # Shortcut
+        response = Net::HTTP.get_response(uri)
+        result = JSON.parse(response.body)
+        result['list'].split(',').each do |item|
+          puts item
+        end
+  end
+  
+  desc "switch [name] [DEVICE IP]","switch to target app instance identified by name"
+  def switch(name, device_ip = nil)
+    device_ip = map_device_ip(device_ip)
+        url_str = "http://#{device_ip}:4000/control?cmd=switch&name=#{CGI::escape(name)}"
+        puts url_str
+        uri = URI.parse(url_str)
+        # Shortcut
+        response = Net::HTTP.get_response(uri)
+        # Will print response.body
+        response = Net::HTTP.get_print(uri)
+  end
+  
+  desc "autostart MODE [NAME] [DEVICE IP]","set current app to load on startup"
+  def autostart(mode = 'on', name = nil, device_ip = nil)
+    device_ip = map_device_ip(device_ip)
+    url_str = if mode == 'on'
+      "http://#{device_ip}:4000/control?cmd=autostart#{!name.nil? ? "&name=#{CGI::escape(name)}" : ''}"
+    else
+      "http://#{device_ip}:4000/control?cmd=clearautostart"
+    end
+        
+    puts url_str
+    uri = URI.parse(url_str)
+    # Shortcut
+    response = Net::HTTP.get_response(uri)
+    # Will print response.body
+    Net::HTTP.get_print(uri)
+    
+  end
+  
   desc "create NAME [WORKSPACE_DIR]","create a new droiuby project with NAME"
 
   def create(name, output_dir = 'projects')
@@ -86,14 +137,7 @@ class Project < Thor
       File.join(source_dir_args, name)
     end
     
-    if device_ip.nil?
-      device_ip = '127.0.0.1'
-      begin
-      `adb forward tcp:4000 tcp:4000`
-      rescue Exception=>e
-        puts e.inspect
-      end
-    end
+    device_ip = map_device_ip(device_ip)
     
     port = 2000
 
@@ -125,14 +169,7 @@ class Project < Thor
       File.join(source_dir, name)
     end
 
-    if device_ip.nil?
-      device_ip = '127.0.0.1'
-      begin
-      `adb forward tcp:4000 tcp:4000`
-      rescue Exception=>e
-        puts e.inspect
-      end
-    end
+    device_ip = map_device_ip(device_ip)
     
     src_package = if framework
       File.join(source_dir,'framework_src','build',"#{name}.zip") 

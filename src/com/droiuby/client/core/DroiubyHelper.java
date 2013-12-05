@@ -26,6 +26,7 @@ import android.view.ViewGroup;
 import com.droiuby.application.ActiveApp;
 import com.droiuby.callbacks.DocumentReadyListener;
 import com.droiuby.callbacks.OnAppDownloadComplete;
+import com.droiuby.callbacks.OnRefreshRequested;
 import com.droiuby.client.core.console.WebConsole;
 import com.droiuby.client.core.utils.ActiveAppDownloader;
 import com.droiuby.client.core.utils.Utils;
@@ -134,40 +135,13 @@ public class DroiubyHelper implements OnAppDownloadComplete,
 		ScriptingContainer container = executionBundle.getContainer();
 		ViewGroup target = (ViewGroup) activity.findViewById(mainlayout);
 		if (executionBundle.getCurrentController() != null) {
-			container.put("_controller", executionBundle.getCurrentController());
-			
+			container
+					.put("_controller", executionBundle.getCurrentController());
+
 			executionBundle.getContainer().runScriptlet(
 					"_controller.on_activity_reload");
 		}
 		this.setupApplication(application, target, mainlayout);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.droiuby.client.core.DroiubyHelperInterface#getCurrentPreferences()
-	 */
-	public SharedPreferences getCurrentPreferences() {
-		try {
-			SharedPreferences prefs = null;
-			if (application.getBaseUrl().startsWith("asset:")) {
-				String asset_name = "data_" + application.getBaseUrl();
-				asset_name = asset_name.replace('/', '_').replace('\\', '_');
-				prefs = activity.getSharedPreferences(asset_name,
-						Context.MODE_PRIVATE);
-			} else {
-				URL parsedURL = new URL(application.getBaseUrl());
-				prefs = activity.getSharedPreferences(
-						"data_" + parsedURL.getProtocol() + "_"
-								+ parsedURL.getHost(), Context.MODE_PRIVATE);
-			}
-			return prefs;
-		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
 	}
 
 	/*
@@ -311,7 +285,7 @@ public class DroiubyHelper implements OnAppDownloadComplete,
 
 	private void setupConsole() {
 		String web_public_loc;
-		Log.d(this.getClass().toString(),"Loading WebConsole...");
+		Log.d(this.getClass().toString(), "Loading WebConsole...");
 		try {
 			web_public_loc = activity.getCacheDir().getCanonicalPath() + "/www";
 			File webroot = new File(web_public_loc);
@@ -378,7 +352,7 @@ public class DroiubyHelper implements OnAppDownloadComplete,
 	 * .droiuby.application.ActiveApp)
 	 */
 	public void onDownloadComplete(ActiveApp app) {
-		Log.d(this.getClass().toString(),"onDownloadComplete()");
+		Log.d(this.getClass().toString(), "onDownloadComplete()");
 		setupApplication(app,
 				(ViewGroup) activity.findViewById(getMainLayoutId()),
 				getMainLayoutId());
@@ -417,7 +391,7 @@ public class DroiubyHelper implements OnAppDownloadComplete,
 	public void reloadApplication(int mainlayout) {
 		reloadApplication(application, mainlayout);
 	}
-	
+
 	public void clearCache() {
 		SharedPreferences prefs = activity.getSharedPreferences("cookies",
 				Context.MODE_PRIVATE);
@@ -436,8 +410,29 @@ public class DroiubyHelper implements OnAppDownloadComplete,
 		}
 	}
 
-	public void onSensorChanged(SensorEvent arg0) {
-		// TODO Auto-generated method stub
-		
+	public void onSensorChanged(SensorEvent event) {
+
+		SharedPreferences prefs = activity
+				.getSharedPreferences("bootstrap",
+						Context.MODE_PRIVATE);
+		if (prefs!=null && prefs.getBoolean("proximity_refresh", false)) {
+			if (event.values[0] == 0) {
+				if (activity instanceof OnRefreshRequested) {
+					((OnRefreshRequested) activity).refreshCurrentApplication();
+				}
+			}
+		}
+
+	}
+
+	public SharedPreferences getCurrentPreferences() {
+		if (application != null) {
+			return application.getCurrentPreferences(activity);
+		}
+		return null;
+	}
+
+	public void startDefault() {
+		start("asset:launcher/config.droiuby");
 	}
 }

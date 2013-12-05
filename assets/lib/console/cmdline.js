@@ -12,6 +12,25 @@ droiuby = {
 		} else if (command=='clear') { 
 			$('#output').empty();
 			$('#command').val('');
+        } else if (cmd_array[0]=='$proximity') {
+            var option = cmd_array[1];
+            $.get('/control?cmd=proximity&switch='+cmd_array[1], function(data) {
+                 var result = data['result'];
+                 if (data['err']) {
+				    		$('#output')
+										.append(
+												"<div class='error'>"
+														+ htmlEscape(result)
+														+ "</div>");
+							} else {
+								$('#output')
+										.append(
+												"<div class='result'>done.</div>");
+							}
+							$('#command')
+									.val('');            
+            });
+
 		} else if (cmd_array[0]=='$list') {
             $.get('/control?cmd=list', function(data) {
                  var list = data['list'].split(',');

@@ -212,6 +212,7 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 				app.setBaseUrl(baseUrl);
 				app.setMainUrl(mainActivity);
 				app.setFramework(framework);
+				app.setLaunchUrl(url);
 				app.setInitiallOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
 
 				String orientation = rootElem.getChildText("orientation");

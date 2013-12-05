@@ -21,8 +21,9 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Window;
+import android.widget.TextView;
 
-class LibraryBootstrapTask extends AsyncTask<Void, Void, ClassLoader> {
+class LibraryBootstrapTask extends AsyncTask<Void, String, ClassLoader> {
 
 	Activity context;
 	String libraries[];
@@ -49,8 +50,19 @@ class LibraryBootstrapTask extends AsyncTask<Void, Void, ClassLoader> {
 	}
 
 	@Override
+	protected void onProgressUpdate(String... values) {
+		// TODO Auto-generated method stub
+		super.onProgressUpdate(values);
+		TextView view = (TextView)context.findViewById(R.id.loadingStatusText);
+		if (view!=null) {
+			view.setText(values[0]);
+		}
+	}
+
+	@Override
 	protected ClassLoader doInBackground(Void... arg0) {
 		try {
+			publishProgress("unpacking vendor libraries");
 			Log.d(this.getClass().toString(), "unpacking vendor libraries");
 
 			File stdlib = new File(context.getDir("vendor",
@@ -61,7 +73,7 @@ class LibraryBootstrapTask extends AsyncTask<Void, Void, ClassLoader> {
 						.getAssets().open("ruby_stdlib.jar"));
 				unpackZip(bis, stdlib.getCanonicalPath());
 			}
-			
+			publishProgress("unpacking framework");
 			File frameworkDir = new File(context.getDir("vendor",
 					Context.MODE_PRIVATE), "framework");
 			if (!frameworkDir.exists()) {
@@ -78,10 +90,12 @@ class LibraryBootstrapTask extends AsyncTask<Void, Void, ClassLoader> {
 		// file to
 		final File optimizedDexOutputPath = context.getDir("outdex",
 				Context.MODE_PRIVATE);
+		
 		if (envelopedLoader == null) {
 			envelopedLoader = context.getClassLoader();
 			for (String name : libraries) {
 				Log.d(this.getClass().toString(), "loading = " + name);
+				publishProgress("loading " + name);
 				File storagePath = DroiubyBootstrap.loadSecondaryDex(context,
 						name);
 				envelopedLoader = new DexClassLoader(
