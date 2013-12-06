@@ -57,16 +57,26 @@ class Project < Thor
         end
   end
   
+  desc "cmd [command] [DEVICE_IP]", "Send command to a Droiuby instance"
+  def command(command_line, device_ip=nil)
+    device_ip = map_device_ip(device_ip)
+    url_str = "http://#{device_ip}:4000/console?cmd=#{CGI::escape(command_line)}"
+    uri = URI.parse(url_str)
+    # Shortcut
+    response = Net::HTTP.get_response(uri)
+    response.body
+  end  
+  
   desc "switch [name] [DEVICE IP]","switch to target app instance identified by name"
   def switch(name, device_ip = nil)
     device_ip = map_device_ip(device_ip)
-        url_str = "http://#{device_ip}:4000/control?cmd=switch&name=#{CGI::escape(name)}"
-        puts url_str
-        uri = URI.parse(url_str)
-        # Shortcut
-        response = Net::HTTP.get_response(uri)
-        # Will print response.body
-        response = Net::HTTP.get_print(uri)
+    url_str = "http://#{device_ip}:4000/control?cmd=switch&name=#{CGI::escape(name)}"
+    puts url_str
+    uri = URI.parse(url_str)
+    # Shortcut
+    response = Net::HTTP.get_response(uri)
+    # Will print response.body
+    response = Net::HTTP.get_print(uri)
   end
   
   desc "autostart MODE [NAME] [DEVICE IP]","set current app to load on startup"
