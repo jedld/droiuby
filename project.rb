@@ -65,6 +65,16 @@ class Project < Thor
     # Shortcut
     response = Net::HTTP.get_response(uri)
     response.body
+  end
+  
+  desc "reload [DEVICE_IP]", "Reload app at specified device"
+  def reload(device_ip = nil)
+    device_ip = map_device_ip(device_ip)
+    url_str = "http://#{device_ip}:4000/control?cmd=reload"
+    uri = URI.parse(url_str)
+    # Shortcut
+    response = Net::HTTP.get_response(uri)
+    response.body
   end  
   
   desc "switch [name] [DEVICE IP]","switch to target app instance identified by name"
