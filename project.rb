@@ -28,7 +28,9 @@ class Project < Thor
     end
   }
   
-  def options(device_ip, proximity = 'false')
+  
+  desc "proximity [device_ip] [true|false]", "enable/disable proximity refresh" 
+  def proximity(device_ip, proximity = 'false')
     device_ip = map_device_ip(device_ip)
     url_str = "http://#{device_ip}:4000/control?cmd=proximity&switch=#{proximity}"
     uri = URI.parse(url_str)
@@ -267,6 +269,29 @@ class Project < Thor
     `adb shell am start -W -S --activity-clear-top --activity-brought-to-front -n com.droiuby.application/.CanvasActivity`
     package name, source_dir, "true"
     upload name, device_ip, source_dir
+  end
+
+  desc "vendor", "unpack all cached gems"
+  
+  def vendor
+    cache_dir = File.join('vendor','cache')
+    
+    unless Dir.exists?(cache_dir)
+      puts `bundle package --all`
+    end
+    
+    if Dir.exists?(cache_dir)
+      path = cache_dir
+      puts 'watch out for exploding gems'
+      Dir["#{path}/*.gem"].each do |file|
+        say_status 'unpack', file
+        `gem unpack #{file} --target ./vendor`
+      end
+    else
+      say_status 'error', "can't find cache directory /vendor/cache"
+    end
+
+      
   end
 
   private
