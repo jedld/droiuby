@@ -310,7 +310,7 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 		if (onReadyListener != null) {
 			onReadyListener.onDocumentReady(mainActivityDocument);
 		}
-		//apply CSS
+		// apply CSS
 		result.applyStyle(view, resultBundle);
 
 		long elapsed = System.currentTimeMillis() - start;
@@ -362,7 +362,7 @@ public class ActivityBuilder {
 		viewErrors.add(error_msg);
 		Log.e(this.getClass().toString(), error_msg);
 	}
-	
+
 	public HashMap<String, ArrayList<Integer>> getClassViewDictionary() {
 		return classViewDictionary;
 	}
@@ -516,6 +516,45 @@ public class ActivityBuilder {
 			url = base_url + url;
 		}
 		return url;
+	}
+
+	public boolean checkParent(View view, View parent) {
+		do {
+			view = (View) view.getParent();
+
+			if (parent.equals(view)) {
+				return true;
+			}
+		} while (view != null);
+		return false;
+	}
+
+	public Object findViewByName(String selector, View parentView,
+			boolean inclusive) {
+		Object result = (Object) findViewByName(selector);
+
+		if (parentView == null) return result;
+		
+		if (result instanceof List) {
+			ArrayList<View> object_list = (ArrayList<View>)result;
+			ArrayList<View> result_list = new ArrayList<View>();
+			for(View v : object_list) {
+				if (checkParent(v, parentView)) {
+					result_list.add(v);
+				}
+			}
+			return result_list;
+		} else if (result instanceof View) {
+			
+			View view = (View)result;
+			
+			if (checkParent(view, parentView)) {
+				return result;
+			}
+			return null;
+		}
+		
+		return null;
 	}
 
 	public Object findViewByName(String selector) {

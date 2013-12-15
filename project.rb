@@ -28,6 +28,15 @@ class Project < Thor
     end
   }
   
+  def options(device_ip, proximity = 'false')
+    device_ip = map_device_ip(device_ip)
+    url_str = "http://#{device_ip}:4000/control?cmd=proximity&switch=#{proximity}"
+    uri = URI.parse(url_str)
+    # Shortcut
+    response = Net::HTTP.get_response(uri)
+    response.body
+  end
+  
   desc "launch device IP [URL]","Tell droiuby to connect to app hosted at URL"
   def launch(device_ip, url)
     
