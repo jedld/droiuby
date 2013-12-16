@@ -314,10 +314,13 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 									try {
 										vendorPath = file.getCanonicalPath()
 												+ File.separator + "lib";
-										Log.d(this.getClass().toString(),
-												"Adding vendor path "
-														+ vendorPath);
-										loadPaths.add(vendorPath);
+										File libDir = new File(vendorPath);
+										if (libDir.exists()) {
+											Log.d(this.getClass().toString(),
+													"Adding vendor path "
+															+ vendorPath);
+											loadPaths.add(vendorPath);
+										}
 									} catch (IOException e) {
 										// TODO Auto-generated catch block
 										e.printStackTrace();
@@ -325,6 +328,9 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 								}
 							}
 						}
+						
+						scriptingContainer.getProvider().getRuntime()
+						.getLoadService().addPaths(loadPaths);
 					} else if (asset_type == ActiveApp.ASSET_TYPE_LIB) {
 						List<String> loadPaths = new ArrayList<String>();
 						String path = Utils.stripProtocol(app.getBaseUrl())
