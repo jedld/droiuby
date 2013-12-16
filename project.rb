@@ -271,9 +271,9 @@ class Project < Thor
     upload name, device_ip, source_dir
   end
 
-  desc "vendor", "unpack all cached gems"
+  desc "bundle", "unpack all cached gems"
   
-  def vendor
+  def bundle
     cache_dir = File.join('vendor','cache')
     
     unless Dir.exists?(cache_dir)
