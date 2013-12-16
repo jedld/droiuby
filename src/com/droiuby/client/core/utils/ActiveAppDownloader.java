@@ -313,7 +313,7 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 									String vendorPath;
 									try {
 										vendorPath = file.getCanonicalPath()
-												+ File.pathSeparator + "lib";
+												+ File.separator + "lib";
 										Log.d(this.getClass().toString(),
 												"Adding vendor path "
 														+ vendorPath);

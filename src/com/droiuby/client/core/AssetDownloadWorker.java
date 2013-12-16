@@ -15,17 +15,19 @@ import com.droiuby.application.ActiveApp;
 import com.droiuby.client.core.utils.Utils;
 
 public class AssetDownloadWorker implements Runnable {
-	
+
 	Context context;
 	ActiveApp activeApp;
 	ExecutionBundle bundle;
 	String assetName;
 	int method, assetType;
-	ArrayList <Object>resultBundle;
+	ArrayList<Object> resultBundle;
 	AssetDownloadCompleteListener onCompleteListener;
-	
-	public AssetDownloadWorker(Context context, ActiveApp activeApp, ExecutionBundle bundle, 
-			String assetName, int assetType, ArrayList <Object>resultBundle, AssetDownloadCompleteListener onCompleteListener, int method) {
+
+	public AssetDownloadWorker(Context context, ActiveApp activeApp,
+			ExecutionBundle bundle, String assetName, int assetType,
+			ArrayList<Object> resultBundle,
+			AssetDownloadCompleteListener onCompleteListener, int method) {
 		this.context = context;
 		this.activeApp = activeApp;
 		this.bundle = bundle;
@@ -35,15 +37,15 @@ public class AssetDownloadWorker implements Runnable {
 		this.onCompleteListener = onCompleteListener;
 		this.assetType = assetType;
 	}
-	
+
 	public String loadAsset() {
 		if (assetName != null) {
 			if (assetName.startsWith("asset:")) {
 				return Utils.loadAsset(context, assetName);
 			} else {
 				if (activeApp.getBaseUrl().indexOf("asset:") != -1) {
-					return Utils
-							.loadAsset(context, activeApp.getBaseUrl() + assetName);
+					return Utils.loadAsset(context, activeApp.getBaseUrl()
+							+ assetName);
 				} else if (activeApp.getBaseUrl().indexOf("file:") != -1) {
 					return Utils.loadFile(assetName);
 				} else if (activeApp.getBaseUrl().indexOf("sdcard:") != -1) {
@@ -59,29 +61,33 @@ public class AssetDownloadWorker implements Runnable {
 					return null;
 				} else {
 					String baseUrl = activeApp.getBaseUrl();
-					
+
 					if (assetName.startsWith("/")) {
 						assetName = assetName.substring(1);
 					}
 
 					if (activeApp.getBaseUrl().endsWith("/")) {
-						baseUrl = activeApp.getBaseUrl().substring(0, activeApp.getBaseUrl().length() - 1);
+						baseUrl = activeApp.getBaseUrl().substring(0,
+								activeApp.getBaseUrl().length() - 1);
 					}
 
-					return Utils.query(baseUrl + "/" + assetName,
-							context, activeApp.getName(), method);
+					return Utils.query(baseUrl + "/" + assetName, context,
+							activeApp.getName(), method);
 				}
 			}
 		} else {
 			return null;
 		}
 	}
-	
 
 	public void run() {
-		Object result = onCompleteListener.onComplete(bundle, assetName, Utils.loadAppAsset(activeApp, context, assetName, assetType, method));
-		if (result!=null) {
-			resultBundle.add(result);
+		if (onCompleteListener != null) {
+			Object result = onCompleteListener.onComplete(bundle, assetName,
+					Utils.loadAppAsset(activeApp, context, assetName,
+							assetType, method));
+			if (result != null) {
+				resultBundle.add(result);
+			}
 		}
 	}
 
