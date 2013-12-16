@@ -219,7 +219,8 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 				if (orientation != null) {
 					if (orientation.equals("landscape")) {
 						app.setInitiallOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-					} else if (orientation.equals("portrait") || orientation.equals("vertical")) {
+					} else if (orientation.equals("portrait")
+							|| orientation.equals("vertical")) {
 						app.setInitiallOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 					} else if (orientation.equals("sensor_landscape")) {
 						app.setInitiallOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
@@ -246,8 +247,11 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 							type_int = ActiveApp.ASSET_TYPE_CSS;
 						} else if (asset_type.equals("lib")) {
 							type_int = ActiveApp.ASSET_TYPE_LIB;
-						} else if (asset_type.equals("binary") || asset_type.equals("file")) {
+						} else if (asset_type.equals("binary")
+								|| asset_type.equals("file")) {
 							type_int = ActiveApp.ASSET_TYPE_BINARY;
+						} else if (asset_type.equals("vendor")) {
+							type_int = ActiveApp.ASSET_TYPE_VENDOR;
 						}
 
 						app.addAsset(asset_name, type_int);
@@ -279,7 +283,8 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 	public Boolean downloadAssets() {
 		if (!executionBundle.isLibraryInitialized()) {
 			Log.d(this.getClass().toString(), "initializing framework");
-			scriptingContainer.runScriptlet("require '"  + app.getFramework() + "/" + app.getFramework() + "'");
+			scriptingContainer.runScriptlet("require '" + app.getFramework()
+					+ "/" + app.getFramework() + "'");
 			executionBundle.setLibraryInitialized(true);
 
 			ArrayList<Object> resultBundle = new ArrayList<Object>();
@@ -291,29 +296,54 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 				for (String asset_name : app.getAssets().keySet()) {
 					int asset_type = asset_map.get(asset_name);
 					int download_type = Utils.ASSET_TYPE_TEXT;
-					
+
 					AssetDownloadCompleteListener listener = null;
 					if (asset_type == ActiveApp.ASSET_TYPE_SCRIPT) {
 						listener = new ScriptPreparser();
 					} else if (asset_type == ActiveApp.ASSET_TYPE_CSS) {
 						listener = new CssPreloadParser();
+					} else if (asset_type == ActiveApp.ASSET_TYPE_VENDOR) {
+						List<String> loadPaths = new ArrayList<String>();
+						String path = Utils.stripProtocol(app.getBaseUrl())
+								+ asset_name;
+						File fpath = new File(path);
+						if (fpath.exists() && fpath.isDirectory()) {
+							for (File file : fpath.listFiles()) {
+								if (file.isDirectory()) {
+									String vendorPath;
+									try {
+										vendorPath = file.getCanonicalPath()
+												+ File.pathSeparator + "lib";
+										Log.d(this.getClass().toString(),
+												"Adding vendor path "
+														+ vendorPath);
+										loadPaths.add(vendorPath);
+									} catch (IOException e) {
+										// TODO Auto-generated catch block
+										e.printStackTrace();
+									}
+								}
+							}
+						}
 					} else if (asset_type == ActiveApp.ASSET_TYPE_LIB) {
 						List<String> loadPaths = new ArrayList<String>();
 						String path = Utils.stripProtocol(app.getBaseUrl())
 								+ asset_name;
-						Log.d(this.getClass().toString(), "examine lib at " + path);
+						Log.d(this.getClass().toString(), "examine lib at "
+								+ path);
 						File fpath = new File(path);
 						if (fpath.isDirectory()) {
 							Log.d(this.getClass().toString(), "Adding " + path
 									+ " to load paths.");
 							loadPaths.add(path);
-							scriptingContainer.getProvider().getRuntime().getLoadService().addPaths(loadPaths);
+							scriptingContainer.getProvider().getRuntime()
+									.getLoadService().addPaths(loadPaths);
 						}
 						continue;
 					} else if (asset_type == ActiveApp.ASSET_TYPE_BINARY) {
 						download_type = Utils.ASSET_TYPE_BINARY;
 					}
-					
+
 					Log.d(this.getClass().toString(), "downloading "
 							+ asset_name + " ...");
 					AssetDownloadWorker worker = new AssetDownloadWorker(

@@ -13,7 +13,8 @@ public class ActiveApp implements Serializable {
 	public static final int ASSET_TYPE_SCRIPT = 0;
 	public static final int ASSET_TYPE_LIB = 4;
 	public static final int ASSET_TYPE_CSS = 3;
-	public static final int ASSET_TYPE_BINARY = 4;
+	public static final int ASSET_TYPE_BINARY = 5;
+	public static final int ASSET_TYPE_VENDOR = 6;
 	
 	private static final long serialVersionUID = 4120098422645102827L;
 	
