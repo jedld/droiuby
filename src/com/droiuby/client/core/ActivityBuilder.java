@@ -35,8 +35,10 @@ import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout.LayoutParams;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -140,6 +142,7 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 	String controller_attribute;
 	String pageUrl;
 	String errorMsg;
+	View preparedViews;
 	int resId;
 
 	ExecutionBundle executionBundle;
@@ -262,7 +265,14 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 		scriptingContainer.runScriptlet("$framework.before_activity_setup");
 
 		resultBundle = builder.preload(executionBundle);
-		System.gc();
+
+		Log.d(this.getClass().toString(), "parsing and preparing views....");
+		long start = System.currentTimeMillis();
+		preparedViews = builder.prepare();
+		
+		long elapsed = System.currentTimeMillis() - start;
+		Log.d(this.getClass().toString(), "prepare activity: elapsed time = "
+				+ elapsed + "ms");
 		return builder;
 	}
 
@@ -305,13 +315,12 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 
 	private long buildView(ActivityBuilder result) {
 		long start = System.currentTimeMillis();
-		View view = result.build();
-
+		View view = result.setPreparedView(preparedViews);
+		// apply CSS
+		result.applyStyle(view, resultBundle);
 		if (onReadyListener != null) {
 			onReadyListener.onDocumentReady(mainActivityDocument);
 		}
-		// apply CSS
-		result.applyStyle(view, resultBundle);
 
 		long elapsed = System.currentTimeMillis() - start;
 		Log.d(this.getClass().toString(), "build activity: elapsed time = "
@@ -486,16 +495,26 @@ public class ActivityBuilder {
 		}
 	}
 
-	public View build() {
-		target.removeAllViews();
+	public View prepare() {
+		FrameLayout framelayout = new FrameLayout(context);
+		framelayout.setLayoutParams(new LinearLayout.LayoutParams(
+				android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+				android.view.ViewGroup.LayoutParams.MATCH_PARENT, 0));
 		try {
-			parse(rootElement, target);
+		parse(rootElement, framelayout);
 		} catch (Exception e) {
+			e.printStackTrace();
 			TextView view = new TextView(context);
 			view.setText(e.getMessage());
 			view.setTextColor(Color.RED);
-			target.addView(view);
+			framelayout.addView(view);
 		}
+		return framelayout;
+	}
+
+	public View setPreparedView(View view) {
+		target.removeAllViews();
+		target.addView(view);
 		return target;
 	}
 
@@ -533,27 +552,28 @@ public class ActivityBuilder {
 			boolean inclusive) {
 		Object result = (Object) findViewByName(selector);
 
-		if (parentView == null) return result;
-		
+		if (parentView == null)
+			return result;
+
 		if (result instanceof List) {
-			ArrayList<View> object_list = (ArrayList<View>)result;
+			ArrayList<View> object_list = (ArrayList<View>) result;
 			ArrayList<View> result_list = new ArrayList<View>();
-			for(View v : object_list) {
+			for (View v : object_list) {
 				if (checkParent(v, parentView)) {
 					result_list.add(v);
 				}
 			}
 			return result_list;
 		} else if (result instanceof View) {
-			
-			View view = (View)result;
-			
+
+			View view = (View) result;
+
 			if (checkParent(view, parentView)) {
 				return result;
 			}
 			return null;
 		}
-		
+
 		return null;
 	}
 
@@ -1150,9 +1170,10 @@ public class ActivityBuilder {
 				builder = new ImageButtonBuilder();
 			} else if (node_name.equals("checkbox")) {
 				builder = new CheckBoxBuilder();
-			} else if (node_name.equals("input")) {
+			} else if (node_name.equals("input")
+					|| node_name.equals("edit_text")) {
 				builder = new EditTextBuilder();
-			} else if (node_name.equals("img")) {
+			} else if (node_name.equals("img") || node_name.equals("image")) {
 				builder = new ImageViewBuilder();
 			}
 

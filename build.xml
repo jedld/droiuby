@@ -221,9 +221,13 @@
         <pathelement location="libs_large" />
     </path>
 	
-	<target name="-package-framework">
+	<target name="package-framework">
 	    <jar destfile="${asset.absolute.dir}/framework.jar">
-	        <fileset dir="framework_src" />
+	        <fileset dir="framework_src">
+	            <exclude name=".git/**" />
+	            <exclude name=".gitignore" />
+	            <exclude name="build/**" />
+	        </fileset>
         </jar>
 	    <jar destfile="${asset.absolute.dir}/ruby_stdlib.jar">
 	        <fileset dir="src_ruby" />
@@ -231,7 +235,7 @@
 	</target>
 	
 	   <!-- Compiles this project's .java files into .class files. -->
-    <target name="-compile" depends="-pre-build, -build-setup, -code-gen, -pre-compile, -package-framework">
+    <target name="-compile" depends="-pre-build, -build-setup, -code-gen, -pre-compile, package-framework">
         <do-only-if-manifest-hasCode elseText="hasCode = false. Skipping...">
             <!-- merge the project's own classpath and the tested project's classpath -->
             <path id="project.javac.classpath">

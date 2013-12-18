@@ -119,7 +119,8 @@ public class ViewBuilder {
 		for (String key : propertyMap.keySet()) {
 			String attribute_name = key;
 			String attribute_value = propertyMap.get(key);
-
+			
+			Log.v(this.getClass().toString(), "setting layout " + attribute_name + " = " + attribute_value);
 			if (attribute_name.equals("height")) {
 				if (attribute_value.equalsIgnoreCase("match")) {
 					height = android.view.ViewGroup.LayoutParams.MATCH_PARENT;
@@ -174,7 +175,6 @@ public class ViewBuilder {
 		if (parent_bottom != null) {
 			params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, -1);
 		}
-
 		params.leftMargin = leftMargin;
 		params.topMargin = topMargin;
 		params.bottomMargin = bottomMargin;

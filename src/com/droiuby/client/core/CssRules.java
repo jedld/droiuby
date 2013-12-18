@@ -122,13 +122,17 @@ public class CssRules {
 
 	public void apply(ActivityBuilder activityBuilder, Context context) {
 		for (CssRule rule : rules) {
+			
+			Log.v(this.getClass().toString(), "apply " + rule.selector);
 			Object result = activityBuilder.findViewByName(rule.getSelector());
 			if (result instanceof View) {
+				Log.v(this.getClass().toString(), "applying to view");
 				setRuleToView(activityBuilder, context, rule, result);
 				//apply element properties
 				activityBuilder.applyProperties((View)result);
 			} else if (result instanceof ArrayList) {
 				for (View view : (ArrayList<View>) result) {
+					Log.v(this.getClass().toString(), "applying to view " + view.getId());
 					setRuleToView(activityBuilder, context, rule, (View)view);
 					activityBuilder.applyProperties((View)view);
 				}
@@ -142,11 +146,13 @@ public class CssRules {
 				context, activityBuilder);
 		HashMap<String, String> propertyMap = new HashMap<String, String>();
 		for (PropertyValue property : rule.getProperties()) {
+			Log.v(this.getClass().toString(), "set " + property.getProperty() + " = " + property.getValue());
 			propertyMap.put(property.getProperty(), property.getValue());
 		}
 		try {
 			viewBuilder.setParamsFromProperty((View) result, propertyMap);
 		} catch (Exception e) {
+			Log.e(this.getClass().toString(), e.getMessage());
 			String message =  e.getClass().toString() + " " + e.getMessage();
 			activityBuilder.addViewError(message);
 		}

@@ -50,6 +50,8 @@ public class TextViewBuilder extends ViewBuilder {
 			Log.d(this.getClass().toString(),"font name = " + font_name);
 			Typeface myTypeface = Typeface.createFromFile(font_name);
 		    textView.setTypeface(myTypeface);
+		} else if (attribute_name.equals("text")) { 
+		    textView.setText(attribute_value);
 		} else if (attribute_name.equals("color")) {
 			textView.setTextColor(Color.parseColor(attribute_value));
 		} else if (attribute_name.equals("style")
