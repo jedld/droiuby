@@ -28,6 +28,9 @@ public class LinearLayoutBuilder extends ViewGroupBuilder {
 			if (attribute_value.equals("horizontal")) {
 				layout.setOrientation(LinearLayout.HORIZONTAL);
 			}
+			
+		} else if (attribute_name.equals("gravity")) {
+			layout.setGravity(parseGravity(attribute_value));
 		}
 	}
 	

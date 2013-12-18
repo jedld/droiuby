@@ -31,6 +31,7 @@ public class ViewBuilder {
 
 	Context context;
 	ActivityBuilder builder;
+	int paddingTop = 0, paddingBottom = 0, paddingLeft = 0, paddingRight = 0;
 
 	public ViewBuilder() {
 
@@ -244,7 +245,7 @@ public class ViewBuilder {
 			} else if (attribute_name.equals("bottom_margin")
 					|| attribute_name.equals("margin-bottom")) {
 				bottomMargin = toPixels(attribute_value);
-			} else if (attribute_name.equals("g")
+			} else if (attribute_name.equals("g") || attribute_name.equals("layout_gravity")
 					|| attribute_name.equals("float")) {
 				gravity = parseGravity(attribute_value);
 			}
@@ -322,7 +323,26 @@ public class ViewBuilder {
 		if (attribute_name.equals("alpha") || attribute_name.equals("opacity")) {
 			float alpha = Float.parseFloat(attribute_value);
 			child.setAlpha(alpha);
-		} else if (attribute_name.equals("camera_distance")) {
+		} else if (attribute_name.equals("padding_top")) {
+			paddingTop = toPixels(attribute_value);
+			child.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
+		} else if (attribute_name.equals("padding_bottom")) {
+			paddingBottom = toPixels(attribute_value);
+			child.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
+		} else if (attribute_name.equals("padding_left")) {
+			paddingLeft = toPixels(attribute_value);
+			child.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
+		} else if (attribute_name.equals("padding_right")) { 
+			paddingRight = toPixels(attribute_value);
+			child.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
+	    } else if (attribute_name.equals("padding")) { 
+	    	int pixels  = toPixels(attribute_value);
+	    	paddingTop = pixels;
+	    	paddingBottom  = pixels;
+	    	paddingLeft = pixels;
+	    	paddingRight = pixels;
+	    	child.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
+	    } else if (attribute_name.equals("camera_distance")) {
 			float camera_distance = Float.parseFloat(attribute_value);
 			child.setCameraDistance(camera_distance);
 		} else if (attribute_name.equals("pivot_y")) {
