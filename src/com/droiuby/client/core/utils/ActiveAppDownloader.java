@@ -347,7 +347,7 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 						}
 						continue;
 					} else if (asset_type == ActiveApp.ASSET_TYPE_BINARY) {
-						download_type = Utils.ASSET_TYPE_BINARY;
+						download_type = Utils.ASSET_TYPE_TYPEFACE;
 					}
 
 					Log.d(this.getClass().toString(), "downloading "

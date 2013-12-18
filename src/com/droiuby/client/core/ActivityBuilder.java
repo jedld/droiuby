@@ -431,8 +431,8 @@ public class ActivityBuilder {
 				asset_type = Utils.ASSET_TYPE_CSS;
 				parser = new CssPreloadParser();
 			} else {
-				asset_type = Utils.ASSET_TYPE_BINARY;
-				parser = new GenericPostProcessor(name, type, this);
+				asset_type = Utils.ASSET_TYPE_TYPEFACE;
+				parser = new AssetPreloadParser(name, type, this);
 			}
 
 			AssetDownloadWorker worker = new AssetDownloadWorker(context,

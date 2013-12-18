@@ -1,5 +1,6 @@
 package com.droiuby.client.core.postprocessor;
 
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 
@@ -13,17 +14,20 @@ public class AssetPreloadParser implements AssetDownloadCompleteListener {
 	String id;
 	String type;
 	ActivityBuilder builder;
-	
+
 	public AssetPreloadParser(String id, String type, ActivityBuilder builder) {
 		this.id = id;
 		this.type = type;
 		this.builder = builder;
 	}
-	
+
 	public Object onComplete(ExecutionBundle bundle, String name, Object result) {
 		if (type.equals("image")) {
-			this.builder.getPreloadedResource().put(id, (Drawable)result);
-		} 
+			this.builder.getPreloadedResource().put(id, (Drawable) result);
+		} else if (type.equals("font") || type.equals("typeface")) {
+			Typeface myTypeface = Typeface.createFromFile(name);
+			this.builder.getPreloadedResource().put(id, myTypeface);
+		}
 		return null;
 	}
 
