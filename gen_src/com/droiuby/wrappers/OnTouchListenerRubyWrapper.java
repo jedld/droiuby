@@ -19,16 +19,18 @@ public class OnTouchListenerRubyWrapper
     protected RubyObject backingObject;
     protected ExecutionBundle executionBundle;
     protected ScriptingContainer container;
+    protected Ruby runtime;
 
     public OnTouchListenerRubyWrapper(ExecutionBundle bundle, RubyObject rubyObject) {
         backingObject = rubyObject;
         executionBundle = bundle;
         container = bundle.getContainer();
+        runtime = container.getProvider().getRuntime();
     }
 
+    @Override
     public boolean onTouch(View param1, MotionEvent param2) {
         try {
-            Ruby runtime = container.getProvider().getRuntime();
             IRubyObject wrapped_param1 = JavaUtil.convertJavaToRuby(runtime, param1);
             IRubyObject wrapped_param2 = JavaUtil.convertJavaToRuby(runtime, param2);
             IRubyObject[] args = new IRubyObject[] {wrapped_param1, wrapped_param2 };

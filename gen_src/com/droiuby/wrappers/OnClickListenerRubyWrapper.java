@@ -17,16 +17,18 @@ public class OnClickListenerRubyWrapper
     protected RubyObject backingObject;
     protected ExecutionBundle executionBundle;
     protected ScriptingContainer container;
+    protected Ruby runtime;
 
     public OnClickListenerRubyWrapper(ExecutionBundle bundle, RubyObject rubyObject) {
         backingObject = rubyObject;
         executionBundle = bundle;
         container = bundle.getContainer();
+        runtime = container.getProvider().getRuntime();
     }
 
+    @Override
     public void onClick(View param1) {
         try {
-            Ruby runtime = container.getProvider().getRuntime();
             IRubyObject wrapped_param1 = JavaUtil.convertJavaToRuby(runtime, param1);
             IRubyObject[] args = new IRubyObject[] {wrapped_param1 };
             backingObject.callMethod(runtime.getCurrentContext(), "onClick", args);
