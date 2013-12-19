@@ -196,7 +196,7 @@ public class WebConsole extends NanoHTTPD {
 									"reloading framework");
 							ActiveApp app = bundle.getPayload().getActiveApp();
 							bundle.getContainer().runScriptlet(
-									"require '" + app.getFramework() + "/"
+									"load '" + app.getFramework() + "/"
 											+ app.getFramework() + "'");
 						}
 					}

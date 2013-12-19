@@ -424,14 +424,18 @@ public class ActivityBuilder {
 			AssetDownloadCompleteListener parser = null;
 
 			int asset_type = Utils.ASSET_TYPE_TEXT;
+			
 			if (type.equals("image")) {
 				asset_type = Utils.ASSET_TYPE_IMAGE;
 				parser = new AssetPreloadParser(name, type, this);
 			} else if (type.equals("css")) {
 				asset_type = Utils.ASSET_TYPE_CSS;
 				parser = new CssPreloadParser();
-			} else {
+			} else if (type.equals("font") || type.equals("typeface")){
 				asset_type = Utils.ASSET_TYPE_TYPEFACE;
+				parser = new AssetPreloadParser(name, type, this);
+			} else {
+				asset_type = Utils.ASSET_TYPE_BINARY;
 				parser = new AssetPreloadParser(name, type, this);
 			}
 

@@ -25,8 +25,11 @@ public class AssetPreloadParser implements AssetDownloadCompleteListener {
 		if (type.equals("image")) {
 			this.builder.getPreloadedResource().put(id, (Drawable) result);
 		} else if (type.equals("font") || type.equals("typeface")) {
-			Typeface myTypeface = Typeface.createFromFile(name);
+			Log.d(this.getClass().toString(),"Seeting to typeface " + (String)result);
+			Typeface myTypeface = Typeface.createFromFile((String)result);
 			this.builder.getPreloadedResource().put(id, myTypeface);
+		} else if (type.equals("binary")) {
+			this.builder.getPreloadedResource().put(id, (String)result);
 		}
 		return null;
 	}

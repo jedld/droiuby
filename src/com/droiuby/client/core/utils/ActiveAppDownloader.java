@@ -247,6 +247,8 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 							type_int = ActiveApp.ASSET_TYPE_CSS;
 						} else if (asset_type.equals("lib")) {
 							type_int = ActiveApp.ASSET_TYPE_LIB;
+						} else if (asset_type.equals("font") || asset_type.equals("typeface")) {
+							type_int = ActiveApp.ASSET_TYPE_TYPEFACE;
 						} else if (asset_type.equals("binary")
 								|| asset_type.equals("file")) {
 							type_int = ActiveApp.ASSET_TYPE_BINARY;
@@ -347,6 +349,8 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 						}
 						continue;
 					} else if (asset_type == ActiveApp.ASSET_TYPE_BINARY) {
+						download_type = Utils.ASSET_TYPE_BINARY;
+					} else if (asset_type == ActiveApp.ASSET_TYPE_TYPEFACE) {
 						download_type = Utils.ASSET_TYPE_TYPEFACE;
 					}
 

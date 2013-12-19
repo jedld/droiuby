@@ -47,7 +47,6 @@ public class TextViewBuilder extends ViewBuilder {
 				attribute_value = "@preload:" + attribute_value;
 			}
 			Typeface myTypeface = (Typeface)builder.findViewByName(attribute_value);
-			Log.d(this.getClass().toString(),"font name = " + attribute_value);
 		    textView.setTypeface(myTypeface);
 		} else if (attribute_name.equals("text")) { 
 		    textView.setText(attribute_value);
