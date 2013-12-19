@@ -39,6 +39,7 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.jruby.CompatVersion;
 import org.jruby.RubyBoolean;
+import org.jruby.RubyFloat;
 import org.jruby.RubyInteger;
 import org.jruby.embed.EmbedEvalUnit;
 import org.jruby.embed.LocalContextScope;
@@ -259,6 +260,25 @@ public class Utils {
 		}
 		return 0;
 	}
+	
+	public static long toLong(IRubyObject object) {
+		if (object.isNil())
+			return 0;
+		if (object instanceof RubyInteger) {
+			return ((RubyInteger) object).getLongValue();
+		}
+		return 0;
+	}
+	
+	public static double toFloat(IRubyObject object) {
+		if (object.isNil())
+			return 0;
+		if (object instanceof RubyFloat) {
+			return (double) ((RubyFloat) object).getDoubleValue();
+		}
+		return 0;
+	}
+	
 
 	public static void logHeaders(Header[] headers, Class context) {
 		for (Header header : headers) {
