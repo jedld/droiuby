@@ -64,9 +64,13 @@ https://github.com/jedld/droiuby/wiki
 Samples
 -------
 
-Animation - Ruby vs Java
+You can find sample applications here:
+
+https://github.com/jedld/droiuby_samples
 
 Below is an example on how the droiuby framework simplifies some tasks:
+
+Animation - Ruby vs Java
 
 scaling a view and then exit left (JAVA):
 
