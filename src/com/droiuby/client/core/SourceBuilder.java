@@ -60,13 +60,13 @@ public class SourceBuilder {
 					ExecutionBundle.class, "executionBundle");
 			JFieldVar container = klass.field(JMod.PROTECTED,
 					ScriptingContainer.class, "container");
-
+			JFieldVar runtime = klass.field(JMod.PROTECTED, cm.ref(Ruby.class), "runtime");
 			JMethod constructor = klass.constructor(JMod.PUBLIC);
 
 			JVar executionBundleObject = constructor.param(
 					ExecutionBundle.class, "bundle");
 			JVar rubyObject = constructor.param(RubyObject.class, "rubyObject");
-
+			
 			// No default constructor, need to patch it up
 			if (!baseClass.isInterface() && !hasDefaultConstructor(baseClass)) {
 				// check if there is a default constructor
@@ -77,6 +77,8 @@ public class SourceBuilder {
 			constructor.body().assign(executionBundle, executionBundleObject);
 			constructor.body().assign(container,
 					executionBundleObject.invoke("getContainer"));
+			constructor.body().assign(runtime, container.invoke("getProvider")
+					.invoke("getRuntime"));
 
 			for (Method m : baseClass.getMethods()) {
 				if (!Modifier.isFinal(m.getModifiers()) && !Modifier.isStatic(m.getModifiers()) && (Modifier.isAbstract(m.getModifiers())
@@ -99,11 +101,7 @@ public class SourceBuilder {
 
 					JBlock body = method_block.body();
 					JInvocation superInvocation = null;
-
-					JVar runtime = body.decl(cm.ref(Ruby.class), "runtime",
-							container.invoke("getProvider")
-									.invoke("getRuntime"));
-
+					
 					JArray wrappedArgs = JExpr.newArray(cm
 							.ref(IRubyObject.class));
 
