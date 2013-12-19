@@ -76,23 +76,7 @@ public class ViewBuilder {
 	}
 
 	public int parseGravity(String gravityStr) {
-		int gravity = Gravity.NO_GRAVITY;
-		if (gravityStr.equalsIgnoreCase("left")) {
-			gravity |= Gravity.LEFT;
-		} else if (gravityStr.equalsIgnoreCase("right")) {
-			gravity |= Gravity.RIGHT;
-		}
-
-		if (gravityStr.equalsIgnoreCase("top")) {
-			gravity |= Gravity.TOP;
-		} else if (gravityStr.equalsIgnoreCase("bottom")) {
-			gravity |= Gravity.BOTTOM;
-		}
-
-		if (gravityStr.equalsIgnoreCase("center")) {
-			gravity |= Gravity.CENTER;
-		}
-		return gravity;
+		return ActivityBuilder.parseGravity(gravityStr);
 	}
 
 	private void addRule(HashMap<String, String> propertyMap,

@@ -48,7 +48,7 @@ public class TextViewBuilder extends ViewBuilder {
 			}
 			Typeface myTypeface = (Typeface)builder.findViewByName(attribute_value);
 		    textView.setTypeface(myTypeface);
-		} else if (attribute_name.equals("text")) { 
+		} else if (attribute_name.equals("text") || attribute_name.equals("value")) { 
 		    textView.setText(attribute_value);
 		} else if (attribute_name.equals("color")) {
 			textView.setTextColor(Color.parseColor(attribute_value));

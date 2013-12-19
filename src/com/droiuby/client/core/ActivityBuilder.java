@@ -269,7 +269,7 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 		Log.d(this.getClass().toString(), "parsing and preparing views....");
 		long start = System.currentTimeMillis();
 		preparedViews = builder.prepare();
-		
+
 		long elapsed = System.currentTimeMillis() - start;
 		Log.d(this.getClass().toString(), "prepare activity: elapsed time = "
 				+ elapsed + "ms");
@@ -424,14 +424,14 @@ public class ActivityBuilder {
 			AssetDownloadCompleteListener parser = null;
 
 			int asset_type = Utils.ASSET_TYPE_TEXT;
-			
+
 			if (type.equals("image")) {
 				asset_type = Utils.ASSET_TYPE_IMAGE;
 				parser = new AssetPreloadParser(name, type, this);
 			} else if (type.equals("css")) {
 				asset_type = Utils.ASSET_TYPE_CSS;
 				parser = new CssPreloadParser();
-			} else if (type.equals("font") || type.equals("typeface")){
+			} else if (type.equals("font") || type.equals("typeface")) {
 				asset_type = Utils.ASSET_TYPE_TYPEFACE;
 				parser = new AssetPreloadParser(name, type, this);
 			} else {
@@ -505,7 +505,7 @@ public class ActivityBuilder {
 				android.view.ViewGroup.LayoutParams.MATCH_PARENT,
 				android.view.ViewGroup.LayoutParams.MATCH_PARENT, 0));
 		try {
-		parse(rootElement, framelayout);
+			parse(rootElement, framelayout);
 		} catch (Exception e) {
 			e.printStackTrace();
 			TextView view = new TextView(context);
@@ -802,22 +802,22 @@ public class ActivityBuilder {
 		return tableLayoutParams;
 	}
 
-	public int parseGravity(String gravityStr) {
+	public static int parseGravity(String gravityStr) {
 		int gravity = Gravity.NO_GRAVITY;
 		if (gravityStr.equalsIgnoreCase("left")) {
 			gravity |= Gravity.LEFT;
 		} else if (gravityStr.equalsIgnoreCase("right")) {
 			gravity |= Gravity.RIGHT;
-		}
-
-		if (gravityStr.equalsIgnoreCase("top")) {
+		} else if (gravityStr.equalsIgnoreCase("top")) {
 			gravity |= Gravity.TOP;
 		} else if (gravityStr.equalsIgnoreCase("bottom")) {
 			gravity |= Gravity.BOTTOM;
-		}
-
-		if (gravityStr.equalsIgnoreCase("center")) {
+		} else  if (gravityStr.equalsIgnoreCase("center")) {
 			gravity |= Gravity.CENTER;
+		} else 	if (gravityStr.equalsIgnoreCase("center_horizontal")) {
+			gravity |= Gravity.CENTER_HORIZONTAL;
+		} else	if (gravityStr.equalsIgnoreCase("center_vertical")) {
+			gravity |= Gravity.CENTER_VERTICAL;
 		}
 		return gravity;
 	}
