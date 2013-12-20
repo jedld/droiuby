@@ -189,10 +189,10 @@ class Project < Thor
     trap("INT"){ server.shutdown }
     server.start
   end
-
+  
   desc "upload NAME DEVICE_IP [WORKSPACE_DIR]","uploads a droiuby application to target device running droiuby client"
 
-  def upload(name, device_ip, source_dir = 'projects', framework = false)
+  def upload(name, device_ip, source_dir = 'projects', framework = false, run = true)
 
     source_dir = if name.blank? || framework
       Dir.pwd
@@ -218,7 +218,7 @@ class Project < Thor
       
       params = {                                          
         "name" => name,
-        "run" => "true",
+        "run" => run ? 'true' : 'false',
         "file" => UploadIO.new(zip, "application/zip", src_package,"content-disposition" => "form-data; name=\"file\"; filename=\"#{File.basename(src_package)}\"\r\n")}
       
         
