@@ -132,14 +132,16 @@ Issues
 ------
 
 - Still alpha, a lot still needs to be done to support all of features of the Android SDK
+- Some app features simply cannot be done during runtime (e.g. app permissions, some UI styles, custom Views). A way to 
+  workaround this is to fork the Droiuby core app yourself and add the necessary modifications.
 - Slow initial loading of apps
 
 Similar Projects
 ----------------
 
-- ruboto
-- phonegap
-- appcelerator
+* ruboto - Another really good ruby on android framework. 
+* phonegap - Uses HTML and Javascript and phonegap provides the bridge to the Android SDK layer.
+* appcelerator - Have not tried this but looks similar to phonegap.
 
 
 If you think it looks cool or not, I'm happy for some feedback and suggestions
