@@ -23,8 +23,8 @@ The Droiuby framework consists of the following:
 1.) An opensource Android app (droiuby-core) - Pure Java code that handles Android bootstrapping, 
     debugging and JRuby instance management etc.
 
-2.) The Droiuby Framework - Consists of ruby code that serves as the bridge between your app and Java and 
-    wraps Android Objects to easy in to easy to use Ruby Wrappers.
+2.) The Droiuby Framework - Consists of ruby code that serves as the bridge between your app and Java. The framework 
+    wraps Android Objects in to easy to use Ruby Wrappers.
 
 
 Remember this is still highly experimental and things could change really quickly.
@@ -43,7 +43,7 @@ Why use Droiuby?
   and "code and refresh" nature of droiuby is perfect for rapid prototyping.
   
 - You want to create a hybrid native/ web app. Droiuby allows all or part of your app assets to be served
-  by a web app.
+  via a web app.
 
 Installation / Documentation / Usage
 ------------------------------------
