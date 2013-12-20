@@ -84,7 +84,6 @@ public class DroiubyHelper implements OnAppDownloadComplete,
 
 	ActiveAppDownloader downloader;
 	String currentUrl;
-	protected WebConsole console;
 	private ClassLoader loader;
 
 	protected int getMainLayoutId() {
@@ -99,6 +98,7 @@ public class DroiubyHelper implements OnAppDownloadComplete,
 	 * )
 	 */
 	public void onIntent(Bundle params) {
+		Log.d(this.getClass().toString(), "onIntent");
 		application = (ActiveApp) params.getSerializable("application");
 		if (application != null) {
 			ViewGroup target = (ViewGroup) activity
@@ -109,6 +109,7 @@ public class DroiubyHelper implements OnAppDownloadComplete,
 				ExecutionBundleFactory factory = ExecutionBundleFactory
 						.getInstance(loader);
 				if (factory.bundleAvailableFor(application.getBaseUrl())) {
+					Log.d(this.getClass().toString(), "new Bundle");
 					ExecutionBundle bundle = factory.getNewScriptingContainer(
 							activity, application.getBaseUrl());
 					setExecutionBundle(bundle);
@@ -188,8 +189,9 @@ public class DroiubyHelper implements OnAppDownloadComplete,
 	 */
 	public void setupApplication(ActiveApp application, ViewGroup target,
 			int resId) {
-		Log.d(this.getClass().toString(), "Loading application at "
-				+ application.getName());
+		Log.d(this.getClass().toString(),
+				"setupApplication -> Loading application at "
+						+ application.getName());
 		final AppCache cache = (AppCache) activity
 				.getLastNonConfigurationInstance();
 		this.application = application;
@@ -204,10 +206,21 @@ public class DroiubyHelper implements OnAppDownloadComplete,
 			executionBundle.setCurrentActivity(activity);
 		}
 
+		setCurrentWebConsoleBundle(executionBundle, activity);
+		
 		downloader = new ActiveAppDownloader(application, activity, target,
 				cache, executionBundle, this, resId);
 
 		downloader.execute();
+	}
+
+	public void setCurrentWebConsoleBundle(ExecutionBundle bundle,
+			Activity activity) {
+		WebConsole console = WebConsole.getInstance();
+		if (console != null) {
+			console.setBundle(bundle);
+			console.setActivity(activity);
+		}
 	}
 
 	/**
@@ -231,11 +244,7 @@ public class DroiubyHelper implements OnAppDownloadComplete,
 	 * @see com.droiuby.client.core.DroiubyHelperInterface#onStart()
 	 */
 	public void onStart() {
-		// TODO Auto-generated method stub
-		if (console != null) {
-			console.setBundle(executionBundle);
-			console.setActivity(activity);
-		}
+		setCurrentWebConsoleBundle(executionBundle, activity);
 	}
 
 	/*
@@ -244,7 +253,7 @@ public class DroiubyHelper implements OnAppDownloadComplete,
 	 * @see com.droiuby.client.core.DroiubyHelperInterface#onDestroy()
 	 */
 	public void onDestroy() {
-		// TODO Auto-generated method stub
+		WebConsole console = WebConsole.getInstance();
 		if (console != null) {
 			console.shutdownConsole();
 		}
@@ -290,7 +299,7 @@ public class DroiubyHelper implements OnAppDownloadComplete,
 			web_public_loc = activity.getCacheDir().getCanonicalPath() + "/www";
 			File webroot = new File(web_public_loc);
 			webroot.mkdirs();
-			console = WebConsole.getInstance(4000, webroot);
+			WebConsole console = WebConsole.getInstance(4000, webroot);
 			console.setBundle(executionBundle);
 			console.setActivity(activity);
 		} catch (IOException e) {
@@ -371,8 +380,7 @@ public class DroiubyHelper implements OnAppDownloadComplete,
 	 * .Document)
 	 */
 	public void onDocumentReady(Document mainActivity) {
-		// TODO Auto-generated method stub
-
+		Log.d(this.getClass().toString(), "On document ready");
 	}
 
 	public ArrayList<String> getScriptErrors() {
@@ -412,10 +420,9 @@ public class DroiubyHelper implements OnAppDownloadComplete,
 
 	public void onSensorChanged(SensorEvent event) {
 
-		SharedPreferences prefs = activity
-				.getSharedPreferences("bootstrap",
-						Context.MODE_PRIVATE);
-		if (prefs!=null && prefs.getBoolean("proximity_refresh", false)) {
+		SharedPreferences prefs = activity.getSharedPreferences("bootstrap",
+				Context.MODE_PRIVATE);
+		if (prefs != null && prefs.getBoolean("proximity_refresh", false)) {
 			if (event.values[0] == 0) {
 				if (activity instanceof OnRefreshRequested) {
 					((OnRefreshRequested) activity).refreshCurrentApplication();

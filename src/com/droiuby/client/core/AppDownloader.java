@@ -52,6 +52,7 @@ public class AppDownloader extends AsyncTask<Void, String, ActiveApp> {
 
 	@Override
 	protected ActiveApp doInBackground(Void... params) {
+		Log.d(this.getClass().toString(),"Loading app descriptor ...");
 		publishProgress("loading app");
 		try {
 			return ActiveAppDownloader.loadApp(c, url);
@@ -64,10 +65,11 @@ public class AppDownloader extends AsyncTask<Void, String, ActiveApp> {
 	protected void onPostExecute(ActiveApp result) {
 		super.onPostExecute(result);
 		if (this.onDownloadComplete != null) {
+			Log.d(this.getClass().toString(),"Invoking onDownloadComplete");
 			onDownloadComplete.onDownloadComplete(result);
 		} else {
-
 			if (result != null) {
+				Log.d(this.getClass().toString(), "starting a new activity ....");
 				Intent intent = new Intent(c, activityClass);
 				intent.putExtra("application", result);
 				intent.putExtra("fullscreen", result.isFullScreen());

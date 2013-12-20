@@ -261,8 +261,11 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 
 		scriptingContainer.put("$container_payload",
 				executionBundle.getPayload());
-
-		scriptingContainer.runScriptlet("$framework.before_activity_setup");
+		try {
+			scriptingContainer.runScriptlet("$framework.before_activity_setup");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		resultBundle = builder.preload(executionBundle);
 
@@ -318,13 +321,17 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 		View view = result.setPreparedView(preparedViews);
 		// apply CSS
 		result.applyStyle(view, resultBundle);
-		if (onReadyListener != null) {
-			onReadyListener.onDocumentReady(mainActivityDocument);
-		}
-
 		long elapsed = System.currentTimeMillis() - start;
 		Log.d(this.getClass().toString(), "build activity: elapsed time = "
 				+ elapsed + "ms");
+		
+		if (onReadyListener != null) {
+			Log.d(this.getClass().toString(), "invoking onDocumentReady.");
+			onReadyListener.onDocumentReady(mainActivityDocument);
+		} else {
+			Log.d(this.getClass().toString(), "no OnDocumentReady passed.");
+		}
+
 		return start;
 	}
 }

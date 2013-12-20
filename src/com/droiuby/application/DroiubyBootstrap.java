@@ -15,6 +15,7 @@ import com.droiuby.interfaces.DroiubyHelperInterface;
 import dalvik.system.DexClassLoader;
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.os.AsyncTask;
@@ -62,22 +63,22 @@ class LibraryBootstrapTask extends AsyncTask<Void, String, ClassLoader> {
 	@Override
 	protected ClassLoader doInBackground(Void... arg0) {
 		try {
-			publishProgress("unpacking vendor libraries");
-			Log.d(this.getClass().toString(), "unpacking vendor libraries");
-
 			File stdlib = new File(context.getDir("vendor",
 					Context.MODE_PRIVATE), "stdlib");
 			if (stdlib.mkdirs()) {
+				Log.d(this.getClass().toString(), "unpacking vendor libraries");
+				publishProgress("unpacking vendor libraries");
 				Log.d(this.getClass().toString(), "unpacking to vendor");
 				BufferedInputStream bis = new BufferedInputStream(context
 						.getAssets().open("ruby_stdlib.jar"));
 				unpackZip(bis, stdlib.getCanonicalPath());
 			}
-			publishProgress("unpacking framework");
+			
 			File frameworkDir = new File(context.getDir("vendor",
 					Context.MODE_PRIVATE), "framework");
 			if (!frameworkDir.exists()) {
 				frameworkDir.mkdir();
+				publishProgress("unpacking framework");
 				BufferedInputStream bis = new BufferedInputStream(context
 						.getAssets().open("framework.jar"));
 				unpackZip(bis, frameworkDir.getCanonicalPath());
@@ -86,12 +87,14 @@ class LibraryBootstrapTask extends AsyncTask<Void, String, ClassLoader> {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		// Internal storage where the DexClassLoader writes the optimized dex
-		// file to
-		final File optimizedDexOutputPath = context.getDir("outdex",
-				Context.MODE_PRIVATE);
+
 		
 		if (envelopedLoader == null) {
+			// Internal storage where the DexClassLoader writes the optimized dex
+			// file to
+			final File optimizedDexOutputPath = context.getDir("outdex",
+					Context.MODE_PRIVATE);
+			
 			envelopedLoader = context.getClassLoader();
 			for (String name : libraries) {
 				Log.d(this.getClass().toString(), "loading = " + name);
@@ -150,7 +153,7 @@ class LibraryBootstrapTask extends AsyncTask<Void, String, ClassLoader> {
 
 		return true;
 	}
-
+	
 	@Override
 	protected void onPostExecute(ClassLoader cl) {
 		Class libProviderClazz = null;
