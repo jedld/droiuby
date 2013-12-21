@@ -269,13 +269,7 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 
 		resultBundle = builder.preload(executionBundle);
 
-		Log.d(this.getClass().toString(), "parsing and preparing views....");
-		long start = System.currentTimeMillis();
-		preparedViews = builder.prepare();
 
-		long elapsed = System.currentTimeMillis() - start;
-		Log.d(this.getClass().toString(), "prepare activity: elapsed time = "
-				+ elapsed + "ms");
 		return builder;
 	}
 
@@ -318,10 +312,17 @@ class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 
 	private long buildView(ActivityBuilder result) {
 		long start = System.currentTimeMillis();
+		
+		Log.d(this.getClass().toString(), "parsing and preparing views....");
+
+		preparedViews = result.prepare();
+
+		long elapsed = System.currentTimeMillis() - start;
+		Log.d(this.getClass().toString(), "prepare activity: elapsed time = "
+				+ elapsed + "ms");
 		View view = result.setPreparedView(preparedViews);
 		// apply CSS
 		result.applyStyle(view, resultBundle);
-		long elapsed = System.currentTimeMillis() - start;
 		Log.d(this.getClass().toString(), "build activity: elapsed time = "
 				+ elapsed + "ms");
 		
