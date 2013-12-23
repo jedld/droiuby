@@ -6,7 +6,6 @@ import android.content.Context;
 import android.view.View;
 import android.widget.ImageButton;
 
-import com.droiuby.client.core.ActivityBuilder;
 
 public class ImageButtonBuilder extends ImageViewBuilder {
 

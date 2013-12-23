@@ -7,7 +7,6 @@ import android.text.method.PasswordTransformationMethod;
 import android.view.View;
 import android.widget.EditText;
 
-import com.droiuby.client.core.ActivityBuilder;
 
 public class EditTextBuilder extends TextViewBuilder {
 

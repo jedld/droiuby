@@ -7,7 +7,6 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 
-import com.droiuby.client.core.ActivityBuilder;
 
 public class ScrollViewBuilder extends ViewGroupBuilder {
 

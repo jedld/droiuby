@@ -12,7 +12,6 @@ import android.widget.LinearLayout;
 import android.widget.TableRow;
 
 
-import com.droiuby.client.core.ActivityBuilder;
 
 public class TableRowBuilder extends ViewGroupBuilder {
 

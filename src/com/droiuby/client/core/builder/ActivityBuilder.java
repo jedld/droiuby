@@ -1,4 +1,4 @@
-package com.droiuby.client.core;
+package com.droiuby.client.core.builder;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -40,21 +40,13 @@ import android.widget.TextView;
 import com.droiuby.application.ActiveApp;
 import com.droiuby.application.CanvasActivity;
 import com.droiuby.callbacks.DocumentReadyListener;
-import com.droiuby.client.core.builder.ButtonViewBuilder;
-import com.droiuby.client.core.builder.CheckBoxBuilder;
-import com.droiuby.client.core.builder.EditTextBuilder;
-import com.droiuby.client.core.builder.FrameLayoutBuilder;
-import com.droiuby.client.core.builder.ImageButtonBuilder;
-import com.droiuby.client.core.builder.ImageViewBuilder;
-import com.droiuby.client.core.builder.LinearLayoutBuilder;
-import com.droiuby.client.core.builder.ListViewBuilder;
-import com.droiuby.client.core.builder.RelativeLayoutBuilder;
-import com.droiuby.client.core.builder.ScrollViewBuilder;
-import com.droiuby.client.core.builder.TableBuilder;
-import com.droiuby.client.core.builder.TableRowBuilder;
-import com.droiuby.client.core.builder.TextViewBuilder;
-import com.droiuby.client.core.builder.ViewBuilder;
-import com.droiuby.client.core.builder.WebViewBuilder;
+import com.droiuby.client.core.ActivityBootstrapper;
+import com.droiuby.client.core.AppDownloader;
+import com.droiuby.client.core.AssetDownloadCompleteListener;
+import com.droiuby.client.core.AssetDownloadWorker;
+import com.droiuby.client.core.CssRules;
+import com.droiuby.client.core.ExecutionBundle;
+import com.droiuby.client.core.ViewExtras;
 import com.droiuby.client.core.postprocessor.AssetPreloadParser;
 import com.droiuby.client.core.postprocessor.CssPreloadParser;
 import com.droiuby.client.core.utils.Utils;
@@ -918,7 +910,7 @@ public class ActivityBuilder {
 				+ elapsed + "ms");
 	}
 
-	void applyProperties(View view) {
+	public void applyProperties(View view) {
 
 		if (view != null) {
 			Object tag = view.getTag();
@@ -928,14 +920,6 @@ public class ActivityBuilder {
 						context, this);
 				builder.setParamsFromProperty(view, viewExtras.getPropertyMap());
 			}
-			//
-			// if (view instanceof ViewGroup) {
-			// ViewGroup viewGroup = (ViewGroup) view;
-			// for (int i = 0; i < viewGroup.getChildCount(); i++) {
-			// View child = viewGroup.getChildAt(i);
-			// applyProperties(child);
-			// }
-			// }
 		}
 	}
 

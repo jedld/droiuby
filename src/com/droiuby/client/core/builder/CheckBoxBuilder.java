@@ -6,7 +6,6 @@ import android.content.Context;
 import android.view.View;
 import android.widget.CheckBox;
 
-import com.droiuby.client.core.ActivityBuilder;
 
 public class CheckBoxBuilder extends ButtonViewBuilder {
 

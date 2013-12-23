@@ -22,7 +22,6 @@ import android.widget.RelativeLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 
-import com.droiuby.client.core.ActivityBuilder;
 import com.droiuby.client.core.PropertyValue;
 import com.droiuby.client.core.ViewExtras;
 import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;

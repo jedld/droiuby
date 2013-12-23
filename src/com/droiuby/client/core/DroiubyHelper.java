@@ -27,6 +27,7 @@ import com.droiuby.application.ActiveApp;
 import com.droiuby.callbacks.DocumentReadyListener;
 import com.droiuby.callbacks.OnAppDownloadComplete;
 import com.droiuby.callbacks.OnRefreshRequested;
+import com.droiuby.client.core.builder.ActivityBuilder;
 import com.droiuby.client.core.console.WebConsole;
 import com.droiuby.client.core.utils.ActiveAppDownloader;
 import com.droiuby.client.core.utils.Utils;

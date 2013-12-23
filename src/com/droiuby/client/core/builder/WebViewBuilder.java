@@ -8,7 +8,6 @@ import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import com.droiuby.client.core.ActivityBuilder;
 
 public class WebViewBuilder extends AbsoluteLayoutBuilder {
 

@@ -7,7 +7,6 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
-import com.droiuby.client.core.ActivityBuilder;
 
 public class RelativeLayoutBuilder extends ViewGroupBuilder {
 

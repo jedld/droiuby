@@ -6,7 +6,6 @@ import android.content.Context;
 import android.view.View;
 import android.widget.FrameLayout;
 
-import com.droiuby.client.core.ActivityBuilder;
 
 public class FrameLayoutBuilder extends ViewGroupBuilder {
 

@@ -21,9 +21,10 @@ import android.view.View;
 
 import com.droiuby.application.ActiveApp;
 import com.droiuby.callbacks.DocumentReadyListener;
+import com.droiuby.client.core.builder.ActivityBuilder;
 import com.droiuby.client.core.utils.Utils;
 
-class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
+public class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
 
 	ActiveApp app;
 	Activity targetActivity;

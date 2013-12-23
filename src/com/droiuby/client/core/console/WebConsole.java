@@ -26,9 +26,9 @@ import android.util.Log;
 import com.droiuby.application.ActiveApp;
 import com.droiuby.application.CanvasActivity;
 import com.droiuby.callbacks.OnAppDownloadComplete;
-import com.droiuby.client.core.ActivityBuilder;
 import com.droiuby.client.core.ExecutionBundle;
 import com.droiuby.client.core.ExecutionBundleFactory;
+import com.droiuby.client.core.builder.ActivityBuilder;
 import com.droiuby.client.core.utils.NanoHTTPD;
 import com.droiuby.client.core.utils.Utils;
 

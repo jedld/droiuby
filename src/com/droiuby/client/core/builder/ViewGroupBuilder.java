@@ -6,7 +6,6 @@ import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.droiuby.client.core.ActivityBuilder;
 
 public class ViewGroupBuilder extends ViewBuilder {
 

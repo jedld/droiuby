@@ -6,7 +6,6 @@ import android.content.Context;
 import android.view.View;
 import android.widget.ListView;
 
-import com.droiuby.client.core.ActivityBuilder;
 
 public class ListViewBuilder extends ViewGroupBuilder {
 

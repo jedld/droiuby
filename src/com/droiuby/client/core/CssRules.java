@@ -7,6 +7,7 @@ import android.content.Context;
 import android.util.Log;
 import android.view.View;
 
+import com.droiuby.client.core.builder.ActivityBuilder;
 import com.droiuby.client.core.builder.ViewBuilder;
 
 class Selector {

@@ -6,7 +6,6 @@ import android.content.Context;
 import android.view.View;
 import android.widget.AbsoluteLayout;
 
-import com.droiuby.client.core.ActivityBuilder;
 
 @SuppressWarnings("deprecation")
 public class AbsoluteLayoutBuilder extends ViewGroupBuilder {

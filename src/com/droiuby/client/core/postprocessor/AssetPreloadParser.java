@@ -4,9 +4,9 @@ import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 
-import com.droiuby.client.core.ActivityBuilder;
 import com.droiuby.client.core.AssetDownloadCompleteListener;
 import com.droiuby.client.core.ExecutionBundle;
+import com.droiuby.client.core.builder.ActivityBuilder;
 import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
 
 public class AssetPreloadParser implements AssetDownloadCompleteListener {
