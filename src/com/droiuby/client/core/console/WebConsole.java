@@ -199,9 +199,7 @@ public class WebConsole extends NanoHTTPD {
 									"load '" + app.getFramework() + "/"
 											+ app.getFramework() + ".rb'");
 						}
-					}
-
-					if (launch) {
+					} else if (launch) {
 						Log.d(this.getClass().toString(),
 								"running application...");
 						final Map<String, String> resultMap = new HashMap<String, String>();
