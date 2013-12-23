@@ -6,6 +6,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -20,7 +21,6 @@ import org.jruby.embed.EmbedEvalUnit;
 import org.jruby.embed.EvalFailedException;
 import org.jruby.embed.ParseFailedException;
 import org.jruby.embed.ScriptingContainer;
-import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 
 import android.app.Activity;
@@ -31,14 +31,15 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.util.SparseArray;
+import android.util.SparseIntArray;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
-import android.widget.LinearLayout.LayoutParams;
 import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.RelativeLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -46,7 +47,6 @@ import android.widget.TextView;
 import com.droiuby.application.ActiveApp;
 import com.droiuby.application.CanvasActivity;
 import com.droiuby.callbacks.DocumentReadyListener;
-import com.droiuby.callbacks.OnAppDownloadComplete;
 import com.droiuby.client.core.builder.ButtonViewBuilder;
 import com.droiuby.client.core.builder.CheckBoxBuilder;
 import com.droiuby.client.core.builder.EditTextBuilder;
@@ -64,7 +64,6 @@ import com.droiuby.client.core.builder.ViewBuilder;
 import com.droiuby.client.core.builder.WebViewBuilder;
 import com.droiuby.client.core.postprocessor.AssetPreloadParser;
 import com.droiuby.client.core.postprocessor.CssPreloadParser;
-import com.droiuby.client.core.postprocessor.GenericPostProcessor;
 import com.droiuby.client.core.utils.Utils;
 import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
 
@@ -85,6 +84,7 @@ class ReverseIdResolver {
 		return instance;
 	}
 
+	@SuppressWarnings("rawtypes")
 	public String resolve(int id) {
 		String packageName = context.getApplicationContext().getPackageName();
 		if (resolveCache == null) {
@@ -348,8 +348,13 @@ public class ActivityBuilder {
 	View topView;
 	String baseUrl;
 
+	@SuppressWarnings("rawtypes")
 	static Class idClass;
+	
+	@SuppressWarnings("rawtypes")
 	static Class drawableClass;
+	
+	@SuppressWarnings("rawtypes")
 	static Class styleClass;
 
 	public String getBaseUrl() {
@@ -365,13 +370,13 @@ public class ActivityBuilder {
 	}
 
 	public View getRootView() {
-		return context.findViewById(this.getViewById(context, "mainLayout"));
+		return context.findViewById(ActivityBuilder.getViewById(context, "mainLayout"));
 	}
 
 	ViewGroup target;
 	HashMap<String, Object> preloadedResource = new HashMap<String, Object>();
-	HashMap<String, Integer> namedViewDictionary = new HashMap<String, Integer>();
-	HashMap<String, ArrayList<Integer>> classViewDictionary = new HashMap<String, ArrayList<Integer>>();
+	SparseIntArray namedViewDictionary = new SparseIntArray();
+	SparseArray<ArrayList<Integer>> classViewDictionary = new SparseArray<ArrayList<Integer>>();
 	HashMap<String, ArrayList<Integer>> tagViewDictionary = new HashMap<String, ArrayList<Integer>>();
 	ArrayList<String> viewErrors = new ArrayList<String>();
 
@@ -380,21 +385,21 @@ public class ActivityBuilder {
 		Log.e(this.getClass().toString(), error_msg);
 	}
 
-	public HashMap<String, ArrayList<Integer>> getClassViewDictionary() {
+	public SparseArray<ArrayList<Integer>> getClassViewDictionary() {
 		return classViewDictionary;
 	}
 
 	public void setClassViewDictionary(
-			HashMap<String, ArrayList<Integer>> classViewDictionary) {
+			SparseArray<ArrayList<Integer>> classViewDictionary) {
 		this.classViewDictionary = classViewDictionary;
 	}
 
-	public HashMap<String, Integer> getNamedViewDictionary() {
+	public SparseIntArray getNamedViewDictionary() {
 		return namedViewDictionary;
 	}
 
 	public void setNamedViewDictionary(
-			HashMap<String, Integer> namedViewDictionary) {
+			SparseIntArray namedViewDictionary) {
 		this.namedViewDictionary = namedViewDictionary;
 	}
 
@@ -567,7 +572,7 @@ public class ActivityBuilder {
 		if (parentView == null)
 			return result;
 
-		if (result instanceof List) {
+		if (result instanceof ArrayList) {
 			ArrayList<View> object_list = (ArrayList<View>) result;
 			ArrayList<View> result_list = new ArrayList<View>();
 			for (View v : object_list) {
@@ -593,8 +598,8 @@ public class ActivityBuilder {
 		selector = selector.trim();
 		if (selector.startsWith("#")) {
 			String name = selector.substring(1);
-			if (namedViewDictionary.containsKey(name)) {
-				int id = namedViewDictionary.get(name);
+			if (namedViewDictionary.get(name.hashCode())!=0) {
+				int id = namedViewDictionary.get(name.hashCode());
 				View view = context.findViewById(id);
 				if (view == null) {
 					Log.w(this.getClass().toString(),
@@ -614,8 +619,8 @@ public class ActivityBuilder {
 		} else if (selector.startsWith(".")) {
 			String name = selector.substring(1);
 			ArrayList<View> object_list = new ArrayList<View>();
-			if (classViewDictionary.containsKey(name)) {
-				ArrayList<Integer> list = classViewDictionary.get(name);
+			if (classViewDictionary.get(name.hashCode())!=null) {
+				ArrayList<Integer> list = classViewDictionary.get(name.hashCode());
 				for (int id : list) {
 					object_list.add(context.findViewById(id));
 				}
@@ -897,6 +902,7 @@ public class ActivityBuilder {
 		return params;
 	}
 
+	@SuppressWarnings("rawtypes")
 	static Class getResourceClass(Activity context) {
 		String packageName = context.getApplication().getPackageName();
 		try {
@@ -1050,10 +1056,10 @@ public class ActivityBuilder {
 			extras.setView_id(attr_name);
 			Log.d(this.getClass().toString(), attr_name + " = " + hash_code
 					+ " stored.");
-			namedViewDictionary.put(attr_name, hash_code);
+			namedViewDictionary.put(attr_name.hashCode(), hash_code);
 		} else {
 			extras.setView_id(Integer.toString(hash_code));
-			namedViewDictionary.put(Integer.toString(hash_code), hash_code);
+			namedViewDictionary.put(Integer.toString(hash_code).hashCode(), hash_code);
 		}
 
 		if (e.getAttributeValue("name") != null) {
@@ -1064,10 +1070,10 @@ public class ActivityBuilder {
 		if (e.getAttributeValue("class") != null) {
 			String class_name = e.getAttributeValue("class");
 			for (String item : class_name.split(" ")) {
-				ArrayList<Integer> list = classViewDictionary.get(item);
+				ArrayList<Integer> list = classViewDictionary.get(item.hashCode());
 				if (list == null) {
 					list = new ArrayList<Integer>();
-					classViewDictionary.put(item, list);
+					classViewDictionary.put(item.hashCode(), list);
 				}
 				list.add(child.getId());
 			}
@@ -1150,13 +1156,13 @@ public class ActivityBuilder {
 		List<Element> elems = element.getChildren();
 		for (Element e : elems) {
 
-			String node_name = e.getName().toLowerCase();
+			String node_name = e.getName().toLowerCase(Locale.ENGLISH);
 			ViewBuilder builder = null;
 
 			if (node_name.equals("div") || node_name.equals("span")) {
 				builder = new FrameLayoutBuilder();
 			} else if (node_name.equals("layout")) {
-				String type = e.getAttributeValue("type").toLowerCase();
+				String type = e.getAttributeValue("type").toLowerCase(Locale.ENGLISH);
 				if (type.equals("frame")) {
 					builder = new FrameLayoutBuilder();
 				} else if (type.equals("linear")) {
