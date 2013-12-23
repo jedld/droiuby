@@ -197,7 +197,7 @@ public class WebConsole extends NanoHTTPD {
 							ActiveApp app = bundle.getPayload().getActiveApp();
 							bundle.getContainer().runScriptlet(
 									"load '" + app.getFramework() + "/"
-											+ app.getFramework() + "'");
+											+ app.getFramework() + ".rb'");
 						}
 					}
 

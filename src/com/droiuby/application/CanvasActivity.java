@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentFilter.MalformedMimeTypeException;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -161,18 +162,12 @@ public class CanvasActivity extends Activity implements OnEnvironmentReady, OnRe
 		super.onPause();
 		mSensorManager.unregisterListener(this);
 	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see android.app.Activity#onRetainNonConfigurationInstance()
-	 */
+	
 	@Override
-	@Deprecated
-	public Object onRetainNonConfigurationInstance() {
-		return droiuby.onRetainNonConfigurationInstance();
+	public void onConfigurationChanged(Configuration newConfig) {
+	    super.onConfigurationChanged(newConfig);
 	}
-
+	
 	public void onDownloadComplete(ActiveApp app) {
 		Log.d(this.getClass().toString(), "app " + app.getName()
 				+ " download complete");

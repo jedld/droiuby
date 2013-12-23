@@ -17,16 +17,18 @@ public class AnimatorListenerRubyWrapper
     protected RubyObject backingObject;
     protected ExecutionBundle executionBundle;
     protected ScriptingContainer container;
+    protected Ruby runtime;
 
     public AnimatorListenerRubyWrapper(ExecutionBundle bundle, RubyObject rubyObject) {
         backingObject = rubyObject;
         executionBundle = bundle;
         container = bundle.getContainer();
+        runtime = container.getProvider().getRuntime();
     }
 
+    @Override
     public void onAnimationStart(Animator param1) {
         try {
-            Ruby runtime = container.getProvider().getRuntime();
             IRubyObject wrapped_param1 = JavaUtil.convertJavaToRuby(runtime, param1);
             IRubyObject[] args = new IRubyObject[] {wrapped_param1 };
             backingObject.callMethod(runtime.getCurrentContext(), "onAnimationStart", args);
@@ -36,9 +38,9 @@ public class AnimatorListenerRubyWrapper
         }
     }
 
+    @Override
     public void onAnimationEnd(Animator param1) {
         try {
-            Ruby runtime = container.getProvider().getRuntime();
             IRubyObject wrapped_param1 = JavaUtil.convertJavaToRuby(runtime, param1);
             IRubyObject[] args = new IRubyObject[] {wrapped_param1 };
             backingObject.callMethod(runtime.getCurrentContext(), "onAnimationEnd", args);
@@ -48,9 +50,9 @@ public class AnimatorListenerRubyWrapper
         }
     }
 
+    @Override
     public void onAnimationCancel(Animator param1) {
         try {
-            Ruby runtime = container.getProvider().getRuntime();
             IRubyObject wrapped_param1 = JavaUtil.convertJavaToRuby(runtime, param1);
             IRubyObject[] args = new IRubyObject[] {wrapped_param1 };
             backingObject.callMethod(runtime.getCurrentContext(), "onAnimationCancel", args);
@@ -60,9 +62,9 @@ public class AnimatorListenerRubyWrapper
         }
     }
 
+    @Override
     public void onAnimationRepeat(Animator param1) {
         try {
-            Ruby runtime = container.getProvider().getRuntime();
             IRubyObject wrapped_param1 = JavaUtil.convertJavaToRuby(runtime, param1);
             IRubyObject[] args = new IRubyObject[] {wrapped_param1 };
             backingObject.callMethod(runtime.getCurrentContext(), "onAnimationRepeat", args);
