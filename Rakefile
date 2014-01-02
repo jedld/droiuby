@@ -87,20 +87,22 @@ task :wrap, [:class_or_interface, :wrap_method] do |t, args|
   target = project_prop.get(:'target')
   
   #get android.jar location
-  
   android_class_path = File.join(sdk_directory,'platforms',target,'android.jar')
-  jruby_class_path = File.join(File.dirname(__FILE__),'libs_large')
+  jruby_class_path = ['libs_large', 'libs']
   puts "adding #{android_class_path} to class path"
   $CLASSPATH << android_class_path
   $CLASSPATH << File.join(File.dirname(__FILE__),"bin","classes")
-  Dir.foreach(jruby_class_path) do |x|
-      path = File.join(jruby_class_path, x)
-      if x == "." or x == ".."
-          next
-      elsif !File.directory?(path)
-        puts "adding #{path}"
-        $CLASSPATH << path
-      end
+  jruby_class_path.each do |p|
+    Dir.foreach(File.join(File.dirname(__FILE__), p)) do |x|
+      path = File.join(File.dirname(__FILE__), p, x)
+        if x == "." or x == ".."
+            next
+        elsif !File.directory?(path)
+          puts "adding #{path}"
+          $CLASSPATH << path
+        end
+    end
+
   end
  
   
@@ -129,6 +131,6 @@ task :wrap, [:class_or_interface, :wrap_method] do |t, args|
   
   full_class_name = ['com','droiuby','wrappers',"#{klassname}RubyWrapper"].join('.')
     
-  Java::com.droiuby.client.core::SourceBuilder.build(full_class_name, klass_or_interface.java_class, java_gen_src)
+  Java::com.droiuby.client.core::SourceBuilder.build(full_class_name, klass_or_interface.java_class, args.wrap_method, java_gen_src)
   
 end
