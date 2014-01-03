@@ -78,9 +78,17 @@ public class SourceBuilder {
 					executionBundle,
 					container,
 					runtime );
-
-
-			for (Method m : baseClass.getMethods()) {
+			
+			ArrayList <Method>method_list = new ArrayList<Method>();
+			for(Method m : baseClass.getMethods()) {
+				method_list.add(m);
+			}
+			
+			for(Method m : baseClass.getDeclaredMethods()) {
+				method_list.add(m);
+			}
+			
+			for (Method m : method_list) {
 				if (!Modifier.isFinal(m.getModifiers()) && !Modifier.isStatic(m.getModifiers()) && (Modifier.isAbstract(m.getModifiers())
 						|| (includeOverridable && !Modifier.isPrivate(m
 								.getModifiers()) && inWhiteList(m.getName(), methodWhitelist) )) ) {
@@ -278,7 +286,13 @@ public class SourceBuilder {
 		f.mkdirs();
 		try {
 			JCodeModel cm = new JCodeModel();
-			buildModel(cm, targetClass, baseClass, StringUtils.split(methodWhitelist, ':'), true);
+			String[] whitelist = StringUtils.split(methodWhitelist, '.');
+			
+			for(String item : whitelist) {
+				System.out.println("allow method " + item);
+			}
+			
+			buildModel(cm, targetClass, baseClass, whitelist, true);
 			cm.build(f);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
