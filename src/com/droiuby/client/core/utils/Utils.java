@@ -19,7 +19,10 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -38,9 +41,12 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.jruby.CompatVersion;
+import org.jruby.RubyArray;
 import org.jruby.RubyBoolean;
 import org.jruby.RubyFloat;
 import org.jruby.RubyInteger;
+import org.jruby.RubyString;
+import org.jruby.RubySymbol;
 import org.jruby.embed.EmbedEvalUnit;
 import org.jruby.embed.LocalContextScope;
 import org.jruby.embed.LocalVariableBehavior;
@@ -53,6 +59,8 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.AssetManager;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
@@ -240,6 +248,22 @@ public class Utils {
 		return null;
 	}
 
+	public static HashSet <String> toStringSet(IRubyObject object) {
+		HashSet <String>list = new HashSet<String>();
+		if (object.isNil())
+			return null;
+		if (object instanceof RubyArray) {
+			for (Object raw_item :  ((RubyArray) object)) {
+				if (raw_item instanceof RubySymbol) {
+					list.add(((RubySymbol)raw_item).asJavaString());
+				} else if (raw_item instanceof RubyString) {
+					list.add(((RubyString)raw_item).asJavaString());
+				}
+			}
+		}
+		return list;
+	}
+	
 	public static boolean toBoolean(IRubyObject object) {
 		if (object.isNil())
 			return false;

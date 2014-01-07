@@ -12,6 +12,9 @@ import org.jruby.embed.LocalContextScope;
 import org.jruby.embed.LocalVariableBehavior;
 import org.jruby.embed.ScriptingContainer;
 
+import com.droiuby.application.DroiubyBootstrap;
+import com.droiuby.client.core.utils.Utils;
+
 import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
@@ -52,10 +55,9 @@ public class ExecutionBundleFactory {
 		List<String> loadPaths = new ArrayList<String>();
 		loadPaths.add(data_dir + "/jruby/vendor");
 		loadPaths.add(data_dir + "/jruby/vendor/lib");
-		File stdlib = new File(context.getDir("vendor", Context.MODE_PRIVATE),
+		File stdlib = new File(DroiubyBootstrap.getVendorPath(context),
 				"stdlib");
-		File frameworkDir = new File(context.getDir("vendor",
-				Context.MODE_PRIVATE), "framework");
+		File frameworkDir = new File(DroiubyBootstrap.getVendorPath(context), "framework");
 		try {
 			loadPaths.add(frameworkDir.getCanonicalPath());
 			loadPaths.add(stdlib.getCanonicalPath());

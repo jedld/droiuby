@@ -3,6 +3,7 @@ package com.droiuby.client.core.builder;
 import java.io.IOException;
 import java.io.StringReader;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,12 +12,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jdom2.Attribute;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -116,6 +119,7 @@ class ReverseIdResolver {
 
 }
 
+@SuppressLint("UseValueOf")
 public class ActivityBuilder {
 
 	public static final int PARTIAL_REPLACE = 1;
@@ -129,10 +133,10 @@ public class ActivityBuilder {
 
 	@SuppressWarnings("rawtypes")
 	static Class idClass;
-	
+
 	@SuppressWarnings("rawtypes")
 	static Class drawableClass;
-	
+
 	@SuppressWarnings("rawtypes")
 	static Class styleClass;
 
@@ -149,11 +153,13 @@ public class ActivityBuilder {
 	}
 
 	public View getRootView() {
-		return context.findViewById(ActivityBuilder.getViewById(context, "mainLayout"));
+		return context.findViewById(ActivityBuilder.getViewById(context,
+				"mainLayout"));
 	}
 
 	ViewGroup target;
 	HashMap<String, Object> preloadedResource = new HashMap<String, Object>();
+	HashMap<String, Object> rcache = new HashMap<String, Object>();
 	SparseIntArray namedViewDictionary = new SparseIntArray();
 	SparseArray<ArrayList<Integer>> classViewDictionary = new SparseArray<ArrayList<Integer>>();
 	HashMap<String, ArrayList<Integer>> tagViewDictionary = new HashMap<String, ArrayList<Integer>>();
@@ -177,8 +183,7 @@ public class ActivityBuilder {
 		return namedViewDictionary;
 	}
 
-	public void setNamedViewDictionary(
-			SparseIntArray namedViewDictionary) {
+	public void setNamedViewDictionary(SparseIntArray namedViewDictionary) {
 		this.namedViewDictionary = namedViewDictionary;
 	}
 
@@ -377,7 +382,7 @@ public class ActivityBuilder {
 		selector = selector.trim();
 		if (selector.startsWith("#")) {
 			String name = selector.substring(1);
-			if (namedViewDictionary.get(name.hashCode())!=0) {
+			if (namedViewDictionary.get(name.hashCode()) != 0) {
 				int id = namedViewDictionary.get(name.hashCode());
 				View view = context.findViewById(id);
 				if (view == null) {
@@ -398,8 +403,9 @@ public class ActivityBuilder {
 		} else if (selector.startsWith(".")) {
 			String name = selector.substring(1);
 			ArrayList<View> object_list = new ArrayList<View>();
-			if (classViewDictionary.get(name.hashCode())!=null) {
-				ArrayList<Integer> list = classViewDictionary.get(name.hashCode());
+			if (classViewDictionary.get(name.hashCode()) != null) {
+				ArrayList<Integer> list = classViewDictionary.get(name
+						.hashCode());
 				for (int id : list) {
 					object_list.add(context.findViewById(id));
 				}
@@ -413,6 +419,55 @@ public class ActivityBuilder {
 			} else {
 				return null;
 			}
+		} else if (selector.startsWith("R.")) {
+
+			if (rcache.containsKey(selector)) {
+				return rcache.get(selector);
+			}
+			
+			String name_class[] = StringUtils.split(selector, ".");
+			String name = name_class[1];
+			
+			Log.v(this.getClass().toString(), "R resolver " + name);
+			Class resourceClass = getResourceComponentClass(context, name);
+			
+			Log.v(this.getClass().toString(), "resource class " + resourceClass.toString());
+			
+			if (name_class.length <= 2) {
+				rcache.put(selector, resourceClass);
+				return resourceClass;
+			}
+			
+			String id = name_class[2];
+			
+			Log.v(this.getClass().toString(), "Class found resolving " + id);
+			
+			// match id with possible candidates
+			for (Class klass : resourceClass.getDeclaredClasses()) {
+				if (klass.getName().equals(id)) {
+					rcache.put(selector, klass);
+					return klass;
+				}
+			}
+
+			// search constants
+			try {
+						
+				Object result = findConstantField(selector, id, resourceClass.getDeclaredFields());
+				
+				if (result!=null) return result;
+				
+				result = findConstantField(selector, id, resourceClass.getFields());
+				
+				return result;
+			} catch (IllegalArgumentException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return null;
 		} else if (selector.startsWith("+")) {
 			String name = selector.substring(1);
 			int id = getDrawableId(name);
@@ -436,6 +491,23 @@ public class ActivityBuilder {
 			}
 			return object_list;
 		}
+	}
+
+	private Object findConstantField(String selector, String id, Field[] fields)
+			throws IllegalAccessException {
+		for (Field f : fields) {
+			
+			Log.v(this.getClass().toString(), " f " + f.getName());
+			
+			if (Modifier.isStatic(f.getModifiers())
+					&& f.getName().equals(id)) {
+				
+				Object value = f.get(null);
+				rcache.put(selector, value);
+				return value;
+			}
+		}
+		return null;
 	}
 
 	public void parsePartialReplaceChildren(ViewGroup view, String partial) {
@@ -604,11 +676,11 @@ public class ActivityBuilder {
 			gravity |= Gravity.TOP;
 		} else if (gravityStr.equalsIgnoreCase("bottom")) {
 			gravity |= Gravity.BOTTOM;
-		} else  if (gravityStr.equalsIgnoreCase("center")) {
+		} else if (gravityStr.equalsIgnoreCase("center")) {
 			gravity |= Gravity.CENTER;
-		} else 	if (gravityStr.equalsIgnoreCase("center_horizontal")) {
+		} else if (gravityStr.equalsIgnoreCase("center_horizontal")) {
 			gravity |= Gravity.CENTER_HORIZONTAL;
-		} else	if (gravityStr.equalsIgnoreCase("center_vertical")) {
+		} else if (gravityStr.equalsIgnoreCase("center_vertical")) {
 			gravity |= Gravity.CENTER_VERTICAL;
 		}
 		return gravity;
@@ -693,7 +765,7 @@ public class ActivityBuilder {
 		return null;
 	}
 
-	static Class<?> getResourceComponenetClass(Activity context, String name) {
+	static Class<?> getResourceComponentClass(Activity context, String name) {
 		String packageName = context.getApplication().getPackageName();
 		for (Class<?> subclass : getResourceClass(context).getDeclaredClasses()) {
 			if (subclass.getName().equals(packageName + ".R$" + name)) {
@@ -705,7 +777,7 @@ public class ActivityBuilder {
 
 	static Class<?> getStyleClass(Activity context) {
 		if (ActivityBuilder.styleClass == null) {
-			ActivityBuilder.styleClass = getResourceComponenetClass(context,
+			ActivityBuilder.styleClass = getResourceComponentClass(context,
 					"style");
 		}
 		return styleClass;
@@ -713,14 +785,14 @@ public class ActivityBuilder {
 
 	public static Class<?> getIdClass(Activity context) {
 		if (ActivityBuilder.idClass == null) {
-			ActivityBuilder.idClass = getResourceComponenetClass(context, "id");
+			ActivityBuilder.idClass = getResourceComponentClass(context, "id");
 		}
 		return idClass;
 	}
 
 	Class<?> getDrawableClass(Activity context) {
 		if (ActivityBuilder.drawableClass == null) {
-			ActivityBuilder.drawableClass = getResourceComponenetClass(context,
+			ActivityBuilder.drawableClass = getResourceComponentClass(context,
 					"drawable");
 		}
 		return ActivityBuilder.drawableClass;
@@ -838,7 +910,8 @@ public class ActivityBuilder {
 			namedViewDictionary.put(attr_name.hashCode(), hash_code);
 		} else {
 			extras.setView_id(Integer.toString(hash_code));
-			namedViewDictionary.put(Integer.toString(hash_code).hashCode(), hash_code);
+			namedViewDictionary.put(Integer.toString(hash_code).hashCode(),
+					hash_code);
 		}
 
 		if (e.getAttributeValue("name") != null) {
@@ -849,7 +922,8 @@ public class ActivityBuilder {
 		if (e.getAttributeValue("class") != null) {
 			String class_name = e.getAttributeValue("class");
 			for (String item : class_name.split(" ")) {
-				ArrayList<Integer> list = classViewDictionary.get(item.hashCode());
+				ArrayList<Integer> list = classViewDictionary.get(item
+						.hashCode());
 				if (list == null) {
 					list = new ArrayList<Integer>();
 					classViewDictionary.put(item.hashCode(), list);
@@ -933,7 +1007,8 @@ public class ActivityBuilder {
 			if (node_name.equals("div") || node_name.equals("span")) {
 				builder = new FrameLayoutBuilder();
 			} else if (node_name.equals("layout")) {
-				String type = e.getAttributeValue("type").toLowerCase(Locale.ENGLISH);
+				String type = e.getAttributeValue("type").toLowerCase(
+						Locale.ENGLISH);
 				if (type.equals("frame")) {
 					builder = new FrameLayoutBuilder();
 				} else if (type.equals("linear")) {

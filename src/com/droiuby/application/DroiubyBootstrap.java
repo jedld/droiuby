@@ -10,6 +10,7 @@ import java.io.OutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import com.droiuby.client.core.utils.Utils;
 import com.droiuby.interfaces.DroiubyHelperInterface;
 
 import dalvik.system.DexClassLoader;
@@ -17,6 +18,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -30,7 +33,6 @@ class LibraryBootstrapTask extends AsyncTask<Void, String, ClassLoader> {
 	String libraries[];
 	private static ClassLoader envelopedLoader;
 	OnEnvironmentReady listener;
-
 	public LibraryBootstrapTask(Activity context, String libraries[],
 			OnEnvironmentReady listener) {
 		this.context = context;
@@ -62,10 +64,13 @@ class LibraryBootstrapTask extends AsyncTask<Void, String, ClassLoader> {
 
 	@Override
 	protected ClassLoader doInBackground(Void... arg0) {
+		if (DroiubyBootstrap.requireUpdate(context)) {
+			Log.d(this.getClass().toString(),"new version. updating...");
+		}
+		
 		try {
-			File stdlib = new File(context.getDir("vendor",
-					Context.MODE_PRIVATE), "stdlib");
-			if (stdlib.mkdirs()) {
+			File stdlib = new File(DroiubyBootstrap.getVendorPath(context), "stdlib");
+			if (stdlib.mkdirs() || DroiubyBootstrap.requireUpdate(context)) {
 				Log.d(this.getClass().toString(), "unpacking vendor libraries");
 				publishProgress("unpacking vendor libraries");
 				Log.d(this.getClass().toString(), "unpacking to vendor");
@@ -74,9 +79,8 @@ class LibraryBootstrapTask extends AsyncTask<Void, String, ClassLoader> {
 				unpackZip(bis, stdlib.getCanonicalPath());
 			}
 			
-			File frameworkDir = new File(context.getDir("vendor",
-					Context.MODE_PRIVATE), "framework");
-			if (!frameworkDir.exists()) {
+			File frameworkDir = new File(DroiubyBootstrap.getVendorPath(context), "framework");
+			if (!frameworkDir.exists() || DroiubyBootstrap.requireUpdate(context)) {
 				frameworkDir.mkdir();
 				publishProgress("unpacking framework");
 				BufferedInputStream bis = new BufferedInputStream(context
@@ -108,6 +112,9 @@ class LibraryBootstrapTask extends AsyncTask<Void, String, ClassLoader> {
 				Log.d(this.getClass().toString(), "done.");
 			}
 		}
+		
+		DroiubyBootstrap.markAsUpdated(context);
+		
 		return envelopedLoader;
 	}
 
@@ -194,6 +201,49 @@ public class DroiubyBootstrap {
 	public static final String JRUBY_DEX_NAME = "large_dex.jar";
 	public static final int BUF_SIZE = 8 * 1024;
 
+	public static boolean requireUpdate(Context context) {
+		SharedPreferences prefs = context.getSharedPreferences("version",
+				Context.MODE_PRIVATE);
+		String currentVersion = prefs.getString("version", "");
+		PackageInfo pInfo;
+		try {
+			pInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
+			String newVersion = pInfo.versionName;
+			return !currentVersion.equals(newVersion);
+		} catch (NameNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	public static void markAsUpdated(Context context) {
+		SharedPreferences prefs = context.getSharedPreferences("version",
+				Context.MODE_PRIVATE);
+		
+		PackageInfo pInfo;
+		try {
+			pInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
+			String newVersion = pInfo.versionName;
+			prefs.edit().putString("version", newVersion).commit();
+		} catch (NameNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
+	
+	public static File getVendorPath(Context context) {
+		return context.getDir("vendor",
+					Context.MODE_PRIVATE);
+	}
+	
+	public static File getDexPath(Context context) {
+			return context.getDir("dex",
+					Context.MODE_PRIVATE);
+	}
+	
+	
 	public static LibraryBootstrapTask bootstrapEnvironment(Activity context,
 			OnEnvironmentReady listener) {
 		String dexnames[] = { JRUBY_DEX_NAME, SECONDARY_DEX_NAME };
@@ -205,11 +255,10 @@ public class DroiubyBootstrap {
 	public static File loadSecondaryDex(Context context, String name) {
 		// Before the secondary dex file can be processed by the DexClassLoader,
 		// it has to be first copied from asset resource to a storage location.
-		File dexInternalStoragePath = new File(context.getDir("dex",
-				Context.MODE_PRIVATE), name);
+		File dexInternalStoragePath = new File(DroiubyBootstrap.getDexPath(context), name);
 		BufferedInputStream bis = null;
 		OutputStream dexWriter = null;
-		if (!dexInternalStoragePath.exists()) {
+		if (!dexInternalStoragePath.exists() || requireUpdate(context)) {
 			try {
 				bis = new BufferedInputStream(context.getAssets().open(name));
 				dexWriter = new BufferedOutputStream(new FileOutputStream(

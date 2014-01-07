@@ -1,5 +1,6 @@
 package com.droiuby.client.core;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -24,7 +25,8 @@ import com.droiuby.callbacks.DocumentReadyListener;
 import com.droiuby.client.core.builder.ActivityBuilder;
 import com.droiuby.client.core.utils.Utils;
 
-public class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder> {
+public class ActivityBootstrapper extends
+		AsyncTask<Void, Void, ActivityBuilder> {
 
 	ActiveApp app;
 	Activity targetActivity;
@@ -71,19 +73,36 @@ public class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder>
 
 	@Override
 	protected ActivityBuilder doInBackground(Void... params) {
-		String responseBody = (String) Utils.loadAppAsset(app, targetActivity,
-				pageUrl, Utils.ASSET_TYPE_TEXT, method);
-		if (responseBody != null) {
-			// Log.d(this.getClass().toString(), responseBody);
-		} else {
-			Log.d(this.getClass().toString(), "response empty.");
-			return null;
-		}
+
+		String responseBody;
+
 		try {
+			responseBody = (String) Utils.loadAppAsset(app, targetActivity,
+					pageUrl, Utils.ASSET_TYPE_TEXT, method);
+
+			if (responseBody == null) {
+				responseBody = "<activity><t>Problem loading url " + pageUrl + "</t></activity>";
+			}
+
 			if (mainActivityDocument == null) {
 				mainActivityDocument = sax
 						.build(new StringReader(responseBody));
 			}
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			responseBody = "<activity><t>Unable to open file " + pageUrl + "</t></activity>";
+			try {
+				mainActivityDocument = sax
+						.build(new StringReader(responseBody));
+			} catch (JDOMException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+
 		} catch (JDOMParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -162,7 +181,6 @@ public class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder>
 
 		resultBundle = builder.preload(executionBundle);
 
-
 		return builder;
 	}
 
@@ -205,7 +223,7 @@ public class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder>
 
 	private long buildView(ActivityBuilder result) {
 		long start = System.currentTimeMillis();
-		
+
 		Log.d(this.getClass().toString(), "parsing and preparing views....");
 
 		preparedViews = result.prepare();
@@ -218,7 +236,7 @@ public class ActivityBootstrapper extends AsyncTask<Void, Void, ActivityBuilder>
 		result.applyStyle(view, resultBundle);
 		Log.d(this.getClass().toString(), "build activity: elapsed time = "
 				+ elapsed + "ms");
-		
+
 		if (onReadyListener != null) {
 			Log.d(this.getClass().toString(), "invoking onDocumentReady.");
 			onReadyListener.onDocumentReady(mainActivityDocument);
