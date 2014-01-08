@@ -189,11 +189,14 @@ public class ActivityBootstrapper extends
 		// TODO Auto-generated method stub
 		super.onPostExecute(result);
 		if (result != null) {
-			buildView(result);
+			
 			try {
 				if (preParsedScript != null) {
 					preParsedScript.run();
 				}
+				
+				buildView(result);
+				
 				scriptingContainer.runScriptlet("$framework.preload");
 				if (preParsedScript != null) {
 					Log.d(this.getClass().toString(), "class = "
@@ -226,7 +229,7 @@ public class ActivityBootstrapper extends
 
 		Log.d(this.getClass().toString(), "parsing and preparing views....");
 
-		preparedViews = result.prepare();
+		preparedViews = result.prepare(executionBundle);
 
 		long elapsed = System.currentTimeMillis() - start;
 		Log.d(this.getClass().toString(), "prepare activity: elapsed time = "

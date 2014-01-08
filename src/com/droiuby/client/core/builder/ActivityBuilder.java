@@ -18,6 +18,8 @@ import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
+import org.jruby.javasupport.JavaObject;
+import org.jruby.runtime.builtin.IRubyObject;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -296,13 +298,13 @@ public class ActivityBuilder {
 		}
 	}
 
-	public View prepare() {
+	public View prepare(ExecutionBundle bundle) {
 		FrameLayout framelayout = new FrameLayout(context);
 		framelayout.setLayoutParams(new LinearLayout.LayoutParams(
 				android.view.ViewGroup.LayoutParams.MATCH_PARENT,
 				android.view.ViewGroup.LayoutParams.MATCH_PARENT, 0));
 		try {
-			parse(rootElement, framelayout);
+			parse(rootElement, framelayout, bundle);
 		} catch (Exception e) {
 			e.printStackTrace();
 			TextView view = new TextView(context);
@@ -424,24 +426,25 @@ public class ActivityBuilder {
 			if (rcache.containsKey(selector)) {
 				return rcache.get(selector);
 			}
-			
+
 			String name_class[] = StringUtils.split(selector, ".");
 			String name = name_class[1];
-			
+
 			Log.v(this.getClass().toString(), "R resolver " + name);
 			Class resourceClass = getResourceComponentClass(context, name);
-			
-			Log.v(this.getClass().toString(), "resource class " + resourceClass.toString());
-			
+
+			Log.v(this.getClass().toString(),
+					"resource class " + resourceClass.toString());
+
 			if (name_class.length <= 2) {
 				rcache.put(selector, resourceClass);
 				return resourceClass;
 			}
-			
+
 			String id = name_class[2];
-			
+
 			Log.v(this.getClass().toString(), "Class found resolving " + id);
-			
+
 			// match id with possible candidates
 			for (Class klass : resourceClass.getDeclaredClasses()) {
 				if (klass.getName().equals(id)) {
@@ -452,13 +455,16 @@ public class ActivityBuilder {
 
 			// search constants
 			try {
-						
-				Object result = findConstantField(selector, id, resourceClass.getDeclaredFields());
-				
-				if (result!=null) return result;
-				
-				result = findConstantField(selector, id, resourceClass.getFields());
-				
+
+				Object result = findConstantField(selector, id,
+						resourceClass.getDeclaredFields());
+
+				if (result != null)
+					return result;
+
+				result = findConstantField(selector, id,
+						resourceClass.getFields());
+
 				return result;
 			} catch (IllegalArgumentException e) {
 				// TODO Auto-generated catch block
@@ -496,12 +502,11 @@ public class ActivityBuilder {
 	private Object findConstantField(String selector, String id, Field[] fields)
 			throws IllegalAccessException {
 		for (Field f : fields) {
-			
+
 			Log.v(this.getClass().toString(), " f " + f.getName());
-			
-			if (Modifier.isStatic(f.getModifiers())
-					&& f.getName().equals(id)) {
-				
+
+			if (Modifier.isStatic(f.getModifiers()) && f.getName().equals(id)) {
+
 				Object value = f.get(null);
 				rcache.put(selector, value);
 				return value;
@@ -510,19 +515,22 @@ public class ActivityBuilder {
 		return null;
 	}
 
-	public void parsePartialReplaceChildren(ViewGroup view, String partial) {
-		parsePartial(view, partial, PARTIAL_REPLACE_CHILDREN);
+	public void parsePartialReplaceChildren(ViewGroup view, String partial,
+			ExecutionBundle bundle) {
+		parsePartial(view, partial, PARTIAL_REPLACE_CHILDREN, bundle);
 	}
 
-	public void parsePartialAppendChildren(ViewGroup view, String partial) {
-		parsePartial(view, partial, PARTIAL_APPEND_CHILDREN);
+	public void parsePartialAppendChildren(ViewGroup view, String partial,
+			ExecutionBundle bundle) {
+		parsePartial(view, partial, PARTIAL_APPEND_CHILDREN, bundle);
 	}
 
 	public void appendChild(ViewGroup group, View view) {
 		group.addView(view);
 	}
 
-	public void parsePartial(ViewGroup view, String partial, int operation) {
+	public void parsePartial(ViewGroup view, String partial, int operation,
+			ExecutionBundle bundle) {
 		SAXBuilder sax = new SAXBuilder();
 		try {
 			Document doc = sax.build(new StringReader("<partial>" + partial
@@ -530,9 +538,9 @@ public class ActivityBuilder {
 			Element e = doc.getRootElement();
 			if (operation == PARTIAL_REPLACE_CHILDREN) {
 				view.removeAllViews();
-				parse(e, view);
+				parse(e, view, bundle);
 			} else if (operation == PARTIAL_APPEND_CHILDREN) {
-				parse(e, view);
+				parse(e, view, bundle);
 			}
 		} catch (JDOMException e) {
 			// TODO Auto-generated catch block
@@ -997,7 +1005,7 @@ public class ActivityBuilder {
 		}
 	}
 
-	public void parse(Element element, ViewGroup view) {
+	public void parse(Element element, ViewGroup view, ExecutionBundle bundle) {
 		List<Element> elems = element.getChildren();
 		for (Element e : elems) {
 
@@ -1039,21 +1047,33 @@ public class ActivityBuilder {
 				builder = new EditTextBuilder();
 			} else if (node_name.equals("img") || node_name.equals("image")) {
 				builder = new ImageViewBuilder();
+			} else {
+				builder = null;
 			}
 
-			if (builder != null) {
+			View currentView = null;
 
+			if (builder != null) {
 				// build and add the view to its parent
 				builder.setContext(context);
 				builder.setBuilder(this);
-				View currentView = builder.build(e);
+				currentView = builder.build(e);
+			} else {
+				JavaObject instance = (JavaObject) bundle.getContainer()
+						.runScriptlet(
+								"$framework.resolve_view('" + node_name + "')");
+				currentView = (View) instance.getValue();
+			}
+
+			if (currentView != null) {
 				registerView(view, currentView, e, builder);
 				builder.setParams(currentView, e);
 				// handle ViewGroups which can have subelements
 				if (builder.hasSubElements()) {
-					parse(e, (ViewGroup) currentView);
+					parse(e, (ViewGroup) currentView, bundle);
 				}
 			}
+
 		}
 	}
 }
