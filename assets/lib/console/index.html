@@ -11,12 +11,11 @@
    	<div class="upload-section clearfix">
      	<a href="#" id="showuploader">Upload App Archive</a>
      	<form id="fileuploader" enctype='multipart/form-data' action="/upload" method="post">
-       	<input type="hidden" id="name" name="name" value="app"/>
        	<input type="hidden" id="run" name="run" value="true"/>
        	<span class="fileupload">
           <input type="file" size="24" id="filename" name="file" class="browserhidden"/>
           <span class="browservisible">
-            <input type="text" id="filefield" />
+            <input type="text" id="filefield" name="name"/>
           </span>
         </span>
         <input type="image" id="reload" src="reload.png" alt="Reload">

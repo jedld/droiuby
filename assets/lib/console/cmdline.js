@@ -123,8 +123,8 @@ $(document)
             
             $('form #reload').click(droiuby.fileUpload);
             $('form #filename').change( function(event) {
-              droiuby.fileUpload(event);
               $('form #filefield').val($('form #filename').val());
+              droiuby.fileUpload(event);
             });
 
             $('#toggle_multiline').live('click',
