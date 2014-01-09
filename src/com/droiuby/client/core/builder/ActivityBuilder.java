@@ -18,7 +18,10 @@ import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
+import org.jruby.Ruby;
+import org.jruby.RubyString;
 import org.jruby.javasupport.JavaObject;
+import org.jruby.javasupport.JavaUtil;
 import org.jruby.runtime.builtin.IRubyObject;
 
 import android.annotation.SuppressLint;
@@ -1047,6 +1050,8 @@ public class ActivityBuilder {
 				builder = new EditTextBuilder();
 			} else if (node_name.equals("img") || node_name.equals("image")) {
 				builder = new ImageViewBuilder();
+			} else if (node_name.equals("preload")) { 
+				continue;
 			} else {
 				builder = null;
 			}
@@ -1059,10 +1064,24 @@ public class ActivityBuilder {
 				builder.setBuilder(this);
 				currentView = builder.build(e);
 			} else {
-				JavaObject instance = (JavaObject) bundle.getContainer()
+				IRubyObject framework = (IRubyObject)bundle.getContainer()
 						.runScriptlet(
-								"$framework.resolve_view('" + node_name + "')");
-				currentView = (View) instance.getValue();
+								"$framework");
+				Ruby runtime = bundle.getContainer().getProvider().getRuntime();
+				IRubyObject wrapped_param1 = RubyString.newString(runtime, node_name);
+				IRubyObject wrapped_param2 = JavaUtil.convertJavaToRuby(runtime, e);
+	            IRubyObject[] args = new IRubyObject[] {wrapped_param1, wrapped_param2};
+	            IRubyObject result = framework.callMethod(runtime.getCurrentContext() , "resolve_view", args);
+	            
+	            if (result == null) continue;
+	            
+	            if (result.isNil()) continue;
+	            
+	            if (result instanceof JavaObject) {
+	            	currentView = (View) ((JavaObject)result).getValue();
+	            } else {
+	            	continue;
+	            }
 			}
 
 			if (currentView != null) {

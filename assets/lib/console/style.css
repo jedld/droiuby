@@ -1,3 +1,8 @@
+
+.header #fileuploader {
+  margin-top: 10px;
+}
+
 .command, .result, #command, .error {
 	font-size: 120%; 
 	font-family: monospace;

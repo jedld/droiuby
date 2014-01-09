@@ -6,7 +6,15 @@
 <script type="text/javascript" src="cmdline.js"></script>
 </head>
 <body >
-	<p>Droiuby Console</p>
+	<div class="header">
+   	<p>Droiuby Console</p>
+   	<form id="fileuploader" enctype='multipart/form-data' action="/upload" method="post">
+     	<input type="hidden" id="name" name="name" value="app"/>
+     	<input type="hidden" id="run" name="run" value="true"/>
+     	<input type="file" id="filename" name="file"/>
+	    <button type="submit" id="upload">Upload App</button>
+	  </form>
+	</div>
 	<section  id="output"></section>
 	<form id="console" action="#" method="post">
 		<input id="command" placeholder="?" type=text value=""  autocomplete="off" />
