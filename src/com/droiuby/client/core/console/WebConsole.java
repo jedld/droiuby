@@ -206,9 +206,9 @@ public class WebConsole extends NanoHTTPD {
 						launchAppFromUrl(resultMap, "file://"
 								+ extraction_target + File.separator
 								+ "config.droiuby");
-						return new Response(NanoHTTPD.HTTP_OK,
-								"application/json", "success");
 					}
+					return new Response(NanoHTTPD.HTTP_OK,
+							"application/json", "{\"status\": \"OK\"}");
 				} catch (FileNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

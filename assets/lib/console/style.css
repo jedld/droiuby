@@ -1,3 +1,84 @@
+.fileupload {
+    position:relative;
+}
+
+a#showuploader {
+	font-family: monospace;
+	font-weight: bold;  
+}
+
+#fileuploader {
+  display: none;
+}
+
+.browservisible {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    z-index: 1;
+    background:url(upload.png) 100% 1px no-repeat;
+    width:345px;
+    height:30px;
+}
+
+.upload-section {
+    margin-bottom: 10px;
+    margin-left: 12px;
+    width: 100%;
+}
+
+.clearfix:after {
+    content: ".";
+    display: block;
+    clear: both;
+    visibility: hidden;
+    line-height: 0;
+    height: 0;
+}
+ 
+.clearfix {
+    display: inline-block;
+}
+ 
+html[xmlns] .clearfix {
+    display: block;
+}
+ 
+* html .clearfix {
+    height: 1%;
+}
+
+#reload {
+  width: 35px;
+  height: 35px;
+  margin-right: 10px;
+  float: left;
+  -webkit-transition: all .2s ease-in-out;
+}
+
+#reload:hover { -webkit-transform: scale(1.1); }
+
+#filefield {
+    width:250px;
+    margin-right:85px;
+    padding: 6px;
+    font-size: 13px;
+    background: #fff url('bg-form-field.gif') top left repeat-x;
+    border: 1px solid #d5d5d5;
+    color: #333;
+    border-radius: 4px 4px 4px 4px !important;
+}
+
+.browserhidden {
+    position:relative;
+    width:345px;
+    height:30px;
+    text-align: right;
+    -moz-opacity:0;
+    filter:alpha(opacity: 0);
+    opacity: 0;
+    z-index: 2; 
+}
 
 .header #fileuploader {
   margin-top: 10px;

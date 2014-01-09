@@ -8,12 +8,20 @@
 <body >
 	<div class="header">
    	<p>Droiuby Console</p>
-   	<form id="fileuploader" enctype='multipart/form-data' action="/upload" method="post">
-     	<input type="hidden" id="name" name="name" value="app"/>
-     	<input type="hidden" id="run" name="run" value="true"/>
-     	<input type="file" id="filename" name="file"/>
-	    <button type="submit" id="upload">Upload App</button>
-	  </form>
+   	<div class="upload-section clearfix">
+     	<a href="#" id="showuploader">Upload App Archive</a>
+     	<form id="fileuploader" enctype='multipart/form-data' action="/upload" method="post">
+       	<input type="hidden" id="name" name="name" value="app"/>
+       	<input type="hidden" id="run" name="run" value="true"/>
+       	<span class="fileupload">
+          <input type="file" size="24" id="filename" name="file" class="browserhidden"/>
+          <span class="browservisible">
+            <input type="text" id="filefield" />
+          </span>
+        </span>
+        <input type="image" id="reload" src="reload.png" alt="Reload">
+	    </form>
+	  </div>
 	</div>
 	<section  id="output"></section>
 	<form id="console" action="#" method="post">
