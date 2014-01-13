@@ -202,7 +202,7 @@ public class Utils {
 	}
 
 	public static EmbedEvalUnit preParseRuby(ScriptingContainer container,
-			String statement, Activity activity) {
+			String statement) {
 		EmbedEvalUnit parsed = container.parse(statement, 0);
 		return parsed;
 	}
