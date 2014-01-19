@@ -1,7 +1,7 @@
 package com.droiuby.client.core;
 
-import com.droiuby.application.ActiveApp;
+import com.droiuby.application.DroiubyApp;
 
 public interface OnDownloadCompleteListener {
-	public void setActiveApp(ActiveApp application);
+	public void setActiveApp(DroiubyApp application);
 }

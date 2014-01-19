@@ -2,7 +2,7 @@ package com.droiuby.client.core;
 
 import org.jruby.embed.ScriptingContainer;
 
-import com.droiuby.application.ActiveApp;
+import com.droiuby.application.DroiubyApp;
 import com.droiuby.client.core.builder.ActivityBuilder;
 
 import android.app.Activity;
@@ -10,13 +10,13 @@ import android.app.Activity;
 public class RubyContainerPayload {
 	Activity currentActivity;
 	ActivityBuilder activityBuilder;
-	ActiveApp activeApp;
+	DroiubyApp activeApp;
 	
-	public ActiveApp getActiveApp() {
+	public DroiubyApp getActiveApp() {
 		return activeApp;
 	}
 
-	public void setActiveApp(ActiveApp activeApp) {
+	public void setActiveApp(DroiubyApp activeApp) {
 		this.activeApp = activeApp;
 	}
 

@@ -20,7 +20,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.view.View;
 
-import com.droiuby.application.ActiveApp;
+import com.droiuby.application.DroiubyApp;
 import com.droiuby.callbacks.DocumentReadyListener;
 import com.droiuby.client.core.builder.ActivityBuilder;
 import com.droiuby.client.core.utils.Utils;
@@ -28,7 +28,7 @@ import com.droiuby.client.core.utils.Utils;
 public class ActivityBootstrapper extends
 		AsyncTask<Void, Void, ActivityBuilder> {
 
-	ActiveApp app;
+	DroiubyApp app;
 	Activity targetActivity;
 	Document mainActivityDocument;
 	ScriptingContainer scriptingContainer;
@@ -48,7 +48,7 @@ public class ActivityBootstrapper extends
 	SAXBuilder sax = new SAXBuilder();
 	int method;
 
-	public ActivityBootstrapper(ExecutionBundle executionBundle, ActiveApp app,
+	public ActivityBootstrapper(ExecutionBundle executionBundle, DroiubyApp app,
 			String pageUrl, int method, int resId, Activity targetActivity,
 			Document cachedActivityDocument,
 			DocumentReadyListener onReadyListener) {

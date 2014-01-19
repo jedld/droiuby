@@ -71,7 +71,7 @@ import android.util.Log;
 import android.view.Display;
 import android.view.WindowManager;
 
-import com.droiuby.application.ActiveApp;
+import com.droiuby.application.DroiubyApp;
 import com.droiuby.client.core.ExecutionBundle;
 import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
 
@@ -379,7 +379,7 @@ public class Utils {
 	}
 
 	public static SharedPreferences getCurrentPreferences(
-			ActiveApp application, ContextWrapper activity) {
+			DroiubyApp application, ContextWrapper activity) {
 		try {
 			SharedPreferences prefs = null;
 			if (application.getBaseUrl().startsWith("asset:")) {
@@ -534,14 +534,14 @@ public class Utils {
 	}
 
 	public static IRubyObject loadAppAssetRuby(ExecutionBundle bundle,
-			ActiveApp app, Context context, String asset_name, int asset_type,
+			DroiubyApp app, Context context, String asset_name, int asset_type,
 			int method) {
 		return JavaUtil.convertJavaToRuby(bundle.getContainer().getProvider()
 				.getRuntime(),
 				loadAppAsset(app, context, asset_name, asset_type, method));
 	}
 
-	public static Object loadAppAsset(ActiveApp app, Context context,
+	public static Object loadAppAsset(DroiubyApp app, Context context,
 			String asset_name, int asset_type, int method) {
 		if (asset_name != null) {
 			if (asset_name.startsWith("asset:")) {

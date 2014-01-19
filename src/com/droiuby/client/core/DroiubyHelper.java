@@ -23,7 +23,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.ViewGroup;
 
-import com.droiuby.application.ActiveApp;
+import com.droiuby.application.DroiubyApp;
 import com.droiuby.callbacks.DocumentReadyListener;
 import com.droiuby.callbacks.OnAppDownloadComplete;
 import com.droiuby.callbacks.OnRefreshRequested;
@@ -37,7 +37,7 @@ public class DroiubyHelper implements OnAppDownloadComplete,
 		OnDownloadCompleteListener, DocumentReadyListener,
 		DroiubyHelperInterface {
 	/** Called when the activity is first created. */
-	ActiveApp application;
+	DroiubyApp application;
 	Activity activity;
 
 	public DroiubyHelper() {
@@ -100,7 +100,7 @@ public class DroiubyHelper implements OnAppDownloadComplete,
 	 */
 	public void onIntent(Bundle params) {
 		Log.d(this.getClass().toString(), "onIntent");
-		application = (ActiveApp) params.getSerializable("application");
+		application = (DroiubyApp) params.getSerializable("application");
 		if (application != null) {
 			ViewGroup target = (ViewGroup) activity
 					.findViewById(getMainLayoutId());
@@ -133,7 +133,7 @@ public class DroiubyHelper implements OnAppDownloadComplete,
 	 * com.droiuby.client.core.DroiubyHelperInterface#reloadApplication(com.
 	 * droiuby.application.ActiveApp, int)
 	 */
-	public void reloadApplication(ActiveApp application, int mainlayout) {
+	public void reloadApplication(DroiubyApp application, int mainlayout) {
 		ScriptingContainer container = executionBundle.getContainer();
 		ViewGroup target = (ViewGroup) activity.findViewById(mainlayout);
 		if (executionBundle.getCurrentController() != null) {
@@ -188,7 +188,7 @@ public class DroiubyHelper implements OnAppDownloadComplete,
 	 * com.droiuby.client.core.DroiubyHelperInterface#setupApplication(com.droiuby
 	 * .application.ActiveApp, android.view.ViewGroup, int)
 	 */
-	public void setupApplication(ActiveApp application, ViewGroup target,
+	public void setupApplication(DroiubyApp application, ViewGroup target,
 			int resId) {
 		Log.d(this.getClass().toString(),
 				"setupApplication -> Loading application at "
@@ -289,7 +289,7 @@ public class DroiubyHelper implements OnAppDownloadComplete,
 	 * com.droiuby.client.core.DroiubyHelperInterface#setActiveApp(com.droiuby
 	 * .application.ActiveApp)
 	 */
-	public void setActiveApp(ActiveApp application) {
+	public void setActiveApp(DroiubyApp application) {
 		this.application = application;
 	}
 
@@ -361,7 +361,7 @@ public class DroiubyHelper implements OnAppDownloadComplete,
 	 * com.droiuby.client.core.DroiubyHelperInterface#onDownloadComplete(com
 	 * .droiuby.application.ActiveApp)
 	 */
-	public void onDownloadComplete(ActiveApp app) {
+	public void onDownloadComplete(DroiubyApp app) {
 		Log.d(this.getClass().toString(), "onDownloadComplete()");
 		setupApplication(app,
 				(ViewGroup) activity.findViewById(getMainLayoutId()),

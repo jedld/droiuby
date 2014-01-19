@@ -27,7 +27,7 @@ import android.os.Environment;
 import android.util.Log;
 import android.view.ViewGroup;
 
-import com.droiuby.application.ActiveApp;
+import com.droiuby.application.DroiubyApp;
 import com.droiuby.callbacks.DocumentReadyListener;
 import com.droiuby.client.core.AppCache;
 import com.droiuby.client.core.AssetDownloadCompleteListener;
@@ -45,7 +45,7 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 
 	String baseUrl;
 	Activity targetActivity;
-	ActiveApp app;
+	DroiubyApp app;
 	Element rootElem;
 	Document mainActivityDocument;
 	String controller;
@@ -78,7 +78,7 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 
 	SAXBuilder sax = new SAXBuilder();
 
-	public ActiveAppDownloader(ActiveApp app, Activity targetActivity,
+	public ActiveAppDownloader(DroiubyApp app, Activity targetActivity,
 			ViewGroup target, AppCache cache, ExecutionBundle executionBundle,
 			OnDownloadCompleteListener listener, int resId) {
 		this.targetActivity = targetActivity;
@@ -154,7 +154,7 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 		}
 	}
 
-	public static ActiveApp loadApp(Context c, String url) {
+	public static DroiubyApp loadApp(Context c, String url) {
 		String responseBody = null;
 		Log.d(ActiveAppDownloader.class.toString(), "loading " + url);
 		if (url.startsWith("file://") || url.indexOf("asset:") != -1) {
@@ -188,7 +188,7 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 					}
 				}
 
-				ActiveApp app = new ActiveApp();
+				DroiubyApp app = new DroiubyApp();
 				app.setDescription(appDescription);
 				app.setName(appName);
 				app.setBaseUrl(baseUrl);
@@ -222,20 +222,20 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 						String asset_type = asset.getAttributeValue("type");
 						Log.d("APP DOWNLOADER", "loading asset " + asset_name
 								+ ".");
-						int type_int = ActiveApp.ASSET_TYPE_SCRIPT;
+						int type_int = DroiubyApp.ASSET_TYPE_SCRIPT;
 						if (asset_type.equals("script")) {
-							type_int = ActiveApp.ASSET_TYPE_SCRIPT;
+							type_int = DroiubyApp.ASSET_TYPE_SCRIPT;
 						} else if (asset_type.equals("css")) {
-							type_int = ActiveApp.ASSET_TYPE_CSS;
+							type_int = DroiubyApp.ASSET_TYPE_CSS;
 						} else if (asset_type.equals("lib")) {
-							type_int = ActiveApp.ASSET_TYPE_LIB;
+							type_int = DroiubyApp.ASSET_TYPE_LIB;
 						} else if (asset_type.equals("font") || asset_type.equals("typeface")) {
-							type_int = ActiveApp.ASSET_TYPE_TYPEFACE;
+							type_int = DroiubyApp.ASSET_TYPE_TYPEFACE;
 						} else if (asset_type.equals("binary")
 								|| asset_type.equals("file")) {
-							type_int = ActiveApp.ASSET_TYPE_BINARY;
+							type_int = DroiubyApp.ASSET_TYPE_BINARY;
 						} else if (asset_type.equals("vendor")) {
-							type_int = ActiveApp.ASSET_TYPE_VENDOR;
+							type_int = DroiubyApp.ASSET_TYPE_VENDOR;
 						}
 
 						app.addAsset(asset_name, type_int);
@@ -282,11 +282,11 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 					int download_type = Utils.ASSET_TYPE_TEXT;
 
 					AssetDownloadCompleteListener listener = null;
-					if (asset_type == ActiveApp.ASSET_TYPE_SCRIPT) {
+					if (asset_type == DroiubyApp.ASSET_TYPE_SCRIPT) {
 						listener = new ScriptPreparser();
-					} else if (asset_type == ActiveApp.ASSET_TYPE_CSS) {
+					} else if (asset_type == DroiubyApp.ASSET_TYPE_CSS) {
 						listener = new CssPreloadParser();
-					} else if (asset_type == ActiveApp.ASSET_TYPE_VENDOR) {
+					} else if (asset_type == DroiubyApp.ASSET_TYPE_VENDOR) {
 						List<String> loadPaths = new ArrayList<String>();
 						String path = Utils.stripProtocol(app.getBaseUrl())
 								+ asset_name;
@@ -315,7 +315,7 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 						
 						scriptingContainer.getProvider().getRuntime()
 						.getLoadService().addPaths(loadPaths);
-					} else if (asset_type == ActiveApp.ASSET_TYPE_LIB) {
+					} else if (asset_type == DroiubyApp.ASSET_TYPE_LIB) {
 						List<String> loadPaths = new ArrayList<String>();
 						String path = Utils.stripProtocol(app.getBaseUrl())
 								+ asset_name;
@@ -330,9 +330,9 @@ public class ActiveAppDownloader extends AsyncTask<Void, Void, Boolean>
 									.getLoadService().addPaths(loadPaths);
 						}
 						continue;
-					} else if (asset_type == ActiveApp.ASSET_TYPE_BINARY) {
+					} else if (asset_type == DroiubyApp.ASSET_TYPE_BINARY) {
 						download_type = Utils.ASSET_TYPE_BINARY;
-					} else if (asset_type == ActiveApp.ASSET_TYPE_TYPEFACE) {
+					} else if (asset_type == DroiubyApp.ASSET_TYPE_TYPEFACE) {
 						download_type = Utils.ASSET_TYPE_TYPEFACE;
 					}
 

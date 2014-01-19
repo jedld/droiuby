@@ -45,7 +45,7 @@ import android.widget.RelativeLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
-import com.droiuby.application.ActiveApp;
+import com.droiuby.application.DroiubyApp;
 import com.droiuby.application.CanvasActivity;
 import com.droiuby.callbacks.DocumentReadyListener;
 import com.droiuby.client.core.ActivityBootstrapper;
@@ -281,7 +281,7 @@ public class ActivityBuilder {
 	}
 
 	public static void loadLayout(ExecutionBundle executionBundle,
-			ActiveApp app, String pageUrl, boolean newActivity, int method,
+			DroiubyApp app, String pageUrl, boolean newActivity, int method,
 			Activity targetActivity, Document cachedDocument,
 			DocumentReadyListener onReadyListener, int resId) {
 		if (newActivity) {

@@ -8,7 +8,7 @@ import java.util.HashMap;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-public class ActiveApp implements Serializable {
+public class DroiubyApp implements Serializable {
 
 	public static final int ASSET_TYPE_SCRIPT = 0;
 	public static final int ASSET_TYPE_LIB = 4;

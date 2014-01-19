@@ -9,12 +9,12 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.TextView;
 
-import com.droiuby.application.ActiveApp;
+import com.droiuby.application.DroiubyApp;
 import com.droiuby.application.R;
 import com.droiuby.callbacks.OnAppDownloadComplete;
 import com.droiuby.client.core.utils.ActiveAppDownloader;
 
-public class AppDownloader extends AsyncTask<Void, String, ActiveApp> {
+public class AppDownloader extends AsyncTask<Void, String, DroiubyApp> {
 	String url;
 	Activity c;
 	Class activityClass;
@@ -51,7 +51,7 @@ public class AppDownloader extends AsyncTask<Void, String, ActiveApp> {
 	}
 
 	@Override
-	protected ActiveApp doInBackground(Void... params) {
+	protected DroiubyApp doInBackground(Void... params) {
 		Log.d(this.getClass().toString(),"Loading app descriptor ...");
 		publishProgress("loading app");
 		try {
@@ -62,7 +62,7 @@ public class AppDownloader extends AsyncTask<Void, String, ActiveApp> {
 	}
 
 	@Override
-	protected void onPostExecute(ActiveApp result) {
+	protected void onPostExecute(DroiubyApp result) {
 		super.onPostExecute(result);
 		if (this.onDownloadComplete != null) {
 			Log.d(this.getClass().toString(),"Invoking onDownloadComplete");

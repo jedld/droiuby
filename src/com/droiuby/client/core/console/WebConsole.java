@@ -23,7 +23,7 @@ import android.content.SharedPreferences.Editor;
 import android.content.res.AssetManager;
 import android.util.Log;
 
-import com.droiuby.application.ActiveApp;
+import com.droiuby.application.DroiubyApp;
 import com.droiuby.application.CanvasActivity;
 import com.droiuby.callbacks.OnAppDownloadComplete;
 import com.droiuby.client.core.ExecutionBundle;
@@ -194,7 +194,7 @@ public class WebConsole extends NanoHTTPD {
 						if (bundle != null) {
 							Log.d(this.getClass().toString(),
 									"reloading framework");
-							ActiveApp app = bundle.getPayload().getActiveApp();
+							DroiubyApp app = bundle.getPayload().getActiveApp();
 							bundle.getContainer().runScriptlet(
 									"load '" + app.getFramework() + "/"
 											+ app.getFramework() + ".rb'");
@@ -442,7 +442,7 @@ public class WebConsole extends NanoHTTPD {
 		}
 	}
 
-	public void setActiveApp(ActiveApp application) {
+	public void setActiveApp(DroiubyApp application) {
 		// TODO Auto-generated method stub
 
 	}

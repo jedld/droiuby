@@ -11,20 +11,20 @@ import android.content.Context;
 import android.os.Environment;
 import android.util.Log;
 
-import com.droiuby.application.ActiveApp;
+import com.droiuby.application.DroiubyApp;
 import com.droiuby.client.core.utils.Utils;
 
 public class AssetDownloadWorker implements Runnable {
 
 	Context context;
-	ActiveApp activeApp;
+	DroiubyApp activeApp;
 	ExecutionBundle bundle;
 	String assetName;
 	int method, assetType;
 	ArrayList<Object> resultBundle;
 	AssetDownloadCompleteListener onCompleteListener;
 
-	public AssetDownloadWorker(Context context, ActiveApp activeApp,
+	public AssetDownloadWorker(Context context, DroiubyApp activeApp,
 			ExecutionBundle bundle, String assetName, int assetType,
 			ArrayList<Object> resultBundle,
 			AssetDownloadCompleteListener onCompleteListener, int method) {

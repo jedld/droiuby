@@ -11,7 +11,7 @@ import android.hardware.SensorEvent;
 import android.os.Bundle;
 import android.view.ViewGroup;
 
-import com.droiuby.application.ActiveApp;
+import com.droiuby.application.DroiubyApp;
 
 public interface DroiubyHelperInterface {
 
@@ -23,7 +23,7 @@ public interface DroiubyHelperInterface {
 	
 	public void clearCache();
 	
-	public void reloadApplication(ActiveApp application, int mainlayout);
+	public void reloadApplication(DroiubyApp application, int mainlayout);
 
 	public SharedPreferences getCurrentPreferences();
 
@@ -31,7 +31,7 @@ public interface DroiubyHelperInterface {
 
 	public void showConsoleInfo();
 
-	public void setupApplication(ActiveApp application, ViewGroup target,
+	public void setupApplication(DroiubyApp application, ViewGroup target,
 			int resId);
 
 	public void onStart();
@@ -42,7 +42,7 @@ public interface DroiubyHelperInterface {
 
 	public Object onRetainNonConfigurationInstance();
 
-	public void setActiveApp(ActiveApp application);
+	public void setActiveApp(DroiubyApp application);
 
 	public void onActivityResult(int requestCode, int resultCode, Intent intent);
 
@@ -50,7 +50,7 @@ public interface DroiubyHelperInterface {
 	
 	public void startDefault();
 
-	public void onDownloadComplete(ActiveApp app);
+	public void onDownloadComplete(DroiubyApp app);
 
 	public void onDocumentReady(Document mainActivity);
 

@@ -168,7 +168,7 @@ public class CanvasActivity extends Activity implements OnEnvironmentReady, OnRe
 	    super.onConfigurationChanged(newConfig);
 	}
 	
-	public void onDownloadComplete(ActiveApp app) {
+	public void onDownloadComplete(DroiubyApp app) {
 		Log.d(this.getClass().toString(), "app " + app.getName()
 				+ " download complete");
 	}
