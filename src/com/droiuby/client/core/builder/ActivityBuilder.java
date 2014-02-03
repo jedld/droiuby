@@ -197,6 +197,10 @@ public class ActivityBuilder {
 		setup(document, context, baseUrl,
 				(ViewGroup) context.findViewById(resId));
 	}
+	
+	public ActivityBuilder(Document document, Activity context, String baseUrl) {
+		setup(document, context, baseUrl, null);
+	}
 
 	public ActivityBuilder(Document document, Activity context, String baseUrl,
 			ViewGroup target) {
@@ -211,7 +215,7 @@ public class ActivityBuilder {
 		this.baseUrl = baseUrl;
 	}
 
-	public ArrayList<Object> preload(ExecutionBundle bundle) {
+	public ArrayList<Object> preload(Context context, ExecutionBundle bundle) {
 		List<Element> children = rootElement.getChildren("preload");
 		ArrayList<Object> resultBundle = new ArrayList<Object>();
 		ExecutorService thread_pool = Executors.newFixedThreadPool(Runtime

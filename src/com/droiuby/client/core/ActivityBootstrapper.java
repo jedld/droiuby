@@ -148,8 +148,7 @@ public class ActivityBootstrapper extends
 					long start = System.currentTimeMillis();
 					try {
 						preParsedScript = Utils.preParseRuby(
-								scriptingContainer, controller_content,
-								targetActivity);
+								scriptingContainer, controller_content);
 					} catch (ParseFailedException e) {
 						e.printStackTrace();
 						executionBundle.addError(e.getMessage());
@@ -168,7 +167,7 @@ public class ActivityBootstrapper extends
 				targetActivity, baseUrl, resId);
 		executionBundle.getPayload().setActivityBuilder(builder);
 		executionBundle.getPayload().setExecutionBundle(executionBundle);
-		executionBundle.getPayload().setActiveApp(app);
+		executionBundle.getPayload().setDroiubyApp(app);
 		executionBundle.setCurrentUrl(pageUrl);
 
 		scriptingContainer.put("$container_payload",
@@ -179,7 +178,7 @@ public class ActivityBootstrapper extends
 			e.printStackTrace();
 		}
 
-		resultBundle = builder.preload(executionBundle);
+		resultBundle = builder.preload(targetActivity, executionBundle);
 
 		return builder;
 	}

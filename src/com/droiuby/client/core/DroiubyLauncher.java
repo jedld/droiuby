@@ -1,16 +1,30 @@
 package com.droiuby.client.core;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
+import org.jdom2.input.JDOMParseException;
 import org.jdom2.input.SAXBuilder;
+import org.jruby.embed.EmbedEvalUnit;
+import org.jruby.embed.ParseFailedException;
+import org.jruby.embed.ScriptingContainer;
 
 import com.droiuby.application.DroiubyApp;
+import com.droiuby.client.core.builder.ActivityBuilder;
+import com.droiuby.client.core.postprocessor.CssPreloadParser;
+import com.droiuby.client.core.postprocessor.ScriptPreparser;
 import com.droiuby.client.core.utils.ActiveAppDownloader;
 import com.droiuby.client.core.utils.Utils;
 
@@ -19,21 +33,21 @@ import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
 import android.util.Log;
 
-public class DroiubyLauncher extends AsyncTask<Void,Void,Void>{
+public class DroiubyLauncher extends AsyncTask<Void, Void, Void> {
 
 	Context context;
 	String url;
-	
+
 	protected DroiubyLauncher(Context context, String url) {
 		this.context = context;
 		this.url = url;
 	}
-	
+
 	public static void launch(Context context, String url) {
 		DroiubyLauncher launcher = new DroiubyLauncher(context, url);
 		launcher.execute();
 	}
-	
+
 	private DroiubyApp download(String url) {
 		String responseBody = null;
 		Log.d(ActiveAppDownloader.class.toString(), "loading " + url);
@@ -42,7 +56,7 @@ public class DroiubyLauncher extends AsyncTask<Void,Void,Void>{
 		} else {
 			responseBody = Utils.query(url, context, null);
 		}
-		
+
 		if (responseBody != null) {
 			Log.d(ActiveAppDownloader.class.toString(), responseBody);
 			SAXBuilder sax = new SAXBuilder();
@@ -110,7 +124,8 @@ public class DroiubyLauncher extends AsyncTask<Void,Void,Void>{
 							type_int = DroiubyApp.ASSET_TYPE_CSS;
 						} else if (asset_type.equals("lib")) {
 							type_int = DroiubyApp.ASSET_TYPE_LIB;
-						} else if (asset_type.equals("font") || asset_type.equals("typeface")) {
+						} else if (asset_type.equals("font")
+								|| asset_type.equals("typeface")) {
 							type_int = DroiubyApp.ASSET_TYPE_TYPEFACE;
 						} else if (asset_type.equals("binary")
 								|| asset_type.equals("file")) {
@@ -132,15 +147,247 @@ public class DroiubyLauncher extends AsyncTask<Void,Void,Void>{
 				e.printStackTrace();
 			}
 		}
-		
-		
-		return null;	
+
+		return null;
 	}
-	
+
 	@Override
 	protected Void doInBackground(Void... params) {
-		DroiubyApp app = download(url);
+		DroiubyApp application = download(url);
+		ExecutionBundleFactory factory = ExecutionBundleFactory
+				.getInstance(null);
+		ExecutionBundle executionBundle = factory.getNewScriptingContainer(
+				context, application.getBaseUrl());
+		downloadAssets(application, executionBundle);
+		PageAsset page = loadPage(application, executionBundle, application.getMainUrl(), Utils.HTTP_GET);
+		executionBundle.addPageAsset(application.getMainUrl(), page);
 		return null;
+	}
+
+	private PageAsset loadPage(DroiubyApp app, ExecutionBundle bundle, String pageUrl, int method) {
+		PageAsset page = new PageAsset();
+		
+		String responseBody;
+		SAXBuilder sax = new SAXBuilder();
+		Document mainActivityDocument = null;
+		
+		ScriptingContainer scriptingContainer = bundle.getContainer();
+		try {
+			responseBody = (String) Utils.loadAppAsset(app, context,
+					pageUrl, Utils.ASSET_TYPE_TEXT, method);
+
+			if (responseBody == null) {
+				responseBody = "<activity><t>Problem loading url " + pageUrl + "</t></activity>";
+			}
+
+			if (mainActivityDocument == null) {
+				mainActivityDocument = sax
+						.build(new StringReader(responseBody));
+			}
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			responseBody = "<activity><t>Unable to open file " + pageUrl + "</t></activity>";
+			try {
+				mainActivityDocument = sax
+						.build(new StringReader(responseBody));
+			} catch (JDOMException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+
+		} catch (JDOMParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			responseBody = "<activity><t>" + e.getMessage() + "</t></activity>";
+			try {
+				mainActivityDocument = sax
+						.build(new StringReader(responseBody));
+			} catch (JDOMException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (JDOMException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		String controller_attribute = mainActivityDocument.getRootElement()
+				.getAttributeValue("controller");
+		String controllerClass = null;
+		String baseUrl = app.getBaseUrl();
+
+		if (controller_attribute != null) {
+			String csplit[] = org.apache.commons.lang3.StringUtils.split(
+					controller_attribute, "#");
+			if (csplit.length == 2) {
+
+				if (!csplit[1].trim().equals("")) {
+					controllerClass = csplit[1];
+				}
+
+				if (!csplit[0].trim().equals("")) {
+					Log.d("Activity loader", "loading controller file "
+							+ baseUrl + csplit[0]);
+					String controller_content = (String) Utils.loadAppAsset(
+							app, context, csplit[0],
+							Utils.ASSET_TYPE_TEXT, Utils.HTTP_GET);
+
+					long start = System.currentTimeMillis();
+					try {
+						page.setPreParsedScript(Utils.preParseRuby(
+								scriptingContainer, controller_content));
+					} catch (ParseFailedException e) {
+						e.printStackTrace();
+						bundle.addError(e.getMessage());
+					}
+					long elapsed = System.currentTimeMillis() - start;
+					Log.d(this.getClass().toString(),
+							"controller preparse: elapsed time = " + elapsed
+									+ "ms");
+				}
+			} else {
+				controllerClass = csplit[0];
+			}
+		}
+		
+		page.setControllerClass(controllerClass);
+		
+		ActivityBuilder builder = new ActivityBuilder(mainActivityDocument,
+				null, baseUrl);
+		
+		page.setBuilder(builder);
+		
+		bundle.getPayload().setActivityBuilder(builder);
+		bundle.getPayload().setExecutionBundle(bundle);
+		bundle.getPayload().setDroiubyApp(app);
+		bundle.setCurrentUrl(pageUrl);
+
+		scriptingContainer.put("$container_payload",
+				bundle.getPayload());
+		try {
+			scriptingContainer.runScriptlet("$framework.before_activity_setup");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		ArrayList<Object> resultBundle = builder.preload(context, bundle);
+
+		page.setAssets(resultBundle);
+		
+		return page;	
+	}
+	
+	private Boolean downloadAssets(DroiubyApp app,
+			ExecutionBundle executionBundle) {
+
+		ScriptingContainer scriptingContainer = executionBundle.getPayload()
+				.getContainer();
+		if (!executionBundle.isLibraryInitialized()) {
+			Log.d(this.getClass().toString(), "initializing framework");
+			scriptingContainer.runScriptlet("require '" + app.getFramework()
+					+ "/" + app.getFramework() + "'");
+			executionBundle.setLibraryInitialized(true);
+
+			ArrayList<Object> resultBundle = new ArrayList<Object>();
+			HashMap<String, Integer> asset_map = app.getAssets();
+			if (app.getAssets().size() > 0) {
+				ExecutorService thread_pool = Executors
+						.newFixedThreadPool(Runtime.getRuntime()
+								.availableProcessors() + 1);
+				for (String asset_name : app.getAssets().keySet()) {
+					int asset_type = asset_map.get(asset_name);
+					int download_type = Utils.ASSET_TYPE_TEXT;
+
+					AssetDownloadCompleteListener listener = null;
+					if (asset_type == DroiubyApp.ASSET_TYPE_SCRIPT) {
+						listener = new ScriptPreparser();
+					} else if (asset_type == DroiubyApp.ASSET_TYPE_CSS) {
+						listener = new CssPreloadParser();
+					} else if (asset_type == DroiubyApp.ASSET_TYPE_VENDOR) {
+						List<String> loadPaths = new ArrayList<String>();
+						String path = Utils.stripProtocol(app.getBaseUrl())
+								+ asset_name;
+						File fpath = new File(path);
+						if (fpath.exists() && fpath.isDirectory()) {
+							for (File file : fpath.listFiles()) {
+								if (file.isDirectory()) {
+									String vendorPath;
+									try {
+										vendorPath = file.getCanonicalPath()
+												+ File.separator + "lib";
+										File libDir = new File(vendorPath);
+										if (libDir.exists()) {
+											Log.d(this.getClass().toString(),
+													"Adding vendor path "
+															+ vendorPath);
+											loadPaths.add(vendorPath);
+										}
+									} catch (IOException e) {
+										// TODO Auto-generated catch block
+										e.printStackTrace();
+									}
+								}
+							}
+						}
+
+						scriptingContainer.getProvider().getRuntime()
+								.getLoadService().addPaths(loadPaths);
+					} else if (asset_type == DroiubyApp.ASSET_TYPE_LIB) {
+						List<String> loadPaths = new ArrayList<String>();
+						String path = Utils.stripProtocol(app.getBaseUrl())
+								+ asset_name;
+						Log.d(this.getClass().toString(), "examine lib at "
+								+ path);
+						File fpath = new File(path);
+						if (fpath.isDirectory()) {
+							Log.d(this.getClass().toString(), "Adding " + path
+									+ " to load paths.");
+							loadPaths.add(path);
+							scriptingContainer.getProvider().getRuntime()
+									.getLoadService().addPaths(loadPaths);
+						}
+						continue;
+					} else if (asset_type == DroiubyApp.ASSET_TYPE_BINARY) {
+						download_type = Utils.ASSET_TYPE_BINARY;
+					} else if (asset_type == DroiubyApp.ASSET_TYPE_TYPEFACE) {
+						download_type = Utils.ASSET_TYPE_TYPEFACE;
+					}
+
+					Log.d(this.getClass().toString(), "downloading "
+							+ asset_name + " ...");
+					AssetDownloadWorker worker = new AssetDownloadWorker(
+							context, app, executionBundle, asset_name,
+							download_type, resultBundle, listener,
+							Utils.HTTP_GET);
+					thread_pool.execute(worker);
+				}
+				thread_pool.shutdown();
+				try {
+					thread_pool.awaitTermination(240, TimeUnit.SECONDS);
+
+					for (Object elem : resultBundle) {
+						Log.d(this.getClass().toString(), "executing asset");
+						if (elem instanceof EmbedEvalUnit) {
+							((EmbedEvalUnit) elem).run();
+						}
+					}
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+		return true;
 	}
 
 	private static String extractBasePath(String adjusted_path) {
@@ -152,5 +399,5 @@ public class DroiubyLauncher extends AsyncTask<Void,Void,Void>{
 		adjusted_path = adjusted_path.substring(0, pos);
 		return adjusted_path;
 	}
-	
+
 }

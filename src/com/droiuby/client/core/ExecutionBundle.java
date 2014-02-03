@@ -1,6 +1,7 @@
 package com.droiuby.client.core;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.jruby.embed.ScriptingContainer;
 
@@ -19,6 +20,8 @@ public class ExecutionBundle {
 	String currentUrl;
 	Object currentController;
 	String name;
+	
+	HashMap <String,PageAsset> pageAssets = new HashMap<String, PageAsset>();
 
 	public String getName() {
 		return name;
@@ -111,4 +114,8 @@ public class ExecutionBundle {
 	}
 
 	RubyContainerPayload payload;
+	
+	public void addPageAsset(String name, PageAsset pageAsset) {
+		this.pageAssets.put(name, pageAsset);
+	}
 }

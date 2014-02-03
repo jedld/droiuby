@@ -38,13 +38,12 @@ public class ExecutionBundleFactory {
 		return instance;
 	}
 
-	private ExecutionBundle newBundle(Activity context, String namespace) {
+	private ExecutionBundle newBundle(Context context, String namespace) {
 		ExecutionBundle bundle = new ExecutionBundle();
 		ScriptingContainer container = new ScriptingContainer(
 				LocalContextScope.SINGLETHREAD,
 				LocalVariableBehavior.PERSISTENT);
 		RubyContainerPayload payload = new RubyContainerPayload();
-		payload.setCurrentActivity(context);
 		payload.setContainer(container);
 		container.setObjectSpaceEnabled(false);
 		container.setClassLoader(loader);
@@ -111,7 +110,7 @@ public class ExecutionBundleFactory {
 		return false;
 	}
 
-	public ExecutionBundle getNewScriptingContainer(Activity context,
+	public ExecutionBundle getNewScriptingContainer(Context context,
 			String namespace) {
 		if (bundles.containsKey(namespace)) {
 

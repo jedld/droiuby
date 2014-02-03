@@ -16,7 +16,7 @@ public class RubyContainerPayload {
 		return activeApp;
 	}
 
-	public void setActiveApp(DroiubyApp activeApp) {
+	public void setDroiubyApp(DroiubyApp activeApp) {
 		this.activeApp = activeApp;
 	}
 
