@@ -12,7 +12,26 @@ public class PageAsset {
 	ActivityBuilder builder;
 	EmbedEvalUnit preParsedScript;
 	String controllerClass;
+	String url;
 	
+	public String getUrl() {
+		return url;
+	}
+
+	public void setUrl(String url) {
+		this.url = url;
+	}
+
+	ExecutionBundle bundle;
+	
+	public ExecutionBundle getBundle() {
+		return bundle;
+	}
+
+	public void setBundle(ExecutionBundle bundle) {
+		this.bundle = bundle;
+	}
+
 	public EmbedEvalUnit getPreParsedScript() {
 		return preParsedScript;
 	}

@@ -29,22 +29,25 @@ import com.droiuby.client.core.utils.ActiveAppDownloader;
 import com.droiuby.client.core.utils.Utils;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
 import android.util.Log;
 
-public class DroiubyLauncher extends AsyncTask<Void, Void, Void> {
+public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 
 	Context context;
 	String url;
+	Class activityClass;
 
-	protected DroiubyLauncher(Context context, String url) {
+	protected DroiubyLauncher(Context context, String url, Class activityClass) {
 		this.context = context;
 		this.url = url;
+		this.activityClass = activityClass;
 	}
 
-	public static void launch(Context context, String url) {
-		DroiubyLauncher launcher = new DroiubyLauncher(context, url);
+	public static void launch(Context context, String url, Class activityClass) {
+		DroiubyLauncher launcher = new DroiubyLauncher(context, url, activityClass);
 		launcher.execute();
 	}
 
@@ -152,20 +155,34 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, Void> {
 	}
 
 	@Override
-	protected Void doInBackground(Void... params) {
+	protected PageAsset doInBackground(Void... params) {
 		DroiubyApp application = download(url);
 		ExecutionBundleFactory factory = ExecutionBundleFactory
 				.getInstance(null);
 		ExecutionBundle executionBundle = factory.getNewScriptingContainer(
 				context, application.getBaseUrl());
 		downloadAssets(application, executionBundle);
-		PageAsset page = loadPage(application, executionBundle, application.getMainUrl(), Utils.HTTP_GET);
-		executionBundle.addPageAsset(application.getMainUrl(), page);
-		return null;
+		return loadPage(application, executionBundle, application.getMainUrl(), Utils.HTTP_GET);
+	}
+	
+	
+
+	@Override
+	protected void onPostExecute(PageAsset result) {
+		// TODO Auto-generated method stub
+		super.onPostExecute(result);
+		Intent intent = new Intent(context, activityClass);
+		intent.putExtra("bundle", result.getBundle().getName());
+		intent.putExtra("pageUrl", result.getUrl());
+		context.startActivity(intent);
 	}
 
 	private PageAsset loadPage(DroiubyApp app, ExecutionBundle bundle, String pageUrl, int method) {
 		PageAsset page = new PageAsset();
+		
+		page.setBundle(bundle);
+		page.setUrl(pageUrl);
+		bundle.addPageAsset(pageUrl, page);
 		
 		String responseBody;
 		SAXBuilder sax = new SAXBuilder();
