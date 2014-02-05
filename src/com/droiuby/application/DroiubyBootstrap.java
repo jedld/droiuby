@@ -169,6 +169,10 @@ class LibraryBootstrapTask extends AsyncTask<Void, String, ClassLoader> {
 			Log.d(this.getClass().toString(), "loading helper");
 			libProviderClazz = cl
 					.loadClass("com.droiuby.client.core.DroiubyHelper");
+			
+			DroiubyBootstrap.classLoader = cl;
+			DroiubyBootstrap.libProviderClazz = libProviderClazz;
+			
 			DroiubyHelperInterface helper = (DroiubyHelperInterface) libProviderClazz
 					.newInstance();
 			Log.d(this.getClass().toString(), "new instance loaded");
@@ -200,7 +204,24 @@ public class DroiubyBootstrap {
 	public static final String SECONDARY_DEX_NAME = "secondary_dex.jar";
 	public static final String JRUBY_DEX_NAME = "large_dex.jar";
 	public static final int BUF_SIZE = 8 * 1024;
-
+	public static Class libProviderClazz;
+	public static ClassLoader classLoader;
+	
+	public static DroiubyHelperInterface getHelperInstance() {
+		try {
+			return (DroiubyHelperInterface) libProviderClazz
+					.newInstance();
+		} catch (InstantiationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	
 	public static boolean requireUpdate(Context context) {
 		SharedPreferences prefs = context.getSharedPreferences("version",
 				Context.MODE_PRIVATE);

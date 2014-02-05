@@ -22,6 +22,7 @@ import org.jruby.embed.ParseFailedException;
 import org.jruby.embed.ScriptingContainer;
 
 import com.droiuby.application.DroiubyApp;
+import com.droiuby.application.DroiubyBootstrap;
 import com.droiuby.client.core.builder.ActivityBuilder;
 import com.droiuby.client.core.postprocessor.CssPreloadParser;
 import com.droiuby.client.core.postprocessor.ScriptPreparser;
@@ -158,7 +159,7 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 	protected PageAsset doInBackground(Void... params) {
 		DroiubyApp application = download(url);
 		ExecutionBundleFactory factory = ExecutionBundleFactory
-				.getInstance(null);
+				.getInstance(DroiubyBootstrap.classLoader);
 		ExecutionBundle executionBundle = factory.getNewScriptingContainer(
 				context, application.getBaseUrl());
 		downloadAssets(application, executionBundle);

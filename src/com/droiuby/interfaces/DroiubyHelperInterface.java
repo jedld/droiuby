@@ -5,13 +5,16 @@ import java.util.ArrayList;
 import org.jdom2.Document;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.hardware.SensorEvent;
 import android.os.Bundle;
 import android.view.ViewGroup;
 
+import com.droiuby.application.DroiubyActivity;
 import com.droiuby.application.DroiubyApp;
+import com.droiuby.client.core.DroiubyLauncher;
 
 public interface DroiubyHelperInterface {
 
@@ -63,5 +66,7 @@ public interface DroiubyHelperInterface {
 	public void setLoader(ClassLoader loader);
 
 	public void onSensorChanged(SensorEvent arg0);
+	
+	public void launch(Context context, String url, Class activityClass);
 
 }

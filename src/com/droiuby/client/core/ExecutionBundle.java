@@ -118,4 +118,8 @@ public class ExecutionBundle {
 	public void addPageAsset(String name, PageAsset pageAsset) {
 		this.pageAssets.put(name, pageAsset);
 	}
+	
+	public PageAsset getPage(String name) {
+		return this.pageAssets.get(name);
+	}
 }

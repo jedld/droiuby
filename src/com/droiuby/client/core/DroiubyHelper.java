@@ -23,6 +23,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.ViewGroup;
 
+import com.droiuby.application.DroiubyActivity;
 import com.droiuby.application.DroiubyApp;
 import com.droiuby.callbacks.DocumentReadyListener;
 import com.droiuby.callbacks.OnAppDownloadComplete;
@@ -442,5 +443,9 @@ public class DroiubyHelper implements OnAppDownloadComplete,
 
 	public void startDefault() {
 		start("asset:launcher/config.droiuby");
+	}
+
+	public void launch(Context context, String url, Class activityClass) {
+		DroiubyLauncher.launch(context, url, activityClass);
 	}
 }
