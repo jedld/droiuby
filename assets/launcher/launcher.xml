@@ -6,7 +6,9 @@
         	<image_button src="@drawable:qrcode" id="qrcode" width="wrap" weight="0" height="match">QR Code</image_button>
         </layout>
         <button id="run" width="match" height="wrap" >Run</button>
-        <layout type="linear" orientation="horizontal">
+        <button id="start_console" width="match" height="wrap" >Start WebConsole</button>
+        <button id="stop_console" width="match" height="wrap" visibility="hidden">Stop WebConsole</button>
+        <layout type="linear" orientation="horizontal" visibility="hidden">
             <t>IP ADDRESS:</t>
             <t size="20" id="ip_address"></t>
         </layout>

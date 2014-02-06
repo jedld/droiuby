@@ -301,7 +301,7 @@ public class DroiubyHelper implements OnAppDownloadComplete,
 			web_public_loc = activity.getCacheDir().getCanonicalPath() + "/www";
 			File webroot = new File(web_public_loc);
 			webroot.mkdirs();
-			WebConsole console = WebConsole.getInstance(4000, webroot);
+			WebConsole console = WebConsole.getInstance(4000, webroot, null);
 			console.setBundle(executionBundle);
 			console.setActivity(activity);
 		} catch (IOException e) {
@@ -447,5 +447,14 @@ public class DroiubyHelper implements OnAppDownloadComplete,
 
 	public void launch(Context context, String url, Class activityClass) {
 		DroiubyLauncher.launch(context, url, activityClass);
+	}
+
+	public void setPage(Activity activity, String bundleName, String pageUrl) {
+		DroiubyLauncher.setPage(activity, bundleName, pageUrl);
+	}
+
+	public void runController(Activity activity, String bundleName,
+			String pageUrl) {
+		DroiubyLauncher.runController(activity, bundleName, pageUrl);
 	}
 }

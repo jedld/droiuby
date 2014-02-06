@@ -16,7 +16,6 @@ public class ExecutionBundle {
 
 	ScriptingContainer container;
 	OnUrlChangedListener urlChangedListener;
-	Activity currentActivity;
 	String currentUrl;
 	Object currentController;
 	String name;
@@ -42,11 +41,11 @@ public class ExecutionBundle {
 	boolean libraryInitialized = false;
 
 	public Activity getCurrentActivity() {
-		return currentActivity;
+		return this.getPayload().getCurrentActivity();
 	}
 
 	public void setCurrentActivity(Activity currentActivity) {
-		this.currentActivity = currentActivity;
+		this.getPayload().setCurrentActivity(currentActivity);
 	}
 
 	public boolean isLibraryInitialized() {
@@ -108,7 +107,7 @@ public class ExecutionBundle {
 	}
 
 	public SensorManager getSensor(int type) {
-		SensorManager mSensorManager = (SensorManager) currentActivity
+		SensorManager mSensorManager = (SensorManager) this.getCurrentActivity()
 				.getSystemService(Context.SENSOR_SERVICE);
 		return mSensorManager;
 	}

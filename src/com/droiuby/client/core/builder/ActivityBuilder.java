@@ -131,7 +131,15 @@ public class ActivityBuilder {
 	public static final int PARTIAL_REPLACE_CHILDREN = 2;
 	public static final int PARTIAL_APPEND_CHILDREN = 3;
 
-	Activity context;
+	Activity currentActivity;
+	public Activity getContext() {
+		return currentActivity;
+	}
+
+	public void setCurrentActivity(Activity context) {
+		this.currentActivity = context;
+	}
+
 	Element rootElement;
 	View topView;
 	String baseUrl;
@@ -158,7 +166,7 @@ public class ActivityBuilder {
 	}
 
 	public View getRootView() {
-		return context.findViewById(ActivityBuilder.getViewById(context,
+		return currentActivity.findViewById(ActivityBuilder.getViewById(currentActivity,
 				"mainLayout"));
 	}
 
@@ -210,7 +218,7 @@ public class ActivityBuilder {
 	private void setup(Document document, Activity context, String baseUrl,
 			ViewGroup target) {
 		this.target = target;
-		this.context = context;
+		this.currentActivity = context;
 		this.rootElement = document.getRootElement();
 		this.baseUrl = baseUrl;
 	}
@@ -306,7 +314,7 @@ public class ActivityBuilder {
 	}
 
 	public View prepare(ExecutionBundle bundle) {
-		FrameLayout framelayout = new FrameLayout(context);
+		FrameLayout framelayout = new FrameLayout(currentActivity);
 		framelayout.setLayoutParams(new LinearLayout.LayoutParams(
 				android.view.ViewGroup.LayoutParams.MATCH_PARENT,
 				android.view.ViewGroup.LayoutParams.MATCH_PARENT, 0));
@@ -314,7 +322,7 @@ public class ActivityBuilder {
 			parse(rootElement, framelayout, bundle);
 		} catch (Exception e) {
 			e.printStackTrace();
-			TextView view = new TextView(context);
+			TextView view = new TextView(currentActivity);
 			view.setText(e.getMessage());
 			view.setTextColor(Color.RED);
 			framelayout.addView(view);
@@ -323,6 +331,11 @@ public class ActivityBuilder {
 	}
 
 	public View setPreparedView(View view) {
+		
+		if (target == null) {
+			target = (ViewGroup) currentActivity.getWindow().getDecorView().findViewById(android.R.id.content);
+		}
+		
 		target.removeAllViews();
 		target.addView(view);
 		return target;
@@ -393,7 +406,7 @@ public class ActivityBuilder {
 			String name = selector.substring(1);
 			if (namedViewDictionary.get(name.hashCode()) != 0) {
 				int id = namedViewDictionary.get(name.hashCode());
-				View view = context.findViewById(id);
+				View view = currentActivity.findViewById(id);
 				if (view == null) {
 					Log.w(this.getClass().toString(),
 							"findViewById cannot locate " + name);
@@ -405,7 +418,7 @@ public class ActivityBuilder {
 		} else if (selector.startsWith("@drawable:")) {
 			String name = selector.substring(10);
 			int id = getDrawableId(name);
-			return context.findViewById(id);
+			return currentActivity.findViewById(id);
 		} else if (selector.startsWith("@preload:")) {
 			String name = selector.substring(9);
 			return preloadedResource.get(name);
@@ -416,15 +429,15 @@ public class ActivityBuilder {
 				ArrayList<Integer> list = classViewDictionary.get(name
 						.hashCode());
 				for (int id : list) {
-					object_list.add(context.findViewById(id));
+					object_list.add(currentActivity.findViewById(id));
 				}
 			}
 			return object_list;
 		} else if (selector.startsWith("^")) {
 			String name = selector.substring(1);
-			int id = getViewById(context, name);
+			int id = getViewById(currentActivity, name);
 			if (id != 0) {
-				return context.findViewById(id);
+				return currentActivity.findViewById(id);
 			} else {
 				return null;
 			}
@@ -438,7 +451,7 @@ public class ActivityBuilder {
 			String name = name_class[1];
 
 			Log.v(this.getClass().toString(), "R resolver " + name);
-			Class resourceClass = getResourceComponentClass(context, name);
+			Class resourceClass = getResourceComponentClass(currentActivity, name);
 
 			Log.v(this.getClass().toString(),
 					"resource class " + resourceClass.toString());
@@ -485,10 +498,10 @@ public class ActivityBuilder {
 			String name = selector.substring(1);
 			int id = getDrawableId(name);
 			if (id != 0) {
-				return context.findViewById(id);
+				return currentActivity.findViewById(id);
 			} else {
 				try {
-					return context.findViewById(Integer.parseInt(name));
+					return currentActivity.findViewById(Integer.parseInt(name));
 				} catch (java.lang.NumberFormatException e) {
 					e.printStackTrace();
 					return null;
@@ -499,7 +512,7 @@ public class ActivityBuilder {
 			if (tagViewDictionary.containsKey(selector)) {
 				ArrayList<Integer> list = tagViewDictionary.get(selector);
 				for (int id : list) {
-					object_list.add(context.findViewById(id));
+					object_list.add(currentActivity.findViewById(id));
 				}
 			}
 			return object_list;
@@ -568,7 +581,7 @@ public class ActivityBuilder {
 	}
 
 	public String reverseLookupId(int id) {
-		return ReverseIdResolver.getInstance(context).resolve(id);
+		return ReverseIdResolver.getInstance(currentActivity).resolve(id);
 	}
 
 	private void addRule(Element e, RelativeLayout.LayoutParams params,
@@ -816,8 +829,8 @@ public class ActivityBuilder {
 	public int getStyleById(String styleId) {
 		Field f;
 		try {
-			f = this.getStyleClass(context).getField(styleId);
-			return f.getInt(this.getStyleClass(context).newInstance());
+			f = this.getStyleClass(currentActivity).getField(styleId);
+			return f.getInt(this.getStyleClass(currentActivity).newInstance());
 		} catch (NoSuchFieldException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -857,8 +870,8 @@ public class ActivityBuilder {
 
 	public int getDrawableId(String drawable) {
 		try {
-			Field f = this.getDrawableClass(context).getField(drawable);
-			return f.getInt(this.getDrawableClass(context).newInstance());
+			Field f = this.getDrawableClass(currentActivity).getField(drawable);
+			return f.getInt(this.getDrawableClass(currentActivity).newInstance());
 		} catch (NoSuchFieldException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -898,7 +911,7 @@ public class ActivityBuilder {
 			if (measurement.endsWith("dip")) {
 				s = 3;
 			}
-			Resources r = context.getResources();
+			Resources r = currentActivity.getResources();
 			minWidth = Math.round(TypedValue.applyDimension(
 					TypedValue.COMPLEX_UNIT_DIP,
 					Float.parseFloat(measurement.substring(0,
@@ -990,7 +1003,7 @@ public class ActivityBuilder {
 		for (Object bundle : resultBundle) {
 			if (bundle instanceof CssRules) {
 				CssRules rules = (CssRules) bundle;
-				rules.apply(this, this.context);
+				rules.apply(this, this.currentActivity);
 			}
 		}
 		long elapsed = System.currentTimeMillis() - css_start;
@@ -1006,7 +1019,7 @@ public class ActivityBuilder {
 			if (tag != null && tag instanceof ViewExtras) {
 				ViewExtras viewExtras = (ViewExtras) tag;
 				ViewBuilder builder = ViewBuilder.getBuilderForView(view,
-						context, this);
+						currentActivity, this);
 				builder.setParamsFromProperty(view, viewExtras.getPropertyMap());
 			}
 		}
@@ -1064,7 +1077,7 @@ public class ActivityBuilder {
 
 			if (builder != null) {
 				// build and add the view to its parent
-				builder.setContext(context);
+				builder.setContext(currentActivity);
 				builder.setBuilder(this);
 				currentView = builder.build(e);
 			} else {

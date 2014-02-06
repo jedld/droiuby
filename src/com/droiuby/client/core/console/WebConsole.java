@@ -30,6 +30,7 @@ import com.droiuby.client.core.ExecutionBundle;
 import com.droiuby.client.core.ExecutionBundleFactory;
 import com.droiuby.client.core.builder.ActivityBuilder;
 import com.droiuby.client.core.utils.NanoHTTPD;
+import com.droiuby.client.core.utils.OnWebConsoleReady;
 import com.droiuby.client.core.utils.Utils;
 
 public class WebConsole extends NanoHTTPD {
@@ -67,16 +68,16 @@ public class WebConsole extends NanoHTTPD {
 
 	public static boolean uiPosted = false;
 
-	protected WebConsole(int port, File wwwroot) throws IOException {
-		super(port, wwwroot);
+	protected WebConsole(int port, File wwwroot, OnWebConsoleReady listener) throws IOException {
+		super(port, wwwroot, listener);
 		Log.d(this.getClass().toString(), "Starting HTTPD server on port "
 				+ port);
 	}
 
-	public static WebConsole getInstance(int port, File wwwroot)
+	public static WebConsole getInstance(int port, File wwwroot, OnWebConsoleReady listener)
 			throws IOException {
 		if (instance == null) {
-			instance = new WebConsole(port, wwwroot);
+			instance = new WebConsole(port, wwwroot, listener);
 		}
 		instance.incrementReference();
 		return instance;

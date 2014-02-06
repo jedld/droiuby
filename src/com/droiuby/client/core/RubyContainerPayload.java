@@ -8,10 +8,22 @@ import com.droiuby.client.core.builder.ActivityBuilder;
 import android.app.Activity;
 
 public class RubyContainerPayload {
+	
 	Activity currentActivity;
 	ActivityBuilder activityBuilder;
 	DroiubyApp activeApp;
+	PageAsset currentPage;
 	
+	static RubyContainerPayload instance;
+
+	public PageAsset getCurrentPage() {
+		return currentPage;
+	}
+
+	public void setCurrentPage(PageAsset currentPage) {
+		this.currentPage = currentPage;
+	}
+
 	public DroiubyApp getActiveApp() {
 		return activeApp;
 	}
@@ -30,7 +42,7 @@ public class RubyContainerPayload {
 		this.executionBundle = executionBundle;
 	}
 
-	static RubyContainerPayload instance;
+
 
 	public RubyContainerPayload() {
 

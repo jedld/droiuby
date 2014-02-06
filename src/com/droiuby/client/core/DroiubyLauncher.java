@@ -18,22 +18,28 @@ import org.jdom2.JDOMException;
 import org.jdom2.input.JDOMParseException;
 import org.jdom2.input.SAXBuilder;
 import org.jruby.embed.EmbedEvalUnit;
+import org.jruby.embed.EvalFailedException;
 import org.jruby.embed.ParseFailedException;
 import org.jruby.embed.ScriptingContainer;
+import org.jruby.runtime.builtin.IRubyObject;
 
 import com.droiuby.application.DroiubyApp;
 import com.droiuby.application.DroiubyBootstrap;
 import com.droiuby.client.core.builder.ActivityBuilder;
+import com.droiuby.client.core.console.WebConsole;
 import com.droiuby.client.core.postprocessor.CssPreloadParser;
 import com.droiuby.client.core.postprocessor.ScriptPreparser;
 import com.droiuby.client.core.utils.ActiveAppDownloader;
+import com.droiuby.client.core.utils.OnWebConsoleReady;
 import com.droiuby.client.core.utils.Utils;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.view.View;
 
 public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 
@@ -47,9 +53,27 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 		this.activityClass = activityClass;
 	}
 
+	public static void launch(Context context, String url) {
+		launch(context, url, null);
+	}
+	
 	public static void launch(Context context, String url, Class activityClass) {
-		DroiubyLauncher launcher = new DroiubyLauncher(context, url, activityClass);
-		launcher.execute();
+		try {
+			
+			if (activityClass == null) {
+				String packageName = context.getApplicationContext().getPackageName();
+				activityClass = Class.forName(packageName + ".DroiubyActivity");
+			}
+			
+			DroiubyLauncher launcher = new DroiubyLauncher(context, url,
+					activityClass);
+			launcher.execute();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return;
+		}
+
 	}
 
 	private DroiubyApp download(String url) {
@@ -163,39 +187,46 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 		ExecutionBundle executionBundle = factory.getNewScriptingContainer(
 				context, application.getBaseUrl());
 		downloadAssets(application, executionBundle);
-		return loadPage(application, executionBundle, application.getMainUrl(), Utils.HTTP_GET);
+		return loadPage(application, executionBundle, application.getMainUrl(),
+				Utils.HTTP_GET);
 	}
-	
-	
 
 	@Override
 	protected void onPostExecute(PageAsset result) {
 		// TODO Auto-generated method stub
 		super.onPostExecute(result);
+
 		Intent intent = new Intent(context, activityClass);
 		intent.putExtra("bundle", result.getBundle().getName());
 		intent.putExtra("pageUrl", result.getUrl());
 		context.startActivity(intent);
+
+		if (context instanceof Activity) {
+			((Activity) context).finish();
+		}
+
 	}
 
-	private PageAsset loadPage(DroiubyApp app, ExecutionBundle bundle, String pageUrl, int method) {
+	private PageAsset loadPage(DroiubyApp app, ExecutionBundle bundle,
+			String pageUrl, int method) {
 		PageAsset page = new PageAsset();
-		
+
 		page.setBundle(bundle);
 		page.setUrl(pageUrl);
 		bundle.addPageAsset(pageUrl, page);
-		
+
 		String responseBody;
 		SAXBuilder sax = new SAXBuilder();
 		Document mainActivityDocument = null;
-		
+
 		ScriptingContainer scriptingContainer = bundle.getContainer();
 		try {
-			responseBody = (String) Utils.loadAppAsset(app, context,
-					pageUrl, Utils.ASSET_TYPE_TEXT, method);
+			responseBody = (String) Utils.loadAppAsset(app, context, pageUrl,
+					Utils.ASSET_TYPE_TEXT, method);
 
 			if (responseBody == null) {
-				responseBody = "<activity><t>Problem loading url " + pageUrl + "</t></activity>";
+				responseBody = "<activity><t>Problem loading url " + pageUrl
+						+ "</t></activity>";
 			}
 
 			if (mainActivityDocument == null) {
@@ -205,7 +236,8 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			responseBody = "<activity><t>Unable to open file " + pageUrl + "</t></activity>";
+			responseBody = "<activity><t>Unable to open file " + pageUrl
+					+ "</t></activity>";
 			try {
 				mainActivityDocument = sax
 						.build(new StringReader(responseBody));
@@ -257,8 +289,8 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 					Log.d("Activity loader", "loading controller file "
 							+ baseUrl + csplit[0]);
 					String controller_content = (String) Utils.loadAppAsset(
-							app, context, csplit[0],
-							Utils.ASSET_TYPE_TEXT, Utils.HTTP_GET);
+							app, context, csplit[0], Utils.ASSET_TYPE_TEXT,
+							Utils.HTTP_GET);
 
 					long start = System.currentTimeMillis();
 					try {
@@ -277,21 +309,20 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 				controllerClass = csplit[0];
 			}
 		}
-		
+
 		page.setControllerClass(controllerClass);
-		
+
 		ActivityBuilder builder = new ActivityBuilder(mainActivityDocument,
 				null, baseUrl);
-		
+
 		page.setBuilder(builder);
-		
+
 		bundle.getPayload().setActivityBuilder(builder);
 		bundle.getPayload().setExecutionBundle(bundle);
 		bundle.getPayload().setDroiubyApp(app);
 		bundle.setCurrentUrl(pageUrl);
 
-		scriptingContainer.put("$container_payload",
-				bundle.getPayload());
+		scriptingContainer.put("$container_payload", bundle.getPayload());
 		try {
 			scriptingContainer.runScriptlet("$framework.before_activity_setup");
 		} catch (Exception e) {
@@ -301,10 +332,10 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 		ArrayList<Object> resultBundle = builder.preload(context, bundle);
 
 		page.setAssets(resultBundle);
-		
-		return page;	
+
+		return page;
 	}
-	
+
 	private Boolean downloadAssets(DroiubyApp app,
 			ExecutionBundle executionBundle) {
 
@@ -418,4 +449,95 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 		return adjusted_path;
 	}
 
+	public static void runController(Activity activity, String bundleName,
+			String pageUrl) {
+
+		ExecutionBundle bundle = ExecutionBundleFactory.getBundle(bundleName);
+		PageAsset page = bundle.getPage(pageUrl);
+
+		bundle.getPayload().setCurrentActivity(activity);
+		bundle.getPayload().setCurrentPage(page);
+
+		EmbedEvalUnit preParsedScript = page.getPreParsedScript();
+		ScriptingContainer scriptingContainer = bundle.getContainer();
+		long start = System.currentTimeMillis();
+		try {
+			if (preParsedScript != null) {
+				preParsedScript.run();
+			}
+
+			scriptingContainer.runScriptlet("$framework.preload");
+			if (preParsedScript != null) {
+				Log.d(DroiubyLauncher.class.toString(),
+						"class = " + page.getControllerClass());
+				IRubyObject instance;
+				instance = (IRubyObject) scriptingContainer
+						.runScriptlet("$framework.script('"
+								+ page.getControllerClass() + "')");
+				bundle.setCurrentController(instance);
+			}
+		} catch (EvalFailedException e) {
+			e.printStackTrace();
+			bundle.addError(e.getMessage());
+			Log.e(DroiubyLauncher.class.toString(), e.getMessage());
+		} catch (RuntimeException e) {
+			e.printStackTrace();
+			bundle.addError(e.getMessage());
+			Log.e(DroiubyLauncher.class.toString(), e.getMessage());
+		} catch (Exception e) {
+			e.printStackTrace();
+			bundle.addError(e.getMessage());
+			Log.e(DroiubyLauncher.class.toString(), e.getMessage());
+		}
+		long elapsed = System.currentTimeMillis() - start;
+		Log.d(DroiubyLauncher.class.toString(),
+				"run Controller: elapsed time = " + elapsed + "ms");
+	}
+
+	public static void setPage(Activity activity, String bundleName,
+			String pageUrl) {
+		ExecutionBundle bundle = ExecutionBundleFactory.getBundle(bundleName);
+		PageAsset page = bundle.getPage(pageUrl);
+		setPage(activity, bundle, page);
+	}
+
+	public static void setPage(Activity activity, ExecutionBundle bundle,
+			PageAsset page) {
+		long start = System.currentTimeMillis();
+
+		Log.d(DroiubyLauncher.class.toString(),
+				"parsing and preparing views....");
+
+		ActivityBuilder builder = page.getBuilder();
+		builder.setCurrentActivity(activity);
+
+		View preparedViews = builder.prepare(bundle);
+
+		long elapsed = System.currentTimeMillis() - start;
+		Log.d(DroiubyLauncher.class.toString(),
+				"prepare activity: elapsed time = " + elapsed + "ms");
+		View view = builder.setPreparedView(preparedViews);
+		// apply CSS
+		builder.applyStyle(view, page.getAssets());
+		Log.d(DroiubyLauncher.class.toString(),
+				"build activity: elapsed time = " + elapsed + "ms");
+	}
+
+	public static void setupConsole(ExecutionBundle executionBundle, OnWebConsoleReady listener) {
+		String web_public_loc;
+		Log.d(DroiubyLauncher.class.toString(), "Loading WebConsole...");
+		try {
+			web_public_loc = executionBundle.getPayload().getCurrentActivity().getCacheDir().getCanonicalPath() + "/www";
+			File webroot = new File(web_public_loc);
+			webroot.mkdirs();
+			WebConsole console = WebConsole.getInstance(4000, webroot, listener);
+			console.setBundle(executionBundle);
+			console.setActivity(executionBundle.getPayload().getCurrentActivity());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	
 }

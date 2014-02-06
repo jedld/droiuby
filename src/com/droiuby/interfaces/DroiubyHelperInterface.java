@@ -68,5 +68,9 @@ public interface DroiubyHelperInterface {
 	public void onSensorChanged(SensorEvent arg0);
 	
 	public void launch(Context context, String url, Class activityClass);
+	
+	public void setPage(Activity activity, String bundleName, String pageUrl);
+	
+	public void runController(Activity activity, String bundleName, String pageUrl);
 
 }

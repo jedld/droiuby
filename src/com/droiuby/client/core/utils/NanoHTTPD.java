@@ -218,12 +218,15 @@ public class NanoHTTPD {
 	 * <p>
 	 * Throws an IOException if the socket is already in use
 	 */
-	public NanoHTTPD(int port, File wwwroot) throws IOException {
+	public NanoHTTPD(int port, File wwwroot, final OnWebConsoleReady readyListener) throws IOException {
 		myTcpPort = port;
 		this.myRootDir = wwwroot;
 		myServerSocket = new ServerSocket(myTcpPort);
 		myThread = new Thread(new Runnable() {
 			public void run() {
+				if (readyListener!=null) {
+					readyListener.onReady(NanoHTTPD.this);
+				}
 				try {
 					while (true)
 						new HTTPSession(myServerSocket.accept());
@@ -270,7 +273,7 @@ public class NanoHTTPD {
 			}
 
 		try {
-			new NanoHTTPD(port, wwwroot);
+			new NanoHTTPD(port, wwwroot, null);
 		} catch (IOException ioe) {
 			myErr.println("Couldn't start server:\n" + ioe);
 			System.exit(-1);

@@ -6,6 +6,21 @@ class Main < Activity
         V('#app_url').text= _P.get(:app_url)
       end
       
+      start_console_btn = V('#start_console')
+      
+      start_console_btn.on(:click) do |view|
+        
+        start_console_btn.text = "Starting Webconsole ...."
+        
+        start_web_console do |httpd|
+          
+          start_console_btn.hide!
+          V('#stop_console').show!
+          
+        end
+        
+      end
+      
       V('#run').on(:click) do |view|
           app_url = V('#app_url')
           
