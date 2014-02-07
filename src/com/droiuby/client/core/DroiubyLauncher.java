@@ -35,11 +35,56 @@ import com.droiuby.application.DroiubyApp;
 import com.droiuby.application.DroiubyBootstrap;
 import com.droiuby.client.core.builder.ActivityBuilder;
 import com.droiuby.client.core.console.WebConsole;
+import com.droiuby.client.core.listeners.OnPageRefreshListener;
 import com.droiuby.client.core.postprocessor.CssPreloadParser;
 import com.droiuby.client.core.postprocessor.ScriptPreparser;
 import com.droiuby.client.core.utils.ActiveAppDownloader;
 import com.droiuby.client.core.utils.OnWebConsoleReady;
 import com.droiuby.client.core.utils.Utils;
+
+class PageRefreshTask extends AsyncTask<Void,Void,PageAsset> {
+
+	Activity currentActivity;
+	ExecutionBundle bundle;
+	OnPageRefreshListener listener;
+	
+	int refreshType;
+	
+	public static final int FULL_ACTIVITY_REFRESH = 0;
+	public static final int QUICK_ACTIVITY_REFRESH = 1;
+	
+	
+	public PageRefreshTask(Activity currentActivity, ExecutionBundle bundle, OnPageRefreshListener listener, int refreshType) {
+		this.currentActivity = currentActivity;
+		this.bundle = bundle;
+		this.refreshType = refreshType;
+		this.listener = listener;
+	}
+	
+	@Override
+	protected PageAsset doInBackground(Void... params) {
+		DroiubyApp application = bundle.getPayload().getActiveApp();
+		DroiubyLauncher.downloadAssets(currentActivity, bundle.getPayload().getActiveApp(), bundle);
+		PageAsset page = DroiubyLauncher.loadPage(currentActivity, bundle, application.getMainUrl(),
+				Utils.HTTP_GET);
+		return page;
+	}
+
+	@Override
+	protected void onPostExecute(PageAsset result) {
+		// TODO Auto-generated method stub
+		super.onPostExecute(result);
+		if (refreshType == PageRefreshTask.FULL_ACTIVITY_REFRESH) {
+			currentActivity.finish();
+			DroiubyLauncher.startNewActivity(currentActivity, result);
+		} else {
+			DroiubyLauncher.runController(currentActivity, bundle, result);
+		}
+		if (listener!=null) {
+			listener.onRefreshComplete(result);
+		}
+	}
+}
 
 public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 
@@ -195,7 +240,7 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 				context, application.getBaseUrl());
 
 		executionBundle.getPayload().setDroiubyApp(application);
-		downloadAssets(application, executionBundle);
+		downloadAssets(context, application, executionBundle);
 		return loadPage(context, executionBundle, application.getMainUrl(),
 				Utils.HTTP_GET);
 	}
@@ -356,13 +401,13 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 		return page;
 	}
 
-	private Boolean downloadAssets(DroiubyApp app,
+	public static Boolean downloadAssets(Context context, DroiubyApp app,
 			ExecutionBundle executionBundle) {
 
 		ScriptingContainer scriptingContainer = executionBundle.getPayload()
 				.getContainer();
 		if (!executionBundle.isLibraryInitialized()) {
-			Log.d(this.getClass().toString(), "initializing framework");
+			Log.d(DroiubyLauncher.class.toString(), "initializing framework");
 			scriptingContainer.runScriptlet("require '" + app.getFramework()
 					+ "/" + app.getFramework() + "'");
 			executionBundle.setLibraryInitialized(true);
@@ -396,7 +441,7 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 												+ File.separator + "lib";
 										File libDir = new File(vendorPath);
 										if (libDir.exists()) {
-											Log.d(this.getClass().toString(),
+											Log.d(DroiubyLauncher.class.toString(),
 													"Adding vendor path "
 															+ vendorPath);
 											loadPaths.add(vendorPath);
@@ -415,11 +460,11 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 						List<String> loadPaths = new ArrayList<String>();
 						String path = Utils.stripProtocol(app.getBaseUrl())
 								+ asset_name;
-						Log.d(this.getClass().toString(), "examine lib at "
+						Log.d(DroiubyLauncher.class.toString(), "examine lib at "
 								+ path);
 						File fpath = new File(path);
 						if (fpath.isDirectory()) {
-							Log.d(this.getClass().toString(), "Adding " + path
+							Log.d(DroiubyLauncher.class.toString(), "Adding " + path
 									+ " to load paths.");
 							loadPaths.add(path);
 							scriptingContainer.getProvider().getRuntime()
@@ -432,7 +477,7 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 						download_type = Utils.ASSET_TYPE_TYPEFACE;
 					}
 
-					Log.d(this.getClass().toString(), "downloading "
+					Log.d(DroiubyLauncher.class.toString(), "downloading "
 							+ asset_name + " ...");
 					AssetDownloadWorker worker = new AssetDownloadWorker(
 							context, app, executionBundle, asset_name,
@@ -445,7 +490,7 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 					thread_pool.awaitTermination(240, TimeUnit.SECONDS);
 
 					for (Object elem : resultBundle) {
-						Log.d(this.getClass().toString(), "executing asset");
+						Log.d(DroiubyLauncher.class.toString(), "executing asset");
 						if (elem instanceof EmbedEvalUnit) {
 							((EmbedEvalUnit) elem).run();
 						}
@@ -508,6 +553,11 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 		long elapsed = System.currentTimeMillis() - start;
 		Log.d(DroiubyLauncher.class.toString(),
 				"run Controller: elapsed time = " + elapsed + "ms");	
+	}
+	
+	public static void refresh(Activity currentActivity, ExecutionBundle bundle, OnPageRefreshListener listener) {
+		PageRefreshTask refreshTask = new PageRefreshTask(currentActivity, bundle,  listener, PageRefreshTask.QUICK_ACTIVITY_REFRESH);
+		refreshTask.execute();
 	}
 	
 	public static void runController(Activity activity, String bundleName,

@@ -1,17 +1,20 @@
 <activity controller="launcher_script.rb#main">
     <preload id="main_css" src="launcher.css" type="css"/>
     <layout type="linear" width="match" height="match" orientation="vertical">
-        <layout type="linear" width="match" height="60dip" orientation="horizontal">
-        	<input id="app_url" hint="Enter app URL" name="app_url" height="match" weight="1"></input>
-        	<image_button src="@drawable:qrcode" id="qrcode" width="wrap" weight="0" height="match">QR Code</image_button>
+        <layout type="linear" width="match" height="match" orientation="vertial" weight="1">
+	        <layout type="linear" width="match" height="60dip" orientation="horizontal">
+	        	<input id="app_url" hint="Enter app URL" name="app_url" height="match" weight="1"></input>
+	        	<image_button src="@drawable:qrcode" id="qrcode" width="wrap" weight="0" height="match">QR Code</image_button>
+	        </layout>
+	        <button id="run" width="match" height="wrap" >Run</button>
         </layout>
-        <button id="run" width="match" height="wrap" >Run</button>
-        <button id="start_console" width="match" height="wrap" >Start WebConsole</button>
-        <button id="stop_console" width="match" height="wrap" visibility="hidden">Stop WebConsole</button>
-        <layout id="ip_address_container" type="linear" orientation="horizontal" visibility="hidden">
-            <t>IP ADDRESS:</t>
-            <t size="20" id="ip_address"></t>
+        <layout type="linear" width="match" id="console_container" orientation="vertical" weight = "0">
+	        <button id="start_console" width="match" height="wrap" >Start WebConsole</button>
+	        <button id="stop_console" width="match" height="wrap" visibility="hidden">Stop WebConsole</button>
+	        <layout id="ip_address_container" type="linear" orientation="horizontal" visibility="hidden">
+	            <t>IP ADDRESS:</t>
+	            <t size="20" id="ip_address"></t>
+	        </layout>
         </layout>
-        
     </layout>
 </activity>

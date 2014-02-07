@@ -24,8 +24,8 @@ import android.content.res.AssetManager;
 import android.util.Log;
 
 import com.droiuby.application.DroiubyApp;
-import com.droiuby.application.CanvasActivity;
 import com.droiuby.callbacks.OnAppDownloadComplete;
+import com.droiuby.client.core.DroiubyLauncher;
 import com.droiuby.client.core.ExecutionBundle;
 import com.droiuby.client.core.ExecutionBundleFactory;
 import com.droiuby.client.core.builder.ActivityBuilder;
@@ -308,19 +308,8 @@ public class WebConsole extends NanoHTTPD {
 
 				} else if (cmd.equals("reload")) {
 					final Activity currentActivity = activity.get();
-					if (currentActivity instanceof CanvasActivity) {
-						currentActivity.runOnUiThread(new Runnable() {
-							public void run() {
-								((CanvasActivity) currentActivity)
-										.refreshCurrentApplication();
-							}
-						});
-						resultMap.put("result", "success");
-					} else {
-						resultMap.put("err", "true");
-						resultMap
-								.put("result",
-										"Activity must be an instance of CanvasActivity to support this operation.");
+					if (currentActivity!=null) {
+						DroiubyLauncher.refresh(currentActivity, getBundle(), null);
 					}
 				} else {
 					resultMap.put("err", "true");
@@ -430,7 +419,7 @@ public class WebConsole extends NanoHTTPD {
 		if (currentActivity != null) {
 			currentActivity.runOnUiThread(new Runnable() {
 				public void run() {
-					ActivityBuilder.loadApp(currentActivity, url);
+					DroiubyLauncher.launch(currentActivity, url);
 				}
 			});
 

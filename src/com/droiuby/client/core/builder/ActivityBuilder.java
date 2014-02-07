@@ -46,7 +46,6 @@ import android.widget.TableRow;
 import android.widget.TextView;
 
 import com.droiuby.application.DroiubyApp;
-import com.droiuby.application.CanvasActivity;
 import com.droiuby.callbacks.DocumentReadyListener;
 import com.droiuby.client.core.ActivityBootstrapper;
 import com.droiuby.client.core.AppDownloader;
@@ -276,19 +275,6 @@ public class ActivityBuilder {
 
 	public void setPreloadedResource(HashMap<String, Object> preloadedResource) {
 		this.preloadedResource = preloadedResource;
-	}
-
-	// public static void loadApp(Context c, String applicationUrl,
-	// OnAppDownloadComplete onDownloadComplete) {
-	// AppDownloader downloader = new AppDownloader(c, applicationUrl,
-	// CanvasActivity.class, onDownloadComplete);
-	// downloader.execute();
-	// }
-
-	public static void loadApp(Activity c, String applicationUrl) {
-		AppDownloader downloader = new AppDownloader(c, applicationUrl,
-				CanvasActivity.class);
-		downloader.execute();
 	}
 
 	public static void loadLayout(ExecutionBundle executionBundle,

@@ -7,12 +7,15 @@ class Main < Activity
       end
       
       start_console_btn = V('#start_console')
+      stop_console_btn = V('#stop_console')
       
       start_console_btn.on(:click) do |view|
         
         start_console_btn.text = "Starting Webconsole ...."
         puts "starting console"
         start_web_console do |httpd|
+          $httpd = httpd
+          
           puts "start web console done"
           start_console_btn.hide!
           
@@ -28,6 +31,12 @@ class Main < Activity
         end
         
       end
+      
+      stop_console_btn.on(:click) do |view|
+        stop_console_btn.text = "Shutting down console ...."
+        $httpd.shutdownConsole()
+      end
+      
       
       V('#run').on(:click) do |view|
           app_url = V('#app_url')
