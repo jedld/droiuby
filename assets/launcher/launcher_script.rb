@@ -11,11 +11,19 @@ class Main < Activity
       start_console_btn.on(:click) do |view|
         
         start_console_btn.text = "Starting Webconsole ...."
-        
+        puts "starting console"
         start_web_console do |httpd|
-          
+          puts "start web console done"
           start_console_btn.hide!
+          
           V('#stop_console').show!
+          
+          async.perform {
+            Java::com.droiuby.client.core.utils.Utils.getLocalIpAddress(me)
+          }.done { |result|
+            V('#ip_address_container').show!
+            V('#ip_address').text = "#{result}:4000"
+          }.start
           
         end
         
@@ -42,11 +50,7 @@ class Main < Activity
         integrator.initiateScan
       end
       
-    async.perform {
-      Java::com.droiuby.client.core.utils.Utils.getLocalIpAddress(me)
-    }.done { |result|
-      V('#ip_address').text = "#{result}:4000"
-    }.start
+
 
     
   end

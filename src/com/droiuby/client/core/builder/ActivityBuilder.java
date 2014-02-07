@@ -166,8 +166,7 @@ public class ActivityBuilder {
 	}
 
 	public View getRootView() {
-		return currentActivity.findViewById(ActivityBuilder.getViewById(currentActivity,
-				"mainLayout"));
+		return currentActivity.findViewById(android.R.id.content);
 	}
 
 	ViewGroup target;
