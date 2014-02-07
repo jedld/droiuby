@@ -49,9 +49,6 @@ class Main < Activity
         integrator = Java::com.droiuby.client.utils.intents.IntentIntegrator.new(me)
         integrator.initiateScan
       end
-      
-
-
     
   end
   

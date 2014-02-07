@@ -43,8 +43,11 @@ public class ExecutionBundleFactory {
 		ScriptingContainer container = new ScriptingContainer(
 				LocalContextScope.SINGLETHREAD,
 				LocalVariableBehavior.PERSISTENT);
+		
 		RubyContainerPayload payload = new RubyContainerPayload();
 		payload.setContainer(container);
+		payload.setExecutionBundle(bundle);
+		
 		container.setObjectSpaceEnabled(false);
 		container.setClassLoader(loader);
 		container.setCompatVersion(CompatVersion.RUBY1_9);
