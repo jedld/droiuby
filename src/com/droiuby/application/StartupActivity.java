@@ -1,10 +1,9 @@
 package com.droiuby.application;
 
-import com.droiuby.client.core.DroiubyLauncher;
-import com.droiuby.interfaces.DroiubyHelperInterface;
-
 import android.app.Activity;
 import android.os.Bundle;
+
+import com.droiuby.interfaces.DroiubyHelperInterface;
 
 public class StartupActivity extends Activity implements OnEnvironmentReady {
 

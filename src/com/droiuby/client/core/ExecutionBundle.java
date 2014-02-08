@@ -7,7 +7,6 @@ import org.jruby.embed.ScriptingContainer;
 
 import android.app.Activity;
 import android.content.Context;
-import android.hardware.Sensor;
 import android.hardware.SensorManager;
 
 import com.droiuby.client.core.interfaces.OnUrlChangedListener;

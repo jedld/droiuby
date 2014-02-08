@@ -9,12 +9,12 @@ public class ViewExtras {
 	String view_name;
 	String view_class;
 	String view_id;
-	Class builder;
-	public Class getBuilder() {
+	Class<ViewBuilder> builder;
+	public Class<ViewBuilder> getBuilder() {
 		return builder;
 	}
 
-	public void setBuilder(Class builder) {
+	public void setBuilder(Class<ViewBuilder> builder) {
 		this.builder = builder;
 	}
 

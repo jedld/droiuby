@@ -2,8 +2,6 @@ package com.droiuby.client.core;
 
 import java.util.List;
 
-import com.osbcp.cssparser.Rule;
-
 public class CssRule {
 	List<PropertyValue> properties;
 	String selector;

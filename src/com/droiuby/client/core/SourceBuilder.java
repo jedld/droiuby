@@ -224,7 +224,7 @@ public class SourceBuilder {
 		if (method_spec instanceof Method) {
 			param_list = ((Method)method_spec).getParameterTypes();
 		} else if (method_spec instanceof Constructor) {
-			param_list = ((Constructor)method_spec).getParameterTypes();
+			param_list = ((Constructor<?>)method_spec).getParameterTypes();
 		}
 		
 		for (Class<?> param_class :param_list) {
@@ -294,7 +294,7 @@ public class SourceBuilder {
 				JInvocation invocation = constructor.body().invoke("super");
 
 				ArrayList <JVar>params = new ArrayList<JVar>();
-				for (Class paramType : c.getParameterTypes()) {
+				for (Class<?> paramType : c.getParameterTypes()) {
 					JVar param = constructor.param(paramType, "param" + i++);
 
 					if (paramType == android.content.Context.class) {
@@ -325,7 +325,7 @@ public class SourceBuilder {
 
 	private static void makeConstructorBody(JCodeModel cm,
 			JFieldVar backingObject, JFieldVar executionBundle,
-			JFieldVar container, JFieldVar runtime, Constructor c, JMethod constructor,
+			JFieldVar container, JFieldVar runtime, Constructor<?> c, JMethod constructor,
 			JVar executionBundleObject, JVar rubyObject, JFieldVar methodCache, ArrayList <JVar>params) {
 		constructor.body().assign(backingObject, rubyObject);
 		constructor.body().assign(executionBundle, executionBundleObject);

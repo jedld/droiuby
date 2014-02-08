@@ -1,12 +1,9 @@
 package com.droiuby.application;
 
-import com.droiuby.client.core.ExecutionBundle;
-import com.droiuby.client.core.ExecutionBundleFactory;
-import com.droiuby.client.core.PageAsset;
-import com.droiuby.interfaces.DroiubyHelperInterface;
-
 import android.app.Activity;
 import android.os.Bundle;
+
+import com.droiuby.interfaces.DroiubyHelperInterface;
 
 public class DroiubyActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {

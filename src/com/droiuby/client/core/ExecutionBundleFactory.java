@@ -64,7 +64,6 @@ public class ExecutionBundleFactory {
 			loadPaths.add(frameworkDir.getCanonicalPath());
 			loadPaths.add(stdlib.getCanonicalPath());
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		container.setLoadPaths(loadPaths);

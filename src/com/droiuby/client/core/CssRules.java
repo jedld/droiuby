@@ -121,6 +121,7 @@ public class CssRules {
 		rules.add(rule);
 	}
 
+	@SuppressWarnings("unchecked")
 	public void apply(ActivityBuilder activityBuilder, Context context) {
 		for (CssRule rule : rules) {
 			
@@ -131,8 +132,8 @@ public class CssRules {
 				setRuleToView(activityBuilder, context, rule, result);
 				//apply element properties
 				activityBuilder.applyProperties((View)result);
-			} else if (result instanceof ArrayList) {
-				for (View view : (ArrayList<View>) result) {
+			} else if (result instanceof ArrayList<?>) {
+				for (View view : ((ArrayList<View>) result)) {
 					Log.v(this.getClass().toString(), "applying to view " + view.getId());
 					setRuleToView(activityBuilder, context, rule, (View)view);
 					activityBuilder.applyProperties((View)view);

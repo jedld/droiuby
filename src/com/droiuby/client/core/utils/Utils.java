@@ -312,7 +312,7 @@ public class Utils {
 	}
 
 	public static String load(Context c, String url, ExecutionBundle bundle) {
-		Log.d(ActiveAppDownloader.class.toString(), "loading " + url
+		Log.d(Utils.class.toString(), "loading " + url
 				+ " under namespace = "
 				+ bundle.getPayload().getActiveApp().getBaseUrl());
 		if (!url.startsWith("http:") && !url.startsWith("https:")) {

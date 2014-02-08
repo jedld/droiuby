@@ -10,10 +10,6 @@ import java.io.OutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import com.droiuby.client.core.utils.Utils;
-import com.droiuby.interfaces.DroiubyHelperInterface;
-
-import dalvik.system.DexClassLoader;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -22,10 +18,12 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.os.AsyncTask;
-import android.os.Bundle;
 import android.util.Log;
-import android.view.Window;
 import android.widget.TextView;
+
+import com.droiuby.interfaces.DroiubyHelperInterface;
+
+import dalvik.system.DexClassLoader;
 
 class LibraryBootstrapTask extends AsyncTask<Void, String, ClassLoader> {
 
@@ -42,7 +40,6 @@ class LibraryBootstrapTask extends AsyncTask<Void, String, ClassLoader> {
 
 	@Override
 	protected void onPreExecute() {
-		// TODO Auto-generated method stub
 		super.onPreExecute();
 		int default_orientation = context.getResources().getConfiguration().orientation;
 		if (default_orientation == Configuration.ORIENTATION_LANDSCAPE) {
@@ -54,7 +51,6 @@ class LibraryBootstrapTask extends AsyncTask<Void, String, ClassLoader> {
 
 	@Override
 	protected void onProgressUpdate(String... values) {
-		// TODO Auto-generated method stub
 		super.onProgressUpdate(values);
 		TextView view = (TextView)context.findViewById(R.id.loadingStatusText);
 		if (view!=null) {
@@ -88,7 +84,6 @@ class LibraryBootstrapTask extends AsyncTask<Void, String, ClassLoader> {
 				unpackZip(bis, frameworkDir.getCanonicalPath());
 			}
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -163,7 +158,7 @@ class LibraryBootstrapTask extends AsyncTask<Void, String, ClassLoader> {
 	
 	@Override
 	protected void onPostExecute(ClassLoader cl) {
-		Class libProviderClazz = null;
+		Class<?> libProviderClazz = null;
 		// Load the library.
 		try {
 			Log.d(this.getClass().toString(), "loading helper");
@@ -181,13 +176,10 @@ class LibraryBootstrapTask extends AsyncTask<Void, String, ClassLoader> {
 			Log.d(this.getClass().toString(), "done.");
 			listener.onReady(helper);
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (InstantiationException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		// Cast the return object to the library interface so that the
@@ -204,7 +196,7 @@ public class DroiubyBootstrap {
 	public static final String SECONDARY_DEX_NAME = "secondary_dex.jar";
 	public static final String JRUBY_DEX_NAME = "large_dex.jar";
 	public static final int BUF_SIZE = 8 * 1024;
-	public static Class libProviderClazz;
+	public static Class<?> libProviderClazz;
 	public static ClassLoader classLoader;
 	
 	public static DroiubyHelperInterface getHelperInstance() {
@@ -212,10 +204,8 @@ public class DroiubyBootstrap {
 			return (DroiubyHelperInterface) libProviderClazz
 					.newInstance();
 		} catch (InstantiationException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return null;
@@ -232,7 +222,6 @@ public class DroiubyBootstrap {
 			String newVersion = pInfo.versionName;
 			return !currentVersion.equals(newVersion);
 		} catch (NameNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return false;
@@ -248,7 +237,6 @@ public class DroiubyBootstrap {
 			String newVersion = pInfo.versionName;
 			prefs.edit().putString("version", newVersion).commit();
 		} catch (NameNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -292,7 +280,6 @@ public class DroiubyBootstrap {
 				dexWriter.close();
 				bis.close();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}

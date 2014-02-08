@@ -10,11 +10,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.hardware.SensorEvent;
 import android.os.Bundle;
-import android.view.ViewGroup;
 
-import com.droiuby.application.DroiubyActivity;
 import com.droiuby.application.DroiubyApp;
-import com.droiuby.client.core.DroiubyLauncher;
 
 public interface DroiubyHelperInterface {
 
@@ -22,28 +19,19 @@ public interface DroiubyHelperInterface {
 
 	public void onIntent(Bundle params);
 
-	public void reloadApplication(int mainlayout);
-	
 	public void clearCache();
 	
-	public void reloadApplication(DroiubyApp application, int mainlayout);
-
 	public SharedPreferences getCurrentPreferences();
 
 	public String getIpAddr();
 
 	public void showConsoleInfo();
 
-	public void setupApplication(DroiubyApp application, ViewGroup target,
-			int resId);
-
 	public void onStart();
 
 	public void onDestroy();
 
 	public void onResume();
-
-	public Object onRetainNonConfigurationInstance();
 
 	public void setActiveApp(DroiubyApp application);
 
@@ -52,8 +40,6 @@ public interface DroiubyHelperInterface {
 	public void start(String url);
 	
 	public void startDefault();
-
-	public void onDownloadComplete(DroiubyApp app);
 
 	public void onDocumentReady(Document mainActivity);
 
@@ -67,7 +53,7 @@ public interface DroiubyHelperInterface {
 
 	public void onSensorChanged(SensorEvent arg0);
 	
-	public void launch(Context context, String url, Class activityClass);
+	public void launch(Context context, String url, Class<?> activityClass);
 	
 	public void setPage(Activity activity, String bundleName, String pageUrl);
 	

@@ -3,13 +3,9 @@ package com.droiuby.client.core;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Vector;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Environment;
-import android.util.Log;
 
 import com.droiuby.application.DroiubyApp;
 import com.droiuby.client.core.utils.Utils;
@@ -55,7 +51,6 @@ public class AssetDownloadWorker implements Runnable {
 								+ assetName;
 						return Utils.loadFile(asset_path);
 					} catch (IOException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 					return null;

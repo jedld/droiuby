@@ -47,8 +47,6 @@ import android.widget.TextView;
 
 import com.droiuby.application.DroiubyApp;
 import com.droiuby.callbacks.DocumentReadyListener;
-import com.droiuby.client.core.ActivityBootstrapper;
-import com.droiuby.client.core.AppDownloader;
 import com.droiuby.client.core.AssetDownloadCompleteListener;
 import com.droiuby.client.core.AssetDownloadWorker;
 import com.droiuby.client.core.CssRules;
@@ -275,27 +273,6 @@ public class ActivityBuilder {
 
 	public void setPreloadedResource(HashMap<String, Object> preloadedResource) {
 		this.preloadedResource = preloadedResource;
-	}
-
-	public static void loadLayout(ExecutionBundle executionBundle,
-			DroiubyApp app, String pageUrl, boolean newActivity, int method,
-			Activity targetActivity, Document cachedDocument,
-			DocumentReadyListener onReadyListener, int resId) {
-		if (newActivity) {
-			Intent intent = new Intent(targetActivity,
-					targetActivity.getClass());
-			intent.putExtra("application", app);
-			intent.putExtra("method", method);
-			intent.putExtra("startUrl", pageUrl);
-			Log.d("LOADLAYOUT", "-> new Activity Page URL = " + pageUrl);
-			targetActivity.startActivity(intent);
-		} else {
-			Log.d("LOADLAYOUT", "page URL = " + pageUrl);
-			ActivityBootstrapper bootstrapper = new ActivityBootstrapper(
-					executionBundle, app, pageUrl, method, resId,
-					targetActivity, null, onReadyListener);
-			bootstrapper.execute();
-		}
 	}
 
 	public View prepare(ExecutionBundle bundle) {
@@ -907,6 +884,7 @@ public class ActivityBuilder {
 		return minWidth;
 	}
 
+	@SuppressWarnings("unchecked")
 	private void registerView(ViewGroup group, View child, Element e,
 			ViewBuilder builder) {
 
@@ -968,7 +946,7 @@ public class ActivityBuilder {
 		}
 
 		extras.setPropertyMap(ViewBuilder.toPropertyMap(e));
-		extras.setBuilder(builder.getClass());
+		extras.setBuilder((Class<ViewBuilder>) builder.getClass());
 		child.setTag(extras);
 		// Log.d(this.getClass().toString(), "Adding "
 		// + child.getClass().toString() + " to "
