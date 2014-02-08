@@ -27,7 +27,6 @@ import org.jruby.runtime.builtin.IRubyObject;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.util.Log;
@@ -45,8 +44,6 @@ import android.widget.RelativeLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
-import com.droiuby.application.DroiubyApp;
-import com.droiuby.callbacks.DocumentReadyListener;
 import com.droiuby.client.core.AssetDownloadCompleteListener;
 import com.droiuby.client.core.AssetDownloadWorker;
 import com.droiuby.client.core.CssRules;
@@ -98,16 +95,12 @@ class ReverseIdResolver {
 					}
 				}
 			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (IllegalArgumentException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (IllegalAccessException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (InstantiationException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 
@@ -261,7 +254,6 @@ public class ActivityBuilder {
 			thread_pool.awaitTermination(240, TimeUnit.SECONDS);
 			Log.d(this.getClass().toString(), "Download workers .... done.");
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return resultBundle;
@@ -341,6 +333,7 @@ public class ActivityBuilder {
 			return result;
 
 		if (result instanceof ArrayList) {
+			@SuppressWarnings("unchecked")
 			ArrayList<View> object_list = (ArrayList<View>) result;
 			ArrayList<View> result_list = new ArrayList<View>();
 			for (View v : object_list) {
@@ -413,7 +406,7 @@ public class ActivityBuilder {
 			String name = name_class[1];
 
 			Log.v(this.getClass().toString(), "R resolver " + name);
-			Class resourceClass = getResourceComponentClass(currentActivity, name);
+			Class<?> resourceClass = getResourceComponentClass(currentActivity, name);
 
 			Log.v(this.getClass().toString(),
 					"resource class " + resourceClass.toString());
@@ -428,7 +421,7 @@ public class ActivityBuilder {
 			Log.v(this.getClass().toString(), "Class found resolving " + id);
 
 			// match id with possible candidates
-			for (Class klass : resourceClass.getDeclaredClasses()) {
+			for (Class<?> klass : resourceClass.getDeclaredClasses()) {
 				if (klass.getName().equals(id)) {
 					rcache.put(selector, klass);
 					return klass;
@@ -449,10 +442,8 @@ public class ActivityBuilder {
 
 				return result;
 			} catch (IllegalArgumentException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (IllegalAccessException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			return null;
@@ -525,10 +516,8 @@ public class ActivityBuilder {
 				parse(e, view, bundle);
 			}
 		} catch (JDOMException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -749,7 +738,6 @@ public class ActivityBuilder {
 		try {
 			return Class.forName(packageName + ".R");
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return null;
@@ -791,19 +779,15 @@ public class ActivityBuilder {
 	public int getStyleById(String styleId) {
 		Field f;
 		try {
-			f = this.getStyleClass(currentActivity).getField(styleId);
-			return f.getInt(this.getStyleClass(currentActivity).newInstance());
+			f = ActivityBuilder.getStyleClass(currentActivity).getField(styleId);
+			return f.getInt(ActivityBuilder.getStyleClass(currentActivity).newInstance());
 		} catch (NoSuchFieldException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (InstantiationException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return 0;
@@ -815,16 +799,12 @@ public class ActivityBuilder {
 			f = getIdClass(context).getField(viewId);
 			return f.getInt(getIdClass(context).newInstance());
 		} catch (NoSuchFieldException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (InstantiationException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return 0;
@@ -835,16 +815,12 @@ public class ActivityBuilder {
 			Field f = this.getDrawableClass(currentActivity).getField(drawable);
 			return f.getInt(this.getDrawableClass(currentActivity).newInstance());
 		} catch (NoSuchFieldException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (InstantiationException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return 0;
