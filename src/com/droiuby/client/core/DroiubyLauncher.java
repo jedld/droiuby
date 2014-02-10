@@ -511,7 +511,7 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 		return adjusted_path;
 	}
 
-	public static void runController(Activity activity, ExecutionBundle bundle,
+	public static IRubyObject runController(Activity activity, ExecutionBundle bundle,
 			PageAsset page) {
 		bundle.getPayload().setCurrentActivity(activity);
 		bundle.getPayload().setCurrentPage(page);
@@ -519,6 +519,7 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 		EmbedEvalUnit preParsedScript = page.getPreParsedScript();
 		ScriptingContainer scriptingContainer = bundle.getContainer();
 		long start = System.currentTimeMillis();
+		IRubyObject instance = null;
 		try {
 			if (preParsedScript != null) {
 				preParsedScript.run();
@@ -528,12 +529,13 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 			if (preParsedScript != null) {
 				Log.d(DroiubyLauncher.class.toString(),
 						"class = " + page.getControllerClass());
-				IRubyObject instance;
+				
 				instance = (IRubyObject) scriptingContainer
 						.runScriptlet("$framework.script('"
 								+ page.getControllerClass() + "')");
 				bundle.setCurrentController(instance);
 			}
+			return instance;
 		} catch (EvalFailedException e) {
 			e.printStackTrace();
 			bundle.addError(e.getMessage());
@@ -546,10 +548,12 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 			e.printStackTrace();
 			bundle.addError(e.getMessage());
 			Log.e(DroiubyLauncher.class.toString(), e.getMessage());
+		} finally {
+			long elapsed = System.currentTimeMillis() - start;
+			Log.d(DroiubyLauncher.class.toString(),
+					"run Controller: elapsed time = " + elapsed + "ms");
 		}
-		long elapsed = System.currentTimeMillis() - start;
-		Log.d(DroiubyLauncher.class.toString(),
-				"run Controller: elapsed time = " + elapsed + "ms");
+		return null;
 	}
 
 	public static void refresh(Activity currentActivity,
@@ -559,11 +563,11 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 		refreshTask.execute();
 	}
 
-	public static void runController(Activity activity, String bundleName,
+	public static IRubyObject runController(Activity activity, String bundleName,
 			String pageUrl) {
 		ExecutionBundle bundle = ExecutionBundleFactory.getBundle(bundleName);
 		PageAsset page = bundle.getPage(pageUrl);
-		runController(activity, bundle, page);
+		return runController(activity, bundle, page);
 	}
 
 	public static void setPage(Activity activity, String bundleName,

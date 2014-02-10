@@ -5,10 +5,17 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Locale;
 
 import org.jdom2.Document;
+import org.jruby.Ruby;
+import org.jruby.RubyInteger;
+import org.jruby.RubyObject;
 import org.jruby.embed.ScriptingContainer;
+import org.jruby.exceptions.RaiseException;
+import org.jruby.javasupport.JavaUtil;
+import org.jruby.runtime.builtin.IRubyObject;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -28,14 +35,18 @@ import com.droiuby.callbacks.DocumentReadyListener;
 import com.droiuby.callbacks.OnRefreshRequested;
 import com.droiuby.client.core.builder.ActivityBuilder;
 import com.droiuby.client.core.console.WebConsole;
+import com.droiuby.client.core.utils.Utils;
 import com.droiuby.interfaces.DroiubyHelperInterface;
 
-public class DroiubyHelper implements 
-		OnDownloadCompleteListener, DocumentReadyListener,
-		DroiubyHelperInterface {
-	/** Called when the activity is first created. */
+public class DroiubyHelper implements OnDownloadCompleteListener,
+		DocumentReadyListener, DroiubyHelperInterface {
+
 	DroiubyApp application;
 	Activity activity;
+	IRubyObject backingObject;
+	Ruby runtime;
+
+	protected HashSet methodCache;
 
 	public DroiubyHelper() {
 		Log.d(this.getClass().toString(), "new instance...");
@@ -80,6 +91,14 @@ public class DroiubyHelper implements
 		this.executionBundle = executionBundle;
 	}
 
+	public DroiubyHelperInterface setExecutionBundle(Activity activity,
+			String bundleName) {
+		ExecutionBundle bundle = ExecutionBundleFactory.getBundle(bundleName);
+		setExecutionBundle(bundle);
+		this.activity = activity;
+		return this;
+	}
+
 	String currentUrl;
 	private ClassLoader loader;
 
@@ -109,8 +128,9 @@ public class DroiubyHelper implements
 		WifiInfo wifiInfo = wifiManager.getConnectionInfo();
 		int ip = wifiInfo.getIpAddress();
 
-		String ipString = String.format(Locale.ENGLISH, "%d.%d.%d.%d", (ip & 0xff),
-				(ip >> 8 & 0xff), (ip >> 16 & 0xff), (ip >> 24 & 0xff));
+		String ipString = String.format(Locale.ENGLISH, "%d.%d.%d.%d",
+				(ip & 0xff), (ip >> 8 & 0xff), (ip >> 16 & 0xff),
+				(ip >> 24 & 0xff));
 
 		return ipString.toString();
 	}
@@ -184,9 +204,15 @@ public class DroiubyHelper implements
 	 * @see com.droiuby.client.core.DroiubyHelperInterface#onResume()
 	 */
 	public void onResume() {
-		setupConsole();
-		if (executionBundle != null) {
-			executionBundle.setCurrentActivity(activity);
+		try {
+			if (methodCache.contains("onResume")) {
+				IRubyObject[] args = new IRubyObject[] {};
+				backingObject.callMethod(runtime.getCurrentContext(),
+						"onResume", args);
+			}
+		} catch (RaiseException e) {
+			e.printStackTrace();
+			executionBundle.addError(e.getMessage());
 		}
 	}
 
@@ -225,29 +251,18 @@ public class DroiubyHelper implements
 	 * int, android.content.Intent)
 	 */
 	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-		if (executionBundle != null) {
-			if (executionBundle.getCurrentController() != null) {
-				try {
-					ScriptingContainer container = executionBundle
-							.getContainer();
-					container.put("_requestCode", requestCode);
-					container.put("_resultCode", resultCode);
-					container.put("_intent", intent);
-					container.put("_controller",
-							executionBundle.getCurrentController());
-					container
-							.runScriptlet("_controller.on_activity_result(_requestCode, _resultCode, wrap_native(_intent))");
-				} catch (org.jruby.embed.EvalFailedException e) {
-					Log.d(this.getClass().toString(),
-							"eval failed: " + e.getMessage());
-					e.printStackTrace();
-					executionBundle.addError(e.getMessage());
-				} catch (org.jruby.embed.ParseFailedException e) {
-					e.printStackTrace();
-					executionBundle.addError(e.getMessage());
-				}
-			}
-		}
+		 try {
+	            if (methodCache.contains("onActivityResult")) {
+	                IRubyObject wrapped_param1 = RubyInteger.int2fix(runtime, requestCode);
+	                IRubyObject wrapped_param2 = RubyInteger.int2fix(runtime, resultCode);
+	                IRubyObject wrapped_param3 = JavaUtil.convertJavaToRuby(runtime, intent);
+	                IRubyObject[] args = new IRubyObject[] {wrapped_param1, wrapped_param2, wrapped_param3 };
+	                backingObject.callMethod(runtime.getCurrentContext(), "onActivityResult", args);
+	            } 
+	        } catch (RaiseException e) {
+	            e.printStackTrace();
+	            executionBundle.addError(e.getMessage());
+	        }
 	}
 
 	/*
@@ -259,7 +274,7 @@ public class DroiubyHelper implements
 	public void start(String url) {
 		DroiubyLauncher.launch(activity, url);
 	}
-	
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -337,6 +352,15 @@ public class DroiubyHelper implements
 
 	public void runController(Activity activity, String bundleName,
 			String pageUrl) {
-		DroiubyLauncher.runController(activity, bundleName, pageUrl);
+		
+		this.backingObject = DroiubyLauncher.runController(activity,
+				bundleName, pageUrl);
+		this.executionBundle = ExecutionBundleFactory.getBundle(bundleName);
+		this.runtime = executionBundle.getContainer().getProvider()
+				.getRuntime();
+		
+		methodCache = Utils.toStringSet(backingObject.callMethod(
+				executionBundle.getContainer().getProvider().getRuntime()
+						.getCurrentContext(), "methods", new IRubyObject[] {}));
 	}
 }

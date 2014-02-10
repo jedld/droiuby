@@ -3,7 +3,9 @@ package com.droiuby.client.core;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.jruby.RubyObject;
 import org.jruby.embed.ScriptingContainer;
+import org.jruby.runtime.builtin.IRubyObject;
 
 import android.app.Activity;
 import android.content.Context;
@@ -16,7 +18,7 @@ public class ExecutionBundle {
 	ScriptingContainer container;
 	OnUrlChangedListener urlChangedListener;
 	String currentUrl;
-	Object currentController;
+	IRubyObject currentController;
 	String name;
 	
 	HashMap <String,PageAsset> pageAssets = new HashMap<String, PageAsset>();
@@ -29,11 +31,11 @@ public class ExecutionBundle {
 		this.name = name;
 	}
 
-	public Object getCurrentController() {
+	public IRubyObject getCurrentController() {
 		return currentController;
 	}
 
-	public void setCurrentController(Object currentController) {
+	public void setCurrentController(IRubyObject currentController) {
 		this.currentController = currentController;
 	}
 
