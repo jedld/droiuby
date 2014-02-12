@@ -1,10 +1,9 @@
 
 package com.droiuby.wrappers;
 
-import android.view.MotionEvent;
-import android.view.View;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
 import com.droiuby.client.core.ExecutionBundle;
-import com.droiuby.client.core.utils.Utils;
 import org.jruby.Ruby;
 import org.jruby.RubyObject;
 import org.jruby.embed.ScriptingContainer;
@@ -12,8 +11,8 @@ import org.jruby.exceptions.RaiseException;
 import org.jruby.javasupport.JavaUtil;
 import org.jruby.runtime.builtin.IRubyObject;
 
-public class OnTouchListenerRubyWrapper
-    implements View.OnTouchListener
+public class InvocationHandlerRubyWrapper
+    implements InvocationHandler
 {
 
     protected RubyObject backingObject;
@@ -21,7 +20,7 @@ public class OnTouchListenerRubyWrapper
     protected ScriptingContainer container;
     protected Ruby runtime;
 
-    public OnTouchListenerRubyWrapper(ExecutionBundle bundle, RubyObject rubyObject) {
+    public InvocationHandlerRubyWrapper(ExecutionBundle bundle, RubyObject rubyObject) {
         backingObject = rubyObject;
         executionBundle = bundle;
         container = bundle.getContainer();
@@ -29,18 +28,19 @@ public class OnTouchListenerRubyWrapper
     }
 
     @Override
-    public boolean onTouch(View param1, MotionEvent param2) {
+    public Object invoke(Object param1, Method param2, Object[] param3) {
         try {
             IRubyObject wrapped_param1 = JavaUtil.convertJavaToRuby(runtime, param1);
             IRubyObject wrapped_param2 = JavaUtil.convertJavaToRuby(runtime, param2);
-            IRubyObject[] args = new IRubyObject[] {wrapped_param1, wrapped_param2 };
-            boolean result = Utils.toBoolean(backingObject.callMethod(runtime.getCurrentContext(), "onTouch", args));
-            return result;
+            IRubyObject wrapped_param3 = JavaUtil.convertJavaToRuby(runtime, param3);
+            IRubyObject[] args = new IRubyObject[] {wrapped_param1, wrapped_param2, wrapped_param3 };
+            IRubyObject result = backingObject.callMethod(runtime.getCurrentContext(), "invoke", args);
+            return ((Object) result.toJava(Object.class));
         } catch (RaiseException e) {
             e.printStackTrace();
             executionBundle.addError(e.getMessage());
         }
-        return false;
+        return null;
     }
 
 }
