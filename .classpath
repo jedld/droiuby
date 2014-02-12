@@ -17,5 +17,6 @@
 	<classpathentry exported="true" kind="lib" path="libs_large/codemodel-2.6.jar"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.DEPENDENCIES"/>
 	<classpathentry kind="lib" path="libs_large/jruby.jar"/>
+	<classpathentry kind="lib" path="libs/dexmaker-1.0.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
