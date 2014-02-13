@@ -3,6 +3,7 @@ package com.droiuby.client.core.utils;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
@@ -21,11 +22,14 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.http.Header;
 import org.apache.http.HeaderElement;
 import org.apache.http.HttpResponse;
@@ -248,22 +252,22 @@ public class Utils {
 		return null;
 	}
 
-	public static HashSet <String> toStringSet(IRubyObject object) {
-		HashSet <String>list = new HashSet<String>();
+	public static HashSet<String> toStringSet(IRubyObject object) {
+		HashSet<String> list = new HashSet<String>();
 		if (object.isNil())
 			return null;
 		if (object instanceof RubyArray) {
-			for (Object raw_item :  ((RubyArray) object)) {
+			for (Object raw_item : ((RubyArray) object)) {
 				if (raw_item instanceof RubySymbol) {
-					list.add(((RubySymbol)raw_item).asJavaString());
+					list.add(((RubySymbol) raw_item).asJavaString());
 				} else if (raw_item instanceof RubyString) {
-					list.add(((RubyString)raw_item).asJavaString());
+					list.add(((RubyString) raw_item).asJavaString());
 				}
 			}
 		}
 		return list;
 	}
-	
+
 	public static boolean toBoolean(IRubyObject object) {
 		if (object.isNil())
 			return false;
@@ -284,7 +288,7 @@ public class Utils {
 		}
 		return 0;
 	}
-	
+
 	public static long toLong(IRubyObject object) {
 		if (object.isNil())
 			return 0;
@@ -293,7 +297,7 @@ public class Utils {
 		}
 		return 0;
 	}
-	
+
 	public static double toFloat(IRubyObject object) {
 		if (object.isNil())
 			return 0;
@@ -302,7 +306,6 @@ public class Utils {
 		}
 		return 0;
 	}
-	
 
 	public static void logHeaders(Header[] headers, Class context) {
 		for (Header header : headers) {
@@ -311,9 +314,8 @@ public class Utils {
 		}
 	}
 
-	public static String load(Context c, String url, ExecutionBundle bundle) {
-		Log.d(Utils.class.toString(), "loading " + url
-				+ " under namespace = "
+	public static String load(Context c, String url, ExecutionBundle bundle) throws FileNotFoundException, IOException {
+		Log.d(Utils.class.toString(), "loading " + url + " under namespace = "
 				+ bundle.getPayload().getActiveApp().getBaseUrl());
 		if (!url.startsWith("http:") && !url.startsWith("https:")) {
 			url = bundle.getPayload().getActiveApp().getBaseUrl() + url;
@@ -326,7 +328,7 @@ public class Utils {
 		}
 	}
 
-	public static String loadAsset(Context c, String url) {
+	public static String loadAsset(Context c, String url) throws FileNotFoundException, IOException {
 		String asset_path = null;
 		Reader resource = null;
 		if (url.startsWith("asset:")) {
@@ -491,6 +493,42 @@ public class Utils {
 		return Formatter.formatIpAddress(i);
 	}
 
+	public static String processArchive(Context context, String name,
+			String update_framework, InputStream in) throws IOException,
+			FileNotFoundException {
+
+		String extraction_target = null;
+		String data_dir = context.getApplicationInfo().dataDir;
+		if (update_framework == null || !update_framework.equalsIgnoreCase("true")) {
+			extraction_target = data_dir + File.separator + "applications"
+					+ File.separator + Utils.md5(name);
+		} else {
+			extraction_target = new File(context.getDir("vendor",
+					Context.MODE_PRIVATE) + File.separator + "framework")
+					.getCanonicalPath();
+		}
+
+		File dir = new File(extraction_target);
+		if (dir.exists()) {
+			Log.d(Utils.class.toString(), "removing existing directory.");
+			FileUtils.deleteDirectory(dir);
+		}
+
+		dir.mkdirs();
+
+		Utils.unpackZip(in, extraction_target);
+
+		return extraction_target;
+	}
+
+	public static String processArchive(Context context, String name,
+			String update_framework, String filename)
+			throws IOException, FileNotFoundException {
+		File file = new File(filename);
+		return processArchive(context, name, update_framework,
+				new FileInputStream(file));
+	}
+
 	public static boolean unpackZip(InputStream is, String outputdir) {
 		ZipInputStream zis;
 		try {
@@ -535,14 +573,14 @@ public class Utils {
 
 	public static IRubyObject loadAppAssetRuby(ExecutionBundle bundle,
 			DroiubyApp app, Context context, String asset_name, int asset_type,
-			int method) {
+			int method) throws FileNotFoundException, IOException {
 		return JavaUtil.convertJavaToRuby(bundle.getContainer().getProvider()
 				.getRuntime(),
 				loadAppAsset(app, context, asset_name, asset_type, method));
 	}
 
 	public static Object loadAppAsset(DroiubyApp app, Context context,
-			String asset_name, int asset_type, int method) {
+			String asset_name, int asset_type, int method) throws FileNotFoundException, IOException {
 		if (asset_name != null) {
 			if (asset_name.startsWith("asset:")) {
 				return Utils.loadAsset(context, asset_name);
@@ -564,7 +602,8 @@ public class Utils {
 				if (baseUrl.startsWith("asset:")) {
 					return Utils.loadAsset(context, baseUrl + asset_name);
 				} else if (baseUrl.startsWith("file://")) {
-					if (asset_type == Utils.ASSET_TYPE_TYPEFACE || asset_type == Utils.ASSET_TYPE_BINARY) {
+					if (asset_type == Utils.ASSET_TYPE_TYPEFACE
+							|| asset_type == Utils.ASSET_TYPE_BINARY) {
 						return stripProtocol(baseUrl + asset_name);
 					} else {
 						return Utils.loadFile(baseUrl + asset_name);
@@ -609,7 +648,8 @@ public class Utils {
 								.downloadFromUrlAsync(context, query_url,
 										UrlImageViewHelper
 												.getFilenameForUrl(query_url));
-					} else if (asset_type == Utils.ASSET_TYPE_TYPEFACE || asset_type == Utils.ASSET_TYPE_BINARY) {
+					} else if (asset_type == Utils.ASSET_TYPE_TYPEFACE
+							|| asset_type == Utils.ASSET_TYPE_BINARY) {
 						String file_path = context.getCacheDir()
 								+ File.pathSeparator + Utils.md5(asset_name);
 						File tempFile = new File(file_path);

@@ -75,14 +75,14 @@ class LibraryBootstrapTask extends AsyncTask<Void, String, ClassLoader> {
 				unpackZip(bis, stdlib.getCanonicalPath());
 			}
 			
-			File frameworkDir = new File(DroiubyBootstrap.getVendorPath(context), "framework");
-			if (!frameworkDir.exists() || DroiubyBootstrap.requireUpdate(context)) {
-				frameworkDir.mkdir();
-				publishProgress("unpacking framework");
-				BufferedInputStream bis = new BufferedInputStream(context
-						.getAssets().open("framework.jar"));
-				unpackZip(bis, frameworkDir.getCanonicalPath());
-			}
+//			File frameworkDir = new File(DroiubyBootstrap.getVendorPath(context), "framework");
+//			if (!frameworkDir.exists() || DroiubyBootstrap.requireUpdate(context)) {
+//				frameworkDir.mkdir();
+//				publishProgress("unpacking framework");
+//				BufferedInputStream bis = new BufferedInputStream(context
+//						.getAssets().open("framework.jar"));
+//				unpackZip(bis, frameworkDir.getCanonicalPath());
+//			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

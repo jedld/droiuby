@@ -68,14 +68,15 @@ public class WebConsole extends NanoHTTPD {
 
 	public static boolean uiPosted = false;
 
-	protected WebConsole(int port, File wwwroot, OnWebConsoleReady listener) throws IOException {
+	protected WebConsole(int port, File wwwroot, OnWebConsoleReady listener)
+			throws IOException {
 		super(port, wwwroot, listener);
 		Log.d(this.getClass().toString(), "Starting HTTPD server on port "
 				+ port);
 	}
 
-	public static WebConsole getInstance(int port, File wwwroot, OnWebConsoleReady listener)
-			throws IOException {
+	public static WebConsole getInstance(int port, File wwwroot,
+			OnWebConsoleReady listener) throws IOException {
 		if (instance == null) {
 			instance = new WebConsole(port, wwwroot, listener);
 		}
@@ -160,35 +161,14 @@ public class WebConsole extends NanoHTTPD {
 
 			Log.d(this.getClass().toString(), "Receiving file upload " + name);
 			if (activity.get() != null) {
-				String data_dir = activity.get().getApplicationInfo().dataDir;
 				String filename = files.getProperty("file");
 				boolean launch = params.getProperty("run", "false").equals(
 						"true") ? true : false;
-				File file = new File(filename);
-				try {
-					String extraction_target = null;
-					if (!update_framework.equalsIgnoreCase("true")) {
-						extraction_target = data_dir + File.separator
-								+ "applications" + File.separator
-								+ Utils.md5(name);
-					} else {
-						extraction_target = new File(activity.get().getDir(
-								"vendor", Context.MODE_PRIVATE)
-								+ File.separator + "framework")
-								.getCanonicalPath();
-					}
-					Log.d(this.getClass().toString(), "Saving file " + filename
-							+ " to " + extraction_target);
-					File dir = new File(extraction_target);
-					if (dir.exists()) {
-						Log.d(this.getClass().toString(),
-								"removing existing directory.");
-						FileUtils.deleteDirectory(dir);
-					}
 
-					dir.mkdirs();
-					Utils.unpackZip(new FileInputStream(file),
-							extraction_target);
+				try {
+					
+					String extraction_target = Utils.processArchive(
+							activity.get(), name, update_framework, filename);
 
 					if (update_framework.equalsIgnoreCase("true")) {
 						ExecutionBundle bundle = getBundle();
@@ -208,8 +188,9 @@ public class WebConsole extends NanoHTTPD {
 								+ extraction_target + File.separator
 								+ "config.droiuby");
 					}
-					return new Response(NanoHTTPD.HTTP_OK,
-							"application/json", "{\"status\": \"OK\"}");
+
+					return new Response(NanoHTTPD.HTTP_OK, "application/json",
+							"{\"status\": \"OK\"}");
 				} catch (FileNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -218,6 +199,7 @@ public class WebConsole extends NanoHTTPD {
 					return new Response(NanoHTTPD.HTTP_INTERNALERROR,
 							"text/html", e.getMessage());
 				}
+
 				if (name != null) {
 					return new Response(NanoHTTPD.HTTP_OK, "application/json",
 							"{\"status\": \"OK\"}");
@@ -308,8 +290,9 @@ public class WebConsole extends NanoHTTPD {
 
 				} else if (cmd.equals("reload")) {
 					final Activity currentActivity = activity.get();
-					if (currentActivity!=null) {
-						DroiubyLauncher.refresh(currentActivity, getBundle(), null);
+					if (currentActivity != null) {
+						DroiubyLauncher.refresh(currentActivity, getBundle(),
+								null);
 					}
 				} else {
 					resultMap.put("err", "true");

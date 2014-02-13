@@ -1,6 +1,7 @@
 package com.droiuby.client.core;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -37,11 +38,27 @@ public class AssetDownloadWorker implements Runnable {
 	public String loadAsset() {
 		if (assetName != null) {
 			if (assetName.startsWith("asset:")) {
-				return Utils.loadAsset(context, assetName);
+				try {
+					return Utils.loadAsset(context, assetName);
+				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			} else {
 				if (activeApp.getBaseUrl().indexOf("asset:") != -1) {
-					return Utils.loadAsset(context, activeApp.getBaseUrl()
-							+ assetName);
+					try {
+						return Utils.loadAsset(context, activeApp.getBaseUrl()
+								+ assetName);
+					} catch (FileNotFoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				} else if (activeApp.getBaseUrl().indexOf("file:") != -1) {
 					return Utils.loadFile(assetName);
 				} else if (activeApp.getBaseUrl().indexOf("sdcard:") != -1) {
@@ -73,13 +90,23 @@ public class AssetDownloadWorker implements Runnable {
 		} else {
 			return null;
 		}
+		return null;
 	}
 
 	public void run() {
 		if (onCompleteListener != null) {
-			Object result = onCompleteListener.onComplete(bundle, assetName,
-					Utils.loadAppAsset(activeApp, context, assetName,
-							assetType, method));
+			Object result = null;
+			try {
+				result = onCompleteListener.onComplete(bundle, assetName,
+						Utils.loadAppAsset(activeApp, context, assetName,
+								assetType, method));
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			if (result != null) {
 				resultBundle.add(result);
 			}

@@ -127,9 +127,18 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 		return activityClass;
 	}
 
-	private DroiubyApp download(String url) {
+	private DroiubyApp download(String url) throws FileNotFoundException, IOException {
 		String responseBody = null;
 		Log.d(DroiubyLauncher.class.toString(), "loading " + url);
+		
+		if (url.startsWith("asset:") && url.endsWith(".zip")) {
+			String asset_path = url.substring(6);
+			String extraction_path = Utils.processArchive(context, url, null, context.getAssets().open(asset_path));
+			url = "file://"
+			+ extraction_path + File.separator
+			+ "config.droiuby";
+		}
+		
 		if (url.startsWith("file://") || url.indexOf("asset:") != -1) {
 			responseBody = Utils.loadAsset(context, url);
 		} else {
@@ -230,7 +239,16 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 
 	@Override
 	protected PageAsset doInBackground(Void... params) {
-		DroiubyApp application = download(url);
+		DroiubyApp application = null;
+		try {
+			application = download(url);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 		if (application != null) {
 
@@ -355,9 +373,18 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 				if (!csplit[0].trim().equals("")) {
 					Log.d("Activity loader", "loading controller file "
 							+ baseUrl + csplit[0]);
-					String controller_content = (String) Utils.loadAppAsset(
-							app, context, csplit[0], Utils.ASSET_TYPE_TEXT,
-							Utils.HTTP_GET);
+					String controller_content = null;
+					try {
+						controller_content = (String) Utils.loadAppAsset(
+								app, context, csplit[0], Utils.ASSET_TYPE_TEXT,
+								Utils.HTTP_GET);
+					} catch (FileNotFoundException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 
 					long start = System.currentTimeMillis();
 					try {
@@ -404,11 +431,6 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 		ScriptingContainer scriptingContainer = executionBundle.getPayload()
 				.getContainer();
 		if (!executionBundle.isLibraryInitialized()) {
-			Log.d(DroiubyLauncher.class.toString(), "initializing framework");
-			scriptingContainer.runScriptlet("require '" + app.getFramework()
-					+ "/" + app.getFramework() + "'");
-			executionBundle.setLibraryInitialized(true);
-
 			ArrayList<Object> resultBundle = new ArrayList<Object>();
 			HashMap<String, Integer> asset_map = app.getAssets();
 			if (app.getAssets().size() > 0) {
@@ -497,6 +519,12 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 					e.printStackTrace();
 				}
 			}
+			
+			Log.d(DroiubyLauncher.class.toString(), "initializing framework");
+			scriptingContainer.runScriptlet("require '" + app.getFramework()
+					+ "/" + app.getFramework() + "'");
+			executionBundle.setLibraryInitialized(true);
+			
 		}
 		return true;
 	}

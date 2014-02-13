@@ -7,7 +7,6 @@ require 'cgi'
 require 'active_support/core_ext/object'
 require 'active_support/core_ext/string'
 
-
 task :default => [:launch]
 
 def launch_app(device_ip, url)
