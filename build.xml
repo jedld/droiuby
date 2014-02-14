@@ -200,10 +200,7 @@
     	<pathelement path="gen_src" />
     </path>
 
-    <path id="project.framework_src">
-    	<pathelement path="framework_src" />
-    </path>
-    
+   
     <!-- Custom tasks -->
     <taskdef resource="anttasks.properties" classpathref="android.antlibs" />
 
@@ -222,13 +219,6 @@
     </path>
 	
 	<target name="package-framework">
-	    <jar destfile="${asset.absolute.dir}/framework.jar">
-	        <fileset dir="framework_src">
-	            <exclude name=".git/**" />
-	            <exclude name=".gitignore" />
-	            <exclude name="build/**" />
-	        </fileset>
-        </jar>
 	    <jar destfile="${asset.absolute.dir}/ruby_stdlib.jar">
 	        <fileset dir="src_ruby" />
         </jar>        
