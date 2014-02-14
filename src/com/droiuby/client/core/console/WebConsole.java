@@ -80,6 +80,8 @@ public class WebConsole extends NanoHTTPD {
 			OnWebConsoleReady listener) throws IOException {
 		if (instance == null) {
 			instance = new WebConsole(port, wwwroot, listener);
+		} else {
+			listener.onReady(instance);
 		}
 		instance.incrementReference();
 		return instance;

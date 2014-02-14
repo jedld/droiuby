@@ -17,10 +17,12 @@ public class StartupActivity extends Activity implements OnEnvironmentReady {
 	}
 
 	public void onReady(DroiubyHelperInterface result) {
+		
 		Options options = new Options();
 		options.setOverwrite(false);
 		options.setNewActivity(true);
 		options.setCloseParentActivity(true);
+		
 		result.launch(this, "asset:launcher.zip", DroiubyActivity.class, options);
 	}
 	
