@@ -342,8 +342,8 @@ public class DroiubyHelper implements OnDownloadCompleteListener,
 		start("asset:launcher/config.droiuby");
 	}
 
-	public void launch(Context context, String url, Class<?> activityClass) {
-		DroiubyLauncher.launch(context, url, activityClass);
+	public void launch(Context context, String url, Class<?> activityClass, boolean overwrite) {
+		DroiubyLauncher.launch(context, url, activityClass, overwrite);
 	}
 
 	public void setPage(Activity activity, String bundleName, String pageUrl) {

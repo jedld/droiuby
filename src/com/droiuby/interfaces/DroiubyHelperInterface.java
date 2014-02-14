@@ -53,7 +53,7 @@ public interface DroiubyHelperInterface {
 
 	public void onSensorChanged(SensorEvent arg0);
 	
-	public void launch(Context context, String url, Class<?> activityClass);
+	public void launch(Context context, String url, Class<?> activityClass, boolean overwrite);
 	
 	public void setPage(Activity activity, String bundleName, String pageUrl);
 	

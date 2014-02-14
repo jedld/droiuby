@@ -16,7 +16,7 @@ public class StartupActivity extends Activity implements OnEnvironmentReady {
 	}
 
 	public void onReady(DroiubyHelperInterface result) {
-		result.launch(this, "asset:launcher.zip", DroiubyActivity.class);
+		result.launch(this, "asset:launcher.zip", DroiubyActivity.class, false);
 	}
 	
 }

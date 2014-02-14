@@ -494,7 +494,7 @@ public class Utils {
 	}
 
 	public static String processArchive(Context context, String name,
-			String update_framework, InputStream in) throws IOException,
+			String update_framework, InputStream in, boolean overwrite) throws IOException,
 			FileNotFoundException {
 
 		String extraction_target = null;
@@ -509,6 +509,9 @@ public class Utils {
 		}
 
 		File dir = new File(extraction_target);
+		
+		if (dir.exists() && !overwrite) return extraction_target;
+		
 		if (dir.exists()) {
 			Log.d(Utils.class.toString(), "removing existing directory.");
 			FileUtils.deleteDirectory(dir);
@@ -522,11 +525,11 @@ public class Utils {
 	}
 
 	public static String processArchive(Context context, String name,
-			String update_framework, String filename)
+			String update_framework, String filename, boolean overwrite)
 			throws IOException, FileNotFoundException {
 		File file = new File(filename);
 		return processArchive(context, name, update_framework,
-				new FileInputStream(file));
+				new FileInputStream(file), overwrite);
 	}
 
 	public static boolean unpackZip(InputStream is, String outputdir) {

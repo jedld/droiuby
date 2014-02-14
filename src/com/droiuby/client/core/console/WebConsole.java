@@ -168,7 +168,7 @@ public class WebConsole extends NanoHTTPD {
 				try {
 					
 					String extraction_target = Utils.processArchive(
-							activity.get(), name, update_framework, filename);
+							activity.get(), name, update_framework, filename, true);
 
 					if (update_framework.equalsIgnoreCase("true")) {
 						ExecutionBundle bundle = getBundle();

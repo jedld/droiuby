@@ -91,18 +91,20 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 	Context context;
 	String url;
 	Class<?> activityClass;
+	boolean overwrite;
 
-	protected DroiubyLauncher(Context context, String url, Class<?> activityClass) {
+	protected DroiubyLauncher(Context context, String url, Class<?> activityClass, boolean overwrite) {
 		this.context = context;
 		this.url = url;
 		this.activityClass = activityClass;
+		this.overwrite = overwrite;
 	}
 
 	public static void launch(Context context, String url) {
-		launch(context, url, null);
+		launch(context, url, null, true);
 	}
 
-	public static void launch(Context context, String url, Class<?> activityClass) {
+	public static void launch(Context context, String url, Class<?> activityClass, boolean useCache) {
 		try {
 
 			if (activityClass == null) {
@@ -110,7 +112,7 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 			}
 
 			DroiubyLauncher launcher = new DroiubyLauncher(context, url,
-					activityClass);
+					activityClass, useCache);
 			launcher.execute();
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
@@ -133,7 +135,7 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 		
 		if (url.startsWith("asset:") && url.endsWith(".zip")) {
 			String asset_path = url.substring(6);
-			String extraction_path = Utils.processArchive(context, url, null, context.getAssets().open(asset_path));
+			String extraction_path = Utils.processArchive(context, url, null, context.getAssets().open(asset_path), overwrite);
 			url = "file://"
 			+ extraction_path + File.separator
 			+ "config.droiuby";
