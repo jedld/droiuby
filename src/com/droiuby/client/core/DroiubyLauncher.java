@@ -41,6 +41,7 @@ import com.droiuby.client.core.postprocessor.CssPreloadParser;
 import com.droiuby.client.core.postprocessor.ScriptPreparser;
 import com.droiuby.client.core.utils.OnWebConsoleReady;
 import com.droiuby.client.core.utils.Utils;
+import com.droiuby.launcher.Options;
 
 class PageRefreshTask extends AsyncTask<Void, Void, PageAsset> {
 
@@ -91,20 +92,26 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 	Context context;
 	String url;
 	Class<?> activityClass;
-	boolean overwrite;
+	Options options;
 
-	protected DroiubyLauncher(Context context, String url, Class<?> activityClass, boolean overwrite) {
+	protected DroiubyLauncher(Context context, String url,
+			Class<?> activityClass, Options options) {
 		this.context = context;
 		this.url = url;
 		this.activityClass = activityClass;
-		this.overwrite = overwrite;
+		this.options = options;
+	}
+
+	public static void launch(Context context, String url, Options options) {
+		launch(context, url, null, options);
 	}
 
 	public static void launch(Context context, String url) {
-		launch(context, url, null, true);
+		launch(context, url, null, new Options());
 	}
 
-	public static void launch(Context context, String url, Class<?> activityClass, boolean useCache) {
+	public static void launch(Context context, String url,
+			Class<?> activityClass, Options options) {
 		try {
 
 			if (activityClass == null) {
@@ -112,7 +119,7 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 			}
 
 			DroiubyLauncher launcher = new DroiubyLauncher(context, url,
-					activityClass, useCache);
+					activityClass, options);
 			launcher.execute();
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
@@ -129,18 +136,20 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 		return activityClass;
 	}
 
-	private DroiubyApp download(String url) throws FileNotFoundException, IOException {
+	private DroiubyApp download(String url) throws FileNotFoundException,
+			IOException {
 		String responseBody = null;
 		Log.d(DroiubyLauncher.class.toString(), "loading " + url);
-		
+
 		if (url.startsWith("asset:") && url.endsWith(".zip")) {
 			String asset_path = url.substring(6);
-			String extraction_path = Utils.processArchive(context, url, null, context.getAssets().open(asset_path), overwrite);
-			url = "file://"
-			+ extraction_path + File.separator
-			+ "config.droiuby";
+			String extraction_path = Utils
+					.processArchive(context, url, null, context.getAssets()
+							.open(asset_path), options.isOverwrite());
+			url = "file://" + extraction_path + File.separator
+					+ "config.droiuby";
 		}
-		
+
 		if (url.startsWith("file://") || url.indexOf("asset:") != -1) {
 			responseBody = Utils.loadAsset(context, url);
 		} else {
@@ -275,9 +284,11 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 			builder.setMessage("Unable to download access app at " + url)
 					.setCancelable(true).create();
 		} else {
-			startNewActivity(context, activityClass, result);
+			if (options.isNewActivity()) {
+				startNewActivity(context, activityClass, result);
+			}
 
-			if (context instanceof Activity) {
+			if (options.isCloseParentActivity() && context instanceof Activity) {
 				((Activity) context).finish();
 			}
 		}
@@ -293,8 +304,8 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 		}
 	}
 
-	public static void startNewActivity(Context context, Class<?> activityClass,
-			PageAsset result) {
+	public static void startNewActivity(Context context,
+			Class<?> activityClass, PageAsset result) {
 
 		Intent intent = new Intent(context, activityClass);
 		intent.putExtra("bundle", result.getBundle().getName());
@@ -377,8 +388,8 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 							+ baseUrl + csplit[0]);
 					String controller_content = null;
 					try {
-						controller_content = (String) Utils.loadAppAsset(
-								app, context, csplit[0], Utils.ASSET_TYPE_TEXT,
+						controller_content = (String) Utils.loadAppAsset(app,
+								context, csplit[0], Utils.ASSET_TYPE_TEXT,
 								Utils.HTTP_GET);
 					} catch (FileNotFoundException e1) {
 						// TODO Auto-generated catch block
@@ -521,12 +532,12 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 					e.printStackTrace();
 				}
 			}
-			
+
 			Log.d(DroiubyLauncher.class.toString(), "initializing framework");
 			scriptingContainer.runScriptlet("require '" + app.getFramework()
 					+ "/" + app.getFramework() + "'");
 			executionBundle.setLibraryInitialized(true);
-			
+
 		}
 		return true;
 	}
@@ -541,8 +552,8 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 		return adjusted_path;
 	}
 
-	public static IRubyObject runController(Activity activity, ExecutionBundle bundle,
-			PageAsset page) {
+	public static IRubyObject runController(Activity activity,
+			ExecutionBundle bundle, PageAsset page) {
 		bundle.getPayload().setCurrentActivity(activity);
 		bundle.getPayload().setCurrentPage(page);
 
@@ -559,7 +570,7 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 			if (preParsedScript != null) {
 				Log.d(DroiubyLauncher.class.toString(),
 						"class = " + page.getControllerClass());
-				
+
 				instance = (IRubyObject) scriptingContainer
 						.runScriptlet("$framework.script('"
 								+ page.getControllerClass() + "')");
@@ -593,8 +604,8 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 		refreshTask.execute();
 	}
 
-	public static IRubyObject runController(Activity activity, String bundleName,
-			String pageUrl) {
+	public static IRubyObject runController(Activity activity,
+			String bundleName, String pageUrl) {
 		ExecutionBundle bundle = ExecutionBundleFactory.getBundle(bundleName);
 		PageAsset page = bundle.getPage(pageUrl);
 		return runController(activity, bundle, page);

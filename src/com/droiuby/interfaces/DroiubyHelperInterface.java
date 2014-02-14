@@ -12,6 +12,7 @@ import android.hardware.SensorEvent;
 import android.os.Bundle;
 
 import com.droiuby.application.DroiubyApp;
+import com.droiuby.launcher.Options;
 
 public interface DroiubyHelperInterface {
 
@@ -53,7 +54,7 @@ public interface DroiubyHelperInterface {
 
 	public void onSensorChanged(SensorEvent arg0);
 	
-	public void launch(Context context, String url, Class<?> activityClass, boolean overwrite);
+	public void launch(Context context, String url, Class<?> activityClass, Options overwrite);
 	
 	public void setPage(Activity activity, String bundleName, String pageUrl);
 	

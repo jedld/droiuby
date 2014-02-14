@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.os.Bundle;
 
 import com.droiuby.interfaces.DroiubyHelperInterface;
+import com.droiuby.launcher.Options;
 
 public class StartupActivity extends Activity implements OnEnvironmentReady {
 
@@ -16,7 +17,11 @@ public class StartupActivity extends Activity implements OnEnvironmentReady {
 	}
 
 	public void onReady(DroiubyHelperInterface result) {
-		result.launch(this, "asset:launcher.zip", DroiubyActivity.class, false);
+		Options options = new Options();
+		options.setOverwrite(false);
+		options.setNewActivity(true);
+		options.setCloseParentActivity(true);
+		result.launch(this, "asset:launcher.zip", DroiubyActivity.class, options);
 	}
 	
 }

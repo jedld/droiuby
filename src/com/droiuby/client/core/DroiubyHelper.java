@@ -37,6 +37,7 @@ import com.droiuby.client.core.builder.ActivityBuilder;
 import com.droiuby.client.core.console.WebConsole;
 import com.droiuby.client.core.utils.Utils;
 import com.droiuby.interfaces.DroiubyHelperInterface;
+import com.droiuby.launcher.Options;
 
 public class DroiubyHelper implements OnDownloadCompleteListener,
 		DocumentReadyListener, DroiubyHelperInterface {
@@ -342,8 +343,8 @@ public class DroiubyHelper implements OnDownloadCompleteListener,
 		start("asset:launcher/config.droiuby");
 	}
 
-	public void launch(Context context, String url, Class<?> activityClass, boolean overwrite) {
-		DroiubyLauncher.launch(context, url, activityClass, overwrite);
+	public void launch(Context context, String url, Class<?> activityClass, Options options) {
+		DroiubyLauncher.launch(context, url, activityClass, options);
 	}
 
 	public void setPage(Activity activity, String bundleName, String pageUrl) {

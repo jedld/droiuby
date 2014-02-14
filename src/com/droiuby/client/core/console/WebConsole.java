@@ -32,6 +32,7 @@ import com.droiuby.client.core.builder.ActivityBuilder;
 import com.droiuby.client.core.utils.NanoHTTPD;
 import com.droiuby.client.core.utils.OnWebConsoleReady;
 import com.droiuby.client.core.utils.Utils;
+import com.droiuby.launcher.Options;
 
 public class WebConsole extends NanoHTTPD {
 
@@ -166,9 +167,10 @@ public class WebConsole extends NanoHTTPD {
 						"true") ? true : false;
 
 				try {
-					
+
 					String extraction_target = Utils.processArchive(
-							activity.get(), name, update_framework, filename, true);
+							activity.get(), name, update_framework, filename,
+							true);
 
 					if (update_framework.equalsIgnoreCase("true")) {
 						ExecutionBundle bundle = getBundle();
@@ -402,7 +404,12 @@ public class WebConsole extends NanoHTTPD {
 		if (currentActivity != null) {
 			currentActivity.runOnUiThread(new Runnable() {
 				public void run() {
-					DroiubyLauncher.launch(currentActivity, url);
+					Options options = new Options();
+					options.setOverwrite(true);
+					options.setNewActivity(true);
+					options.setCloseParentActivity(false);
+
+					DroiubyLauncher.launch(currentActivity, url, options);
 				}
 			});
 
