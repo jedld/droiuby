@@ -974,8 +974,14 @@ public class ActivityBuilder {
 			if (node_name.equals("div") || node_name.equals("span")) {
 				builder = new FrameLayoutBuilder();
 			} else if (node_name.equals("layout")) {
-				String type = e.getAttributeValue("type").toLowerCase(
-						Locale.ENGLISH);
+				
+				String type = "linear";
+				
+				if (e.getAttributeValue("type")!=null) {
+					type = e.getAttributeValue("type").toLowerCase(
+							Locale.ENGLISH);
+				};
+				
 				if (type.equals("frame")) {
 					builder = new FrameLayoutBuilder();
 				} else if (type.equals("linear")) {
