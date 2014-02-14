@@ -1,3 +1,0 @@
-[submodule "framework_src"]
-	path = framework_src
-	url = git@github.com:jedld/droiuby_framework.git
