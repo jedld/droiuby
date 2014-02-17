@@ -534,6 +534,7 @@ public class Utils {
 
 	public static boolean unpackZip(InputStream is, String outputdir) {
 		ZipInputStream zis;
+		Log.d(Utils.class.toString(), "Unpacking zip...");
 		try {
 			String filename;
 

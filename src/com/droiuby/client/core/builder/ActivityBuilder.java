@@ -842,22 +842,38 @@ public class ActivityBuilder {
 		}
 	}
 
-	private int toPixels(String measurement) {
+	public static int toDeviceIndependentPixels(Context context, Integer px) {
+			Resources r = context.getResources();
+			return Math.round(TypedValue.applyDimension(
+					TypedValue.COMPLEX_UNIT_DIP,
+					(float)px, r.getDisplayMetrics()));
+	}
+	
+	public static int toDeviceIndependentPixels(Context context, Float px) {
+		Resources r = context.getResources();
+		return Math.round(TypedValue.applyDimension(
+				TypedValue.COMPLEX_UNIT_DIP,
+				px, r.getDisplayMetrics()));
+}
+
+	public static int toPixels(Context context, String measurement) {
 		int minWidth = 0;
 		if (measurement.endsWith("dp") || measurement.endsWith("dip")) {
 			int s = 2;
 			if (measurement.endsWith("dip")) {
 				s = 3;
 			}
-			Resources r = currentActivity.getResources();
-			minWidth = Math.round(TypedValue.applyDimension(
-					TypedValue.COMPLEX_UNIT_DIP,
-					Float.parseFloat(measurement.substring(0,
-							measurement.length() - s)), r.getDisplayMetrics()));
+			Resources r = context.getResources();
+			minWidth = ActivityBuilder.toDeviceIndependentPixels(context, Float.parseFloat(measurement.substring(0,
+					measurement.length() - s)));
 		} else {
 			minWidth = Integer.parseInt(measurement);
 		}
 		return minWidth;
+	}
+	
+	private int toPixels(String measurement) {
+		return ActivityBuilder.toPixels(currentActivity, measurement);
 	}
 
 	@SuppressWarnings("unchecked")

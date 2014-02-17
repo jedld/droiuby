@@ -534,9 +534,14 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 			}
 
 			Log.d(DroiubyLauncher.class.toString(), "initializing framework");
-			scriptingContainer.runScriptlet("require '" + app.getFramework()
+			try {
+				scriptingContainer.runScriptlet("require '" + app.getFramework()
 					+ "/" + app.getFramework() + "'");
-			executionBundle.setLibraryInitialized(true);
+				executionBundle.setLibraryInitialized(true);
+			} catch (Exception e) {
+				e.printStackTrace();
+				executionBundle.addError(e.getMessage());
+			}
 
 		}
 		return true;
