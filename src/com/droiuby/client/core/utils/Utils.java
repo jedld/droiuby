@@ -554,6 +554,10 @@ public class Utils {
 					File dir = new File(outputdir + filename);
 					dir.mkdirs();
 				} else {
+					File file = new File(outputdir
+							+ filename);
+					File parentdir = new File(file.getParent());
+					parentdir.mkdirs();
 					FileOutputStream fout = new FileOutputStream(outputdir
 							+ filename);
 

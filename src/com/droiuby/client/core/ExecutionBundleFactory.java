@@ -113,9 +113,8 @@ public class ExecutionBundleFactory {
 	}
 
 	public ExecutionBundle getNewScriptingContainer(Context context,
-			String namespace) {
-		if (bundles.containsKey(namespace)) {
-
+			String namespace, boolean forceNew) {
+		if (bundles.containsKey(namespace) && !forceNew) {
 			ExecutionBundle bundle = bundles.get(namespace).get();
 			if (bundle == null) {
 				Log.d(this.getClass().toString(), "Bundle for " + namespace

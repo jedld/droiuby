@@ -4,6 +4,15 @@ public class Options {
 
 	boolean overwrite;
 	boolean newActivity;
+	boolean newRuntime;
+
+	public boolean isNewRuntime() {
+		return newRuntime;
+	}
+
+	public void setNewRuntime(boolean newRuntime) {
+		this.newRuntime = newRuntime;
+	}
 
 	public boolean isCloseParentActivity() {
 		return closeParentActivity;
@@ -18,6 +27,7 @@ public class Options {
 	public Options() {
 		overwrite = true;
 		newActivity = true;
+		newRuntime = false;
 	}
 
 	public boolean isOverwrite() {

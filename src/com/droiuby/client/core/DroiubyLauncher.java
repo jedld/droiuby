@@ -266,7 +266,7 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 			ExecutionBundleFactory factory = ExecutionBundleFactory
 					.getInstance(DroiubyBootstrap.classLoader);
 			ExecutionBundle executionBundle = factory.getNewScriptingContainer(
-					context, application.getBaseUrl());
+					context, application.getBaseUrl(), options.isNewRuntime());
 
 			executionBundle.getPayload().setDroiubyApp(application);
 			downloadAssets(context, application, executionBundle);

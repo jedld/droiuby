@@ -410,7 +410,7 @@ public class WebConsole extends NanoHTTPD {
 					options.setOverwrite(true);
 					options.setNewActivity(true);
 					options.setCloseParentActivity(false);
-
+					options.setNewRuntime(true);
 					DroiubyLauncher.launch(currentActivity, url, options);
 				}
 			});
