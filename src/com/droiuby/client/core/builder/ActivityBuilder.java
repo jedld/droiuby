@@ -83,7 +83,7 @@ class ReverseIdResolver {
 				c = Class.forName(packageName + ".R");
 				for (Class sc : c.getDeclaredClasses()) {
 					Log.d(this.getClass().toString(), "class = " + sc.getName());
-					if (sc.getName().equals(packageName +".R$id")) {
+					if (sc.getName().equals(packageName + ".R$id")) {
 						for (Field f : sc.getFields()) {
 							String name = f.getName();
 							int key = f.getInt(sc.newInstance());
@@ -122,6 +122,7 @@ public class ActivityBuilder {
 	public static final int PARTIAL_APPEND_CHILDREN = 3;
 
 	Activity currentActivity;
+
 	public Activity getContext() {
 		return currentActivity;
 	}
@@ -194,7 +195,7 @@ public class ActivityBuilder {
 		setup(document, context, baseUrl,
 				(ViewGroup) context.findViewById(resId));
 	}
-	
+
 	public ActivityBuilder(Document document, Activity context, String baseUrl) {
 		setup(document, context, baseUrl, null);
 	}
@@ -285,11 +286,12 @@ public class ActivityBuilder {
 	}
 
 	public View setPreparedView(View view) {
-		
+
 		if (target == null) {
-			target = (ViewGroup) currentActivity.getWindow().getDecorView().findViewById(android.R.id.content);
+			target = (ViewGroup) currentActivity.getWindow().getDecorView()
+					.findViewById(android.R.id.content);
 		}
-		
+
 		target.removeAllViews();
 		target.addView(view);
 		return target;
@@ -406,7 +408,8 @@ public class ActivityBuilder {
 			String name = name_class[1];
 
 			Log.v(this.getClass().toString(), "R resolver " + name);
-			Class<?> resourceClass = getResourceComponentClass(currentActivity, name);
+			Class<?> resourceClass = getResourceComponentClass(currentActivity,
+					name);
 
 			Log.v(this.getClass().toString(),
 					"resource class " + resourceClass.toString());
@@ -779,8 +782,10 @@ public class ActivityBuilder {
 	public int getStyleById(String styleId) {
 		Field f;
 		try {
-			f = ActivityBuilder.getStyleClass(currentActivity).getField(styleId);
-			return f.getInt(ActivityBuilder.getStyleClass(currentActivity).newInstance());
+			f = ActivityBuilder.getStyleClass(currentActivity)
+					.getField(styleId);
+			return f.getInt(ActivityBuilder.getStyleClass(currentActivity)
+					.newInstance());
 		} catch (NoSuchFieldException e) {
 			e.printStackTrace();
 		} catch (IllegalArgumentException e) {
@@ -813,7 +818,8 @@ public class ActivityBuilder {
 	public int getDrawableId(String drawable) {
 		try {
 			Field f = this.getDrawableClass(currentActivity).getField(drawable);
-			return f.getInt(this.getDrawableClass(currentActivity).newInstance());
+			return f.getInt(this.getDrawableClass(currentActivity)
+					.newInstance());
 		} catch (NoSuchFieldException e) {
 			e.printStackTrace();
 		} catch (IllegalArgumentException e) {
@@ -843,18 +849,23 @@ public class ActivityBuilder {
 	}
 
 	public static int toDeviceIndependentPixels(Context context, Integer px) {
-			Resources r = context.getResources();
-			return Math.round(TypedValue.applyDimension(
-					TypedValue.COMPLEX_UNIT_DIP,
-					(float)px, r.getDisplayMetrics()));
+		return Math.round(toDeviceIndependentPixels(context, (float) px));
+	}
+
+	public static float toDeviceIndependentPixels(Context context, Float px) {
+		Resources r = context.getResources();
+		return TypedValue.applyDimension(
+				TypedValue.COMPLEX_UNIT_DIP, px, r.getDisplayMetrics());
 	}
 	
-	public static int toDeviceIndependentPixels(Context context, Float px) {
+	public static float toPixelFromDip(Context context, Float px) {
 		Resources r = context.getResources();
-		return Math.round(TypedValue.applyDimension(
-				TypedValue.COMPLEX_UNIT_DIP,
-				px, r.getDisplayMetrics()));
-}
+		return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_PX, px, r.getDisplayMetrics());
+	}
+	
+	public static int toPixelFromDip(Context context, int px) {
+		return Math.round(toPixelFromDip(context, (float) px));
+	}
 
 	public static int toPixels(Context context, String measurement) {
 		int minWidth = 0;
@@ -863,15 +874,16 @@ public class ActivityBuilder {
 			if (measurement.endsWith("dip")) {
 				s = 3;
 			}
-			Resources r = context.getResources();
-			minWidth = ActivityBuilder.toDeviceIndependentPixels(context, Float.parseFloat(measurement.substring(0,
-					measurement.length() - s)));
+			minWidth = Math.round(ActivityBuilder.toDeviceIndependentPixels(
+					context,
+					Float.parseFloat(measurement.substring(0,
+							measurement.length() - s))));
 		} else {
 			minWidth = Integer.parseInt(measurement);
 		}
 		return minWidth;
 	}
-	
+
 	private int toPixels(String measurement) {
 		return ActivityBuilder.toPixels(currentActivity, measurement);
 	}
@@ -990,14 +1002,15 @@ public class ActivityBuilder {
 			if (node_name.equals("div") || node_name.equals("span")) {
 				builder = new FrameLayoutBuilder();
 			} else if (node_name.equals("layout")) {
-				
+
 				String type = "linear";
-				
-				if (e.getAttributeValue("type")!=null) {
+
+				if (e.getAttributeValue("type") != null) {
 					type = e.getAttributeValue("type").toLowerCase(
 							Locale.ENGLISH);
-				};
-				
+				}
+				;
+
 				if (type.equals("frame")) {
 					builder = new FrameLayoutBuilder();
 				} else if (type.equals("linear")) {
@@ -1028,7 +1041,7 @@ public class ActivityBuilder {
 				builder = new EditTextBuilder();
 			} else if (node_name.equals("img") || node_name.equals("image")) {
 				builder = new ImageViewBuilder();
-			} else if (node_name.equals("preload")) { 
+			} else if (node_name.equals("preload")) {
 				continue;
 			} else {
 				builder = null;
@@ -1042,24 +1055,29 @@ public class ActivityBuilder {
 				builder.setBuilder(this);
 				currentView = builder.build(e);
 			} else {
-				IRubyObject framework = (IRubyObject)bundle.getContainer()
-						.runScriptlet(
-								"$framework");
+				IRubyObject framework = (IRubyObject) bundle.getContainer()
+						.runScriptlet("$framework");
 				Ruby runtime = bundle.getContainer().getProvider().getRuntime();
-				IRubyObject wrapped_param1 = RubyString.newString(runtime, node_name);
-				IRubyObject wrapped_param2 = JavaUtil.convertJavaToRuby(runtime, e);
-	            IRubyObject[] args = new IRubyObject[] {wrapped_param1, wrapped_param2};
-	            IRubyObject result = framework.callMethod(runtime.getCurrentContext() , "resolve_view", args);
-	            
-	            if (result == null) continue;
-	            
-	            if (result.isNil()) continue;
-	            
-	            if (result instanceof JavaObject) {
-	            	currentView = (View) ((JavaObject)result).getValue();
-	            } else {
-	            	continue;
-	            }
+				IRubyObject wrapped_param1 = RubyString.newString(runtime,
+						node_name);
+				IRubyObject wrapped_param2 = JavaUtil.convertJavaToRuby(
+						runtime, e);
+				IRubyObject[] args = new IRubyObject[] { wrapped_param1,
+						wrapped_param2 };
+				IRubyObject result = framework.callMethod(
+						runtime.getCurrentContext(), "resolve_view", args);
+
+				if (result == null)
+					continue;
+
+				if (result.isNil())
+					continue;
+
+				if (result instanceof JavaObject) {
+					currentView = (View) ((JavaObject) result).getValue();
+				} else {
+					continue;
+				}
 			}
 
 			if (currentView != null) {

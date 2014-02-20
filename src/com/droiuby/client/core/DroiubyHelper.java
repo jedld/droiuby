@@ -253,7 +253,7 @@ public class DroiubyHelper implements OnDownloadCompleteListener,
 	 */
 	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
 		try {
-			if (methodCache.contains("onActivityResult")) {
+			if (methodCache.contains("on_activity_result")) {
 				IRubyObject wrapped_param1 = RubyInteger.int2fix(runtime,
 						requestCode);
 				IRubyObject wrapped_param2 = RubyInteger.int2fix(runtime,
@@ -263,7 +263,7 @@ public class DroiubyHelper implements OnDownloadCompleteListener,
 				IRubyObject[] args = new IRubyObject[] { wrapped_param1,
 						wrapped_param2, wrapped_param3 };
 				backingObject.callMethod(runtime.getCurrentContext(),
-						"onActivityResult", args);
+						"on_activity_result", args);
 			}
 		} catch (RaiseException e) {
 			e.printStackTrace();
