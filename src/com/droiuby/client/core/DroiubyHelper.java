@@ -252,18 +252,23 @@ public class DroiubyHelper implements OnDownloadCompleteListener,
 	 * int, android.content.Intent)
 	 */
 	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-		 try {
-	            if (methodCache.contains("onActivityResult")) {
-	                IRubyObject wrapped_param1 = RubyInteger.int2fix(runtime, requestCode);
-	                IRubyObject wrapped_param2 = RubyInteger.int2fix(runtime, resultCode);
-	                IRubyObject wrapped_param3 = JavaUtil.convertJavaToRuby(runtime, intent);
-	                IRubyObject[] args = new IRubyObject[] {wrapped_param1, wrapped_param2, wrapped_param3 };
-	                backingObject.callMethod(runtime.getCurrentContext(), "onActivityResult", args);
-	            } 
-	        } catch (RaiseException e) {
-	            e.printStackTrace();
-	            executionBundle.addError(e.getMessage());
-	        }
+		try {
+			if (methodCache.contains("onActivityResult")) {
+				IRubyObject wrapped_param1 = RubyInteger.int2fix(runtime,
+						requestCode);
+				IRubyObject wrapped_param2 = RubyInteger.int2fix(runtime,
+						resultCode);
+				IRubyObject wrapped_param3 = JavaUtil.convertJavaToRuby(
+						runtime, intent);
+				IRubyObject[] args = new IRubyObject[] { wrapped_param1,
+						wrapped_param2, wrapped_param3 };
+				backingObject.callMethod(runtime.getCurrentContext(),
+						"onActivityResult", args);
+			}
+		} catch (RaiseException e) {
+			e.printStackTrace();
+			executionBundle.addError(e.getMessage());
+		}
 	}
 
 	/*
@@ -343,7 +348,8 @@ public class DroiubyHelper implements OnDownloadCompleteListener,
 		start("asset:launcher/config.droiuby");
 	}
 
-	public void launch(Context context, String url, Class<?> activityClass, Options options) {
+	public void launch(Context context, String url, Class<?> activityClass,
+			Options options) {
 		DroiubyLauncher.launch(context, url, activityClass, options);
 	}
 
@@ -353,15 +359,17 @@ public class DroiubyHelper implements OnDownloadCompleteListener,
 
 	public void runController(Activity activity, String bundleName,
 			String pageUrl) {
-		
+
 		this.backingObject = DroiubyLauncher.runController(activity,
 				bundleName, pageUrl);
 		this.executionBundle = ExecutionBundleFactory.getBundle(bundleName);
 		this.runtime = executionBundle.getContainer().getProvider()
 				.getRuntime();
-		
-		methodCache = Utils.toStringSet(backingObject.callMethod(
-				executionBundle.getContainer().getProvider().getRuntime()
-						.getCurrentContext(), "methods", new IRubyObject[] {}));
+		if (backingObject != null) {
+			methodCache = Utils.toStringSet(backingObject.callMethod(
+					executionBundle.getContainer().getProvider().getRuntime()
+							.getCurrentContext(), "methods",
+					new IRubyObject[] {}));
+		}
 	}
 }
