@@ -17,12 +17,10 @@ import android.view.ViewGroup.MarginLayoutParams;
 import android.view.ViewParent;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
-import android.widget.LinearLayout.LayoutParams;
 import android.widget.RelativeLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 
-import com.droiuby.client.core.PropertyValue;
 import com.droiuby.client.core.ViewExtras;
 import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
 

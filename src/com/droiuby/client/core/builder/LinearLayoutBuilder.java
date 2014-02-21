@@ -1,8 +1,5 @@
 package com.droiuby.client.core.builder;
 
-import org.jdom2.Element;
-
-import android.content.Context;
 import android.view.View;
 import android.widget.LinearLayout;
 

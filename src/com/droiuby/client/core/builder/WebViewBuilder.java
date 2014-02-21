@@ -3,7 +3,6 @@ package com.droiuby.client.core.builder;
 import org.jdom2.Element;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;

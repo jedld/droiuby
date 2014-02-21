@@ -858,13 +858,13 @@ public class ActivityBuilder {
 				TypedValue.COMPLEX_UNIT_DIP, px, r.getDisplayMetrics());
 	}
 	
-	public static float toPixelFromDip(Context context, Float px) {
+	public static float toPixelsFromDip(Context context, Float px) {
 		Resources r = context.getResources();
 		return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_PX, px, r.getDisplayMetrics());
 	}
 	
-	public static int toPixelFromDip(Context context, int px) {
-		return Math.round(toPixelFromDip(context, (float) px));
+	public static int toPixelsFromDip(Context context, int px) {
+		return Math.round(toPixelsFromDip(context, (float) px));
 	}
 
 	public static int toPixels(Context context, String measurement) {

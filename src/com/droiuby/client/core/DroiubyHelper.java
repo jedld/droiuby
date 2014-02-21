@@ -1,7 +1,5 @@
 package com.droiuby.client.core;
 
-import java.io.File;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -11,8 +9,6 @@ import java.util.Locale;
 import org.jdom2.Document;
 import org.jruby.Ruby;
 import org.jruby.RubyInteger;
-import org.jruby.RubyObject;
-import org.jruby.embed.ScriptingContainer;
 import org.jruby.exceptions.RaiseException;
 import org.jruby.javasupport.JavaUtil;
 import org.jruby.runtime.builtin.IRubyObject;
@@ -47,7 +43,7 @@ public class DroiubyHelper implements OnDownloadCompleteListener,
 	IRubyObject backingObject;
 	Ruby runtime;
 
-	protected HashSet methodCache;
+	protected HashSet<String> methodCache;
 
 	public DroiubyHelper() {
 		Log.d(this.getClass().toString(), "new instance...");
@@ -226,23 +222,6 @@ public class DroiubyHelper implements OnDownloadCompleteListener,
 	 */
 	public void setActiveApp(DroiubyApp application) {
 		this.application = application;
-	}
-
-	private void setupConsole() {
-		String web_public_loc;
-		Log.d(this.getClass().toString(), "Loading WebConsole...");
-		try {
-			web_public_loc = activity.getCacheDir().getCanonicalPath() + "/www";
-			File webroot = new File(web_public_loc);
-			webroot.mkdirs();
-			WebConsole console = WebConsole.getInstance(4000, webroot, null);
-			console.setBundle(executionBundle);
-			console.setActivity(activity);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
 	}
 
 	/*

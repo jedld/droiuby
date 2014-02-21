@@ -2,13 +2,9 @@ package com.droiuby.client.core.builder;
 
 import org.jdom2.Element;
 
-import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
-
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
 import android.text.method.PasswordTransformationMethod;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.TextView;
@@ -34,7 +30,7 @@ public class TextViewBuilder extends ViewBuilder {
 					toSize(attribute_value));
 		} else if (attribute_name.equals("gravity")
 				|| attribute_name.equals("text-align")) {
-			int gravity = this.builder.parseGravity(attribute_value);
+			int gravity = ActivityBuilder.parseGravity(attribute_value);
 			textView.setGravity(gravity);
 		} else if (attribute_name.equals("line_spacing_extra")) {
 			line_spacing_extra = Float.parseFloat(attribute_value);

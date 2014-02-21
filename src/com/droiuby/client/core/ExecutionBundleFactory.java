@@ -50,7 +50,6 @@ public class ExecutionBundleFactory {
 		
 		container.setObjectSpaceEnabled(false);
 		container.setClassLoader(loader);
-		container.setCompatVersion(CompatVersion.RUBY1_9);
 		String data_dir = context.getApplicationInfo().dataDir;
 		Log.d(this.getClass().toString(), "data directory in " + data_dir);
 		container.setHomeDirectory(data_dir + "/jruby/home");

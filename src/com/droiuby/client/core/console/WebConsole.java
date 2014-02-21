@@ -1,7 +1,6 @@
 package com.droiuby.client.core.console;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,7 +10,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jruby.embed.EmbedEvalUnit;
 import org.jruby.embed.ScriptingContainer;
@@ -19,16 +17,13 @@ import org.jruby.embed.ScriptingContainer;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.content.res.AssetManager;
 import android.util.Log;
 
 import com.droiuby.application.DroiubyApp;
-import com.droiuby.callbacks.OnAppDownloadComplete;
 import com.droiuby.client.core.DroiubyLauncher;
 import com.droiuby.client.core.ExecutionBundle;
 import com.droiuby.client.core.ExecutionBundleFactory;
-import com.droiuby.client.core.builder.ActivityBuilder;
 import com.droiuby.client.core.utils.NanoHTTPD;
 import com.droiuby.client.core.utils.OnWebConsoleReady;
 import com.droiuby.client.core.utils.Utils;
@@ -196,7 +191,6 @@ public class WebConsole extends NanoHTTPD {
 					return new Response(NanoHTTPD.HTTP_OK, "application/json",
 							"{\"status\": \"OK\"}");
 				} catch (FileNotFoundException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (IOException e) {
 					e.printStackTrace();
@@ -366,7 +360,6 @@ public class WebConsole extends NanoHTTPD {
 						resultMap.put("err", "true");
 						resultMap.put("result", e.getMessage());
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 
@@ -390,7 +383,6 @@ public class WebConsole extends NanoHTTPD {
 					response = new Response(NanoHTTPD.HTTP_OK, content_type,
 							stream);
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					response = new Response(NanoHTTPD.HTTP_NOTFOUND,
 							"text/html", "Cannot find " + uri);
 				}
@@ -422,11 +414,6 @@ public class WebConsole extends NanoHTTPD {
 					.put("result",
 							"No JRuby instance attached. Make sure an activity is visible before issuing console commands");
 		}
-	}
-
-	public void setActiveApp(DroiubyApp application) {
-		// TODO Auto-generated method stub
-
 	}
 
 }

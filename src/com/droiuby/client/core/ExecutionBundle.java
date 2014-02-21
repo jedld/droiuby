@@ -3,7 +3,6 @@ package com.droiuby.client.core;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.jruby.RubyObject;
 import org.jruby.embed.ScriptingContainer;
 import org.jruby.runtime.builtin.IRubyObject;
 

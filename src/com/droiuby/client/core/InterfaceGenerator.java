@@ -5,7 +5,6 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Proxy;
 import java.util.HashMap;
-import java.util.HashSet;
 
 import android.content.Context;
 
@@ -35,29 +34,23 @@ public class InterfaceGenerator {
 		try {
 
 			if (builder instanceof ProxyBuilder) {
-				return ((ProxyBuilder) builder).handler(wrapper).build();
+				return ((ProxyBuilder<?>) builder).handler(wrapper).build();
 			} else if (builder instanceof Class) {
 				return ((Class<?>) builder).getConstructor(
 						new Class[] { InvocationHandler.class }).newInstance(
 						new Object[] { wrapper });
 			}
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (InstantiationException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (InvocationTargetException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (NoSuchMethodException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return null;
