@@ -132,7 +132,7 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 			throws ClassNotFoundException {
 		Class<?> activityClass;
 		String packageName = context.getApplicationContext().getPackageName();
-		activityClass = Class.forName(packageName + ".DroiubyActivity");
+		activityClass = Class.forName(packageName + ".activities.DroiubyActivity");
 		return activityClass;
 	}
 

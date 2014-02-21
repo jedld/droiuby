@@ -1,9 +1,11 @@
-package com.droiuby.application;
+package com.droiuby.application.activities;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 
+import com.droiuby.application.DroiubyBootstrap;
+import com.droiuby.application.R;
 import com.droiuby.interfaces.DroiubyHelperInterface;
 
 public class DroiubyActivity extends Activity {
@@ -12,8 +14,6 @@ public class DroiubyActivity extends Activity {
 	
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.canvas);
-		
 		Bundle params = this.getIntent().getExtras();
 		String bundleName = params.getString("bundle");
 		String pageUrl = params.getString("pageUrl");

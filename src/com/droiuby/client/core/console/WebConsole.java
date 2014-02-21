@@ -19,6 +19,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.droiuby.application.DroiubyApp;
 import com.droiuby.client.core.DroiubyLauncher;
@@ -403,6 +404,9 @@ public class WebConsole extends NanoHTTPD {
 					options.setNewActivity(true);
 					options.setCloseParentActivity(false);
 					options.setNewRuntime(true);
+					
+					Toast.makeText(currentActivity, "launching " + url, Toast.LENGTH_SHORT).show();
+					
 					DroiubyLauncher.launch(currentActivity, url, options);
 				}
 			});

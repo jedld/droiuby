@@ -1,8 +1,12 @@
-package com.droiuby.application;
+package com.droiuby.application.activities;
 
 import android.app.Activity;
 import android.os.Bundle;
 
+import com.droiuby.application.DroiubyBootstrap;
+import com.droiuby.application.LibraryBootstrapTask;
+import com.droiuby.application.OnEnvironmentReady;
+import com.droiuby.application.R;
 import com.droiuby.interfaces.DroiubyHelperInterface;
 import com.droiuby.launcher.Options;
 

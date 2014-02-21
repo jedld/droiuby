@@ -162,7 +162,7 @@ public class ActivityBuilder {
 
 	ViewGroup target;
 	HashMap<String, Object> preloadedResource = new HashMap<String, Object>();
-	HashMap<String, Object> rcache = new HashMap<String, Object>();
+	static HashMap<String, Object> rcache = new HashMap<String, Object>();
 	SparseIntArray namedViewDictionary = new SparseIntArray();
 	SparseArray<ArrayList<Integer>> classViewDictionary = new SparseArray<ArrayList<Integer>>();
 	HashMap<String, ArrayList<Integer>> tagViewDictionary = new HashMap<String, ArrayList<Integer>>();
@@ -357,6 +357,61 @@ public class ActivityBuilder {
 		return null;
 	}
 
+	public static Object resolveResource(Activity currentActivity, String selector) {
+
+		if (rcache.containsKey(selector)) {
+			return rcache.get(selector);
+		}
+		
+		String name_class[] = StringUtils.split(selector, ".");
+		String name = name_class[1];
+
+		Log.v(ActivityBuilder.class.toString(), "R resolver " + name);
+		Class<?> resourceClass = getResourceComponentClass(currentActivity,
+				name);
+
+		Log.v(ActivityBuilder.class.toString(),
+				"resource class " + resourceClass.toString());
+
+		if (name_class.length <= 2) {
+			rcache.put(selector, resourceClass);
+			return resourceClass;
+		}
+
+		String id = name_class[2];
+
+		Log.v(ActivityBuilder.class.toString(), "Class found resolving " + id);
+
+		// match id with possible candidates
+		for (Class<?> klass : resourceClass.getDeclaredClasses()) {
+			if (klass.getName().equals(id)) {
+				rcache.put(selector, klass);
+				return klass;
+			}
+		}
+
+		// search constants
+		try {
+
+			Object result = findConstantField(selector, id,
+					resourceClass.getDeclaredFields());
+
+			if (result != null)
+				return result;
+
+			result = findConstantField(selector, id,
+					resourceClass.getFields());
+
+			return result;
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		}
+		
+		return null;
+	}
+	
 	public Object findViewByName(String selector) {
 		selector = selector.trim();
 		if (selector.startsWith("#")) {
@@ -399,57 +454,7 @@ public class ActivityBuilder {
 				return null;
 			}
 		} else if (selector.startsWith("R.")) {
-
-			if (rcache.containsKey(selector)) {
-				return rcache.get(selector);
-			}
-
-			String name_class[] = StringUtils.split(selector, ".");
-			String name = name_class[1];
-
-			Log.v(this.getClass().toString(), "R resolver " + name);
-			Class<?> resourceClass = getResourceComponentClass(currentActivity,
-					name);
-
-			Log.v(this.getClass().toString(),
-					"resource class " + resourceClass.toString());
-
-			if (name_class.length <= 2) {
-				rcache.put(selector, resourceClass);
-				return resourceClass;
-			}
-
-			String id = name_class[2];
-
-			Log.v(this.getClass().toString(), "Class found resolving " + id);
-
-			// match id with possible candidates
-			for (Class<?> klass : resourceClass.getDeclaredClasses()) {
-				if (klass.getName().equals(id)) {
-					rcache.put(selector, klass);
-					return klass;
-				}
-			}
-
-			// search constants
-			try {
-
-				Object result = findConstantField(selector, id,
-						resourceClass.getDeclaredFields());
-
-				if (result != null)
-					return result;
-
-				result = findConstantField(selector, id,
-						resourceClass.getFields());
-
-				return result;
-			} catch (IllegalArgumentException e) {
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				e.printStackTrace();
-			}
-			return null;
+			return ActivityBuilder.resolveResource(currentActivity, selector);
 		} else if (selector.startsWith("+")) {
 			String name = selector.substring(1);
 			int id = getDrawableId(name);
@@ -475,11 +480,11 @@ public class ActivityBuilder {
 		}
 	}
 
-	private Object findConstantField(String selector, String id, Field[] fields)
+	private static Object findConstantField(String selector, String id, Field[] fields)
 			throws IllegalAccessException {
 		for (Field f : fields) {
 
-			Log.v(this.getClass().toString(), " f " + f.getName());
+			Log.v(ActivityBuilder.class.toString(), " f " + f.getName());
 
 			if (Modifier.isStatic(f.getModifiers()) && f.getName().equals(id)) {
 
