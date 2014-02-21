@@ -1,5 +1,7 @@
 package com.droiuby.application;
 
-public class ApplicationImpl {
+import android.app.Application;
+
+public class ApplicationImpl extends Application {
 
 }

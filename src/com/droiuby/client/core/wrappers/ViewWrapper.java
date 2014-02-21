@@ -5,11 +5,10 @@ import org.jruby.embed.ScriptingContainer;
 import org.jruby.javasupport.JavaUtil;
 import org.jruby.runtime.builtin.IRubyObject;
 
-import com.droiuby.client.core.ExecutionBundle;
-
-import android.content.Context;
 import android.graphics.Canvas;
 import android.view.View;
+
+import com.droiuby.client.core.ExecutionBundle;
 
 public class ViewWrapper extends View {
 

@@ -2,13 +2,12 @@ package com.droiuby.client.core.async;
 
 import org.jruby.RubyProc;
 import org.jruby.embed.ScriptingContainer;
-import org.jruby.javasupport.JavaUtil;
 import org.jruby.runtime.builtin.IRubyObject;
-
-import com.droiuby.client.core.ExecutionBundle;
 
 import android.os.AsyncTask;
 import android.util.Log;
+
+import com.droiuby.client.core.ExecutionBundle;
 
 public class AsyncWrapper extends AsyncTask<Object, Object, IRubyObject> {
 

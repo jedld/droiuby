@@ -1,7 +1,5 @@
 package com.droiuby.client.core.postprocessor;
 
-import android.graphics.drawable.Drawable;
-
 import com.droiuby.client.core.AssetDownloadCompleteListener;
 import com.droiuby.client.core.ExecutionBundle;
 import com.droiuby.client.core.builder.ActivityBuilder;

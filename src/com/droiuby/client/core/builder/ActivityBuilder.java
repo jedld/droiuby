@@ -357,34 +357,69 @@ public class ActivityBuilder {
 		return null;
 	}
 
-	public static Object resolveResource(Activity currentActivity, String selector) {
+	public static Object resolveResource(Activity currentActivity,
+			String selector) {
 
 		if (rcache.containsKey(selector)) {
 			return rcache.get(selector);
 		}
+
+		String name;
+		Class<?> resourceClass;
+		String selector_array[];
+
+		int ptr = 0;
 		
-		String name_class[] = StringUtils.split(selector, ".");
-		String name = name_class[1];
+		if (selector.startsWith("android.R")) {
+			selector_array = StringUtils.split(selector, ".");
+			name = selector_array[2];
 
-		Log.v(ActivityBuilder.class.toString(), "R resolver " + name);
-		Class<?> resourceClass = getResourceComponentClass(currentActivity,
-				name);
+			resourceClass = getAndroidResourceComponentClass(currentActivity,
+					name);
 
-		Log.v(ActivityBuilder.class.toString(),
-				"resource class " + resourceClass.toString());
+			if (selector_array.length <= 3) {
+				rcache.put(selector, resourceClass);
+				return resourceClass;
+			}
+			ptr = 3;
 
-		if (name_class.length <= 2) {
-			rcache.put(selector, resourceClass);
-			return resourceClass;
+		} else {
+			selector_array = StringUtils.split(selector, ".");
+			name = selector_array[1];
+
+			resourceClass = getResourceComponentClass(currentActivity, name);
+			Log.v(ActivityBuilder.class.toString(), "R resolver " + name);
+
+			Log.v(ActivityBuilder.class.toString(), "resource class "
+					+ resourceClass.toString());
+
+			if (selector_array.length <= 2) {
+				rcache.put(selector, resourceClass);
+				return resourceClass;
+			}
+			
+			ptr = 2;
 		}
 
-		String id = name_class[2];
+		while (ptr < selector_array.length - 1) {
+			
+			String class_name = selector_array[ptr++];
+			
+			for (Class<?> klass : resourceClass.getDeclaredClasses()) {
+				if (klass.getName().equals(class_name)) {
+					resourceClass = klass;
+					break;
+				}
+			}
+		}
+		
+		String target_id = selector_array[ptr];
 
-		Log.v(ActivityBuilder.class.toString(), "Class found resolving " + id);
+		Log.v(ActivityBuilder.class.toString(), "Class found resolving " + target_id);
 
 		// match id with possible candidates
 		for (Class<?> klass : resourceClass.getDeclaredClasses()) {
-			if (klass.getName().equals(id)) {
+			if (klass.getName().equals(target_id)) {
 				rcache.put(selector, klass);
 				return klass;
 			}
@@ -393,14 +428,13 @@ public class ActivityBuilder {
 		// search constants
 		try {
 
-			Object result = findConstantField(selector, id,
+			Object result = findConstantField(selector, target_id,
 					resourceClass.getDeclaredFields());
 
 			if (result != null)
 				return result;
 
-			result = findConstantField(selector, id,
-					resourceClass.getFields());
+			result = findConstantField(selector, target_id, resourceClass.getFields());
 
 			return result;
 		} catch (IllegalArgumentException e) {
@@ -408,10 +442,10 @@ public class ActivityBuilder {
 		} catch (IllegalAccessException e) {
 			e.printStackTrace();
 		}
-		
+
 		return null;
 	}
-	
+
 	public Object findViewByName(String selector) {
 		selector = selector.trim();
 		if (selector.startsWith("#")) {
@@ -453,7 +487,7 @@ public class ActivityBuilder {
 			} else {
 				return null;
 			}
-		} else if (selector.startsWith("R.")) {
+		} else if (selector.startsWith("R.") || selector.startsWith("android.R.")) {
 			return ActivityBuilder.resolveResource(currentActivity, selector);
 		} else if (selector.startsWith("+")) {
 			String name = selector.substring(1);
@@ -480,8 +514,8 @@ public class ActivityBuilder {
 		}
 	}
 
-	private static Object findConstantField(String selector, String id, Field[] fields)
-			throws IllegalAccessException {
+	private static Object findConstantField(String selector, String id,
+			Field[] fields) throws IllegalAccessException {
 		for (Field f : fields) {
 
 			Log.v(ActivityBuilder.class.toString(), " f " + f.getName());
@@ -751,6 +785,27 @@ public class ActivityBuilder {
 		return null;
 	}
 
+	@SuppressWarnings("rawtypes")
+	static Class getAndroidResourceClass(Activity context) {
+		try {
+			return Class.forName("android.R");
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	static Class<?> getAndroidResourceComponentClass(Activity context,
+			String name) {
+		for (Class<?> subclass : getAndroidResourceClass(context)
+				.getDeclaredClasses()) {
+			if (subclass.getName().equals("android.R$" + name)) {
+				return subclass;
+			}
+		}
+		return null;
+	}
+
 	static Class<?> getResourceComponentClass(Activity context, String name) {
 		String packageName = context.getApplication().getPackageName();
 		for (Class<?> subclass : getResourceClass(context).getDeclaredClasses()) {
@@ -859,15 +914,16 @@ public class ActivityBuilder {
 
 	public static float toDeviceIndependentPixels(Context context, Float px) {
 		Resources r = context.getResources();
-		return TypedValue.applyDimension(
-				TypedValue.COMPLEX_UNIT_DIP, px, r.getDisplayMetrics());
+		return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, px,
+				r.getDisplayMetrics());
 	}
-	
+
 	public static float toPixelsFromDip(Context context, Float px) {
 		Resources r = context.getResources();
-		return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_PX, px, r.getDisplayMetrics());
+		return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_PX, px,
+				r.getDisplayMetrics());
 	}
-	
+
 	public static int toPixelsFromDip(Context context, int px) {
 		return Math.round(toPixelsFromDip(context, (float) px));
 	}
