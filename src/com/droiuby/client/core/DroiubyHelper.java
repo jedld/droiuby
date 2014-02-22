@@ -43,7 +43,7 @@ public class DroiubyHelper implements OnDownloadCompleteListener,
 	IRubyObject backingObject;
 	Ruby runtime;
 
-	protected HashSet<String> methodCache;
+	protected HashSet<String> methodCache = new HashSet<String>();
 
 	public DroiubyHelper() {
 		Log.d(this.getClass().toString(), "new instance...");
