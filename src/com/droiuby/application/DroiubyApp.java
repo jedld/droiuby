@@ -19,7 +19,16 @@ public class DroiubyApp implements Serializable {
 	
 	private static final long serialVersionUID = 4120098422645102827L;
 	
-	String name, description, baseUrl, mainUrl, launchUrl, framework;
+	String name, description, baseUrl, mainUrl, launchUrl, framework, workingDirectory;
+	
+	public String getWorkingDirectory() {
+		return workingDirectory;
+	}
+
+	public void setWorkingDirectory(String workingDirectory) {
+		this.workingDirectory = workingDirectory;
+	}
+
 	boolean isFullScreen;
 
 	public String getLaunchUrl() {

@@ -1116,6 +1116,15 @@ public class ActivityBuilder {
 				builder.setBuilder(this);
 				currentView = builder.build(e);
 			} else {
+				
+				
+				String module = e.getAttributeValue("module");
+				if (module!=null) {
+					node_name = module + "#" + node_name;
+				}
+				
+				Log.d(this.getClass().toString(),"Module = " + module + " Custom View = " + node_name);
+				
 				IRubyObject framework = (IRubyObject) bundle.getContainer()
 						.runScriptlet("$framework");
 				Ruby runtime = bundle.getContainer().getProvider().getRuntime();

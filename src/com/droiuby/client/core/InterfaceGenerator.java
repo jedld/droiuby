@@ -14,7 +14,22 @@ public class InterfaceGenerator {
 
 	static HashMap<String, Object> cache = new HashMap<String, Object>();
 
-	public static Object wrapperForClass(Context context, String className,
+	public static Class wrapperForClass(Context context, String className,
+			InvocationHandler wrapper) throws ClassNotFoundException {
+
+				Class<?> klass = Class.forName(className);
+				ProxyBuilder<?> builder = ProxyBuilder.forClass(klass).dexCache(
+						context.getDir("dx", Context.MODE_PRIVATE));
+				try {
+					return builder.handler(wrapper).buildProxyClass();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				return null;
+	}
+	
+	public static Object wrapperForClassOrInterface(Context context, String className,
 			InvocationHandler wrapper) throws ClassNotFoundException {
 
 		Object builder;

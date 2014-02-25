@@ -5,6 +5,16 @@ public class Options {
 	boolean overwrite;
 	boolean newActivity;
 	boolean newRuntime;
+	
+	WebConsoleInterface console;
+
+	public WebConsoleInterface getConsole() {
+		return console;
+	}
+
+	public void setConsole(WebConsoleInterface console) {
+		this.console = console;
+	}
 
 	public boolean isNewRuntime() {
 		return newRuntime;
@@ -45,5 +55,6 @@ public class Options {
 	public void setNewActivity(boolean newActivity) {
 		this.newActivity = newActivity;
 	}
+
 
 }

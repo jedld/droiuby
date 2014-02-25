@@ -28,22 +28,24 @@ import com.droiuby.client.core.ExecutionBundleFactory;
 import com.droiuby.client.core.utils.NanoHTTPD;
 import com.droiuby.client.core.utils.OnWebConsoleReady;
 import com.droiuby.client.core.utils.Utils;
+import com.droiuby.launcher.ExecutionBundleInterface;
 import com.droiuby.launcher.Options;
+import com.droiuby.launcher.WebConsoleInterface;
 
-public class WebConsole extends NanoHTTPD {
+public class WebConsole extends NanoHTTPD implements WebConsoleInterface  {
 
-	WeakReference<ExecutionBundle> bundleRef;
+	WeakReference<ExecutionBundleInterface> bundleRef;
 	public static WebConsole instance;
 	WeakReference<Activity> activity;
 	AssetManager manager;
 	int referenceCount = 0;
 
-	public ExecutionBundle getBundle() {
+	public ExecutionBundleInterface getBundle() {
 		return bundleRef.get();
 	}
 
-	public void setBundle(ExecutionBundle bundle) {
-		this.bundleRef = new WeakReference<ExecutionBundle>(bundle);
+	public void setBundle(ExecutionBundleInterface bundle) {
+		this.bundleRef = new WeakReference<ExecutionBundleInterface>(bundle);
 	}
 
 	public static WebConsole getInstance() {
@@ -156,7 +158,6 @@ public class WebConsole extends NanoHTTPD {
 		Response response;
 		if (method.equalsIgnoreCase("POST") && uri.startsWith("/upload")) {
 			String name = params.getProperty("name", null);
-			String update_framework = params.getProperty("framework", "false");
 
 			Log.d(this.getClass().toString(), "Receiving file upload " + name);
 			if (activity.get() != null) {
@@ -167,20 +168,10 @@ public class WebConsole extends NanoHTTPD {
 				try {
 
 					String extraction_target = Utils.processArchive(
-							activity.get(), name, update_framework, filename,
+							activity.get(), name, filename,
 							true);
 
-					if (update_framework.equalsIgnoreCase("true")) {
-						ExecutionBundle bundle = getBundle();
-						if (bundle != null) {
-							Log.d(this.getClass().toString(),
-									"reloading framework");
-							DroiubyApp app = bundle.getPayload().getActiveApp();
-							bundle.getContainer().runScriptlet(
-									"load '" + app.getFramework() + "/"
-											+ app.getFramework() + ".rb'");
-						}
-					} else if (launch) {
+					if (launch) {
 						Log.d(this.getClass().toString(),
 								"running application...");
 						final Map<String, String> resultMap = new HashMap<String, String>();
@@ -223,7 +214,7 @@ public class WebConsole extends NanoHTTPD {
 					resultMap.put("result", "success");
 					resultMap.put("list", StringUtils.join(bundles, ','));
 				} else if (cmd.equals("autostart")) {
-					ExecutionBundle bundle = getBundle();
+					ExecutionBundle bundle = (ExecutionBundle) getBundle();
 
 					String name = params.getProperty("name", null);
 					if (name != null) {
@@ -245,7 +236,7 @@ public class WebConsole extends NanoHTTPD {
 						resultMap.put("result", "no activity attached");
 					}
 				} else if (cmd.equals("clearautostart")) {
-					ExecutionBundle bundle = getBundle();
+					ExecutionBundle bundle = (ExecutionBundle) getBundle();
 					if (bundle != null) {
 						SharedPreferences prefs = bundle.getCurrentActivity()
 								.getSharedPreferences("boostrap",
@@ -269,7 +260,7 @@ public class WebConsole extends NanoHTTPD {
 				} else if (cmd.equals("proximity")) {
 					String flag = params.getProperty("switch");
 
-					ExecutionBundle bundle = getBundle();
+					ExecutionBundle bundle = (ExecutionBundle) getBundle();
 					if (bundle != null) {
 						SharedPreferences prefs = bundle.getCurrentActivity()
 								.getSharedPreferences("bootstrap",
@@ -290,7 +281,7 @@ public class WebConsole extends NanoHTTPD {
 				} else if (cmd.equals("reload")) {
 					final Activity currentActivity = activity.get();
 					if (currentActivity != null) {
-						DroiubyLauncher.refresh(currentActivity, getBundle(),
+						DroiubyLauncher.refresh(currentActivity, (ExecutionBundle) getBundle(),
 								null);
 					}
 				} else {
@@ -304,7 +295,7 @@ public class WebConsole extends NanoHTTPD {
 				final String statement = params.getProperty("cmd", "");
 				final Map<String, String> resultMap = new HashMap<String, String>();
 				StringBuilder resultStr = new StringBuilder();
-				final ExecutionBundle bundle = bundleRef.get();
+				final ExecutionBundle bundle = (ExecutionBundle) bundleRef.get();
 				if (bundle == null) {
 					resultMap.put("err", "true");
 					resultMap
@@ -404,6 +395,7 @@ public class WebConsole extends NanoHTTPD {
 					options.setNewActivity(true);
 					options.setCloseParentActivity(false);
 					options.setNewRuntime(true);
+					options.setConsole(WebConsole.this);
 					
 					Toast.makeText(currentActivity, "launching " + url, Toast.LENGTH_SHORT).show();
 					

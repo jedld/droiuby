@@ -469,20 +469,10 @@ public class Utils {
 		return Formatter.formatIpAddress(i);
 	}
 
-	public static String processArchive(Context context, String name,
-			String update_framework, InputStream in, boolean overwrite) throws IOException,
+	public static String processArchive(Context context, String name, 
+			InputStream in, boolean overwrite) throws IOException,
 			FileNotFoundException {
-
-		String extraction_target = null;
-		String data_dir = context.getApplicationInfo().dataDir;
-		if (update_framework == null || !update_framework.equalsIgnoreCase("true")) {
-			extraction_target = data_dir + File.separator + "applications"
-					+ File.separator + Utils.md5(name);
-		} else {
-			extraction_target = new File(context.getDir("vendor",
-					Context.MODE_PRIVATE) + File.separator + "framework")
-					.getCanonicalPath();
-		}
+		String extraction_target = getAppExtractionTarget(name, context);
 
 		File dir = new File(extraction_target);
 		
@@ -500,11 +490,16 @@ public class Utils {
 		return extraction_target;
 	}
 
+	public static String getAppExtractionTarget(String name, Context context) {
+		return context.getApplicationInfo().dataDir + File.separator + "applications"
+				+ File.separator + Utils.md5(name);
+	}
+
 	public static String processArchive(Context context, String name,
-			String update_framework, String filename, boolean overwrite)
+			String filename, boolean overwrite)
 			throws IOException, FileNotFoundException {
 		File file = new File(filename);
-		return processArchive(context, name, update_framework,
+		return processArchive(context, name, 
 				new FileInputStream(file), overwrite);
 	}
 

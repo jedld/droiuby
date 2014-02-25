@@ -11,8 +11,9 @@ import android.content.Context;
 import android.hardware.SensorManager;
 
 import com.droiuby.client.core.interfaces.OnUrlChangedListener;
+import com.droiuby.launcher.ExecutionBundleInterface;
 
-public class ExecutionBundle {
+public class ExecutionBundle implements ExecutionBundleInterface {
 
 	ScriptingContainer container;
 	OnUrlChangedListener urlChangedListener;

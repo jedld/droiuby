@@ -1,5 +1,5 @@
 
-package com.droiuby.wrappers;
+package com.droiuby.client.core.wrappers;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -15,22 +15,22 @@ public class InvocationHandlerRubyWrapper
     implements InvocationHandler
 {
 
-    protected RubyObject backingObject;
+    protected IRubyObject backingObject;
     protected ExecutionBundle executionBundle;
     protected ScriptingContainer container;
     protected Ruby runtime;
 
-    public InvocationHandlerRubyWrapper(ExecutionBundle bundle, RubyObject rubyObject) {
-        backingObject = rubyObject;
+    public InvocationHandlerRubyWrapper(ExecutionBundle bundle, Object object) {
         executionBundle = bundle;
         container = bundle.getContainer();
         runtime = container.getProvider().getRuntime();
+        backingObject = JavaUtil.convertJavaToRuby(runtime, object);
     }
 
-    @Override
     public Object invoke(Object param1, Method param2, Object[] param3) {
         try {
-            IRubyObject wrapped_param1 = JavaUtil.convertJavaToRuby(runtime, param1);
+           
+        	IRubyObject wrapped_param1 = JavaUtil.convertJavaToRuby(runtime, param1);
             IRubyObject wrapped_param2 = JavaUtil.convertJavaToRuby(runtime, param2);
             IRubyObject wrapped_param3 = JavaUtil.convertJavaToRuby(runtime, param3);
             IRubyObject[] args = new IRubyObject[] {wrapped_param1, wrapped_param2, wrapped_param3 };

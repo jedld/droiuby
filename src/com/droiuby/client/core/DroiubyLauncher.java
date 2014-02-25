@@ -12,11 +12,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.io.FileUtils;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.jdom2.input.JDOMParseException;
 import org.jdom2.input.SAXBuilder;
+import org.jruby.Ruby;
 import org.jruby.embed.EmbedEvalUnit;
 import org.jruby.embed.EvalFailedException;
 import org.jruby.embed.ParseFailedException;
@@ -132,7 +134,8 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 			throws ClassNotFoundException {
 		Class<?> activityClass;
 		String packageName = context.getApplicationContext().getPackageName();
-		activityClass = Class.forName(packageName + ".activities.DroiubyActivity");
+		activityClass = Class.forName(packageName
+				+ ".activities.DroiubyActivity");
 		return activityClass;
 	}
 
@@ -141,13 +144,26 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 		String responseBody = null;
 		Log.d(DroiubyLauncher.class.toString(), "loading " + url);
 
+		String extraction_path;
+
+		DroiubyApp app = new DroiubyApp();
+
 		if (url.startsWith("asset:") && url.endsWith(".zip")) {
 			String asset_path = url.substring(6);
-			String extraction_path = Utils
-					.processArchive(context, url, null, context.getAssets()
-							.open(asset_path), options.isOverwrite());
+			extraction_path = Utils.processArchive(context, url, context
+					.getAssets().open(asset_path), options.isOverwrite());
 			url = "file://" + extraction_path + File.separator
 					+ "config.droiuby";
+		} else {
+			String extraction_target = Utils.getAppExtractionTarget(url,
+					context);
+			File dir = new File(extraction_target);
+			if (dir.exists()) {
+				Log.d(Utils.class.toString(), "removing existing directory.");
+				FileUtils.deleteDirectory(dir);
+			}
+			dir.mkdirs();
+			app.setWorkingDirectory(extraction_target);
 		}
 
 		if (url.startsWith("file://") || url.indexOf("asset:") != -1) {
@@ -172,6 +188,7 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 				if (baseUrl == null || baseUrl.equals("")) {
 					if (url.startsWith("file://")) {
 						baseUrl = extractBasePath(url);
+						app.setWorkingDirectory(Utils.stripProtocol(baseUrl));
 					} else {
 						URL aURL = new URL(url);
 						String adjusted_path = aURL.getPath();
@@ -182,7 +199,6 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 					}
 				}
 
-				DroiubyApp app = new DroiubyApp();
 				app.setDescription(appDescription);
 				app.setName(appName);
 				app.setBaseUrl(baseUrl);
@@ -267,13 +283,28 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 					.getInstance(DroiubyBootstrap.classLoader);
 			ExecutionBundle executionBundle = factory.getNewScriptingContainer(
 					context, application.getBaseUrl(), options.isNewRuntime());
-
+			
+			if (options.getConsole()!=null) {
+				options.getConsole().setBundle(executionBundle);
+			}
+			
 			executionBundle.getPayload().setDroiubyApp(application);
+			addPath(application.getWorkingDirectory(), executionBundle);
+			
 			downloadAssets(context, application, executionBundle);
 			return loadPage(context, executionBundle, application.getMainUrl(),
 					Utils.HTTP_GET);
 		}
 		return null;
+	}
+
+	private void addPath(String path, ExecutionBundle executionBundle) {
+		Log.d(this.getClass().toString(), "Adding " + path + " to load path");
+		
+		List<String> loadPaths = new ArrayList<String>();
+		loadPaths.add(path);
+		Ruby runtime = executionBundle.getPayload().getContainer().getProvider().getRuntime();
+		runtime.getLoadService().addPaths(loadPaths);
 	}
 
 	@Override
@@ -535,8 +566,8 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 
 			Log.d(DroiubyLauncher.class.toString(), "initializing framework");
 			try {
-				scriptingContainer.runScriptlet("require '" + app.getFramework()
-					+ "/" + app.getFramework() + "'");
+				scriptingContainer.runScriptlet("require '"
+						+ app.getFramework() + "/" + app.getFramework() + "'");
 				executionBundle.setLibraryInitialized(true);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -568,7 +599,11 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 		IRubyObject instance = null;
 		try {
 			if (preParsedScript != null) {
+				
 				preParsedScript.run();
+				long elapsed = System.currentTimeMillis() - start;
+				Log.d(DroiubyLauncher.class.toString(), "Preparse started. elapsed " + elapsed);
+				start = System.currentTimeMillis();
 			}
 
 			scriptingContainer.runScriptlet("$framework.preload");
@@ -581,6 +616,7 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 								+ page.getControllerClass() + "')");
 				bundle.setCurrentController(instance);
 			}
+			
 			return instance;
 		} catch (EvalFailedException e) {
 			e.printStackTrace();
