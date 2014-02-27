@@ -33,5 +33,12 @@ public class DroiubyActivity extends Activity {
 		super.onActivityResult(requestCode, resultCode, data);
 		helper.onActivityResult(requestCode, resultCode, data);
 	}
+
+	@Override
+	protected void onDestroy() {
+		// TODO Auto-generated method stub
+		super.onDestroy();
+		helper.onDestroy();
+	}
 	
 }

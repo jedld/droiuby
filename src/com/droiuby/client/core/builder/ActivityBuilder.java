@@ -20,6 +20,7 @@ import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
 import org.jruby.Ruby;
 import org.jruby.RubyString;
+import org.jruby.java.proxies.ConcreteJavaProxy;
 import org.jruby.javasupport.JavaObject;
 import org.jruby.javasupport.JavaUtil;
 import org.jruby.runtime.builtin.IRubyObject;
@@ -1011,7 +1012,10 @@ public class ActivityBuilder {
 		}
 
 		extras.setPropertyMap(ViewBuilder.toPropertyMap(e));
-		extras.setBuilder((Class<ViewBuilder>) builder.getClass());
+		
+		if (builder!=null) {
+			extras.setBuilder((Class<ViewBuilder>) builder.getClass());
+		}
 		child.setTag(extras);
 		// Log.d(this.getClass().toString(), "Adding "
 		// + child.getClass().toString() + " to "
@@ -1070,7 +1074,7 @@ public class ActivityBuilder {
 					type = e.getAttributeValue("type").toLowerCase(
 							Locale.ENGLISH);
 				}
-				;
+				
 
 				if (type.equals("frame")) {
 					builder = new FrameLayoutBuilder();
@@ -1116,7 +1120,7 @@ public class ActivityBuilder {
 				builder.setBuilder(this);
 				currentView = builder.build(e);
 			} else {
-				
+				builder = new ViewBuilder();
 				
 				String module = e.getAttributeValue("module");
 				if (module!=null) {
@@ -1145,14 +1149,20 @@ public class ActivityBuilder {
 
 				if (result instanceof JavaObject) {
 					currentView = (View) ((JavaObject) result).getValue();
+				} else if (result instanceof ConcreteJavaProxy) {
+					currentView = (View) ((ConcreteJavaProxy) result).getObject();
 				} else {
+					Log.d(this.getClass().toString(),"Unknown Object Type = " + result.getClass().getCanonicalName());
 					continue;
 				}
 			}
 
 			if (currentView != null) {
 				registerView(view, currentView, e, builder);
-				builder.setParams(currentView, e);
+				
+				if (builder!=null) {
+					builder.setParams(currentView, e);
+				}
 				// handle ViewGroups which can have subelements
 				if (builder.hasSubElements()) {
 					parse(e, (ViewGroup) currentView, bundle);

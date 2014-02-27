@@ -26,7 +26,7 @@ public class StartupActivity extends Activity implements OnEnvironmentReady {
 		options.setOverwrite(false);
 		options.setNewActivity(true);
 		options.setCloseParentActivity(true);
-		
+		options.setRootBundle(true);
 		result.launch(this, "asset:launcher.zip", DroiubyActivity.class, options);
 	}
 	

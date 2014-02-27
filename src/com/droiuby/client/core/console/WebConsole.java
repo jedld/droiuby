@@ -390,6 +390,12 @@ public class WebConsole extends NanoHTTPD implements WebConsoleInterface  {
 		if (currentActivity != null) {
 			currentActivity.runOnUiThread(new Runnable() {
 				public void run() {
+					
+					if (!getBundle().isRootBundle()) {
+						currentActivity.finish();
+						getBundle().terminate();
+					}
+					
 					Options options = new Options();
 					options.setOverwrite(true);
 					options.setNewActivity(true);

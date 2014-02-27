@@ -20,7 +20,16 @@ public class ExecutionBundle implements ExecutionBundleInterface {
 	String currentUrl;
 	IRubyObject currentController;
 	String name;
+	boolean isRootBUndle;
 	
+	public boolean isRootBundle() {
+		return isRootBUndle;
+	}
+
+	public void setRootBundle(boolean launcherInstance) {
+		this.isRootBUndle = launcherInstance;
+	}
+
 	HashMap <String,PageAsset> pageAssets = new HashMap<String, PageAsset>();
 
 	public String getName() {
@@ -121,5 +130,11 @@ public class ExecutionBundle implements ExecutionBundleInterface {
 	
 	public PageAsset getPage(String name) {
 		return this.pageAssets.get(name);
+	}
+
+	public void terminate() {
+		container.terminate();
+		ExecutionBundleFactory factory = ExecutionBundleFactory.getInstance(Thread.currentThread().getContextClassLoader());
+		factory.removeBundle(getName());
 	}
 }

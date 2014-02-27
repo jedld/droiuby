@@ -137,4 +137,10 @@ public class ExecutionBundleFactory {
 		}
 	}
 
+	public void removeBundle(String namespace) {
+		if (bundles.containsKey(namespace)) {
+			bundles.remove(namespace);
+		}
+	}
+
 }

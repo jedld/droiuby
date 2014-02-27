@@ -5,7 +5,16 @@ public class Options {
 	boolean overwrite;
 	boolean newActivity;
 	boolean newRuntime;
+	boolean isRootBundle;
 	
+	public boolean isRootBundle() {
+		return isRootBundle;
+	}
+
+	public void setRootBundle(boolean isRootBundle) {
+		this.isRootBundle = isRootBundle;
+	}
+
 	WebConsoleInterface console;
 
 	public WebConsoleInterface getConsole() {

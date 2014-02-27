@@ -284,6 +284,10 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 			ExecutionBundle executionBundle = factory.getNewScriptingContainer(
 					context, application.getBaseUrl(), options.isNewRuntime());
 			
+			if (options.isRootBundle()) {
+				executionBundle.setRootBundle(options.isRootBundle());
+			}
+			
 			if (options.getConsole()!=null) {
 				options.getConsole().setBundle(executionBundle);
 			}

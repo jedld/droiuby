@@ -189,9 +189,15 @@ public class DroiubyHelper implements OnDownloadCompleteListener,
 	 * @see com.droiuby.client.core.DroiubyHelperInterface#onDestroy()
 	 */
 	public void onDestroy() {
-		WebConsole console = WebConsole.getInstance();
-		if (console != null) {
-			console.shutdownConsole();
+		try {
+			if (methodCache.contains("onDestroy")) {
+				IRubyObject[] args = new IRubyObject[] {};
+				backingObject.callMethod(runtime.getCurrentContext(),
+						"onDestroy", args);
+			}
+		} catch (RaiseException e) {
+			e.printStackTrace();
+			executionBundle.addError(e.getMessage());
 		}
 	}
 
