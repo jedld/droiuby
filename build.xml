@@ -150,7 +150,7 @@
            at com.android.dx.merge.InstructionTransformer.jumboCheck(InstructionTransformer.java:103)
            ...
     -->
-    <property name="dex.force.jumbo" value="false" />
+    <property name="dex.force.jumbo" value="true" />
     <property name="dex.disable.merger" value="false" />
 
     <!-- compilation options -->
@@ -215,7 +215,15 @@
 
     <!--  large libraries include Path -->
 	<path id="large_libraries.include.path">
-        <pathelement location="libs_large" />
+      <fileset dir="libs_large">
+        <include name="*.jar"/>
+      </fileset>
+    </path>
+    
+	<path id="jruby_libraries.include.path">
+      <fileset dir="libs_jruby">
+        <include name="*.jar"/>
+      </fileset>
     </path>
 	
 	<target name="package-framework">
@@ -234,7 +242,8 @@
             </path>
             <javac encoding="${java.encoding}"
                     source="${java.source}" target="${java.target}"
-                    debug="true" extdirs="libs_large" includeantruntime="false"
+                    debug="true" includeantruntime="false"
+                    extdirs="libs_jruby"
                     destdir="${out.classes.absolute.dir}"
                     bootclasspathref="project.target.class.path"
                     verbose="${verbose}"
@@ -243,6 +252,8 @@
                 <src path="${source.absolute.dir}" />
                 <src path="${gen.absolute.dir}" />
                 <src refid="project.gensrc" />
+                <classpath refid="jruby_libraries.include.path"/>
+                <classpath refid="large_libraries.include.path"/>
                 <compilerarg line="${java.compilerargs}" />
             </javac>
 
@@ -373,7 +384,8 @@
                         <include name="com/koushikdutta/**" />
                     </fileset>
                 </copy>
-
+                
+				
                 <!-- Compile .class files from the two stage directories to the apppropriate dex files. -->
                 <dex-helper-mod input-dir="${out.classes.absolute.dir}.1"
                     output-dex-file="${out.absolute.dir}/${dex.file.name}">
@@ -388,17 +400,25 @@
 	                        <path refid="out.dex.jar.input.ref" />
 	                    </external-libs>
                     </dex-helper-mod>
+                    
+                <mkdir dir="${out.absolute.dir}/jruby_lib_dir" />
+                <dex-helper-mod 
+                    input-dir="libs_jruby" 
+                    output-dex-file="${out.absolute.dir}/jruby_lib_dir/classes.dex" >                     
+                </dex-helper-mod>    
                 <mkdir dir="${out.absolute.dir}/jruby_dir" />
-                <dex-helper-mod input-dir="libs_large" 
-                    output-dex-file="${out.absolute.dir}/jruby_dir/classes.dex" >
-                    <external-libs>
-                        
-                    </external-libs>
+                <dex-helper-mod 
+                    input-dir="libs_large" 
+                    output-dex-file="${out.absolute.dir}/jruby_dir/classes.dex" >                        
                 </dex-helper-mod>                
                 <!-- Jar the secondary dex file so it can be consumed by the DexClassLoader. -->
                 <!-- Package the output in the assets directory of the apk. -->
                 <jar destfile="${asset.absolute.dir}/secondary_dex.jar"
                      basedir="${out.absolute.dir}/secondary_dex_dir" includes="classes.dex" />
+                
+                <jar destfile="${asset.absolute.dir}/jruby-dependencies.jar"
+                     basedir="${out.absolute.dir}/jruby_lib_dir" includes="classes.dex" />
+                
                 <jar destfile="${asset.absolute.dir}/large_dex.jar"
                      basedir="${out.absolute.dir}/jruby_dir" includes="classes.dex" />
             </then>

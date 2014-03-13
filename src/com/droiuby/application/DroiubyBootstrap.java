@@ -20,6 +20,7 @@ public class DroiubyBootstrap {
 
 	public static final String SECONDARY_DEX_NAME = "secondary_dex.jar";
 	public static final String JRUBY_DEX_NAME = "large_dex.jar";
+	public static final String JRUBY_DEPS = "jruby-dependencies.jar";
 	public static final int BUF_SIZE = 8 * 1024;
 	public static Class<?> libProviderClazz;
 	public static ClassLoader classLoader;
@@ -80,7 +81,7 @@ public class DroiubyBootstrap {
 	
 	public static LibraryBootstrapTask bootstrapEnvironment(Activity context,
 			OnEnvironmentReady listener) {
-		String dexnames[] = { JRUBY_DEX_NAME, SECONDARY_DEX_NAME };
+		String dexnames[] = { JRUBY_DEPS, JRUBY_DEX_NAME, SECONDARY_DEX_NAME };
 		LibraryBootstrapTask library = new LibraryBootstrapTask(context,
 				dexnames, listener);
 		return library;
