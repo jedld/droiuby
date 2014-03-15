@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.jruby.CompatVersion;
+import org.jruby.RubyInstanceConfig.CompileMode;
 import org.jruby.embed.LocalContextScope;
 import org.jruby.embed.LocalVariableBehavior;
 import org.jruby.embed.ScriptingContainer;
@@ -49,6 +50,7 @@ public class ExecutionBundleFactory {
 		payload.setExecutionBundle(bundle);
 		
 		container.setObjectSpaceEnabled(false);
+		container.setCompileMode(CompileMode.OFF);
 		container.setClassLoader(loader);
 		String data_dir = context.getApplicationInfo().dataDir;
 		Log.d(this.getClass().toString(), "data directory in " + data_dir);
