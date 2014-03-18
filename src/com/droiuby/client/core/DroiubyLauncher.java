@@ -81,7 +81,7 @@ class PageRefreshTask extends AsyncTask<Void, Void, PageAsset> {
 			currentActivity.finish();
 			DroiubyLauncher.startNewActivity(currentActivity, result);
 		} else {
-			DroiubyLauncher.runController(currentActivity, bundle, result);
+			DroiubyLauncher.runController(currentActivity, bundle, result, true);
 		}
 		if (listener != null) {
 			listener.onRefreshComplete(result);
@@ -593,7 +593,7 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 	}
 
 	public static IRubyObject runController(Activity activity,
-			ExecutionBundle bundle, PageAsset page) {
+			ExecutionBundle bundle, PageAsset page, boolean refresh) {
 		bundle.getPayload().setCurrentActivity(activity);
 		bundle.getPayload().setCurrentPage(page);
 
@@ -617,7 +617,7 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 
 				instance = (IRubyObject) scriptingContainer
 						.runScriptlet("$framework.script('"
-								+ page.getControllerClass() + "')");
+								+ page.getControllerClass() + "',"+ (refresh ? "true" : "false")+ ")");
 				bundle.setCurrentController(instance);
 			}
 			
@@ -650,10 +650,10 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 	}
 
 	public static IRubyObject runController(Activity activity,
-			String bundleName, String pageUrl) {
+			String bundleName, String pageUrl, boolean refresh) {
 		ExecutionBundle bundle = ExecutionBundleFactory.getBundle(bundleName);
 		PageAsset page = bundle.getPage(pageUrl);
-		return runController(activity, bundle, page);
+		return runController(activity, bundle, page, refresh);
 	}
 
 	public static void setPage(Activity activity, String bundleName,

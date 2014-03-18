@@ -6,6 +6,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.jruby.CompatVersion;
 import org.jruby.RubyInstanceConfig.CompileMode;
@@ -41,6 +42,23 @@ public class ExecutionBundleFactory {
 
 	private ExecutionBundle newBundle(Context context, String namespace) {
 		ExecutionBundle bundle = new ExecutionBundle();
+
+        System.setProperty("jruby.backtrace.style", "normal"); // normal raw full mri
+        System.setProperty("jruby.bytecode.version", "1.6");
+        System.setProperty("jruby.compile.mode", "OFF"); // OFF OFFIR JITIR? FORCE FORCEIR
+        System.setProperty("jruby.interfaces.useProxy", "true");
+        System.setProperty("jruby.ir.passes", "LocalOptimizationPass,DeadCodeElimination");
+        System.setProperty("jruby.management.enabled", "false");
+        System.setProperty("jruby.native.enabled", "false");
+        System.setProperty("jruby.objectspace.enabled", "false");
+        System.setProperty("jruby.rewrite.java.trace", "true");
+        System.setProperty("jruby.thread.pooling", "true");
+		
+        // Used to enable JRuby to generate proxy classes
+        System.setProperty("jruby.ji.proxyClassFactory", "org.ruboto.DalvikProxyClassFactory");
+        System.setProperty("jruby.ji.upper.case.package.name.allowed", "true");
+        System.setProperty("jruby.class.cache.path", context.getDir("dex", 0).getAbsolutePath());
+  
 		ScriptingContainer container = new ScriptingContainer(
 				LocalContextScope.SINGLETHREAD,
 				LocalVariableBehavior.PERSISTENT);
@@ -49,8 +67,8 @@ public class ExecutionBundleFactory {
 		payload.setContainer(container);
 		payload.setExecutionBundle(bundle);
 		
-		container.setObjectSpaceEnabled(false);
-		container.setCompileMode(CompileMode.OFF);
+		Map <String,String> environment = new HashMap<String,String>();
+      
 		container.setClassLoader(loader);
 		String data_dir = context.getApplicationInfo().dataDir;
 		Log.d(this.getClass().toString(), "data directory in " + data_dir);

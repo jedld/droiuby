@@ -3,6 +3,7 @@
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="src_ruboto"/>
 	<classpathentry kind="src" path="gen"/>
 	<classpathentry kind="src" path="libs_jruby"/>
 	<classpathentry kind="lib" path="libs/android-support-v4.jar"/>
@@ -13,12 +14,40 @@
 	<classpathentry kind="lib" path="libs/jackson-core-2.0.5.jar"/>
 	<classpathentry kind="lib" path="libs/jackson-databind-2.0.5.jar"/>
 	<classpathentry kind="lib" path="libs/jaxen-1.1.3.jar"/>
-	<classpathentry kind="lib" path="libs/jdom-2.0.2.jar"/>
 	<classpathentry kind="lib" path="libs/svg-android.jar"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.DEPENDENCIES"/>
 	<classpathentry kind="lib" path="libs_large/jruby.jar"/>
 	<classpathentry kind="lib" path="libs/dexmaker-1.0.jar"/>
-	<classpathentry kind="lib" path="/home/jedld/workspace/droiuby/libs_jruby/sourcebuilder.jar"/>
-	<classpathentry kind="lib" path="/home/jedld/workspace/droiuby/libs_jruby/codemodel-2.6.jar"/>
+	<classpathentry kind="lib" path="/Users/joseph/workspace/droiuby/libs_jruby/codemodel-2.6.jar"/>
+	<classpathentry kind="lib" path="/Users/joseph/workspace/droiuby/libs_jruby/sourcebuilder.jar"/>
+	<classpathentry kind="lib" path="/Users/joseph/workspace/droiuby/libs/jdom-2.0.2.jar"/>
+	<classpathentry kind="lib" path="/Users/joseph/workspace/droiuby/libs_jruby/asm-4.1.jar"/>
+	<classpathentry kind="lib" path="/Users/joseph/workspace/droiuby/libs_jruby/asm-analysis-4.0.jar"/>
+	<classpathentry kind="lib" path="/Users/joseph/workspace/droiuby/libs_jruby/asm-commons-4.0.jar"/>
+	<classpathentry kind="lib" path="/Users/joseph/workspace/droiuby/libs_jruby/asm-tree-4.0.jar"/>
+	<classpathentry kind="lib" path="/Users/joseph/workspace/droiuby/libs_jruby/asm-util-4.0.jar"/>
+	<classpathentry kind="lib" path="/Users/joseph/workspace/droiuby/libs_jruby/bytelist-1.0.11-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="/Users/joseph/workspace/droiuby/libs_jruby/dx.jar"/>
+	<classpathentry kind="lib" path="/Users/joseph/workspace/droiuby/libs_jruby/generator.jar"/>
+	<classpathentry kind="lib" path="/Users/joseph/workspace/droiuby/libs_jruby/invokebinder-1.3.jar"/>
+	<classpathentry kind="lib" path="/Users/joseph/workspace/droiuby/libs_jruby/jcodings-1.0.10.jar"/>
+	<classpathentry kind="lib" path="/Users/joseph/workspace/droiuby/libs_jruby/jffi-1.2.7-native.jar"/>
+	<classpathentry kind="lib" path="/Users/joseph/workspace/droiuby/libs_jruby/jffi-1.2.7.jar"/>
+	<classpathentry kind="lib" path="/Users/joseph/workspace/droiuby/libs_jruby/jnr-constants-0.8.5.jar"/>
+	<classpathentry kind="lib" path="/Users/joseph/workspace/droiuby/libs_jruby/jnr-enxio-0.4.jar"/>
+	<classpathentry kind="lib" path="/Users/joseph/workspace/droiuby/libs_jruby/jnr-ffi-1.0.7.jar"/>
+	<classpathentry kind="lib" path="/Users/joseph/workspace/droiuby/libs_jruby/jnr-netdb-1.1.2.jar"/>
+	<classpathentry kind="lib" path="/Users/joseph/workspace/droiuby/libs_jruby/jnr-posix-3.0.1.jar"/>
+	<classpathentry kind="lib" path="/Users/joseph/workspace/droiuby/libs_jruby/jnr-unixsocket-0.3.jar"/>
+	<classpathentry kind="lib" path="/Users/joseph/workspace/droiuby/libs_jruby/jnr-x86asm-1.0.2.jar"/>
+	<classpathentry kind="lib" path="/Users/joseph/workspace/droiuby/libs_jruby/joda-time-2.3.jar"/>
+	<classpathentry kind="lib" path="/Users/joseph/workspace/droiuby/libs_jruby/joni-2.1.1.jar"/>
+	<classpathentry kind="lib" path="/Users/joseph/workspace/droiuby/libs_jruby/jzlib-1.1.2.jar"/>
+	<classpathentry kind="lib" path="/Users/joseph/workspace/droiuby/libs_jruby/nailgun-server-0.9.1.jar"/>
+	<classpathentry kind="lib" path="/Users/joseph/workspace/droiuby/libs_jruby/parser.jar"/>
+	<classpathentry kind="lib" path="/Users/joseph/workspace/droiuby/libs_jruby/snakeyaml-1.13.jar"/>
+	<classpathentry kind="lib" path="/Users/joseph/workspace/droiuby/libs_jruby/truffle-0.1.jar"/>
+	<classpathentry kind="lib" path="/Users/joseph/workspace/droiuby/libs_jruby/yecht-1.0.jar"/>
+	<classpathentry kind="lib" path="/Users/joseph/workspace/droiuby/libs_jruby/yydebug.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

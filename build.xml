@@ -232,6 +232,33 @@
         </jar>        
 	</target>
 	
+	<target name="package-ruboto-deps">
+	       <mkdir dir="${out.classes.absolute.dir}.ruboto" />
+	       <!-- merge the project's own classpath and the tested project's classpath -->
+            <path id="project.javac.classpath">
+                <path refid="tested.project.classpath" />
+            </path>
+		   <javac encoding="${java.encoding}"
+                    source="${java.source}" target="${java.target}"
+                    debug="true" includeantruntime="false"
+                    extdirs="libs_jruby"
+                    destdir="${out.classes.absolute.dir}.ruboto"
+                    bootclasspathref="project.target.class.path"
+                    verbose="${verbose}"
+                    classpathref="project.javac.classpath"
+                    fork="${need.javac.fork}">
+                <src path="src_ruboto" />
+                <classpath refid="jruby_libraries.include.path"/>
+                <classpath refid="large_libraries.include.path"/>
+                <compilerarg line="${java.compilerargs}" />
+            </javac>
+            <jar destfile="libs_jruby/ruboto-deps.jar">
+                <fileset dir="${out.classes.absolute.dir}.ruboto"
+                        includes="**/*.class">
+                </fileset>
+            </jar>    
+	</target>
+	
 	   <!-- Compiles this project's .java files into .class files. -->
     <target name="-compile" depends="-pre-build, -build-setup, -code-gen, -pre-compile, package-framework">
         <do-only-if-manifest-hasCode elseText="hasCode = false. Skipping...">
@@ -369,6 +396,8 @@
                 <copy todir="${out.classes.absolute.dir}.1" >
                     <fileset dir="${out.classes.absolute.dir}" >
                         <exclude name="com/droiuby/client/core/**" />
+                        <exclude name="org/ruboto/**" />
+                        <exclude name="com.headius/**" />
                         <exclude name="com/droiuby/wrappers/**" />
                         <exclude name="com/osbcp/**" />
                         <exclude name="com/koushikdutta/**" />
@@ -379,6 +408,8 @@
                 <copy todir="${out.classes.absolute.dir}.2" >
                     <fileset dir="${out.classes.absolute.dir}" >
                         <include name="com/droiuby/client/core/**" />
+                        <include name="org/ruboto/**" />
+                        <include name="com/headius/**" />
                         <include name="com/droiuby/wrappers/**" />
                         <include name="com/osbcp/**" />
                         <include name="com/koushikdutta/**" />

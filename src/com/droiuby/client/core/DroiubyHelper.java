@@ -346,7 +346,7 @@ public class DroiubyHelper implements OnDownloadCompleteListener,
 			String pageUrl) {
 
 		this.backingObject = DroiubyLauncher.runController(activity,
-				bundleName, pageUrl);
+				bundleName, pageUrl, false);
 		this.executionBundle = ExecutionBundleFactory.getBundle(bundleName);
 		this.runtime = executionBundle.getContainer().getProvider()
 				.getRuntime();
