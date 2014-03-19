@@ -1,4 +1,4 @@
-package com.droiuby.application;
+package com.droiuby.application.bootstrap;
 
 import com.droiuby.interfaces.DroiubyHelperInterface;
 

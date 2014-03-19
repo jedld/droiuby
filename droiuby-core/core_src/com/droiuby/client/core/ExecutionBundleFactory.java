@@ -14,7 +14,7 @@ import org.jruby.embed.LocalContextScope;
 import org.jruby.embed.LocalVariableBehavior;
 import org.jruby.embed.ScriptingContainer;
 
-import com.droiuby.application.DroiubyBootstrap;
+import com.droiuby.application.bootstrap.DroiubyBootstrap;
 import com.droiuby.client.core.utils.Utils;
 
 import android.app.Activity;

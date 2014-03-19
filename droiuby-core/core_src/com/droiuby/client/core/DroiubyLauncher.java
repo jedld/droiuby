@@ -34,8 +34,8 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.view.View;
 
-import com.droiuby.application.DroiubyApp;
-import com.droiuby.application.DroiubyBootstrap;
+import com.droiuby.application.bootstrap.DroiubyApp;
+import com.droiuby.application.bootstrap.DroiubyBootstrap;
 import com.droiuby.client.core.builder.ActivityBuilder;
 import com.droiuby.client.core.console.WebConsole;
 import com.droiuby.client.core.listeners.OnPageRefreshListener;

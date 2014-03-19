@@ -2,7 +2,7 @@ package com.droiuby.client.core;
 
 import org.jruby.embed.ScriptingContainer;
 
-import com.droiuby.application.DroiubyApp;
+import com.droiuby.application.bootstrap.DroiubyApp;
 import com.droiuby.client.core.builder.ActivityBuilder;
 
 import android.app.Activity;

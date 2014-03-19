@@ -21,7 +21,7 @@ import android.content.res.AssetManager;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.droiuby.application.DroiubyApp;
+import com.droiuby.application.bootstrap.DroiubyApp;
 import com.droiuby.client.core.DroiubyLauncher;
 import com.droiuby.client.core.ExecutionBundle;
 import com.droiuby.client.core.ExecutionBundleFactory;

@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import android.content.Context;
 import android.os.Environment;
 
-import com.droiuby.application.DroiubyApp;
+import com.droiuby.application.bootstrap.DroiubyApp;
 import com.droiuby.client.core.utils.Utils;
 
 public class AssetDownloadWorker implements Runnable {

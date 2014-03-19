@@ -11,7 +11,7 @@ import android.content.SharedPreferences;
 import android.hardware.SensorEvent;
 import android.os.Bundle;
 
-import com.droiuby.application.DroiubyApp;
+import com.droiuby.application.bootstrap.DroiubyApp;
 import com.droiuby.launcher.Options;
 
 public interface DroiubyHelperInterface {

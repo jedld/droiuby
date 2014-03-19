@@ -1,6 +1,7 @@
 .DS_Store
 gen
 bin
+build/
 .bundle
 .idea
 vendor

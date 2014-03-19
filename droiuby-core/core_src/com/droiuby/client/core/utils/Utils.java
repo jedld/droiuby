@@ -62,7 +62,7 @@ import android.util.Log;
 import android.view.Display;
 import android.view.WindowManager;
 
-import com.droiuby.application.DroiubyApp;
+import com.droiuby.application.bootstrap.DroiubyApp;
 import com.droiuby.client.core.ExecutionBundle;
 import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
 

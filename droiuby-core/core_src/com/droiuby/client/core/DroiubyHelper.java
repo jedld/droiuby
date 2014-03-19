@@ -26,7 +26,7 @@ import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.droiuby.application.DroiubyApp;
+import com.droiuby.application.bootstrap.DroiubyApp;
 import com.droiuby.callbacks.DocumentReadyListener;
 import com.droiuby.callbacks.OnRefreshRequested;
 import com.droiuby.client.core.builder.ActivityBuilder;

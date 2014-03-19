@@ -4,7 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 
-import com.droiuby.application.DroiubyBootstrap;
+import com.droiuby.application.bootstrap.DroiubyBootstrap;
 import com.droiuby.interfaces.DroiubyHelperInterface;
 
 public class DroiubyActivity extends Activity {

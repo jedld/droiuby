@@ -1,4 +1,4 @@
-package com.droiuby.application;
+package com.droiuby.application.bootstrap;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -26,11 +26,14 @@ public class LibraryBootstrapTask extends AsyncTask<Void, String, ClassLoader> {
 	String libraries[];
 	private static ClassLoader envelopedLoader;
 	OnEnvironmentReady listener;
-	public LibraryBootstrapTask(Activity context, String libraries[],
+	private int progressUpdateViewId;
+	
+	public LibraryBootstrapTask(Activity context, String libraries[], int progressUpdateViewId,
 			OnEnvironmentReady listener) {
 		this.context = context;
 		this.libraries = libraries;
 		this.listener = listener;
+		this.progressUpdateViewId = progressUpdateViewId;
 	}
 
 	@Override
@@ -47,7 +50,7 @@ public class LibraryBootstrapTask extends AsyncTask<Void, String, ClassLoader> {
 	@Override
 	protected void onProgressUpdate(String... values) {
 		super.onProgressUpdate(values);
-		TextView view = (TextView)context.findViewById(R.id.loadingStatusText);
+		TextView view = (TextView)context.findViewById(progressUpdateViewId);
 		if (view!=null) {
 			view.setText(values[0]);
 		}
@@ -159,12 +162,12 @@ public class LibraryBootstrapTask extends AsyncTask<Void, String, ClassLoader> {
 			Log.d(this.getClass().toString(), "loading helper");
 			libProviderClazz = cl
 					.loadClass("com.droiuby.client.core.DroiubyHelper");
-			
 			DroiubyBootstrap.classLoader = cl;
 			DroiubyBootstrap.libProviderClazz = libProviderClazz;
-			
-			DroiubyHelperInterface helper = (DroiubyHelperInterface) libProviderClazz
-					.newInstance();
+			Log.d(this.getClass().toString(),"creating new instance");
+			Object helperInstance = libProviderClazz.newInstance();
+			Log.d(this.getClass().toString(),"type casting...");
+			DroiubyHelperInterface helper = (DroiubyHelperInterface) helperInstance;
 			Log.d(this.getClass().toString(), "new instance loaded");
 			helper.setActivity(context);
 			helper.setLoader(cl);
