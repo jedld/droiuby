@@ -380,6 +380,9 @@
                 dir="${out.classes.absolute.dir}.bootstrap"
                 includes="**/*.class" >
             </fileset>
+            <fileset
+                dir="droiuby-core/bootstrap_src"
+                excludes="**/*.java ${android.package.excludes}" />
         </jar>
     </target>
 
@@ -424,11 +427,18 @@
         </jar>
     </target>
 
+    <target name="-package-jruby-kernel-files">
+		<jar destfile="libs/kernel-ruby-files.jar" >
+            <fileset
+                dir="droiuby-core/bootstrap_src"
+                excludes="**/*.java ${android.package.excludes}" />
+        </jar>        
+    </target>
     <!-- Compiles this project's .java files into .class files. -->
 
     <target
         name="-compile"
-        depends="-pre-build, -build-setup, -code-gen, -pre-compile, package-framework" >
+        depends="-pre-build, -build-setup, -code-gen, -pre-compile, package-framework, -package-jruby-kernel-files" >
 
         <do-only-if-manifest-hasCode elseText="hasCode = false. Skipping..." >
 
@@ -561,6 +571,10 @@ Custom jar packaging exclusion: ${android.package.excludes}
 
                         <fileset
                             dir="${source.absolute.dir}"
+                            excludes="**/*.java ${android.package.excludes}" />
+                        
+                        <fileset
+                            dir="droiuby-core/bootstrap_src"
                             excludes="**/*.java ${android.package.excludes}" />
                     </jar>
                 </then>
