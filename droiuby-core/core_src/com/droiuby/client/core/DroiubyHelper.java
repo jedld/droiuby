@@ -213,10 +213,18 @@ public class DroiubyHelper implements OnDownloadCompleteListener,
 				backingObject.callMethod(runtime.getCurrentContext(),
 						"onResume", args);
 			}
+			WebConsole instance = WebConsole.getInstance();
+			
+			if (instance!=null) {
+				Log.d(this.getClass().toString(),"Setting " + executionBundle.getName() + " as current");
+				instance.setActivity(activity);
+				instance.setBundle(executionBundle);
+			}
 		} catch (RaiseException e) {
 			e.printStackTrace();
 			executionBundle.addError(e.getMessage());
 		}
+		
 	}
 
 	/*

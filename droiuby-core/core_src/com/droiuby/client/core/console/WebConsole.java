@@ -392,6 +392,7 @@ public class WebConsole extends NanoHTTPD implements WebConsoleInterface  {
 				public void run() {
 					
 					if (!getBundle().isRootBundle()) {
+						Log.d(this.getClass().toString(),"Closing current bundle " + getBundle().getName());
 						currentActivity.finish();
 						getBundle().terminate();
 					}
@@ -402,6 +403,7 @@ public class WebConsole extends NanoHTTPD implements WebConsoleInterface  {
 					options.setCloseParentActivity(false);
 					options.setNewRuntime(true);
 					options.setConsole(WebConsole.this);
+					options.setRootBundle(false);
 					
 					Toast.makeText(currentActivity, "launching " + url, Toast.LENGTH_SHORT).show();
 					

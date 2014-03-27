@@ -2,8 +2,10 @@ package com.droiuby.launcher;
 
 public interface ExecutionBundleInterface {
 
-	boolean isRootBundle();
+	public boolean isRootBundle();
 
-	void terminate();
+	public void terminate();
+	
+	public String getName();
 
 }

@@ -2,6 +2,7 @@
 gen
 bin
 build/
+.classpath
 .bundle
 .idea
 vendor

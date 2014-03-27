@@ -13,6 +13,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
@@ -81,7 +82,8 @@ class PageRefreshTask extends AsyncTask<Void, Void, PageAsset> {
 			currentActivity.finish();
 			DroiubyLauncher.startNewActivity(currentActivity, result);
 		} else {
-			DroiubyLauncher.runController(currentActivity, bundle, result, true);
+			DroiubyLauncher
+					.runController(currentActivity, bundle, result, true);
 		}
 		if (listener != null) {
 			listener.onRefreshComplete(result);
@@ -283,18 +285,20 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 					.getInstance(DroiubyBootstrap.classLoader);
 			ExecutionBundle executionBundle = factory.getNewScriptingContainer(
 					context, application.getBaseUrl(), options.isNewRuntime());
-			
+
 			if (options.isRootBundle()) {
+				Log.d(this.getClass().toString(),
+						"Setting instance as root bundle");
 				executionBundle.setRootBundle(options.isRootBundle());
 			}
-			
-			if (options.getConsole()!=null) {
+
+			if (options.getConsole() != null) {
 				options.getConsole().setBundle(executionBundle);
 			}
-			
+
 			executionBundle.getPayload().setDroiubyApp(application);
 			addPath(application.getWorkingDirectory(), executionBundle);
-			
+
 			downloadAssets(context, application, executionBundle);
 			return loadPage(context, executionBundle, application.getMainUrl(),
 					Utils.HTTP_GET);
@@ -304,10 +308,11 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 
 	private void addPath(String path, ExecutionBundle executionBundle) {
 		Log.d(this.getClass().toString(), "Adding " + path + " to load path");
-		
+
 		List<String> loadPaths = new ArrayList<String>();
 		loadPaths.add(path);
-		Ruby runtime = executionBundle.getPayload().getContainer().getProvider().getRuntime();
+		Ruby runtime = executionBundle.getPayload().getContainer()
+				.getProvider().getRuntime();
 		runtime.getLoadService().addPaths(loadPaths);
 	}
 
@@ -357,63 +362,77 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 		bundle.addPageAsset(pageUrl, page);
 
 		String responseBody;
-		SAXBuilder sax = new SAXBuilder();
-		Document mainActivityDocument = null;
 
-		ScriptingContainer scriptingContainer = bundle.getContainer();
-		try {
-			responseBody = (String) Utils.loadAppAsset(app, context, pageUrl,
-					Utils.ASSET_TYPE_TEXT, method);
-
-			if (responseBody == null) {
-				responseBody = "<activity><t>Problem loading url " + pageUrl
-						+ "</t></activity>";
-			}
-
-			if (mainActivityDocument == null) {
-				mainActivityDocument = sax
-						.build(new StringReader(responseBody));
-			}
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			responseBody = "<activity><t>Unable to open file " + pageUrl
-					+ "</t></activity>";
-			try {
-				mainActivityDocument = sax
-						.build(new StringReader(responseBody));
-			} catch (JDOMException e1) {
-				e1.printStackTrace();
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
-
-		} catch (JDOMParseException e) {
-			e.printStackTrace();
-			responseBody = "<activity><t>" + e.getMessage() + "</t></activity>";
-			try {
-				mainActivityDocument = sax
-						.build(new StringReader(responseBody));
-			} catch (JDOMException e1) {
-				e1.printStackTrace();
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (JDOMException e) {
-			e.printStackTrace();
-		}
-
-		String controller_attribute = mainActivityDocument.getRootElement()
-				.getAttributeValue("controller");
+		String controllerIdentifier = null;
 		String controllerClass = null;
 		String baseUrl = app.getBaseUrl();
 
-		if (controller_attribute != null) {
-			String csplit[] = org.apache.commons.lang3.StringUtils.split(
-					controller_attribute, "#");
-			if (csplit.length == 2) {
+		ScriptingContainer scriptingContainer = bundle.getContainer();
 
+		if (pageUrl.endsWith(".xml")) {
+			SAXBuilder sax = new SAXBuilder();
+			Document mainActivityDocument = null;
+			try {
+				responseBody = (String) Utils.loadAppAsset(app, context,
+						pageUrl, Utils.ASSET_TYPE_TEXT, method);
+
+				if (responseBody == null) {
+					responseBody = "<activity><t>Problem loading url "
+							+ pageUrl + "</t></activity>";
+				}
+
+				if (mainActivityDocument == null) {
+					mainActivityDocument = sax.build(new StringReader(
+							responseBody));
+				}
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+				responseBody = "<activity><t>Unable to open file " + pageUrl
+						+ "</t></activity>";
+				try {
+					mainActivityDocument = sax.build(new StringReader(
+							responseBody));
+				} catch (JDOMException e1) {
+					e1.printStackTrace();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+
+			} catch (JDOMParseException e) {
+				e.printStackTrace();
+				responseBody = "<activity><t>" + e.getMessage()
+						+ "</t></activity>";
+				try {
+					mainActivityDocument = sax.build(new StringReader(
+							responseBody));
+				} catch (JDOMException e1) {
+					e1.printStackTrace();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (JDOMException e) {
+				e.printStackTrace();
+			}
+
+			controllerIdentifier = mainActivityDocument.getRootElement()
+					.getAttributeValue("controller");
+			ActivityBuilder builder = new ActivityBuilder(mainActivityDocument,
+					null, baseUrl);
+			page.setBuilder(builder);
+
+			ArrayList<Object> resultBundle = builder.preload(context, bundle);
+			page.setAssets(resultBundle);
+
+		} else if (pageUrl.endsWith(".rb")) {
+			controllerIdentifier = pageUrl;
+		}
+
+		if (controllerIdentifier != null) {
+			String csplit[] = org.apache.commons.lang3.StringUtils.split(
+					controllerIdentifier, "#");
+			if (csplit.length == 2) {
 				if (!csplit[1].trim().equals("")) {
 					controllerClass = csplit[1];
 				}
@@ -421,43 +440,21 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 				if (!csplit[0].trim().equals("")) {
 					Log.d("Activity loader", "loading controller file "
 							+ baseUrl + csplit[0]);
-					String controller_content = null;
-					try {
-						controller_content = (String) Utils.loadAppAsset(app,
-								context, csplit[0], Utils.ASSET_TYPE_TEXT,
-								Utils.HTTP_GET);
-					} catch (FileNotFoundException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					} catch (IOException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
-
-					long start = System.currentTimeMillis();
-					try {
-						page.setPreParsedScript(Utils.preParseRuby(
-								scriptingContainer, controller_content));
-					} catch (ParseFailedException e) {
-						e.printStackTrace();
-						bundle.addError(e.getMessage());
-					}
-					long elapsed = System.currentTimeMillis() - start;
-					Log.d(DroiubyLauncher.class.toString(),
-							"controller preparse: elapsed time = " + elapsed
-									+ "ms");
+					downloadScript(context, bundle, page, app,
+							scriptingContainer, csplit[0]);
 				}
 			} else {
-				controllerClass = csplit[0];
+				downloadScript(context, bundle, page, app, scriptingContainer,
+						controllerIdentifier);
+				String pathComponents[] = StringUtils.split(
+						controllerIdentifier, "/");
+				controllerClass = StringUtils.replace(
+						pathComponents[pathComponents.length - 1], ".rb", "");
 			}
+
 		}
 
 		page.setControllerClass(controllerClass);
-
-		ActivityBuilder builder = new ActivityBuilder(mainActivityDocument,
-				null, baseUrl);
-
-		page.setBuilder(builder);
 
 		scriptingContainer.put("$container_payload", bundle.getPayload());
 		try {
@@ -466,11 +463,35 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 			e.printStackTrace();
 		}
 
-		ArrayList<Object> resultBundle = builder.preload(context, bundle);
-
-		page.setAssets(resultBundle);
-
 		return page;
+	}
+
+	private static void downloadScript(Context context, ExecutionBundle bundle,
+			PageAsset page, DroiubyApp app,
+			ScriptingContainer scriptingContainer, String scriptUrl) {
+		String controller_content = null;
+		try {
+			controller_content = (String) Utils.loadAppAsset(app, context,
+					scriptUrl, Utils.ASSET_TYPE_TEXT, Utils.HTTP_GET);
+		} catch (FileNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+		long start = System.currentTimeMillis();
+		try {
+			page.setPreParsedScript(Utils.preParseRuby(scriptingContainer,
+					controller_content));
+		} catch (ParseFailedException e) {
+			e.printStackTrace();
+			bundle.addError(e.getMessage());
+		}
+		long elapsed = System.currentTimeMillis() - start;
+		Log.d(DroiubyLauncher.class.toString(),
+				"controller preparse: elapsed time = " + elapsed + "ms");
 	}
 
 	public static Boolean downloadAssets(Context context, DroiubyApp app,
@@ -603,10 +624,11 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 		IRubyObject instance = null;
 		try {
 			if (preParsedScript != null) {
-				
+
 				preParsedScript.run();
 				long elapsed = System.currentTimeMillis() - start;
-				Log.d(DroiubyLauncher.class.toString(), "Preparse started. elapsed " + elapsed);
+				Log.d(DroiubyLauncher.class.toString(),
+						"Preparse started. elapsed " + elapsed);
 				start = System.currentTimeMillis();
 			}
 
@@ -617,10 +639,11 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 
 				instance = (IRubyObject) scriptingContainer
 						.runScriptlet("$framework.script('"
-								+ page.getControllerClass() + "',"+ (refresh ? "true" : "false")+ ")");
+								+ page.getControllerClass() + "',"
+								+ (refresh ? "true" : "false") + ")");
 				bundle.setCurrentController(instance);
 			}
-			
+
 			return instance;
 		} catch (EvalFailedException e) {
 			e.printStackTrace();
@@ -673,22 +696,23 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 
 		bundle.setCurrentUrl(page.getUrl());
 
-		Log.d(DroiubyLauncher.class.toString(),
-				"parsing and preparing views....");
-
 		ActivityBuilder builder = page.getBuilder();
-		builder.setCurrentActivity(activity);
+		if (builder != null) {
+			Log.d(DroiubyLauncher.class.toString(),
+					"parsing and preparing views....");
+			builder.setCurrentActivity(activity);
 
-		View preparedViews = builder.prepare(bundle);
+			View preparedViews = builder.prepare(bundle);
 
-		long elapsed = System.currentTimeMillis() - start;
-		Log.d(DroiubyLauncher.class.toString(),
-				"prepare activity: elapsed time = " + elapsed + "ms");
-		View view = builder.setPreparedView(preparedViews);
-		// apply CSS
-		builder.applyStyle(view, page.getAssets());
-		Log.d(DroiubyLauncher.class.toString(),
-				"build activity: elapsed time = " + elapsed + "ms");
+			long elapsed = System.currentTimeMillis() - start;
+			Log.d(DroiubyLauncher.class.toString(),
+					"prepare activity: elapsed time = " + elapsed + "ms");
+			View view = builder.setPreparedView(preparedViews);
+			// apply CSS
+			builder.applyStyle(view, page.getAssets());
+			Log.d(DroiubyLauncher.class.toString(),
+					"build activity: elapsed time = " + elapsed + "ms");
+		}
 	}
 
 	public static void setupConsole(ExecutionBundle executionBundle,
@@ -703,6 +727,8 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 			webroot.mkdirs();
 			WebConsole console = WebConsole
 					.getInstance(4000, webroot, listener);
+			Log.d(DroiubyLauncher.class.toString(),
+					"Setting current bundle ...");
 			console.setBundle(executionBundle);
 			console.setActivity(executionBundle.getPayload()
 					.getCurrentActivity());
