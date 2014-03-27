@@ -617,6 +617,14 @@ public class ActivityBuilder {
 		}
 
 		// Margins
+		String margin = e.getAttributeValue("margin");
+		if (margin!=null) {
+			leftMargin = toPixels(margin);
+			rightMargin = leftMargin;
+			topMargin = leftMargin;
+			bottomMargin = leftMargin;
+		}
+		
 		String lm = e.getAttributeValue("left_margin");
 		if (lm != null) {
 			leftMargin = toPixels(lm);

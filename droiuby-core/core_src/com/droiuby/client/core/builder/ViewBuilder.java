@@ -101,8 +101,9 @@ public class ViewBuilder {
 		for (String key : propertyMap.keySet()) {
 			String attribute_name = key;
 			String attribute_value = propertyMap.get(key);
-			
-			Log.v(this.getClass().toString(), "setting layout " + attribute_name + " = " + attribute_value);
+
+			Log.v(this.getClass().toString(), "setting layout "
+					+ attribute_name + " = " + attribute_value);
 			if (attribute_name.equals("height")) {
 				if (attribute_value.equalsIgnoreCase("match")) {
 					height = android.view.ViewGroup.LayoutParams.MATCH_PARENT;
@@ -127,6 +128,12 @@ public class ViewBuilder {
 				topMargin = toPixels(attribute_value);
 			} else if (attribute_name.equals("bottom_margin")) {
 				bottomMargin = toPixels(attribute_value);
+			} else if (attribute_name.equals("margin")) {
+				int marginValue = toPixels(attribute_value);
+				leftMargin = marginValue;
+				rightMargin = marginValue;
+				topMargin = marginValue;
+				bottomMargin = marginValue;
 			}
 		}
 
@@ -226,7 +233,13 @@ public class ViewBuilder {
 			} else if (attribute_name.equals("bottom_margin")
 					|| attribute_name.equals("margin-bottom")) {
 				bottomMargin = toPixels(attribute_value);
-			} else if (attribute_name.equals("g") || attribute_name.equals("layout_gravity")
+			} else if (attribute_name.equals("margin")) {
+				leftMargin = toPixels(attribute_value);
+				rightMargin = leftMargin;
+				topMargin = leftMargin;
+				bottomMargin = leftMargin;
+			} else if (attribute_name.equals("g")
+					|| attribute_name.equals("layout_gravity")
 					|| attribute_name.equals("float")) {
 				gravity = parseGravity(attribute_value);
 			}
@@ -264,7 +277,7 @@ public class ViewBuilder {
 		propertyMap.put(property, value);
 		return setParamsFromProperty(child, propertyMap);
 	}
-	
+
 	public View setParamsFromProperty(View child,
 			HashMap<String, String> propertyMap) {
 
@@ -306,24 +319,29 @@ public class ViewBuilder {
 			child.setAlpha(alpha);
 		} else if (attribute_name.equals("padding_top")) {
 			paddingTop = toPixels(attribute_value);
-			child.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
+			child.setPadding(paddingLeft, paddingTop, paddingRight,
+					paddingBottom);
 		} else if (attribute_name.equals("padding_bottom")) {
 			paddingBottom = toPixels(attribute_value);
-			child.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
+			child.setPadding(paddingLeft, paddingTop, paddingRight,
+					paddingBottom);
 		} else if (attribute_name.equals("padding_left")) {
 			paddingLeft = toPixels(attribute_value);
-			child.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
-		} else if (attribute_name.equals("padding_right")) { 
+			child.setPadding(paddingLeft, paddingTop, paddingRight,
+					paddingBottom);
+		} else if (attribute_name.equals("padding_right")) {
 			paddingRight = toPixels(attribute_value);
-			child.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
-	    } else if (attribute_name.equals("padding")) { 
-	    	int pixels  = toPixels(attribute_value);
-	    	paddingTop = pixels;
-	    	paddingBottom  = pixels;
-	    	paddingLeft = pixels;
-	    	paddingRight = pixels;
-	    	child.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
-	    } else if (attribute_name.equals("camera_distance")) {
+			child.setPadding(paddingLeft, paddingTop, paddingRight,
+					paddingBottom);
+		} else if (attribute_name.equals("padding")) {
+			int pixels = toPixels(attribute_value);
+			paddingTop = pixels;
+			paddingBottom = pixels;
+			paddingLeft = pixels;
+			paddingRight = pixels;
+			child.setPadding(paddingLeft, paddingTop, paddingRight,
+					paddingBottom);
+		} else if (attribute_name.equals("camera_distance")) {
 			float camera_distance = Float.parseFloat(attribute_value);
 			child.setCameraDistance(camera_distance);
 		} else if (attribute_name.equals("pivot_y")) {
@@ -351,7 +369,8 @@ public class ViewBuilder {
 			child.setMinimumHeight(toPixels(attribute_value));
 		} else if (attribute_name.equals("min_width")) {
 			child.setMinimumWidth(toPixels(attribute_value));
-		} else if (attribute_name.equals("background") || attribute_name.equals("background-image")) {
+		} else if (attribute_name.equals("background")
+				|| attribute_name.equals("background-image")) {
 			if (attribute_value != null) {
 				if (attribute_value.startsWith("#")) {
 					child.setBackgroundColor(Color.parseColor(attribute_value));
@@ -367,7 +386,8 @@ public class ViewBuilder {
 					child.setBackgroundDrawable(drawable);
 				} else {
 					if (attribute_value.startsWith("url(")) {
-						attribute_value.substring(3, attribute_value.length() - 2);
+						attribute_value.substring(3,
+								attribute_value.length() - 2);
 					}
 					UrlImageViewHelper.setUrlDrawable(child,
 							builder.normalizeUrl(attribute_value),
