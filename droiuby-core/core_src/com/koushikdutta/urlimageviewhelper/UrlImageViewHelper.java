@@ -2,6 +2,7 @@ package com.koushikdutta.urlimageviewhelper;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -248,6 +249,15 @@ public final class UrlImageViewHelper {
 
 	}
 
+	public static Drawable loadDrawableFromFile(Context context, File file) throws FileNotFoundException {
+		FileInputStream fis = new FileInputStream(file);
+		if (file.getName().endsWith(".svg")) {
+			return loadSVGDrawableFromStream(fis);
+		} else {
+			return loadDrawableFromStream(context, fis);
+		}
+	}
+	
 	public static Drawable downloadFromUrlAsync(Context context, String url,
 			String filename) {
 		AndroidHttpClient client = AndroidHttpClient.newInstance(context

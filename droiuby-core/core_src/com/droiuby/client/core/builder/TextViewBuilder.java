@@ -25,7 +25,7 @@ public class TextViewBuilder extends ViewBuilder {
 		// TODO Auto-generated method stub
 		super.mapAttribute(child, attribute_name, attribute_value);
 		TextView textView = (TextView) child;
-		if (attribute_name.equals("size")) {
+		if (attribute_name.equals("size") || attribute_name.equals("text_size")) {
 			textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP,
 					toSize(attribute_value));
 		} else if (attribute_name.equals("gravity")

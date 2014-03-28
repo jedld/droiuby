@@ -176,6 +176,7 @@ public class Utils {
 	public static final int ASSET_TYPE_CSS = 2;
 	public static final int ASSET_TYPE_TYPEFACE = 3;
 	public static final int ASSET_TYPE_BINARY = 4;
+	private static final String TAG = Utils.class.getSimpleName();
 
 	public static ScriptingContainer evalRuby(String statement,
 			Activity activity) {
@@ -581,12 +582,18 @@ public class Utils {
 				if (baseUrl.startsWith("asset:")) {
 					return Utils.loadAsset(context, baseUrl + asset_name);
 				} else if (baseUrl.startsWith("file://")) {
+					String fullPathName = baseUrl + asset_name;
+					
 					if (asset_type == Utils.ASSET_TYPE_TYPEFACE
 							|| asset_type == Utils.ASSET_TYPE_BINARY) {
-						return stripProtocol(baseUrl + asset_name);
+						return stripProtocol(fullPathName);
+					} else if (asset_type == Utils.ASSET_TYPE_IMAGE) {
+						Log.d(TAG, "opening image file " + fullPathName);
+						return UrlImageViewHelper.loadDrawableFromFile(context, new File(stripProtocol(fullPathName)));
 					} else {
-						return Utils.loadFile(baseUrl + asset_name);
+						return Utils.loadFile(fullPathName);
 					}
+					
 				} else if (baseUrl.startsWith("sdcard:")) {
 					File directory = Environment.getExternalStorageDirectory();
 					try {
