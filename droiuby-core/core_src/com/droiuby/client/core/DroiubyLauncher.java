@@ -427,6 +427,10 @@ public class DroiubyLauncher extends AsyncTask<Void, Void, PageAsset> {
 
 		} else if (pageUrl.endsWith(".rb")) {
 			controllerIdentifier = pageUrl;
+			ActivityBuilder builder = new ActivityBuilder(null,
+					null, baseUrl);
+			page.setBuilder(builder);
+
 		}
 
 		if (controllerIdentifier != null) {

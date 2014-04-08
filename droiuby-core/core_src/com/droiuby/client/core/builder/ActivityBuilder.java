@@ -210,7 +210,9 @@ public class ActivityBuilder {
 			ViewGroup target) {
 		this.target = target;
 		this.currentActivity = context;
-		this.rootElement = document.getRootElement();
+		if (document!=null) {
+			this.rootElement = document.getRootElement();
+		}
 		this.baseUrl = baseUrl;
 	}
 
@@ -1066,6 +1068,7 @@ public class ActivityBuilder {
 	}
 
 	public void parse(Element element, ViewGroup view, ExecutionBundle bundle) {
+		if (element == null) return;
 		List<Element> elems = element.getChildren();
 		for (Element e : elems) {
 
