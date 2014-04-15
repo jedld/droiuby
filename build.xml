@@ -733,6 +733,12 @@ Converting compiled files and external libraries into @{output-dex-file}...
                         <path refid="out.dex.jar.input.ref" />
                     </external-libs>
                 </dex-helper-mod>
+                
+                <mkdir dir="${out.absolute.dir}/jruby_lib_ext_dir" />
+                <dex-helper-mod
+                    input-dir="libs_ext"
+                    output-dex-file="${out.absolute.dir}/jruby_lib_ext_dir/classes.dex" >
+                </dex-helper-mod>
 
                 <mkdir dir="${out.absolute.dir}/jruby_lib_dir" />
 
@@ -763,6 +769,11 @@ Converting compiled files and external libraries into @{output-dex-file}...
                 <jar
                     basedir="${out.absolute.dir}/jruby_dir"
                     destfile="${asset.absolute.dir}/jruby.jar"
+                    includes="classes.dex" />
+                
+                <jar
+                    basedir="${out.absolute.dir}/jruby_lib_ext_dir"
+                    destfile="${asset.absolute.dir}/jruby-ext.jar"
                     includes="classes.dex" />
             </then>
 

@@ -66,8 +66,6 @@ module Net
   end
 
   #
-  # = Net::SMTP
-  #
   # == What is This Library?
   #
   # This library provides functionality to send internet
@@ -78,8 +76,9 @@ module Net
   #
   # This library does NOT provide functions to compose internet mails.
   # You must create them by yourself. If you want better mail support,
-  # try RubyMail or TMail. You can get both libraries from RAA.
-  # (http://www.ruby-lang.org/en/raa.html)
+  # try RubyMail or TMail or search for alternatives in
+  # {RubyGems.org}[https://rubygems.org/] or {The Ruby
+  # Toolbox}[https://www.ruby-toolbox.com/].
   #
   # FYI: the official documentation on internet mail is: [RFC2822] (http://www.ietf.org/rfc/rfc2822.txt).
   #
@@ -217,7 +216,7 @@ module Net
       @started = false
       @open_timeout = 30
       @read_timeout = 60
-      @error_occured = false
+      @error_occurred = false
       @debug_output = nil
       @tls = false
       @starttls = false
@@ -364,12 +363,12 @@ module Net
 
     # Seconds to wait while attempting to open a connection.
     # If the connection cannot be opened within this time, a
-    # TimeoutError is raised.
+    # Net::OpenTimeout is raised. The default value is 30 seconds.
     attr_accessor :open_timeout
 
     # Seconds to wait while reading one block (by one read(2) call).
     # If the read(2) call does not complete within this time, a
-    # TimeoutError is raised.
+    # Net::ReadTimeout is raised. The default value is 60 seconds.
     attr_reader :read_timeout
 
     # Set the number of seconds to wait until timing-out a read(2)
@@ -448,8 +447,9 @@ module Net
     # * Net::SMTPSyntaxError
     # * Net::SMTPFatalError
     # * Net::SMTPUnknownError
+    # * Net::OpenTimeout
+    # * Net::ReadTimeout
     # * IOError
-    # * TimeoutError
     #
     def SMTP.start(address, port = nil, helo = 'localhost',
                    user = nil, secret = nil, authtype = nil,
@@ -509,8 +509,9 @@ module Net
     # * Net::SMTPSyntaxError
     # * Net::SMTPFatalError
     # * Net::SMTPUnknownError
+    # * Net::OpenTimeout
+    # * Net::ReadTimeout
     # * IOError
-    # * TimeoutError
     #
     def start(helo = 'localhost',
               user = nil, secret = nil, authtype = nil)   # :yield: smtp
@@ -546,7 +547,9 @@ module Net
         check_auth_method(authtype || DEFAULT_AUTH_TYPE)
         check_auth_args user, secret
       end
-      s = timeout(@open_timeout) { tcp_socket(@address, @port) }
+      s = Timeout.timeout(@open_timeout, Net::OpenTimeout) do
+        tcp_socket(@address, @port)
+      end
       logging "Connection opened: #{@address}:#{@port}"
       @socket = new_internet_message_io(tls? ? tlsconnect(s) : s)
       check_response critical { recv_response() }
@@ -603,17 +606,17 @@ module Net
     rescue SMTPError
       if @esmtp
         @esmtp = false
-        @error_occured = false
+        @error_occurred = false
         retry
       end
       raise
     end
 
     def do_finish
-      quit if @socket and not @socket.closed? and not @error_occured
+      quit if @socket and not @socket.closed? and not @error_occurred
     ensure
       @started = false
-      @error_occured = false
+      @error_occurred = false
       @socket.close if @socket and not @socket.closed?
       @socket = nil
     end
@@ -651,8 +654,8 @@ module Net
     # * Net::SMTPSyntaxError
     # * Net::SMTPFatalError
     # * Net::SMTPUnknownError
+    # * Net::ReadTimeout
     # * IOError
-    # * TimeoutError
     #
     def send_message(msgstr, from_addr, *to_addrs)
       raise IOError, 'closed session' unless @socket
@@ -704,8 +707,8 @@ module Net
     # * Net::SMTPSyntaxError
     # * Net::SMTPFatalError
     # * Net::SMTPUnknownError
+    # * Net::ReadTimeout
     # * IOError
-    # * TimeoutError
     #
     def open_message_stream(from_addr, *to_addrs, &block)   # :yield: stream
       raise IOError, 'closed session' unless @socket
@@ -812,6 +815,12 @@ module Net
     #
 
     public
+
+    # Aborts the current mail transaction
+
+    def rset
+      getok('RSET')
+    end
 
     def starttls
       getok('STARTTLS')
@@ -933,12 +942,12 @@ module Net
       Response.parse(buf)
     end
 
-    def critical(&block)
-      return '200 dummy reply code' if @error_occured
+    def critical
+      return Response.parse('200 dummy reply code') if @error_occurred
       begin
         return yield()
       rescue Exception
-        @error_occured = true
+        @error_occurred = true
         raise
       end
     end
@@ -951,7 +960,7 @@ module Net
 
     def check_continue(res)
       unless res.continue?
-        raise SMTPUnknownError, "could not get 3xx (#{res.status})"
+        raise SMTPUnknownError, "could not get 3xx (#{res.status}: #{res.string})"
       end
     end
 
@@ -1033,7 +1042,7 @@ module Net
         h
       end
 
-      # Determines whether there was an error and raies the appropriate error
+      # Determines whether there was an error and raises the appropriate error
       # based on the reply code of the response
       def exception_class
         case @status
@@ -1052,6 +1061,6 @@ module Net
 
   end   # class SMTP
 
-  SMTPSession = SMTP
+  SMTPSession = SMTP # :nodoc:
 
 end

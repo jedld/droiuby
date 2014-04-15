@@ -52,7 +52,7 @@ class ConditionVariable
   # Creates a new ConditionVariable
   #
   def initialize
-    @waiters = []
+    @waiters = {}
     @waiters_mutex = Mutex.new
   end
 
@@ -63,15 +63,18 @@ class ConditionVariable
   # even if no other thread doesn't signal.
   #
   def wait(mutex, timeout=nil)
-    begin
-      # TODO: mutex should not be used
-      @waiters_mutex.synchronize do
-        @waiters.push(Thread.current)
-      end
-      mutex.sleep timeout
-    ensure
-      @waiters_mutex.synchronize do
-        @waiters.delete(Thread.current)
+    Thread.handle_interrupt(StandardError => :never) do
+      begin
+        Thread.handle_interrupt(StandardError => :on_blocking) do
+          @waiters_mutex.synchronize do
+            @waiters[Thread.current] = true
+          end
+          mutex.sleep timeout
+        end
+      ensure
+        @waiters_mutex.synchronize do
+          @waiters.delete(Thread.current)
+        end
       end
     end
     self
@@ -81,11 +84,13 @@ class ConditionVariable
   # Wakes up the first thread in line waiting for this lock.
   #
   def signal
-    begin
-      t = @waiters_mutex.synchronize { @waiters.shift }
-      t.run if t
-    rescue ThreadError
-      retry
+    Thread.handle_interrupt(StandardError => :on_blocking) do
+      begin
+        t, _ = @waiters_mutex.synchronize { @waiters.shift }
+        t.run if t
+      rescue ThreadError
+        retry # t was already dead?
+      end
     end
     self
   end
@@ -94,16 +99,17 @@ class ConditionVariable
   # Wakes up all threads waiting for this lock.
   #
   def broadcast
-    # TODO: incomplete
-    waiters0 = nil
-    @waiters_mutex.synchronize do
-      waiters0 = @waiters.dup
-      @waiters.clear
-    end
-    for t in waiters0
-      begin
-        t.run
-      rescue ThreadError
+    Thread.handle_interrupt(StandardError => :on_blocking) do
+      threads = nil
+      @waiters_mutex.synchronize do
+        threads = @waiters.keys
+        @waiters.clear
+      end
+      for t in threads
+        begin
+          t.run
+        rescue ThreadError
+        end
       end
     end
     self
@@ -143,26 +149,23 @@ class Queue
   #
   def initialize
     @que = []
-    @waiting = []
     @que.taint          # enable tainted communication
-    @waiting.taint
+    @num_waiting = 0
     self.taint
     @mutex = Mutex.new
+    @cond = ConditionVariable.new
   end
 
   #
   # Pushes +obj+ to the queue.
   #
   def push(obj)
-    @mutex.synchronize{
-      @que.push obj
-      begin
-        t = @waiting.shift
-        t.wakeup if t
-      rescue ThreadError
-        retry
+    Thread.handle_interrupt(StandardError => :on_blocking) do
+      @mutex.synchronize do
+        @que.push obj
+        @cond.signal
       end
-    }
+    end
   end
 
   #
@@ -181,17 +184,26 @@ class Queue
   # thread isn't suspended, and an exception is raised.
   #
   def pop(non_block=false)
-    @mutex.synchronize{
-      while true
-        if @que.empty?
-          raise ThreadError, "queue empty" if non_block
-          @waiting.push Thread.current
-          @mutex.sleep
-        else
-          return @que.shift
+    Thread.handle_interrupt(StandardError => :on_blocking) do
+      @mutex.synchronize do
+        while true
+          if @que.empty?
+            if non_block
+              raise ThreadError, "queue empty"
+            else
+              begin
+                @num_waiting += 1
+                @cond.wait @mutex
+              ensure
+                @num_waiting -= 1
+              end
+            end
+          else
+            return @que.shift
+          end
         end
       end
-    }
+    end
   end
 
   #
@@ -234,7 +246,7 @@ class Queue
   # Returns the number of threads waiting on the queue.
   #
   def num_waiting
-    @waiting.size
+    @num_waiting
   end
 end
 
@@ -251,8 +263,8 @@ class SizedQueue < Queue
   def initialize(max)
     raise ArgumentError, "queue size must be positive" unless max > 0
     @max = max
-    @queue_wait = []
-    @queue_wait.taint           # enable tainted comunication
+    @enque_cond = ConditionVariable.new
+    @num_enqueue_waiting = 0
     super()
   end
 
@@ -267,22 +279,16 @@ class SizedQueue < Queue
   # Sets the maximum size of the queue.
   #
   def max=(max)
-    diff = nil
-    @mutex.synchronize {
+    raise ArgumentError, "queue size must be positive" unless max > 0
+
+    @mutex.synchronize do
       if max <= @max
         @max = max
       else
         diff = max - @max
         @max = max
-      end
-    }
-    if diff
-      diff.times do
-        begin
-          t = @queue_wait.shift
-          t.run if t
-        rescue ThreadError
-          retry
+        diff.times do
+          @enque_cond.signal
         end
       end
     end
@@ -294,21 +300,22 @@ class SizedQueue < Queue
   # until space becomes available.
   #
   def push(obj)
-    @mutex.synchronize{
-      while true
-        break if @que.length < @max
-        @queue_wait.push Thread.current
-        @mutex.sleep
-      end
+    Thread.handle_interrupt(RuntimeError => :on_blocking) do
+      @mutex.synchronize do
+        while true
+          break if @que.length < @max
+          @num_enqueue_waiting += 1
+          begin
+            @enque_cond.wait @mutex
+          ensure
+            @num_enqueue_waiting -= 1
+          end
+        end
 
-      @que.push obj
-      begin
-        t = @waiting.shift
-        t.wakeup if t
-      rescue ThreadError
-        retry
+        @que.push obj
+        @cond.signal
       end
-    }
+    end
   end
 
   #
@@ -326,16 +333,11 @@ class SizedQueue < Queue
   #
   def pop(*args)
     retval = super
-    @mutex.synchronize {
+    @mutex.synchronize do
       if @que.length < @max
-        begin
-          t = @queue_wait.shift
-          t.wakeup if t
-        rescue ThreadError
-          retry
-        end
+        @enque_cond.signal
       end
-    }
+    end
     retval
   end
 
@@ -353,7 +355,7 @@ class SizedQueue < Queue
   # Returns the number of threads waiting on the queue.
   #
   def num_waiting
-    @waiting.size + @queue_wait.size
+    @num_waiting + @num_enqueue_waiting
   end
 end
 

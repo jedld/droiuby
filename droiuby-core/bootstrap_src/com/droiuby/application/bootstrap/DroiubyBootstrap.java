@@ -21,6 +21,7 @@ public class DroiubyBootstrap {
 	public static final String SECONDARY_DEX_NAME = "droiuby-core.jar";
 	public static final String JRUBY_DEX_NAME = "jruby.jar";
 	public static final String JRUBY_DEPS = "jruby-dependencies.jar";
+	public static final String JRUBY_EXT = "jruby-ext.jar";
 	public static final int BUF_SIZE = 8 * 1024;
 	public static Class<?> libProviderClazz;
 	public static ClassLoader classLoader;
@@ -81,7 +82,7 @@ public class DroiubyBootstrap {
 	
 	public static LibraryBootstrapTask bootstrapEnvironment(Activity context, int progressUpdateViewId,
 			OnEnvironmentReady listener) {
-		String dexnames[] = { JRUBY_DEPS, JRUBY_DEX_NAME, SECONDARY_DEX_NAME };
+		String dexnames[] = { JRUBY_DEPS, JRUBY_DEX_NAME, JRUBY_EXT, SECONDARY_DEX_NAME };
 		LibraryBootstrapTask library = new LibraryBootstrapTask(context,
 				dexnames, progressUpdateViewId, listener);
 		return library;

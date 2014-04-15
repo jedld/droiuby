@@ -121,6 +121,7 @@ public class ActivityBuilder {
 	public static final int PARTIAL_REPLACE = 1;
 	public static final int PARTIAL_REPLACE_CHILDREN = 2;
 	public static final int PARTIAL_APPEND_CHILDREN = 3;
+	private static final String TAG = ActivityBuilder.class.getName();
 
 	Activity currentActivity;
 
@@ -1041,7 +1042,7 @@ public class ActivityBuilder {
 
 	public void applyStyle(View view, ArrayList<Object> resultBundle) {
 		long css_start = System.currentTimeMillis();
-
+		if (resultBundle!=null) {
 		for (Object bundle : resultBundle) {
 			if (bundle instanceof CssRules) {
 				CssRules rules = (CssRules) bundle;
@@ -1052,6 +1053,9 @@ public class ActivityBuilder {
 
 		Log.d(this.getClass().toString(), "apply css: elapsed time = "
 				+ elapsed + "ms");
+		} else {
+			Log.d(TAG, "No CSS specified");
+		}
 	}
 
 	public void applyProperties(View view) {

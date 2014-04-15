@@ -122,7 +122,7 @@ raise "Please, use ruby 1.9.0 or later." if RUBY_VERSION < "1.9.0"
 #
 # The simplest way to send output to the HTTP client is using the #out() method.
 # This takes the HTTP headers as a hash parameter, and the body content
-# via a block.  The headers can be generated as a string using the #header()
+# via a block.  The headers can be generated as a string using the #http_header()
 # method.  The output stream can be written directly to using the #print()
 # method.
 #
@@ -143,6 +143,11 @@ raise "Please, use ruby 1.9.0 or later." if RUBY_VERSION < "1.9.0"
 # take particular attributes where the attributes can be directly specified
 # as arguments, rather than via a hash.
 #
+# === Utility HTML escape and other methods like a function.
+#
+# There are some utility tool defined in cgi/util.rb .
+# And when include, you can use utility methods like a function.
+#
 # == Examples of use
 #
 # === Get form values
@@ -159,7 +164,7 @@ raise "Please, use ruby 1.9.0 or later." if RUBY_VERSION < "1.9.0"
 #   cgi.include?('field_name')
 #
 # CAUTION! cgi['field_name'] returned an Array with the old
-# cgi.rb(included in ruby 1.6)
+# cgi.rb(included in Ruby 1.6)
 #
 # === Get form values as hash
 #
@@ -234,22 +239,26 @@ raise "Please, use ruby 1.9.0 or later." if RUBY_VERSION < "1.9.0"
 # === Print http header and html string to $DEFAULT_OUTPUT ($>)
 #
 #   require "cgi"
-#   cgi = CGI.new("html3")  # add HTML generation methods
-#   cgi.out() do
-#     cgi.html() do
-#       cgi.head{ cgi.title{"TITLE"} } +
-#       cgi.body() do
-#         cgi.form() do
-#           cgi.textarea("get_text") +
-#           cgi.br +
-#           cgi.submit
+#   cgi = CGI.new("html4")  # add HTML generation methods
+#   cgi.out do
+#     cgi.html do
+#       cgi.head do
+#         cgi.title { "TITLE" }
+#       end +
+#       cgi.body do
+#         cgi.form("ACTION" => "uri") do
+#           cgi.p do
+#             cgi.textarea("get_text") +
+#             cgi.br +
+#             cgi.submit
+#           end
 #         end +
-#         cgi.pre() do
+#         cgi.pre do
 #           CGI::escapeHTML(
-#             "params: " + cgi.params.inspect + "\n" +
-#             "cookies: " + cgi.cookies.inspect + "\n" +
-#             ENV.collect() do |key, value|
-#               key + " --> " + value + "\n"
+#             "params: #{cgi.params.inspect}\n" +
+#             "cookies: #{cgi.cookies.inspect}\n" +
+#             ENV.collect do |key, value|
+#               "#{key} --> #{value}\n"
 #             end.join("")
 #           )
 #         end
@@ -262,10 +271,27 @@ raise "Please, use ruby 1.9.0 or later." if RUBY_VERSION < "1.9.0"
 #   CGI.new("html4")    # html4.01 (Strict)
 #   CGI.new("html4Tr")  # html4.01 Transitional
 #   CGI.new("html4Fr")  # html4.01 Frameset
+#   CGI.new("html5")    # html5
+#
+# === Some utility methods
+#
+#   require 'cgi/util'
+#   CGI.escapeHTML('Usage: foo "bar" <baz>')
+#
+#
+# === Some utility methods like a function
+#
+#   require 'cgi/util'
+#   include CGI::Util
+#   escapeHTML('Usage: foo "bar" <baz>')
+#   h('Usage: foo "bar" <baz>') # alias
+#
 #
 
 class CGI
 end
 
+require 'cgi/core'
+require 'cgi/cookie'
 require 'cgi/util'
-
+CGI.autoload(:HtmlExtension, 'cgi/html')
