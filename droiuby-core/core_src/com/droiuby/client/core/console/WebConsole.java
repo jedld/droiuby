@@ -34,6 +34,7 @@ import com.droiuby.launcher.WebConsoleInterface;
 
 public class WebConsole extends NanoHTTPD implements WebConsoleInterface  {
 
+	private static final String TAG = WebConsole.class.getName();
 	WeakReference<ExecutionBundleInterface> bundleRef;
 	public static WebConsole instance;
 	WeakReference<Activity> activity;
@@ -156,6 +157,20 @@ public class WebConsole extends NanoHTTPD implements WebConsoleInterface  {
 		Log.d(this.getClass().toString(), "HTTP request received. uri = " + uri);
 
 		Response response;
+		if (method.equalsIgnoreCase("POST") && uri.startsWith("/upload_file")) {
+			String content = params.getProperty("content");
+			ExecutionBundle bundle = (ExecutionBundle) getBundle();
+			if (bundle!=null) {
+				ScriptingContainer container = bundle.getContainer();
+				container.put("$file_contents", content);
+				Log.d(TAG, "file content " + content + "set");
+				return new Response(NanoHTTPD.HTTP_OK, "application/json",
+					"{\"status\": \"OK\"}");
+			} else {
+				return new Response(NanoHTTPD.HTTP_INTERNALERROR, "text/html",
+						"no Activity attached.");
+			}
+		} else
 		if (method.equalsIgnoreCase("POST") && uri.startsWith("/upload")) {
 			String name = params.getProperty("name", null);
 
