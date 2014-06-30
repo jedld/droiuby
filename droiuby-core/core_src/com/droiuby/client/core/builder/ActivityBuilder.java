@@ -1186,4 +1186,35 @@ public class ActivityBuilder {
 
 		}
 	}
+
+	private void recursiveTraverse(ViewGroup parent) {
+		for(int i =0; i < parent.getChildCount(); i++) {
+			View view = parent.getChildAt(i);
+			ViewExtras extras = new ViewExtras();
+			
+			ViewBuilder builder = getBuilderForView(view);
+			builder.setContext(currentActivity);
+			builder.setBuilder(this);
+			builder.setParams(view, null);
+			
+			if (builder!=null) {
+				extras.setBuilder((Class<ViewBuilder>) builder.getClass());
+			}
+			view.setTag(extras);
+			if (view instanceof ViewGroup) {
+				recursiveTraverse((ViewGroup) view);
+			}
+		}
+	}
+	
+	private ViewBuilder getBuilderForView(View view) {
+		
+		if (view instanceof ViewGroup) return new ViewGroupBuilder();
+		return new ViewBuilder();
+	}
+
+	public void traverse() {
+		ViewGroup rootView = (ViewGroup)this.getRootView();
+		recursiveTraverse(rootView);
+	}
 }

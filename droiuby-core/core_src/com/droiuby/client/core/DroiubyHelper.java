@@ -42,13 +42,20 @@ public class DroiubyHelper implements OnDownloadCompleteListener,
 	Activity activity;
 	IRubyObject backingObject;
 	Ruby runtime;
+	
+	static DroiubyHelper lastInstance; 
 
 	protected HashSet<String> methodCache = new HashSet<String>();
 
 	public DroiubyHelper() {
 		Log.d(this.getClass().toString(), "new instance...");
+		this.lastInstance = this;
 	}
 
+	public static DroiubyHelper getInstance() {
+		return lastInstance;
+	}
+	
 	/**
 	 * @return the activity
 	 */
@@ -364,5 +371,13 @@ public class DroiubyHelper implements OnDownloadCompleteListener,
 							.getCurrentContext(), "methods",
 					new IRubyObject[] {}));
 		}
+	}
+	
+	public void createBuilderForActivity(Activity activity, String bundleName) {
+		ActivityBuilder builder = new ActivityBuilder(null, activity, "");
+		builder.traverse();
+		this.executionBundle = ExecutionBundleFactory.getBundle(bundleName);
+		this.executionBundle.getPayload().setActivityBuilder(builder);
+		this.executionBundle.setCurrentActivity(activity);
 	}
 }

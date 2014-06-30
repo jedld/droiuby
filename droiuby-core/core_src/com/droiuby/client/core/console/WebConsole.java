@@ -154,7 +154,7 @@ public class WebConsole extends NanoHTTPD implements WebConsoleInterface  {
 	@Override
 	public Response serve(String uri, String method, Properties header,
 			Properties params, Properties files) {
-		Log.d(this.getClass().toString(), "HTTP request received. uri = " + uri);
+		Log.d(this.getClass().toString(), "HTTP request received. uri  = " + uri);
 
 		Response response;
 		if (method.equalsIgnoreCase("POST") && uri.startsWith("/upload_file")) {

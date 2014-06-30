@@ -61,5 +61,8 @@ public interface DroiubyHelperInterface {
 	public void runController(Activity activity, String bundleName, String pageUrl);
 	
 	public DroiubyHelperInterface setExecutionBundle(Activity activity, String bundleName);
+	
+	public void createBuilderForActivity(Activity activity, String bundleName);
+	
 
 }
